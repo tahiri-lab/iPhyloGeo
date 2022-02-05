@@ -1,8 +1,7 @@
 import dash
-from dash_bootstrap_components._components.Row import Row
-import dash_core_components as dcc
-import dash_html_components as html
 import dash_bootstrap_components as dbc
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output, State
 import plotly.express as px
 import pandas as pd
@@ -55,7 +54,7 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
-    ], no_gutters=True, justify='around'),  # Horizontal:start,center,end,between,around 
+    ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around 
 
     # The second row
      dbc.Row([
@@ -99,7 +98,7 @@ layout = dbc.Container([
             ], #width={'size':5, 'offset':0, 'order':2},
             xs=12, sm=12, md=12, lg=5, xl=5
             ),
-    ], no_gutters=True, justify='around'),  # Horizontal:start,center,end,between,around
+    ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around
     
     # for sliding window size & step size 
     dbc.Row([
@@ -128,7 +127,7 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=5, xl=5
         ),
-    ], no_gutters=True, justify='around'),  # Horizontal:start,center,end,between,around 
+    ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around 
 
     # select the files of reference tree
     dbc.Row([
@@ -142,7 +141,7 @@ layout = dbc.Container([
             ],# width={'size':3, 'offset':1, 'order':1},
             xs=12, sm=12, md=12, lg=10, xl=10
             ),
-        ], no_gutters=True, justify='around'),
+        ], className="g-0", justify='around'),
 
     dbc.Row([
         dbc.Col([
@@ -153,7 +152,7 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
-    ], no_gutters=True, justify='around'),  # Horizontal:start,center,end,between,around 
+    ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around 
     
     #submit button
     dbc.Row([
@@ -165,7 +164,7 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
-    ], no_gutters=True, justify='around'),
+    ], className="g-0", justify='around'),
 
     # for output of pipeline
     dbc.Row([
@@ -174,14 +173,14 @@ layout = dbc.Container([
                 html.Div(id='interval_container'),
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
   
     dbc.Row([
             dbc.Col([
                 html.Div(id='output-container'),
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
    
     
 ], fluid=True)

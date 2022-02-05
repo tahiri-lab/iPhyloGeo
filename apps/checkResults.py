@@ -1,17 +1,17 @@
 import dash
-import dash_core_components as dcc
-from dash_core_components.Graph import Graph
-import dash_html_components as html
-from dash.dependencies import Input, Output,State
 import dash_bootstrap_components as dbc
+from dash import dcc
+from dash import html
+#from dash_core_components.Graph import Graph
+from dash.dependencies import Input, Output,State
 import dash_bio as dashbio
-from dash_html_components.Br import Br
-from dash_html_components.Div import Div
-from dash_html_components.Hr import Hr
+#from dash_html_components.Br import Br
+#from dash_html_components.Div import Div
+#from dash_html_components.Hr import Hr
 import plotly.express as px
 import pandas as pd
 import pathlib
-import dash_table
+from dash import dash_table
 from dash.exceptions import PreventUpdate
 import os
 from Bio import AlignIO, SeqIO, Phylo
@@ -80,7 +80,7 @@ layout = dbc.Container([
                 
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
     dbc.Row([
              dbc.Col([
@@ -110,7 +110,7 @@ layout = dbc.Container([
              ],xs=3, sm=3, md=3, lg=3, xl=3),
 
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
     # For Graph
     dbc.Row([
@@ -119,7 +119,7 @@ layout = dbc.Container([
                 html.Div(id='graph-container1'),
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
     # For tree
     dbc.Row([
@@ -129,7 +129,7 @@ layout = dbc.Container([
                 html.Div(id='trees-container1'),
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
     # For alignment chart
     dbc.Row([
@@ -139,7 +139,7 @@ layout = dbc.Container([
                 html.Div(id='alignment-select1'),
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
     dbc.Row([
              dbc.Col([
@@ -148,7 +148,7 @@ layout = dbc.Container([
 
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
 
 

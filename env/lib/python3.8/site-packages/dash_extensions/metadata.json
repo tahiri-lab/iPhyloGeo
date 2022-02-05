@@ -1,0 +1,1244 @@
+{
+  "src/lib/components/BeforeAfter.react.js": {
+    "description": "A light wrapper of BeforeAfterSlider.",
+    "displayName": "BeforeAfter",
+    "methods": [],
+    "props": {
+      "before": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "after": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "width": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "height": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "defaultProgress": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "beforeClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "afterClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "beforeProps": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "afterProps": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The children of this component"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the component"
+      }
+    }
+  },
+  "src/lib/components/Burger.react.js": {
+    "description": "",
+    "displayName": "Burger",
+    "methods": [],
+    "props": {
+      "width": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "\"300px\"",
+          "computed": false
+        }
+      },
+      "height": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "\"100%\"",
+          "computed": false
+        }
+      },
+      "effect": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "\"slide\"",
+              "computed": false
+            },
+            {
+              "value": "\"stack\"",
+              "computed": false
+            },
+            {
+              "value": "\"elastic\"",
+              "computed": false
+            },
+            {
+              "value": "\"bubble\"",
+              "computed": false
+            },
+            {
+              "value": "\"push\"",
+              "computed": false
+            },
+            {
+              "value": "\"pushRotate\"",
+              "computed": false
+            },
+            {
+              "value": "\"scaleDown\"",
+              "computed": false
+            },
+            {
+              "value": "\"scaleRotate\"",
+              "computed": false
+            },
+            {
+              "value": "\"fallDown\"",
+              "computed": false
+            },
+            {
+              "value": "\"reveal\"",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "\"slide\"",
+          "computed": false
+        }
+      },
+      "pageWrapId": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "outerContainerId": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "right": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "disableCloseOnEsc": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "noOverlay": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "disableOverlayClick": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "noTransition": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "customBurgerIcon": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "customCrossIcon": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "disableAutoFocus": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "isOpen": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The children of this component"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the component"
+      }
+    }
+  },
+  "src/lib/components/DeferScript.react.js": {
+    "description": "Used to delay import of js resources until after React had been loaded. Typically used to apply js to dynamic\ncontent. Based on https://github.com/Grasia/grasia-dash-components/blob/master/src/components/Import.react.js",
+    "displayName": "DeferScript",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "src": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Local or external source of the javascript to import"
+      }
+    }
+  },
+  "src/lib/components/Download.react.js": {
+    "description": "The Download component opens a download dialog when the data property (dict of filename, content, and type) changes.",
+    "displayName": "Download",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "data": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "filename": {
+              "name": "string",
+              "required": true
+            },
+            "content": {
+              "name": "any",
+              "required": true
+            },
+            "base64": {
+              "name": "bool",
+              "required": false
+            },
+            "mime_type": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "When set, a download is invoked using a Blob."
+      },
+      "base64": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Default value for base64.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "mime_type": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Default value for mime_type.",
+        "defaultValue": {
+          "value": "\"text/plain\"",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      }
+    }
+  },
+  "src/lib/components/EventListener.react.js": {
+    "description": "The EventListener component listens for events from the document object or children if provided.",
+    "displayName": "EventListener",
+    "methods": [
+      {
+        "name": "getSources",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "eventHandler",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "e",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "events": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "event": {
+                "name": "string",
+                "required": false
+              },
+              "props": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "string"
+                },
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "The event entry specifies which event to listen to, e.g. \"click\" for click events. The \"props\" entry specifies\n     what event properties to record, e.g. [\"x\", \"y\"] to get the cursor position.",
+        "defaultValue": {
+          "value": "[{\"event\": \"keydown\", \"props\": [\"key\", \"altKey\", \"ctrlKey\", \"shiftKey\",\"metaKey\", \"repeat\"]}]",
+          "computed": false
+        }
+      },
+      "logging": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, event information is logged to the javascript console. Useful if you can't remember events props.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The children of this component. If any children are provided, the component will listen for events from these\n     components. If no children are specified, the component will listen for events from the document object."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The CSS style of the component."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A custom class name."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      },
+      "event": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The latest event fired.",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "n_events": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The number of events fired.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      }
+    }
+  },
+  "src/lib/components/EventSource.react.js": {
+    "description": "An interface to server sent events in Dash",
+    "displayName": "DashEventSource",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "close": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Close event source"
+      },
+      "error": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Error"
+      },
+      "message": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Received message"
+      },
+      "readyState": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "A number representing the state of the connection. Possible values are CONNECTING (0), OPEN (1), or CLOSED (2)."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      },
+      "withCredentials": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "A boolean value indicating whether the EventSource object was instantiated with cross-origin (CORS) credentials set (true), or not (false, the default)."
+      },
+      "url": {
+        "type": {
+          "name": "string"
+        },
+        "required": true,
+        "description": "A DOMString representing the URL of the source."
+      }
+    }
+  },
+  "src/lib/components/Keyboard.react.js": {
+    "description": "The Keyboard component listens for keyboard events.",
+    "displayName": "Keyboard",
+    "methods": [
+      {
+        "name": "keydownHandler",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "event",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "keyupHandler",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "event",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "eventProps": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "The event properties to forward to dash, see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.",
+        "defaultValue": {
+          "value": "[\"key\", \"altKey\", \"ctrlKey\", \"shiftKey\",\"metaKey\", \"repeat\"]",
+          "computed": false
+        }
+      },
+      "captureKeys": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "The keys to capture. Defaults to all keys."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      },
+      "keydown": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "keydown (dict) the object that holds the result of the key down event. It is a dictionary with the following keys:\n     \"key\", \"altKey\", \"ctrlKey\", \"shiftKey\",\"metaKey\", \"repeat\". Those keys have the following values:\n\n   - key (str) which key is pressed\n   - altKey (bool) whether the Alt key is pressed\n   - ctrlKey (bool) Ctrl key is pressed\n   - shiftKey (bool) Shift key is pressed\n   - metaKey (bool) Meta key is pressed (Mac: Command key or PC: Windows key)\n   - repeat (bool) whether the key is held down"
+      },
+      "keyup": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "keyup (dict) the object that holds the result of the key up event. Structure like keydown."
+      },
+      "keys_pressed": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "keys_pressed (dict) is a dict of objects like keydown for all keys currently pressed.",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "n_keydowns": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "A counter, which is incremented on each key down event, similar to n_clicks for buttons.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "n_keyups": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "A counter, which is incremented on each key up event, similar to n_clicks for buttons.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      }
+    }
+  },
+  "src/lib/components/Lottie.react.js": {
+    "description": "",
+    "displayName": "Lottie",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The children of this component"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the component"
+      },
+      "options": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Options passed to the Lottie animation (see https://www.npmjs.com/package/react-lottie for details)"
+      },
+      "url": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "If set, data will be downloaded from this url."
+      },
+      "width": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Pixel value for containers width."
+      },
+      "height": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Pixel value for containers height."
+      },
+      "isStopped": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "isPaused": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "speed": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "segments": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": ""
+      },
+      "direction": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "ariaRole": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "ariaLabel": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "isClickToPauseDisabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "title": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "style": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/lib/components/Mermaid.react.js": {
+    "description": "",
+    "displayName": "Mermaid",
+    "methods": [],
+    "props": {
+      "chart": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The mermaid code of your chart. Check Mermaid js documentation for details"
+      },
+      "name": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "On optional name of your mermaid diagram/flowchart/gantt etc.",
+        "defaultValue": {
+          "value": "makeId(5)",
+          "computed": true
+        }
+      },
+      "config": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "On optional object with one of several Mermaid config parameters. Check Mermaid js documentation for details"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the component"
+      }
+    }
+  },
+  "src/lib/components/Monitor.react.js": {
+    "description": "The Sync component makes it possible to synchronize states between components.",
+    "displayName": "Monitor",
+    "methods": [
+      {
+        "name": "_loop_children_recursively",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "children",
+            "type": null
+          },
+          {
+            "name": "apply",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "_loop_children_recursively_inner",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "child",
+            "type": null
+          },
+          {
+            "name": "apply",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "_monitor",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "key",
+            "type": null
+          },
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "probes": {
+        "type": {
+          "name": "objectOf",
+          "value": {
+            "name": "arrayOf",
+            "value": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "arrayOf",
+                  "value": {
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "id": {
+                      "name": "union",
+                      "value": [
+                        {
+                          "name": "string"
+                        },
+                        {
+                          "name": "object"
+                        }
+                      ],
+                      "required": false
+                    },
+                    "prop": {
+                      "name": "any",
+                      "required": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "required": false,
+        "description": "List of probes. Each link is a list of dicts that specify which properties each probe records."
+      },
+      "data": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      },
+      "children": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "node"
+          }
+        },
+        "required": false,
+        "description": "The children of this component. Must be a list of components with length > 1."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The CSS style of the component."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A custom class name."
+      }
+    }
+  },
+  "src/lib/components/Purify.react.js": {
+    "description": "The Html component makes it possible to render html sanitized via DOMPurify.",
+    "displayName": "Purify",
+    "methods": [],
+    "props": {
+      "html": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Html string"
+      },
+      "config": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Configuration (optional) of DOMPurify, see the docs https://github.com/cure53/DOMPurify"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the component"
+      }
+    }
+  },
+  "src/lib/components/Ticker.react.js": {
+    "description": "A light wrapper of ReactTicker.",
+    "displayName": "Ticker",
+    "methods": [],
+    "props": {
+      "direction": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "\"toRight\"",
+              "computed": false
+            },
+            {
+              "value": "\"toLeft\"",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "mode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "\"chain\"",
+              "computed": false
+            },
+            {
+              "value": "\"await\"",
+              "computed": false
+            },
+            {
+              "value": "\"smooth\"",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "move": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "offset": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "number"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "speed": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "height": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "number"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The children of this component"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the component"
+      }
+    }
+  },
+  "src/lib/components/WebSocket.react.js": {
+    "description": "A simple interface to",
+    "displayName": "DashWebSocket",
+    "methods": [
+      {
+        "name": "_init_client",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      }
+    ],
+    "props": {
+      "state": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "object"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": "This websocket state (in the readyState prop) and associated information.",
+        "defaultValue": {
+          "value": "{readyState: WebSocket.CONNECTING}",
+          "computed": false
+        }
+      },
+      "message": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "object"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": "When messages are received, this property is updated with the message content."
+      },
+      "error": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "object"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": "This property is set with the content of the onerror event."
+      },
+      "send": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "object"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": "When this property is set, a message is sent with its content."
+      },
+      "url": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The websocket endpoint (e.g. wss://echo.websocket.org)."
+      },
+      "protocols": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "Supported websocket protocols (optional)."
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called to report property changes\nto Dash, to make them available for callbacks."
+      }
+    }
+  }
+}

@@ -1,16 +1,18 @@
 import dash
-import dash_core_components as dcc
-from dash_core_components.Graph import Graph
-import dash_html_components as html
+from dash import dcc
+#import dash_core_components as dcc
+#from dash_core_components.Graph import Graph
+from dash import html
+#import dash_html_components as html
 from dash.dependencies import Input, Output,State
 import dash_bootstrap_components as dbc
-from dash_html_components.Br import Br
-from dash_html_components.Hr import Hr
+#from dash_html_components.Br import Br
+#from dash_html_components.Hr import Hr
 import plotly.express as px
 import pandas as pd
 import pathlib
 from app import app
-import dash_table
+from dash import dash_table
 from dash.exceptions import PreventUpdate
 
 import base64
@@ -74,7 +76,7 @@ layout = dbc.Container([
 
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
         dbc.Row([
              dbc.Col([
@@ -87,7 +89,7 @@ layout = dbc.Container([
 
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
          
 
@@ -101,7 +103,7 @@ layout = dbc.Container([
 
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],className="g-0", justify='around'),
 
         # running tree.py and get newick files
         html.Hr(),
@@ -110,21 +112,21 @@ layout = dbc.Container([
                     html.Div(id='newick-files-container2_1'),
                 ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-            ],no_gutters=True, justify='around'),
+            ],className="g-0", justify='around'),
 
         dbc.Row([
                 dbc.Col([
                     html.Div(id='newick-files-container3_1'),
                 ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-            ],no_gutters=True, justify='around'),
+            ],className="g-0", justify='around'),
 
         dbc.Row([
                 dbc.Col([
                     html.Div(id='newick-files-container4_1'),
                 ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-            ],no_gutters=True, justify='around'),
+            ],className="g-0", justify='around'),
 
         
     

@@ -1,8 +1,10 @@
-from importlib.abc import Traversable
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output
+# from importlib.abc import Traversable
+import dash
 import dash_bootstrap_components as dbc
+from dash import dcc
+from dash import html
+from dash import Input, Output
+#from dash import dash_bootstrap_components as dbc
 import tree
 import pipeline
 
@@ -11,7 +13,14 @@ from app import app
 from app import server
 
 # Connect to your app pages
-from apps import pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset
+from apps import *
+from apps import homePage
+from apps import pipelineWithOurData
+from apps import pipelineWithUploadedData
+from apps import upload_MeteorologicalDataset
+from apps import checkResults
+from apps import usingOurMeteorologicalDataset
+# pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset
 
 
 

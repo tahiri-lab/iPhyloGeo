@@ -1,7 +1,6 @@
 import subprocess
 import os
 import re
-import pandas as pd
 from csv import writer
 import shutil
 

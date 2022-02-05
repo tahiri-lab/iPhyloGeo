@@ -1,6 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
-import pandas as pd
+from dash import Dash
+#import dash_bootstrap_components as dbc
 
 FONT_AWESOME = (
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
