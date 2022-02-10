@@ -195,7 +195,7 @@ def parse_contents(contents, filename, date):
                                 html.H4("select the name of the column to analyze"),
                                 html.P('The values of the column must be numeric for the program to work properly.'),
                                 dcc.Checklist(id = 'col-analyze',
-                                            options =[{'label': x, 'value': x} for x in df.columns],
+                                            options =[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
                                             labelStyle={'display': 'inline-block','marginRight':'20px'}
                                         ),
                                 html.Br(),
