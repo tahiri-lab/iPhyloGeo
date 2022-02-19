@@ -9,8 +9,8 @@ import shutil
 '''
 bootstrap_threshold = 0
 rf_threshold = 100
-window_size = 5000
-step_size = 100 
+window_size = 200
+step_size = 50 
 data_names = ["Précipitation_totale_sur_le_mois_mm_newick",
               "T_max_à_2m_C_newick"]
 reference_gene_file = 'output/reference_gene.fasta'
