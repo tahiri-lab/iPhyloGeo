@@ -65,8 +65,8 @@ def createPhylogeneticTree(reference_gene_file, window_size, step_size, bootstra
     
 #-----------------------------------
 def alignSequences(reference_gene_file):
-    #subprocess.call(["./exec/muscle", "-align", reference_gene_file, "-output", "infile", "-maxiters", "1", "-diags"])
-    subprocess.call(["./exec/muscle", "-align", reference_gene_file, "-output", "infile"])
+    subprocess.call(["./exec/muscle3", "-in", reference_gene_file, "-physout", "infile", "-maxiters", "1", "-diags"])
+    #subprocess.call(["./exec/muscle3", "-align", reference_gene_file, "-output", "infile"])
     #f = open("infile", "r").read()
     f = open("infile", "r").read()
     #print(f.split())
