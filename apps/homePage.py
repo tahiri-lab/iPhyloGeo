@@ -1,7 +1,7 @@
 from typing import Container
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Output, Input, State
 import plotly.express as px
 import dash_bootstrap_components as dbc
@@ -73,7 +73,7 @@ layout = html.Div([
                 html.Div(card2),
             ],xs=12, sm=12, md=12, lg=7, xl=7),
 
-         ],no_gutters=True, justify='around'),
+         ],justify='around'),
          
          ],fluid=True),
     

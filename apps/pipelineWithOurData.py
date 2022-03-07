@@ -1,10 +1,11 @@
 import dash
-from dash_bootstrap_components._components.Row import Row
-import dash_core_components as dcc
-import dash_html_components as html
 import dash_bootstrap_components as dbc
+from dash_bootstrap_components._components.Row import Row
+from dash import dcc
+from dash import html
+
 from dash.dependencies import Input, Output, State
-from dash_html_components.Br import Br
+
 import plotly.express as px
 import pandas as pd
 import pathlib
@@ -77,7 +78,7 @@ layout = dbc.Container([
             ], #width={'size':5, 'offset':0, 'order':2},
             xs=12, sm=12, md=12, lg=5, xl=5
             ),
-    ], no_gutters=True, justify='around'),  # Horizontal:start,center,end,between,around
+    ],justify='around'),  # Horizontal:start,center,end,between,around
     
     
     # for sliding window siza & step size 
@@ -107,7 +108,7 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=5, xl=5
         ),
-    ], no_gutters=True, justify='around'),  # Horizontal:start,center,end,between,around 
+    ], justify='around'),  # Horizontal:start,center,end,between,around
 
 # select the files of reference tree
     dbc.Row([
@@ -121,7 +122,7 @@ layout = dbc.Container([
             ],# width={'size':3, 'offset':1, 'order':1},
             xs=12, sm=12, md=12, lg=10, xl=10
             ),
-        ], no_gutters=True, justify='around'),
+        ], justify='around'),
 
     #submit button
     dbc.Row([
@@ -133,7 +134,7 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
-    ], no_gutters=True, justify='around'),
+    ], justify='around'),
 
     # for output of pipeline
     dbc.Row([
@@ -142,14 +143,14 @@ layout = dbc.Container([
                 html.Div(id='interval_container1'),
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],justify='around'),
   
     dbc.Row([
             dbc.Col([
                 html.Div(id='output-container1'),
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-         ],no_gutters=True, justify='around'),
+         ],justify='around'),
        
 
 

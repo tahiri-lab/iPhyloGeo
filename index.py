@@ -1,19 +1,12 @@
-from importlib.abc import Traversable
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
-import tree
-import pipeline
+from dash import dcc
+from dash import html
+from dash.dependencies import Input, Output
 
 # Connect to main app.py file
 from app import app
-from app import server
-
 # Connect to your app pages
 from apps import pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset
-
-
 
 # styling the sidebar
 SIDEBAR_STYLE = {
