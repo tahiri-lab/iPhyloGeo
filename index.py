@@ -1,7 +1,9 @@
 import dash_bootstrap_components as dbc
+
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
+
 
 # Connect to main app.py file
 from app import app
