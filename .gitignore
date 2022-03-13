@@ -4,3 +4,4 @@ outtree
 output.csv
 .idea/
 venv/
+.DS_Store
