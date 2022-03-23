@@ -35,7 +35,7 @@ dfg.set_index('id', inplace=True, drop=False)
     # Using Data Table from our database
     # Sorting operators (https://dash.plotly.com/datatable/filtering)
 layout = dbc.Container([
-    html.H1('Phylogeography', style={"textAlign": "center"}),  #title
+    html.H1('Sample Climatic Dataset', style={"textAlign": "center"}),  #title
     dbc.Row([
             dbc.Col([
                 html.Div([
@@ -179,7 +179,7 @@ def parse_contents_fromInteractiveDT(all_rows_data):
         html.Br(),
         # parameters for creating phylogeography trees
         html.H2('Create Phylogeography Trees', style={"textAlign": "center"}),  #title
-        html.H4("Inset the name of the column containing the sequence ID"),
+        html.H4("Insert the name of the column containing the sequence ID"),
         dcc.Dropdown(id='col-specimens', options=[{'label':x, 'value':x} for x in dff.columns]),
         html.H4("select the name of the column to analyze"),
         dcc.Markdown('The values of the column **must be numeric** for the program to work properly.'),

@@ -28,7 +28,7 @@ import tree
 # For uploaded dataset
 
 layout = dbc.Container([
-    html.H1('Phylogeography', style={"textAlign": "center"}),  #title
+    html.H1('Climatic Dataset', style={"textAlign": "center"}),  #title
     dbc.Row([
         dbc.Col([
             dcc.Upload(
