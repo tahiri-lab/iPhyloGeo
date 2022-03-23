@@ -20,15 +20,15 @@ Mac OS(main), Linux, or Windows.
 de l'une des commandes suivantes.
 * Pour les utilisateurs Macbooks(MacOSX) (la branche principal dans notre cas) utilisez cette commande :
 ```
-git clone -b "main" git@github.com:tahiri-lab/iPhylogeo.git
+git clone -b "main" https://github.com/tahiri-lab/iPhylogeo
 ```
 * Pour les utilisateurs Windows, utilisez cette commande:
 ```
-git clone -b "Windows" git@github.com:tahiri-lab/iPhylogeo.git
+git clone -b "Windows" https://github.com/tahiri-lab/iPhylogeo
 ```
 * Pour les utilisateurs Linux, utilisez cette commande:
 ```
-git clone -b "Linux" git@github.com:tahiri-lab/iPhylogeo.git
+git clone -b "Linux" https://github.com/tahiri-lab/iPhylogeo
 ```
 
 Pour télécharger le projet, il suffit d'entrée la commande dans un terminal dans le fichier voulu.
