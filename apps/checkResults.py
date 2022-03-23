@@ -5,6 +5,7 @@ from dash import html
 #from dash_core_components.Graph import Graph
 from dash.dependencies import Input, Output,State
 import dash_bio as dashbio
+from more_itertools import last
 #from dash_html_components.Br import Br
 #from dash_html_components.Div import Div
 #from dash_html_components.Hr import Hr
@@ -22,7 +23,7 @@ from app import app
 
 # get relative data folder
 '''
-def getOutputCSV(fileName = "output.csv"):
+def getOutputCSV(fileName = path):
     PATH = pathlib.Path(__file__).parent
     DATA_PATH = PATH.joinpath("../").resolve()
     if os.path.exists(DATA_PATH.joinpath(fileName)):
@@ -32,16 +33,19 @@ def getOutputCSV(fileName = "output.csv"):
 output_df = getOutputCSV()
 '''
 
+path = "output.csv"
+lastmt = os.stat(path).st_mtime
+#print(lastmt)
+output_df = pd.read_csv(path)
 
-output_df = pd.read_csv("output.csv")
-
-table_interact = dash_table.DataTable(
+def output_table(data):
+    table_interact = dash_table.DataTable(
                             id='datatable-interactivity1',
                             columns=[
                                 {"name": i, "id": i, "deletable": False, "selectable": True, "hideable": False}
                                 for i in output_df.columns
                             ],
-                            data=output_df.to_dict('records'),  # the contents of the table
+                            data=data.to_dict('records'),  # the contents of the table
                             editable=False,              # allow editing of data inside all cells
                             filter_action="native",     # allow filtering of data by user ('native') or not ('none')
                             sort_action="native",       # enables data to be sorted per-column by user or not ('none')
@@ -57,15 +61,23 @@ table_interact = dash_table.DataTable(
                             style_cell={                # ensure adequate header width when text is shorter than cell's text
                                 'minWidth': 95, 'maxWidth': 95, 'width': 95
                             },
-                            style_data={                # overflow cells' content into multiple lines
-                                'whiteSpace': 'normal',
-                                'height': 'auto'
+                            style_data={'color': 'black',
+                                'backgroundColor': 'white'
                             },
+                            style_data_conditional=[
+                                {
+                                    'if': {'row_index': 'odd'},
+                                    'backgroundColor': 'rgb(220, 220, 220)',
+                                }
+                            ],
                             style_header={
-                                'whiteSpace': 'normal',
-                                'height': 'auto'
+                                'backgroundColor': 'rgb(210, 210, 210)',
+                                'color': 'black',
+                                'fontWeight': 'bold'
                             }
                         )
+    return table_interact
+
 
 #---------------------------------------------
 layout = dbc.Container([
@@ -76,7 +88,7 @@ layout = dbc.Container([
                 #html.Button(id="view-button1", children="Update results"),
                 #html.Br(),
                 #html.Br(),
-                html.Div(table_interact,id= "output-csv"),
+                html.Div(output_table(output_df),id= "output-csv"),
                 
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
@@ -149,6 +161,14 @@ layout = dbc.Container([
              ],xs=12, sm=12, md=12, lg=10, xl=10),
 
          ],className="g-0", justify='around'),
+    
+    #For live updates
+    dcc.Interval(
+            id='interval-component',
+            interval=500, # in milliseconds
+            n_intervals=0,
+            max_intervals=100000
+        )
 
 
 
@@ -166,7 +186,7 @@ layout = dbc.Container([
 def func(n_clicks,all_rows_data):
     dff = pd.DataFrame(all_rows_data)
 
-    return dcc.send_data_frame(dff.to_csv, "output.csv")
+    return dcc.send_data_frame(dff.to_csv, path)
 
 #-----------------------------------
 @app.callback(
@@ -175,6 +195,7 @@ def func(n_clicks,all_rows_data):
     State('datatable-interactivity1', "derived_virtual_data"),
     prevent_initial_call=True,
 )
+
 def func(n_clicks,all_rows_data):
     if n_clicks is None:
         return dash.no_update
@@ -210,12 +231,13 @@ def func(n_clicks,all_rows_data):
 # For trees
 @app.callback(
     Output("trees-container1", "children"),
-    Input("trees-button1", "n_clicks"),
+    Input("trees-button1", "n_clicks"), Input("interval-component", "n_intervals"),
     State('datatable-interactivity1', "derived_virtual_data"),
     State('datatable-interactivity1', 'derived_virtual_selected_rows'),
     prevent_initial_call=True,
 )
-def func(n_clicks,all_rows_data,select_rows):
+
+def func(n_clicks,all_rows_data,select_rows,n_intervals):
     if n_clicks is None:
         return dash.no_update
     else:
@@ -225,7 +247,6 @@ def func(n_clicks,all_rows_data,select_rows):
         trees_display = []
         for index, row in df_select.iterrows():
             #if row['Gene'] != 'output/reference_gene.fasta':
-
             gene = row['Gene']
             position_ASM = row['Position ASM']
             tree_phylogeo = row['Arbre phylogeographique']
@@ -259,12 +280,13 @@ def func(n_clicks,all_rows_data,select_rows):
 # select gene
 @app.callback(
     Output("alignment-select1", "children"),
-    Input("alignChart-button1", "n_clicks"),
+    Input("alignChart-button1", "n_clicks"), Input("interval-component", "n_intervals"),
     State('datatable-interactivity1', "derived_virtual_data"),
     State('datatable-interactivity1', 'derived_virtual_selected_rows'),
     prevent_initial_call=True,
 )
-def func(n_clicks,all_rows_data,select_rows):
+
+def func(n_clicks,all_rows_data,select_rows,n_intervals):
     if n_clicks is None:
         return dash.no_update
     else:
@@ -293,7 +315,8 @@ def func(n_clicks,all_rows_data,select_rows):
 #prepare dataset
 @app.callback(
     Output("alignment-container1", "children"),
-    Input('choose-align-gene','value'),)
+    Input('choose-align-gene','value')
+    )
 
 def func(val):
     if val != None:
@@ -321,14 +344,48 @@ def func(val):
                     html.Div(id='alignment-viewer-output')
                 ])
 #create alignment chart
+# @app.callback(
+#     Output('alignment-viewer-output', 'children'),
+#     Input('my-alignment-viewer', 'eventDatum'), Input("interval-component", "n_intervals"),
+# )
+
+
+# def update_output(value,n_intervals):
+#     # if value is None:'datatable-interactivity1'
+#     #     return 'No data.'
+#     # return str(value)
+#     if os.stat(path).st_mtime > lastmt:
+#         print("modified")
+#         lastmt = os.stat(path).st_mtime
+#         return pd.read_csv(path).to_dict('records')
+#     return dash.no_update
+
+
 @app.callback(
-    Output('alignment-viewer-output', 'children'),
-    Input('my-alignment-viewer', 'eventDatum')
+    Output('output-csv', 'children'),
+    Input("interval-component", "n_intervals")
 )
-def update_output(value):
-    if value is None:
-        return 'No data.'
-    return str(value)
+def update_output(n_intervals):
+    global lastmt
+    global output_df
+    #output_df = pd.read_csv(path)
+    #print(output_df)
+    #print("modified")
+    if os.stat(path).st_mtime > lastmt:
+        output_df = pd.read_csv(path)
+        print("File modified")
+        lastmt = os.stat(path).st_mtime
+    return output_table(output_df)
+    # if value is None:'datatable-interactivity1'
+    #     return 'No data.'
+    # return str(value)
+    # if os.stat(path).st_mtime > lastmt:
+    #     print("modified")
+    #     lastmt = os.stat(path).st_mtime
+    #     #output_df = pd.read_csv(path).to_dict('records')
+    #     return pd.read_csv(path).to_dict('records')
+    # return dash.no_update
+
 
             
 
