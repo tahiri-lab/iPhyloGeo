@@ -4,3 +4,5 @@ outtree
 output.csv
 .idea/
 venv/
+env/
+__pycache__/
