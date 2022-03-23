@@ -19,15 +19,15 @@ Mac OS(main), Linux, or Windows.
 * Last step to download the programm. We need to clone the project with the git clone command.
 * For Macbook(MacOSX) users (main branch in our case) use this command :
 ```
-git clone -b "main" git@github.com:tahiri-lab/iPhylogeo.git
+git clone -b "main" https://github.com/tahiri-lab/iPhylogeo
 ```
 * For windows user use this command :
 ```
-git clone -b "Windows" git@github.com:tahiri-lab/iPhylogeo.git
+git clone -b "Windows" https://github.com/tahiri-lab/iPhylogeo
 ```
 * For Linux user use this command :
 ```
-git clone -b "Linux" git@github.com:tahiri-lab/iPhylogeo.git
+git clone -b "Linux" https://github.com/tahiri-lab/iPhylogeo
 ```
 
 To download the project simply type one of the command above in a terminal.
