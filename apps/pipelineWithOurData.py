@@ -148,6 +148,14 @@ layout = dbc.Container([
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
          ],className="g-0", justify='around'),
+
+    #For live updates
+    dcc.Interval(
+            id='interval-component',
+            interval=500, # in milliseconds
+            n_intervals=0,
+            max_intervals=100000
+        )
        
 
 
@@ -195,6 +203,7 @@ def update_output(value):
 @app.callback(
     Output('output-container1', 'children'),
     Input("submit-button", "n_clicks"),
+    Input("interval-component", "n_intervals"),
     State('BootstrapThreshold-slider1','value'),
     State('RF-distanceThreshold-slider1','value'),
     State('input_windowSize','value'),
@@ -202,7 +211,7 @@ def update_output(value):
     State('reference_trees','value'),
     )
 
-def update_output(n_clicks, bootstrap_threshold, rf_threshold, window_size, step_size, data_names):
+def update_output(n_clicks, bootstrap_threshold, rf_threshold, window_size, step_size, data_names, n_intervals):
     if n_clicks is None:
         return dash.no_update
     else:
@@ -231,16 +240,17 @@ def update_output(n_clicks, bootstrap_threshold, rf_threshold, window_size, step
 @app.callback(
     Output('interval_container1', 'children'),
     Input("submit-button", "n_clicks"),
-    Input('interval1', 'n_intervals'),
+    Input('interval1', 'n_interval1'),
+    Input("interval-component", "n_intervals"),
     State('output-container1', 'children')
     )
-def update_interval(n_clicks, n_intervals,output):
+def update_interval(n_clicks, n_interval1,output,n_intervals):
     if n_clicks is None:
         return dash.no_update
     else:
         if output == None:
             interval_container = html.Div([
-                dcc.Markdown('Program is running **{}** s'.format(n_intervals))
+                dcc.Markdown('Program is running **{}** s'.format(n_interval1))
             ])
 
             return interval_container
