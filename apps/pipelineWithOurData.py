@@ -30,7 +30,7 @@ for item in tree_path:
 ref_genes_len = 658
 
 layout = dbc.Container([
-    html.H1('Phylogenetic Tree', style={"textAlign": "center"}),  #title
+    html.H1('Sample Genetic Dataset', style={"textAlign": "center"}),  #title
     
     # the first row
     

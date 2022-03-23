@@ -27,7 +27,7 @@ for item in tree_path:
 
 #-------------------------------------------
 layout = dbc.Container([
-    html.H1('Phylogenetic Tree', style={"textAlign": "center"}),  #title
+    html.H1('Genetic Dataset', style={"textAlign": "center"}),  #title
     
     # the first row
     dbc.Row([
