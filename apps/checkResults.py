@@ -23,7 +23,7 @@ from app import app
 
 # get relative data folder
 '''
-def getOutputCSV(fileName = path):
+def getOutputCSV(fileName = "output.csv"):
     PATH = pathlib.Path(__file__).parent
     DATA_PATH = PATH.joinpath("../").resolve()
     if os.path.exists(DATA_PATH.joinpath(fileName)):
@@ -165,9 +165,9 @@ layout = dbc.Container([
     #For live updates
     dcc.Interval(
             id='interval-component',
-            interval=500, # in milliseconds
+            interval=60000, # in milliseconds
             n_intervals=0,
-            max_intervals=100000
+            max_intervals=10000000
         )
 
 
@@ -195,7 +195,6 @@ def func(n_clicks,all_rows_data):
     State('datatable-interactivity1', "derived_virtual_data"),
     prevent_initial_call=True,
 )
-
 def func(n_clicks,all_rows_data):
     if n_clicks is None:
         return dash.no_update
@@ -247,6 +246,7 @@ def func(n_clicks,all_rows_data,select_rows,n_intervals):
         trees_display = []
         for index, row in df_select.iterrows():
             #if row['Gene'] != 'output/reference_gene.fasta':
+
             gene = row['Gene']
             position_ASM = row['Position ASM']
             tree_phylogeo = row['Arbre phylogeographique']
@@ -285,7 +285,6 @@ def func(n_clicks,all_rows_data,select_rows,n_intervals):
     State('datatable-interactivity1', 'derived_virtual_selected_rows'),
     prevent_initial_call=True,
 )
-
 def func(n_clicks,all_rows_data,select_rows,n_intervals):
     if n_clicks is None:
         return dash.no_update
@@ -317,7 +316,6 @@ def func(n_clicks,all_rows_data,select_rows,n_intervals):
     Output("alignment-container1", "children"),
     Input('choose-align-gene','value')
     )
-
 def func(val):
     if val != None:
         
@@ -344,23 +342,6 @@ def func(val):
                     html.Div(id='alignment-viewer-output')
                 ])
 #create alignment chart
-# @app.callback(
-#     Output('alignment-viewer-output', 'children'),
-#     Input('my-alignment-viewer', 'eventDatum'), Input("interval-component", "n_intervals"),
-# )
-
-
-# def update_output(value,n_intervals):
-#     # if value is None:'datatable-interactivity1'
-#     #     return 'No data.'
-#     # return str(value)
-#     if os.stat(path).st_mtime > lastmt:
-#         print("modified")
-#         lastmt = os.stat(path).st_mtime
-#         return pd.read_csv(path).to_dict('records')
-#     return dash.no_update
-
-
 @app.callback(
     Output('output-csv', 'children'),
     Input("interval-component", "n_intervals")
@@ -368,23 +349,13 @@ def func(val):
 def update_output(n_intervals):
     global lastmt
     global output_df
-    #output_df = pd.read_csv(path)
-    #print(output_df)
-    #print("modified")
+
     if os.stat(path).st_mtime > lastmt:
         output_df = pd.read_csv(path)
         print("File modified")
         lastmt = os.stat(path).st_mtime
     return output_table(output_df)
-    # if value is None:'datatable-interactivity1'
-    #     return 'No data.'
-    # return str(value)
-    # if os.stat(path).st_mtime > lastmt:
-    #     print("modified")
-    #     lastmt = os.stat(path).st_mtime
-    #     #output_df = pd.read_csv(path).to_dict('records')
-    #     return pd.read_csv(path).to_dict('records')
-    # return dash.no_update
+
 
 
             
