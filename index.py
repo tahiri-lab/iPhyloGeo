@@ -1,8 +1,13 @@
+from turtledemo.tree import tree
+
 import dash_bootstrap_components as dbc
 
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
+
+from nom_tree import creer_un_arbre, lireNewick
+
 
 
 # Connect to main app.py file
@@ -76,7 +81,9 @@ def display_page(pathname):
     if pathname == '/apps/checkResults':
         return checkResults.layout
     else:
-        return homePage.layout 
+        return homePage.layout
+
+
 
 
 if __name__ == '__main__':

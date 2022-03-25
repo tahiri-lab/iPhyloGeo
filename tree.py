@@ -76,6 +76,9 @@ def getDissimilaritiesMatrix(nom_fichier_csv, column_with_specimen_name, column_
 
 #-----------------------------------------
 
+#creer une fonction, qui lire un fichier, a partir du contenu du fichier,
+#creat_tree_2(chemin_fichier): c = lire(chemin_fichier), t = Tree(c), tree_style....; t.style
+
 def create_tree(file_name, names):
     prepareDirectory()
     for i in range(1, len(names)):
