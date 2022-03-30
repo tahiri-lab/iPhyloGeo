@@ -1,3 +1,7 @@
+import xlrd
+from openpyxl import Workbook
+from pandas import ExcelWriter
+from pandas import ExcelFile
 import dash
 import dash
 import dash_bootstrap_components as dbc
@@ -35,7 +39,7 @@ layout = dbc.Container([
                 id='upload-data',
                 children=html.Div([
                     'Drag and Drop or ',
-                    html.A('Select Files')
+                    html.A('Select a CSV, XLS or XLSX file.')
                 ]),
                 style={
                     'width': '99%',
@@ -130,6 +134,9 @@ def parse_contents(contents, filename, date):
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
+        elif 'xlsx' in filename:
+            # Assume that the user uploaded an excel file xlsx
+            df = pd.read_excel(io.BytesIO(decoded))    
         else:
             # Assume that the user uploaded other files
             return html.Div([
