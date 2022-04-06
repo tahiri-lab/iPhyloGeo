@@ -1,0 +1,21 @@
+Gene,Arbre phylogeographique,Position ASM,Bootstrap moyen,RF normalise
+reference_gene,RH2M_newick,50_250,58.75,50.0
+reference_gene,PRECTOTCORR_SUM_newick,50_250,58.75,68.75
+reference_gene,RH2M_newick,300_500,48.75,50.0
+reference_gene,PRECTOTCORR_SUM_newick,300_500,48.75,68.75
+reference_gene,RH2M_newick,450_650,37.5,50.0
+reference_gene,PRECTOTCORR_SUM_newick,450_650,37.5,68.75
+reference_gene,RH2M_newick,350_550,30.0,43.75
+reference_gene,PRECTOTCORR_SUM_newick,350_550,30.0,62.5
+reference_gene,RH2M_newick,400_600,31.25,43.75
+reference_gene,PRECTOTCORR_SUM_newick,400_600,31.25,62.5
+reference_gene,RH2M_newick,0_200,47.5,50.0
+reference_gene,PRECTOTCORR_SUM_newick,0_200,47.5,68.75
+reference_gene,RH2M_newick,100_300,43.75,50.0
+reference_gene,PRECTOTCORR_SUM_newick,100_300,43.75,68.75
+reference_gene,RH2M_newick,200_400,51.25,50.0
+reference_gene,PRECTOTCORR_SUM_newick,200_400,51.25,68.75
+reference_gene,RH2M_newick,150_350,46.25,50.0
+reference_gene,PRECTOTCORR_SUM_newick,150_350,46.25,68.75
+reference_gene,RH2M_newick,250_450,43.75,50.0
+reference_gene,PRECTOTCORR_SUM_newick,250_450,43.75,68.75
