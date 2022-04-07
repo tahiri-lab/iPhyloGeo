@@ -281,7 +281,7 @@ layout = dbc.Container([
         dbc.Col([
             html.Br(),
             #html.Br(),
-            dcc.Input(id="input_email", type="text", placeholder="Email addeess",debounce=True,),
+            dcc.Input(id="input_email", type="email", placeholder="Email addeess",debounce=True,),
             html.Br()
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=4, sm=4, md=4, lg=5, xl=5

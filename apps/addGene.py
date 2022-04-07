@@ -39,18 +39,6 @@ if not os.path.exists(genes_csv):
 layout = dbc.Container([
     html.H1('Add Genetic Data', style={"textAlign": "center"}),  #title
     
-    #add gene button
-    dbc.Row([
-        dbc.Col([
-            html.Br(),
-            html.Button(id="add-button", children="Add Gene"),
-            html.Br(),
-            html.Hr(),
-        ], #width={'size':3, 'offset':1, 'order':1},
-           xs=12, sm=12, md=12, lg=10, xl=10
-        ),
-    ], justify='around'),
-
     # add more genes
     dbc.Row([
             dbc.Col([
@@ -63,9 +51,9 @@ layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Br(),
-            html.Button(id="addMore-button", children="Add Another Gene"),
+            html.Button(id="addMore-button", children="Add Gene"),
             html.Br(),
-            html.Hr(),
+            #html.Hr(),
         ], #width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=5, xl=5
         ),
@@ -73,7 +61,7 @@ layout = dbc.Container([
             html.Br(),
             dcc.Link(html.Button("Finished"), href="/apps/logPage", refresh=True),
             html.Br(),
-            html.Hr(),
+            #html.Hr(),
         ], #width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=5, xl=5
         ),
@@ -92,16 +80,16 @@ layout = dbc.Container([
 #-----------------------------------
 @app.callback(
     Output('addGene-container', 'children'),
-    Input("add-button", "n_clicks"),
+    #Input("add-button", "n_clicks"),
     Input("addMore-button", "n_clicks"),
     )
 
-def update_output(add, add_more):
+def update_output(add_more):
     gene_param = dbc.Container([
                 html.Div(geneParam.layout),    
                         ], fluid=True)
 
-    if add and add_more is None:
+    if add_more is None:
         return dash.no_update
     else:
         return gene_param
