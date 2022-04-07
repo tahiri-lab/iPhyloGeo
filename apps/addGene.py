@@ -37,7 +37,7 @@ if not os.path.exists(genes_csv):
 
 #-------------------------------------------
 layout = dbc.Container([
-    html.H1('Phylogenetic Tree', style={"textAlign": "center"}),  #title
+    html.H1('Add Genetic Data', style={"textAlign": "center"}),  #title
     
     #add gene button
     dbc.Row([

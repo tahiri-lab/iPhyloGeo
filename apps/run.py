@@ -44,7 +44,7 @@ for item in tree_path:
 os.chdir('../../..')
 #-------------------------------------
 layout = dbc.Container([
-    html.H1('Phylogenetic Tree', style={"textAlign": "center"}),  #title
+    html.H1('iPhyloGeo', style={"textAlign": "center"}),  #title
 
     dbc.Row([
             dbc.Col([

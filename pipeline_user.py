@@ -50,8 +50,6 @@ def prepareDirectory():
         if item == "output.csv" or item.startswith("RAxML_") or item.startswith("outtree"):
             os.remove(item)
     
-    with open('user/' + getIpAdress() + '/output/output.csv', 'w') as f:
-        f.write("Gene,Arbre phylogeographique,Position ASM,Bootstrap moyen,RF normalise\n")
 
 #prepareDirectory()
 

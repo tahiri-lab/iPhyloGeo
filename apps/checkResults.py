@@ -37,10 +37,11 @@ theIp = getIpAdress()
 
 user_output = 'user/'  + theIp +'/output/' 
 output_file = user_output + 'output.csv'
-if not os.path.exists(output_file):
-    pd.DataFrame(list()).to_csv(output_file)
-
+with open(output_file, 'w') as f:
+        f.write("Gene,Arbre phylogeographique,Position ASM,Bootstrap moyen,RF normalise\n")
+    
 output_df = pd.read_csv(output_file)
+
 #--------------------------------------
 table_interact = dash_table.DataTable(
                             id='datatable-interactivity1',

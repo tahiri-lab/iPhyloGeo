@@ -8,6 +8,8 @@ from app import app
 from requests import get
 import os 
 from dash import dash_table
+from apps import mainPage
+import dash_extensions as de
 
 #----------------------------------------
 def getIpAdress():
@@ -153,36 +155,13 @@ meteoTable = dbc.Container([
 
 ], fluid=True)
 #-----------------------------------------
-card1 = dbc.Card(
-    [
-        dbc.CardImg(src="/assets/climate.jpg", top=True),
-        dbc.CardBody(
-            [
-            html.H4("Add meteorological data", className="card-title"),
-            dbc.CardLink("Add dataset", href="addMeteo"),
-            ]
-        ),
-    ],
-    #style={"width": "45%"},
-),
-
-card2 = dbc.Card(
-    [
-        dbc.CardImg(src="/assets/dna.jpg", top=True),
-        dbc.CardBody(
-            [
-            html.H4("Add genetic data", className="card-title"),
-               
-            dbc.CardLink("Add dataset", href="addGene"),
-            ]
-        ),
-    ],
-    #style={"width": "45%"},
-),
 
 card3 = dbc.Card(
     [
-        dbc.CardImg(src="/assets/trees-img.jpg", top=True),
+        #dbc.CardImg(src="/assets/trees-img.jpg", top=True),
+        de.Lottie(options=dict(loop=True, autoplay=True, rendererSettings=dict(preserveAspectRatio='xMidYMid slice')), 
+                    width="50%", height="25%", 
+                    url="https://assets2.lottiefiles.com/packages/lf20_BhbCTg.json"),
         dbc.CardBody(
             [
             dcc.ConfirmDialog(
@@ -315,11 +294,8 @@ layout = dbc.Container([
     html.Br(),
     dbc.Row([
             dbc.Col([
-                html.Div(card1),
-            ],xs=12, sm=12, md=12, lg=4, xl=4),
-            dbc.Col([
-                html.Div(card2),
-            ],xs=12, sm=12, md=12, lg=4, xl=4),
+                html.Div(mainPage.layout),
+            ],xs=12, sm=12, md=12, lg=8, xl=8),
             dbc.Col([
                 html.Div(card3),
             ],xs=12, sm=12, md=12, lg=4, xl=4),
@@ -336,9 +312,9 @@ layout = dbc.Container([
           )
 
 def save_genesTable(n, all_rows_data):
-    print('***************************************************************************')
-    print('Data across all pages pre or post filtering: {}'.format(all_rows_data))
-    print('*****************------------------------********************************')
+    #print('***************************************************************************')
+    #print('Data across all pages pre or post filtering: {}'.format(all_rows_data))
+    #print('*****************------------------------********************************')
     dff = pd.DataFrame(all_rows_data)
     if n is None:
         return dash.no_update

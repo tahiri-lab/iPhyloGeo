@@ -47,7 +47,7 @@ if not os.path.exists(meteo_csv):
 # For uploaded dataset
 
 layout = dbc.Container([
-    html.H1('Phylogeography', style={"textAlign": "center"}),  #title
+    html.H1('Add Meteorological Data', style={"textAlign": "center"}),  #title
     dbc.Row([
         dbc.Col([
             dcc.Upload(
