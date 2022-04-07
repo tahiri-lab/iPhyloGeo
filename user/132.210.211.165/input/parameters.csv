@@ -1,1 +1,6 @@
 Gene,Bootstrap value threshold,Robinson and Foulds distance threshold,Sliding Window Size,Step Size
+g3,10,10.0,123.0,456.0
+g2,10,10.0,23.0,56.0
+g1,10,10,123,321
+,10,10,123,123
+,10,10,999,999

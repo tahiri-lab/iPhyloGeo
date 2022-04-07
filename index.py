@@ -39,7 +39,7 @@ sidebar = html.Div(
             dbc.NavLink("Upload Datasets", href='/apps/mainPage', active="exact"),
             dbc.NavLink("Add Meteorological Data", href='/apps/addMeteo', active="exact"),
             dbc.NavLink("Add genetic data", href='/apps/addGene', active="exact"),
-            dbc.NavLink("Log Page", href='/apps/logPage', active="exact"),
+            dbc.NavLink("Parameter confirmation", href='/apps/logPage', active="exact"),
             dbc.NavLink("Run iPhyloGeo", href='/apps/run', active="exact"),
             dbc.NavLink("Check Results", href='/apps/checkResults', active="exact"),
             ],

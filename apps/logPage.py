@@ -180,9 +180,10 @@ card3 = dbc.Card(
 ),
 #--------------------------------------------------------
 layout = dbc.Container([
-    # For Genes parameters
+    html.H1('Parameter confirmation', style={"textAlign": "center"}),  #title
     html.Br(),
     #html.Br(),
+    # For Genes parameters
     dbc.CardHeader(
             dbc.Button(
                 "Genes and parameters to be analyzed",

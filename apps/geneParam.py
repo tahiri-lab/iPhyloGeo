@@ -23,6 +23,7 @@ genes_csv = 'user/' + theIp + '/input/parameters.csv'
 if not os.path.exists(genes_csv):
     with open(genes_csv, 'w') as f:
         f.write("Gene,Bootstrap value threshold,Robinson and Foulds distance threshold,Sliding Window Size,Step Size\n")
+
 #---------------------------------------------
 # Ids
 input_geneName = "input_geneName"
@@ -166,6 +167,19 @@ layout = dbc.Container([
            xs=12, sm=12, md=12, lg=10, xl=10),
         
     ], justify='around'),
+
+    dbc.Row([
+        dbc.Col([
+            html.Br(),
+            dcc.ConfirmDialog(id='confirm-danger',
+        message='Attention! The gene name is a duplicate of the previously entered gene name.\n Are you sure to overwrite the previously entered information？',
+    ),
+    html.Div(id='output-danger'),
+    ],# width={'size':3, 'offset':1, 'order':1},
+           xs=12, sm=12, md=12, lg=10, xl=10),
+        
+    ], justify='around'),
+
   # summary
     dbc.Row([
         dbc.Col([
@@ -207,17 +221,23 @@ def update_output(n_clicks, gene_name, bootstrap_threshold, rf_threshold, window
     if n_clicks is None:
         return dash.no_update
     else:
+        df = pd.read_csv(genes_csv)
+        list_geneName = df['Gene'].tolist()
+        #print(list_geneName)
+        if gene_name in list_geneName:
+            df = df[df['Gene']!= gene_name]   # if new gene_name repeat the old one, delete the old one
+            df.to_csv(genes_csv, index=False)
+
         #add parameters into csv file
-        list = [gene_name, bootstrap_threshold, rf_threshold, window_size, step_size]
-        with open('user/' + theIp + '/input/parameters.csv', 'a') as f_object:
+        list_head = [gene_name, bootstrap_threshold, rf_threshold, window_size, step_size]
+        with open(genes_csv, 'a') as f_object:
             writer_object = writer(f_object)
-            writer_object.writerow(list)
+            writer_object.writerow(list_head)
             f_object.close()
-        #print(filename[0])
+            #print(filename[0])
         old_name = 'user/' + theIp + '/input/' + filename[0]
         new_name = 'user/' + theIp + '/input/' + gene_name +'.fasta'
-        if gene_name != '':
-            os.rename(old_name,new_name)
+        os.rename(old_name,new_name)
         # display    
         output_container = dbc.Card([
             #dbc.CardImg(src="/assets/trees-img.jpg", top=True),
@@ -239,6 +259,20 @@ def update_output(n_clicks, gene_name, bootstrap_threshold, rf_threshold, window
 
         return output_container
 
+@app.callback(Output('confirm-danger', 'displayed'),
+              Input(input_geneName,'value'))
+def display_confirm(gene_name):
+    df = pd.read_csv(genes_csv)
+    list_geneName = df['Gene'].tolist()
+    if gene_name in list_geneName:
+        return True
+    return False
+@app.callback(Output('output-danger', 'children'),
+              Input('confirm-danger', 'submit_n_clicks'))
+def update_output(submit_n_clicks):
+    if submit_n_clicks:
+        return dcc.Markdown('Note: Since the gene name is a duplicate of a previously entered gene name. The previously entered information will be overwritten',
+                            className="card-text")
 #-------------------------------------------------
 # view the value chosen
 @app.callback(
