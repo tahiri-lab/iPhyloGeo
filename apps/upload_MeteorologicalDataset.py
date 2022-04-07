@@ -1,5 +1,3 @@
-import xlrd
-from openpyxl import Workbook
 from pandas import ExcelWriter
 from pandas import ExcelFile
 import dash
