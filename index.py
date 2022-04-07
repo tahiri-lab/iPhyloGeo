@@ -15,7 +15,7 @@ from app import server
 # Connect to your app pages
 from apps import *
 from apps import homePage
-from apps import pipelineWithOurData
+# from apps import pipelineWithOurData
 from apps import pipelineWithUploadedData
 from apps import upload_MeteorologicalDataset
 from apps import checkResults
@@ -54,7 +54,7 @@ sidebar = html.Div(
             dbc.NavLink("Climatic Dataset", href='/apps/upload_MeteorologicalDataset', active="exact"),
             dbc.NavLink("Genetic Dataset", href='/apps/pipelineWithUploadedData', active="exact"),
             dbc.NavLink("Sample Climatic Dataset (yellow-legged hornet)", href='/apps/usingOurMeteorologicalDataset', active="exact"),
-            dbc.NavLink("Phylogeography Analysis With Sample Genetic Dataset (yellow-legged hornet)", href='/apps/pipelineWithOurData', active="exact"),
+            # dbc.NavLink("Phylogeography Analysis With Sample Genetic Dataset (yellow-legged hornet)", href='/apps/pipelineWithOurData', active="exact"),
             dbc.NavLink("Results", href='/apps/checkResults', active="exact"),
             ],
             vertical=True,
