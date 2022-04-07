@@ -50,6 +50,7 @@ layout = dbc.Container([
                 # Allow multiple files to be uploaded
                 multiple=True
             ),
+            # html.Button(id="clear-button", type="button", children="Create Graph", className="btn btn-secondary btn-lg btn-block", n_clicks="reset_uploaded_files()")
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
