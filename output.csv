@@ -1,1 +1,6 @@
 Gene,Arbre phylogeographique,Position ASM,Bootstrap moyen,RF normalise
+output/reference_gene.fasta,QV2M_newick,291_541,45.0,-183.33333333333331
+output/reference_gene.fasta,QV2M_newick,97_347,43.75,-183.33333333333331
+output/reference_gene.fasta,QV2M_newick,388_638,41.25,-183.33333333333331
+output/reference_gene.fasta,QV2M_newick,0_250,61.25,-200.0
+output/reference_gene.fasta,QV2M_newick,194_444,51.25,-183.33333333333331

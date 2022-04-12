@@ -1,4 +1,5 @@
 import dash
+import visdcc
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
@@ -24,7 +25,7 @@ tree_files = []
 for item in tree_path:
     if item.endswith("_newick"):
         tree_files.append(item)
-
+visdcc.Run_js('javascript'),
 #-------------------------------------------
 layout = dbc.Container([
     html.H1('Genetic Dataset', style={"textAlign": "center"}),  #title
@@ -189,6 +190,15 @@ layout = dbc.Container([
 
 #-------------------------------------------------
 # view the value chosen
+@app.callback(
+    Output('javascript', 'run'),
+    [Input('submit-button', 'n_clicks')])
+def refresh_button_clicked(data):
+    if data is not None:
+
+        return "location.reload();"
+    return ''
+
 @app.callback(
     dash.dependencies.Output('BootstrapThreshold-slider-output-container', 'children'),
     [dash.dependencies.Input('BootstrapThreshold-slider', 'value')])

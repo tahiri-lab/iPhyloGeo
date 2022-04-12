@@ -1,4 +1,8 @@
 import dash
+import visdcc
+import selenium
+from selenium import webdriver
+import time
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc
@@ -25,8 +29,9 @@ import importlib
 import tree
 
 
-# For uploaded dataset
 
+
+# For uploaded dataset
 layout = dbc.Container([
     html.H1('Climatic Dataset', style={"textAlign": "center"}),  #title
     dbc.Row([
@@ -53,7 +58,8 @@ layout = dbc.Container([
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
-    ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around 
+    ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around
+
 
 
     dbc.Row([
@@ -112,12 +118,7 @@ layout = dbc.Container([
 
          ], fluid=True)
 
-
-        
-    
-
 #---------------------------------------------------------
-
 def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
 
@@ -168,10 +169,10 @@ def parse_contents(contents, filename, date):
                             html.Div([
                                 html.H5(filename),
                                 #html.H6(datetime.datetime.fromtimestamp(date)),
-                                html.P("Inset X axis data"),
+                                html.P("Insert X axis data"),
                                 dcc.Dropdown(id='xaxis-data',
                                             options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.P("Inset Y axis data"),
+                                html.P("Insert Y axis data"),
                                 dcc.Dropdown(id='yaxis-data',
                                             options=[{'label':x, 'value':x} for x in df.columns]),
                                 html.P("Select data for choropleth map"),
@@ -214,6 +215,7 @@ def parse_contents(contents, filename, date):
         
 
 #--------------------------------------------------------------------------------
+
 @app.callback(Output('output-datatable', 'children'),
               Input('upload-data', 'contents'),
               State('upload-data', 'filename'),
