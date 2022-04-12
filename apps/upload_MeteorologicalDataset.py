@@ -1,3 +1,5 @@
+from pandas import ExcelWriter
+from pandas import ExcelFile
 import dash
 import visdcc
 import selenium
@@ -40,7 +42,7 @@ layout = dbc.Container([
                 id='upload-data',
                 children=html.Div([
                     'Drag and Drop or ',
-                    html.A('Select Files')
+                    html.A('Select a CSV, XLS or XLSX file.')
                 ]),
                 style={
                     'width': '99%',
@@ -55,6 +57,7 @@ layout = dbc.Container([
                 # Allow multiple files to be uploaded
                 multiple=True
             ),
+            # html.Button(id="clear-button", type="button", children="Create Graph", className="btn btn-secondary btn-lg btn-block", n_clicks="reset_uploaded_files()")
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
@@ -131,6 +134,9 @@ def parse_contents(contents, filename, date):
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
+        elif 'xlsx' in filename:
+            # Assume that the user uploaded an excel file xlsx
+            df = pd.read_excel(io.BytesIO(decoded))    
         else:
             # Assume that the user uploaded other files
             return html.Div([
