@@ -2,31 +2,23 @@ from pandas import ExcelWriter
 from pandas import ExcelFile
 import dash
 import visdcc
-import selenium
-from selenium import webdriver
 import time
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
-#from dash_core_components.Graph import Graph
 from dash.dependencies import Input, Output,State
-#from dash_html_components import H4
-#from dash_html_components.Br import Br
-#from dash_html_components.Hr import Hr
 import plotly.express as px
 import pandas as pd
 import pathlib
 from app import app
 from dash import dash_table
 from dash.exceptions import PreventUpdate
-
 import base64
 import datetime
 import io
 import os 
 import subprocess
-
 import importlib
 import tree
 
@@ -45,24 +37,25 @@ layout = dbc.Container([
                     html.A('Select a CSV, XLS or XLSX file.')
                 ]),
                 style={
-                    'width': '99%',
+                    'width': '100%',
                     'height': '60px',
                     'lineHeight': '60px',
                     'borderWidth': '1px',
                     'borderStyle': 'dashed',
                     'borderRadius': '5px',
                     'textAlign': 'center',
-                    'margin': '10px'
+                    'margin-left': '50px',
+                    'margin-right': '50px'
                 },
                 # Allow multiple files to be uploaded
                 multiple=True
             ),
+            html.Br(),
             # html.Button(id="clear-button", type="button", children="Create Graph", className="btn btn-secondary btn-lg btn-block", n_clicks="reset_uploaded_files()")
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
     ], className="g-0", justify='around'),  # Horizontal:start,center,end,between,around
-
 
 
     dbc.Row([
@@ -187,8 +180,8 @@ def parse_contents(contents, filename, date):
                                 html.Br(),
                                 dcc.RadioItems(id='choose-graph-type',
                                                 options=[
-                                                    {'label': 'Bar Graph', 'value': 'Bar'},
-                                                    {'label': 'Scatter Plot', 'value': 'Scatter'}
+                                                    {'label': ' Bar Graph', 'value': 'Bar'},
+                                                    {'label': ' Scatter Plot', 'value': 'Scatter'}
                                                 ],
                                                 value='Bar'
                                             ),  
@@ -197,13 +190,13 @@ def parse_contents(contents, filename, date):
                                 html.Hr(),
                             # parameters for creating phylogeography trees
                                 html.H2('Create Phylogeography Trees', style={"textAlign": "center"}),  #title
-                                html.H4("Inset the name of the column containing the sequence Id"),
+                                html.H4("Insert the name of the column containing the sequence Id"),
                                 dcc.Dropdown(id='col-specimens',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
+                                            options=[{'label': " "+x, 'value':x} for x in df.columns]),
                                 html.H4("select the name of the column to analyze"),
                                 html.P('The values of the column must be numeric for the program to work properly.'),
                                 dcc.Checklist(id = 'col-analyze',
-                                            options =[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
+                                            options =[{'label': " "+x, 'value': x} for x in df._get_numeric_data().columns],
                                             labelStyle={'display': 'inline-block','marginRight':'20px'}
                                         ),
                                 html.Br(),

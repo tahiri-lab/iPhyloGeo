@@ -88,41 +88,49 @@ layout = dbc.Container([
                 #html.Button(id="view-button1", children="Update results"),
                 #html.Br(),
                 #html.Br(),
-                html.Div(output_table(output_df),id= "output-csv"),
+                html.Div(output_table(output_df),id = "output-csv"),
                 
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
          ],className="g-0", justify='around'),
 
     dbc.Row([
-             dbc.Col([
-                html.Br(),
-                html.Button(id="submit-button-filter1", children="Create Graph"),
-             ],xs=3, sm=3, md=3, lg=3, xl=3),
+            dbc.Col(
+                html.Div([
+                    html.Br(),
+                    dbc.Button(id="submit-button-filter1", children="Create Graph"),
+                ]),
+            width = {"size":1}
+            ),
+            dbc.Col(
+                html.Div([
+                    html.Br(),
+                    dbc.Button(id="trees-button1", children="Create tree"),
+                ]),
+            width = {"size":1}
+            ),
+            dbc.Col(
+                html.Div([
+                    html.Br(),
+                    dbc.Button(id="alignChart-button1", children="Create Alignment Chart"),
+                ]),
+            width = {"size":1}
+            ),
 
-             dbc.Col([
-                html.Br(),
-                dbc.Button(id="trees-button1", children="Create tree"),
-             ],xs=3, sm=3, md=3, lg=3, xl=3),
-
-             dbc.Col([
-                html.Br(),
-                dbc.Button(id="alignChart-button1", children="Create AlignmentChart"),
-             ],xs=3, sm=3, md=3, lg=3, xl=3),
-
-             dbc.Col([
-                html.Br(),
-                dbc.Button(id='btn-csv1',
+            dbc.Col(
+                html.Div([
+                    html.Br(),
+                    dbc.Button(id='btn-csv1',
                             children=[html.I(className="fa fa-download mr-1"), "Download to CSV"],
                             color="info",
-                            className="mt-1"
-                                    ),
+                            className="mt-1"),
+                ]),
+            width = {"size":1}
+            ),
+
                 dcc.Download(id="download-component-csv1"),
 
-             ],xs=3, sm=3, md=3, lg=3, xl=3),
-
-
-         ],className="g-0", justify='around'),
+    ],className="g-0", justify='around'),
 
     # For Graph
     dbc.Row([

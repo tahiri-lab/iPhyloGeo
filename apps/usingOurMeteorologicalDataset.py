@@ -37,12 +37,12 @@ dfg.set_index('id', inplace=True, drop=False)
 layout = dbc.Container([
     html.H1('Sample Climatic Dataset', style={"textAlign": "center"}),  #title
     dbc.Row([
-            dbc.Col([
+            dbc.Col([\
                 html.Div([
                         dash_table.DataTable(
                             id='datatable-interactivity',
                             columns=[
-                                {"name": i, "id": i, "deletable": True, "selectable": True, "hideable": True}
+                                {"name": " "+i, "id": i, "deletable": True, "selectable": True, "hideable": True}
                                 for i in dfg.columns
                             ],
                             data=dfg.to_dict('records'),  # the contents of the table
@@ -168,8 +168,8 @@ def parse_contents_fromInteractiveDT(all_rows_data):
         html.Br(),
         dcc.RadioItems(id='choose-graph-type-filtered',
                         options=[
-                            {'label': 'Bar Graph', 'value': 'Bar'},
-                            {'label': 'Scatter Plot', 'value': 'Scatter'}
+                            {'label': ' Bar Graph', 'value': 'Bar'},
+                            {'label': ' Scatter Plot', 'value': 'Scatter'}
                         ],
                         value='Bar'
                     ),  
@@ -183,7 +183,7 @@ def parse_contents_fromInteractiveDT(all_rows_data):
         dcc.Dropdown(id='col-specimens', options=[{'label':x, 'value':x} for x in dff.columns]),
         html.H4("select the name of the column to analyze"),
         dcc.Markdown('The values of the column **must be numeric** for the program to work properly.'),
-        dcc.Checklist(id = 'col-analyze', options =[{'label': x, 'value': x} for x in dff._get_numeric_data().columns],
+        dcc.Checklist(id = 'col-analyze', options =[{'label': " "+x, 'value': x} for x in dff._get_numeric_data().columns],
                         labelStyle={'display': 'inline-block', 'marginRight':'20px'}),
         html.Br(),
         html.Button(id="submit-forTree", children="Create Newick files"),  

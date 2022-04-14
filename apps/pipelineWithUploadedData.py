@@ -47,7 +47,8 @@ layout = dbc.Container([
                     'borderStyle': 'dashed',
                     'borderRadius': '5px',
                     'textAlign': 'center',
-                    'margin': '10px'
+                    'margin-left': '50px',
+                    'margin-right': '50px'
                 },
                 # Allow multiple files to be uploaded
                 multiple=True
@@ -137,7 +138,7 @@ layout = dbc.Container([
                 html.Hr(),
                 html.H3("Select the file(s) of reference trees"),
                 dcc.Checklist(id = 'reference_trees1',
-                            options =[{'label': x, 'value': x} for x in tree_files],
+                            options =[{'label': " "+x, 'value': x} for x in tree_files],
                             labelStyle={'display': 'inline-block','marginRight':'20px'})
             ],# width={'size':3, 'offset':1, 'order':1},
             xs=12, sm=12, md=12, lg=10, xl=10
