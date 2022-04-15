@@ -1,9 +1,11 @@
+import sys
+import math
+import dash_cytoscape
 import dash
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
-#from dash_core_components.Graph import Graph
-from dash.dependencies import Input, Output,State
+from dash.dependencies import Input, Output, State
 import dash_bio as dashbio
 from more_itertools import last
 #from dash_html_components.Br import Br
@@ -238,53 +240,173 @@ def func(n_clicks,all_rows_data):
 # For trees
 @app.callback(
     Output("trees-container1", "children"),
-    Input("trees-button1", "n_clicks"), Input("interval-component", "n_intervals"),
+    Input("trees-button1", "n_clicks"),
     State('datatable-interactivity1', "derived_virtual_data"),
     State('datatable-interactivity1', 'derived_virtual_selected_rows'),
     prevent_initial_call=True,
 )
-
-def func(n_clicks,all_rows_data,select_rows,n_intervals):
+def func(n_clicks, select_rows, n_intervals):
     if n_clicks is None:
         return dash.no_update
     else:
-        dff = pd.DataFrame(all_rows_data)
-        df_select = dff[dff.index.isin(select_rows)]
-        #print(df_select)
-        trees_display = []
-        for index, row in df_select.iterrows():
-            #if row['Gene'] != 'output/reference_gene.fasta':
+        data = pd.DataFrame(select_rows)
+        stylesheet = [
+            {
+                'selector': '.nonterminal',
+                'style': {
+                    'label': 'data(confidence)',
+                    'background-opacity': 0,
+                    "text-halign": "left",
+                    "text-valign": "top",
+                }
+            },
+            {
+                'selector': '.support',
+                'style': {'background-opacity': 0}
+            },
+            {
+                'selector': 'edge',
+                'style': {
+                    "source-endpoint": "inside-to-node",
+                    "target-endpoint": "inside-to-node",
+                }
+            },
+            {
+                'selector': '.terminal',
+                'style': {
+                    'label': 'data(name)',
+                    'width': 10,
+                    'height': 10,
+                    "text-valign": "center",
+                    "text-halign": "right",
+                    'background-color': '#222222'
+                }
+            }
+        ]
+        layout = {'name': 'preset'}
+        elementsReturn = []
+        for trees_name in data['Arbre phylogeographique'][n_intervals]:
+            tree = Phylo.read(trees_name, 'newick')
+            nodes, edges = generate_elements(tree)
+            elements = nodes + edges
+            elementsReturn.append(dash_cytoscape.Cytoscape(
+                    id='cytoscape-usage-phylogeny',
+                    elements=elements,
+                    stylesheet=stylesheet,
+                    layout=layout,
+                    style={
+                        'height': '95vh',
+                        '       width': '100%'
+                    }
+            ))
+    return html.Div(elementsReturn)
 
-            gene = row['Gene']
-            position_ASM = row['Position ASM']
-            tree_phylogeo = row['Arbre phylogeographique']
 
-            directory_name = gene + '_gene'
-            #align_file_name = position_ASM
-            theGene_fileFasta = directory_name + '.fasta'
-            tree_output_file = position_ASM + '_' + tree_phylogeo + '_tree'
+def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
+    def get_col_positions(tree, column_width=80):
+        taxa = tree.get_terminals()
 
-            tree_path = os.path.join('./output',directory_name,tree_output_file)
-            tree = Phylo.read(tree_path, "newick")
-            tree_txt_path = './output/phylo_tree.txt' + str(index)
-            with open(tree_txt_path, 'w') as fh:
-                Phylo.draw_ascii(tree, file = fh)
-            with open (tree_txt_path, "r") as f:
-                tree_txt = f.read()
+        # Some constants for the drawing calculations
+        max_label_width = max(len(str(taxon)) for taxon in taxa)
+        drawing_width = column_width - max_label_width - 1
 
-            tree_card = dbc.Card([
-            dbc.CardBody([
-                    html.H4("Row index :" + str(index), className="card-title"),
-                    html.Div(tree_txt, style={'whiteSpace': 'pre-line'}),
-                ]),
-                    ],style={"width": "95%"},)
-            
-            trees_display.append(tree_card)
- 
-        
-    return trees_display
+        """Create a mapping of each clade to its column position."""
+        depths = tree.depths()
+        # If there are no branch lengths, assume unit branch lengths
+        if not max(depths.values()):
+            depths = tree.depths(unit_branch_lengths=True)
+            # Potential drawing overflow due to rounding -- 1 char per tree layer
+        fudge_margin = int(math.ceil(math.log(len(taxa), 2)))
+        cols_per_branch_unit = ((drawing_width - fudge_margin) /
+                                float(max(depths.values())))
+        return dict((clade, int(blen * cols_per_branch_unit + 1.0))
+                    for clade, blen in depths.items())
 
-#-----------------------------------
+    def get_row_positions(tree):
+        taxa = tree.get_terminals()
+        positions = dict((taxon, 2 * idx) for idx, taxon in enumerate(taxa))
+
+        def calc_row(clade):
+            for subclade in clade:
+                if subclade not in positions:
+                    calc_row(subclade)
+            positions[clade] = ((positions[clade.clades[0]] +
+                                 positions[clade.clades[-1]]) // 2)
+
+        calc_row(tree.root)
+        return positions
+
+    def add_to_elements(clade, clade_id):
+        children = clade.clades
+
+        pos_x = col_positions[clade] * xlen
+        pos_y = row_positions[clade] * ylen
+
+        cy_source = {
+            "data": {"id": clade_id},
+            'position': {'x': pos_x, 'y': pos_y},
+            'classes': 'nonterminal',
+            'grabbable': grabbable
+        }
+        nodes.append(cy_source)
+
+        if clade.is_terminal():
+            cy_source['data']['name'] = clade.name
+            cy_source['classes'] = 'terminal'
+
+        for n, child in enumerate(children):
+            # The "support" node is on the same column as the parent clade,
+            # and on the same row as the child clade. It is used to create the
+            # 90 degree angle between the parent and the children.
+            # Edge config: parent -> support -> child
+
+            support_id = clade_id + 's' + str(n)
+            child_id = clade_id + 'c' + str(n)
+            pos_y_child = row_positions[child] * ylen
+
+            cy_support_node = {
+                'data': {'id': support_id},
+                'position': {'x': pos_x, 'y': pos_y_child},
+                'grabbable': grabbable,
+                'classes': 'support'
+            }
+
+            cy_support_edge = {
+                'data': {
+                    'source': clade_id,
+                    'target': support_id,
+                    'sourceCladeId': clade_id
+                },
+            }
+
+            cy_edge = {
+                'data': {
+                    'source': support_id,
+                    'target': child_id,
+                    'length': clade.branch_length,
+                    'sourceCladeId': clade_id
+                },
+            }
+
+            if clade.confidence and clade.confidence.value:
+                cy_source['data']['confidence'] = clade.confidence.value
+
+            nodes.append(cy_support_node)
+            edges.extend([cy_support_edge, cy_edge])
+
+            add_to_elements(child, child_id)
+
+    col_positions = get_col_positions(tree)
+    row_positions = get_row_positions(tree)
+
+    nodes = []
+    edges = []
+
+    add_to_elements(tree.clade, 'r')
+
+    return nodes, edges
+
+# -----------------------------------
 # select gene
 @app.callback(
     Output("alignment-select1", "children"),
