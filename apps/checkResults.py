@@ -288,12 +288,12 @@ def func(n_clicks,all_rows_data,select_rows,n_intervals):
 # select gene
 @app.callback(
     Output("alignment-select1", "children"),
-    Input("alignChart-button1", "n_clicks"), Input("interval-component", "n_intervals"),
+    Input("alignChart-button1", "n_clicks"),
     State('datatable-interactivity1', "derived_virtual_data"),
     State('datatable-interactivity1', 'derived_virtual_selected_rows'),
     prevent_initial_call=True,
 )
-def func(n_clicks,all_rows_data,select_rows,n_intervals):
+def func(n_clicks,all_rows_data,select_rows):
     if n_clicks is None:
         return dash.no_update
     else:
