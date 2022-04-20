@@ -9,6 +9,7 @@ dash==2.1.0
 dash-bio==1.0.1
 dash-bootstrap-components==1.0.2
 dash-core-components==2.0.0
+dash-cytoscape==0.3.0
 dash-extensions==0.0.68
 dash-html-components==2.0.0
 dash-table==5.0.0
@@ -43,5 +44,6 @@ tenacity==8.0.1
 threadpoolctl==3.1.0
 tqdm==4.62.3
 urllib3==1.26.8
+visdcc==0.0.50
 Werkzeug==2.0.2
 zipp==3.7.0
