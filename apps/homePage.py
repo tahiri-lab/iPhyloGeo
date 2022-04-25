@@ -53,7 +53,7 @@ card2 = dbc.Card(
                     The output.csv file contains the informations of all the significant MSAs informations.""",
                     className="card-text",
                 ),
-                dbc.CardLink("Github", href="https://github.com/tahiri-lab/phylogeography-viz/tree/main/Python"),
+                dbc.CardLink("Github", href="https://github.com/tahiri-lab/iPhylogeo/tree/Linux"),
             ]
         ),
     ],
