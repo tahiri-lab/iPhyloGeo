@@ -1,0 +1,22 @@
+{
+  "name": "webapps",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently --kill-others \"python index.py\"  \"electron main.js\" grunt"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^7.6.0",
+    "dash": "3.23.2",
+    "grunt-contrib-watch": "^1.1.0",
+    "node-sass": "^8.0.0"
+  },
+  "devDependencies": {
+    "electron": "^22.0.3",
+    "grunt": "^1.6.1",
+    "grunt-sass": "^3.1.0"
+  }
+}
