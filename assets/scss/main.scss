@@ -1,4 +1,214 @@
-//This is a basic scss files
 body {
-    font-family: sans-serif;
+    font-family: Inter, sans-serif;
+    transition: all 0.3s ease-in-out;
+}
+
+.button {
+  display: inline-block;
+  background-color: #AD00FA;
+  border-radius: 10px;
+  padding: 15px 40px;
+  margin-top: 10px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
+
+  &:hover {
+    cursor: pointer;
+    transition: ease-in-out 0.3s;
+    box-shadow: none;
+  }
+
+  &.primary {
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+
+    &:hover {
+      background-color: #8B00D1;
+    }
+  }
+}
+
+.home-page {
+  width: 100%;
+  height: 100%;
+
+  .home-page__video {
+    filter: brightness(50%);
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+
+  .main-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 3;
+
+    .title {
+      font-weight: bold;
+      font-size: 5rem;
+      color: #fff;
+    }
+
+    .sub-title {
+      width: 700px;
+      font-weight: bold;
+      font-size: 2rem;
+      z-index: 3;
+      color: #B3B3B3;
+
+      .url {
+        color: #318DD1;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .icon {
+        margin-left: 5px;
+        filter: invert(47%) sepia(88%) saturate(505%) hue-rotate(164deg) brightness(90%) contrast(80%);
+        width: 15px;
+      }
+    }
+  }
+}
+
+.nav-bar-container {
+  position: fixed;
+  top: 10px;
+  left: 15px;
+  border-radius: 10px;
+  z-index: 100;
+  width: 250px;
+  background-color: var(--glass-style);
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  backdrop-filter: blur( 16.5px );
+  -webkit-backdrop-filter: blur( 16.5px );
+  border: 1px solid rgba(69, 69, 69, 0.18);
+
+  height: calc(100vh - 21px);
+  transition: all 0.3s ease-in-out; // Theme transition
+
+  .nav-bar {
+
+    padding: 30px 20px 0 20px;
+
+    .lab-container {
+      display: flex;
+      align-items: center;
+
+      .lab-name {
+        font-size: 1.7rem;
+        font-weight: bold;
+        color: #fff;
+        margin-left: 10px;
+      }
+
+      .logo {
+        width: 50px;
+        border-radius: 10px;
+      }
+
+      .icon {
+        cursor: pointer;
+        margin-left: 40px;
+        width: 20px;
+        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%);
+      }
+    }
+  }
+
+
+  .nav-link-container {
+    padding: 20px;
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+      color: var(--text-color);
+      background: var(--glass-overlay-style);
+      backdrop-filter: blur( 10px );
+      -webkit-backdrop-filter: blur( 10px );
+      text-decoration: none;
+      font-size: 1.2rem;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+
+      &:hover {
+        cursor: pointer;
+        transition: ease-in-out 0.3s;
+        background-color: #3e4246;
+      }
+
+      .text {
+        font-size: 15px;
+        text-align: center;
+      }
+
+      .icon {
+        margin-right: 10px;
+        width: 20px;
+        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%);
+      }
+
+      &.selected {
+        background-color: white;
+        color: black;
+      }
+    }
+  }
+
+  .gitHub-container {
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
+    padding: 20px;
+
+    .gitHub {
+      padding: 10px;
+      border-radius: 10px;
+      border: var(--reverse-black-white-color) 1px solid;
+      display: flex;
+      margin: auto;
+      align-items: center;
+      color: var(--reverse-black-white-color);
+      background-color: var(--reverse-white-black-color);
+      justify-content: center;
+      text-decoration: none;
+
+      transition: color, border, background-color 0.3s ease-in-out; // Theme transition
+
+      &:hover {
+        cursor: pointer;
+        transition: ease-in-out 0.3s;
+        background-color: var(--reverse-black-white-color);
+        color: var(--reverse-white-black-color);
+        border: var(--reverse-white-black-color) 1px solid;
+
+        .icon {
+          filter: var(--reverse-icon-filter);
+        }
+      }
+  
+      .icon {
+        margin-right: 10px;
+        width: 20px;
+        filter: var(--icon-filter);
+      }
+
+      .text {
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center;
+      }
+    }
+  }
 }
