@@ -14,13 +14,13 @@ module.exports = function (grunt) {
         watch: {
             sass: {
                 files: ['assets/scss/main.scss'],
-                tasks: ['sass']
+                tasks: ['build-css']
             }
         }
     });
 
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
-
-    grunt.registerTask('default', ['watch']);
+    grunt.registerTask('build-css', ['sass']);
+    grunt.registerTask('default', ['build-css','watch']);
 };

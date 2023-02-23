@@ -27,12 +27,23 @@ external_stylesheets = [
 
 #dfg = pd.read_csv(DATA_PATH.joinpath("theData_IfWeHave.csv"))
 
-app = Dash(__name__)
+
+#app.run_server(debug=True),
+#console print
+#print(dcc.Location(id='theme', refresh=False))
+
+#app = Dash(__name__)
+
+
 
 layout = html.Div([
+    dcc.Store(id='output', data='', storage_type='memory'), # store to store theme data
     html.Div(
         className="home-page",
         children=[
+#             html.Div([
+#                 html.Div(id='output'),
+#             ]),
             html.Video(src='../assets/indexPhylogeo.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
             html.Div(
             className="main-text",
@@ -43,7 +54,7 @@ layout = html.Div([
                     html.ObjectEl(id='icon', data='../assets/icons/up-right-from-square-solid.svg', type="image/svg+xml", className='icon')
                     ], target='_blank', href='https://tahirinadia.github.io/', className="url"),
                 ], className="sub-title"),
-                html.Div('Get Started', className="button primary"),
+                html.Div('Get Started', id='themes', className="button primary"),
                 ]
             ),
         ]
@@ -57,3 +68,12 @@ layout = html.Div([
         ])
     )
 ])
+
+# @app.callback(Output('output', 'children'),
+#               [Input('theme', 'data')]
+# )
+#
+# def update_output(data):
+#     app.logger.info('update_output'),
+#     app.logger.info(data)
+#     return data
