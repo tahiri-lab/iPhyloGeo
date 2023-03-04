@@ -10,8 +10,6 @@ import pathlib
 import plotly.express as px
 import plotly.graph_objs as go
 
-# app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, 'https://use.fontawesome.com/releases/v6.1.1/css/all.css'])
-
 external_stylesheets = [
 {
     'href': 'https://use.fontawesome.com/releases/v6.1.1/css/all.css',
@@ -21,30 +19,11 @@ external_stylesheets = [
 }
 ]
 
-# get relative data folder
-#PATH = pathlib.Path(__file__).parent
-#IMG_PATH = PATH.joinpath("../assets").resolve()
-
-#dfg = pd.read_csv(DATA_PATH.joinpath("theData_IfWeHave.csv"))
-
-
-#app.run_server(debug=True),
-#console print
-#print(dcc.Location(id='theme', refresh=False))
-
-#app = Dash(__name__)
-
-
-
 layout = html.Div([
-    dcc.Store(id='output', data='', storage_type='memory'), # store to store theme data
     html.Div(
         className="home-page",
         children=[
-#             html.Div([
-#                 html.Div(id='output'),
-#             ]),
-            html.Video(src='../assets/indexPhylogeo.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
+            html.Div(id='output'),
             html.Div(
             className="main-text",
             children=[
@@ -54,7 +33,7 @@ layout = html.Div([
                     html.ObjectEl(id='icon', data='../assets/icons/up-right-from-square-solid.svg', type="image/svg+xml", className='icon')
                     ], target='_blank', href='https://tahirinadia.github.io/', className="url"),
                 ], className="sub-title"),
-                html.Div('Get Started', id='themes', className="button primary"),
+                dbc.NavLink("Get Started", href='/apps/getStarted', id='themes', className="button primary", active="exact"),
                 ]
             ),
         ]
@@ -69,11 +48,17 @@ layout = html.Div([
     )
 ])
 
-# @app.callback(Output('output', 'children'),
-#               [Input('theme', 'data')]
-# )
-#
-# def update_output(data):
-#     app.logger.info('update_output'),
-#     app.logger.info(data)
-#     return data
+@app.callback(Output('output', 'children'),
+              [Input('theme-switch-output', 'children')]
+)
+
+def update_output(children):
+    app.logger.info('update_output'),
+    app.logger.info(children),
+    if children == False :
+        return html.Div(
+            children=[
+                 html.Video(src='../assets/indexPhylogeo_light.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
+              ] ),
+    else :
+        return html.Video(src='../assets/indexPhylogeo.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),

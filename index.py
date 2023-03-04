@@ -2,13 +2,14 @@ from pydoc import classname
 import dash_bootstrap_components as dbc
 
 from dash import dcc, html, State, Input, Output
+import dash_daq as daq
 from dash.dependencies import Input, Output
 
 
 # Connect to main app.py file
 from app import app
 # Connect to your app pages
-from apps import pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset
+from apps import pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset, getStarted
 
 sidebar = html.Div(
     [
@@ -16,12 +17,11 @@ sidebar = html.Div(
             className="nav-bar-container",
             children=[
                 html.Div([
-                    #html.Div(id='hidden-div', style={'display': 'none'}), # hidden div to trigger callback (necessary to store data in local storage)
                     html.Div([
                         html.Img(src='../assets/logo/LabLogo.png', className="logo"),
                         html.Div('Tahiri Lab', className="lab-name"),
-                        dcc.Input(id="input1", type="text", placeholder="ici", style={'marginRight':'10px'}),
-                        html.Img(src='../assets/icons/theme.svg', id='submit-val', className="icon"),
+                        daq.BooleanSwitch(id='theme-switch', className="themeSwitcher", on=True),
+                        html.Div(id='theme-switch-output')
                     ], className="lab-container"),
                     ], className="nav-bar"),
                 html.Div([
@@ -32,7 +32,7 @@ sidebar = html.Div(
                     dbc.NavLink([
                         html.Img(src='../assets/icons/folder-upload.svg', className="icon"),
                         html.Div("Upload Data", className="text"),
-                    ], href='/apps/homePage', active="exact", className="nav-link"),
+                    ], href='/apps/getStarted', active="exact", className="nav-link"),
                     dbc.NavLink([
                         html.Img(src='../assets/icons/dashboard.svg', className="icon"),
                         html.Div("Check Results", className="text"),
@@ -83,50 +83,54 @@ def display_page(pathname):
         return pipelineWithOurData.layout
     if pathname == '/apps/checkResults':
         return checkResults.layout
+    if pathname == '/apps/getStarted':
+        return getStarted.layout
     else:
         return homePage.layout
 
-@app.callback(Output('theme', 'data'), # hidden div to trigger callback (necessary to store data in local storage)
-              Input('input1', 'value'))  # button to trigger callback (need at least one parameter, but we dont use n_clicks)
-            #   State('theme', 'data'))           # store to get current theme
+@app.callback(
+          Output('theme-switch-output', 'children'), # hidden div to trigger callback
+          Input('theme-switch', 'on'),  # button to trigger callback (need at least one parameter, but we dont use n_clicks)
+          prevent_initial_call=True,
+)
 
-def change_theme(data):
+def change_theme(on):
     app.logger.info('change_theme'),
-    app.logger.info(data),
-    # print(dcc.Store(id='theme', data='light', storage_type='local'))
-    #data = 'lol'
-    # if data == None:
-    #     data = 'dark'
-    # elif data == 'dark':
-    #    data = 'light'
-    # else:
-    #     data = 'dark'
-    return data
+    return on
 
 @app.callback(
     Output("themer", "style"),
-    [Input("theme", "data")]
+    [Input("theme-switch-output", "children")]
 )
-def update_color(data):
+def update_color(children):
+    app.logger.info(children),
     # CSS for light theme
-#     app.logger.info('style'),
-#     app.logger.info(data)
-    if data == 'light':
+    if children == False:
         return {
+            "--theme-icon": "url(../assets/icons/theme-light.svg)",
+            "--switch-toggle-background": "rgb(230, 230, 230)",
+            "--switch-toggle-border": "white 1px solid",
             "--text-color": "#f5f5f5",
             "--reverse-black-white-color": "black",
             "--reverse-white-black-color": "white",
+            "--background-color": "#EBECF0",
+            "--reverse-background-color": "#1A1C1E",
             "--icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
             "--reverse-icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
-            "--glass-style": "rgba(255, 255, 255, 0.5)",
+            "--glass-style": "rgba(173, 173, 173, 0.5)",
             "--glass-overlay-style": "rgba(28, 28, 32, 0.5)"
         }
     # CSS for dark theme
     else:
         return {
+            "--theme-icon": "url(../assets/icons/theme-dark.svg)",
+            "--switch-toggle-background": "black",
+            "--switch-toggle-border": "white 1px solid",
             "--text-color": "#E0E0E0",
             "--reverse-black-white-color": "white",
             "--reverse-white-black-color": "black",
+            "--background-color": "#1A1C1E",
+            "--reverse-background-color": "#EBECF0",
             "--icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
             "--reverse-icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
             "--glass-style": "rgba(41, 40, 50, 0.5)",

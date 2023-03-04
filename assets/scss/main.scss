@@ -36,7 +36,8 @@ body {
   height: 100%;
 
   .home-page__video {
-    filter: brightness(50%);
+    animation: video-transition linear 1.5s ;
+    filter: blur(0) brightness(50%);
     width: 100%;
     height: 100vh;
     object-fit: cover;
@@ -44,6 +45,17 @@ body {
     top: 0;
     left: 0;
     z-index: 2;
+  }
+
+  @keyframes video-transition {
+    from {
+      filter: brightness(50%);
+      background-color: black;
+    }
+    to {
+      filter: brightness(50%);
+      background-color: black;
+    }
   }
 
   .main-text {
@@ -90,13 +102,32 @@ body {
   z-index: 100;
   width: 250px;
   background-color: var(--glass-style);
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0 7px 29px 0;
   backdrop-filter: blur( 16.5px );
   -webkit-backdrop-filter: blur( 16.5px );
   border: 1px solid rgba(69, 69, 69, 0.18);
 
   height: calc(100vh - 21px);
   transition: all 0.3s ease-in-out; // Theme transition
+
+  .themeSwitcher {
+    margin-left: 15px;
+
+    div {
+      div {
+        div {
+          border: var(--switch-toggle-border) !important;
+          background: var(--switch-toggle-background) !important;
+        }
+      }
+    }
+    button {
+      background-image: var(--theme-icon);
+      background-repeat: no-repeat;
+      background-size: 15px;
+      background-position: center;
+    }
+  }
 
   .nav-bar {
 
@@ -214,4 +245,67 @@ body {
       }
     }
   }
+}
+
+.getStarted {
+
+  background-color: var(--background-color);
+  height: 100vh;
+  overflow: auto;
+
+  .ChoiceSection {
+    margin-top: 90px;
+    text-align: center;
+
+    .title {
+      color: var(--reverse-black-white-color);
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .options {
+      display: flex;
+      justify-content: center;
+
+      .option {
+        transition: all 0.3s ease-in-out;
+        background-color: var(--reverse-background-color);
+        color: var(--reverse-white-black-color);
+        border-radius: 10px;
+        width: 250px;
+        height: 250px;
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .optionImage {
+          align-items: center;
+          display: flex;
+          margin: 0 auto;
+          width: 75px;
+          height: 75px;
+          background-color: var(--reverse-white-black-color);
+          border-radius: 50%;
+
+          .img {
+            filter: var(--icon-filter);
+            margin: auto;
+            width: 25px;
+          }
+        }
+
+        .title {
+          color: var(--reverse-white-black-color);
+          margin-top: 10px;
+          font-size: 15px;
+        }
+
+        .description {
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+
 }
