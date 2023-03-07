@@ -109,7 +109,7 @@ def slidingWindow(window_size=0, step=0):
                 out.write("\n")
                 depart = fin
                 fin = depart + no_line
-        out.close()  #本来是贴着写的，现在在每个sequence后面加了个\n来隔开，间隔了一行
+        out.close()  
 
         # on cree un fichier out qui contient chaque sequence sans espaces 
         # et on enregistre dans une list le nom en ordre des sequences
@@ -125,7 +125,7 @@ def slidingWindow(window_size=0, step=0):
                     if line != "":
                         f.write(line)
                 f.write("\n")
-        out.close()  # 是没有名字的，每个sequence一行的那种
+        out.close()  
         f.close()
 
         # slide the window along the sequence
@@ -138,7 +138,7 @@ def slidingWindow(window_size=0, step=0):
                 for line in f:
                     if line != "\n":
                         espece = list_names[index]
-                        nbr_espaces = 11 - len(espece)   # ??? why 11 ?  为什么要操作len(sequence's name) ?
+                        nbr_espaces = 11 - len(espece)   
                         out.write(espece)
                         for i in range(nbr_espaces):
                             out.write(" ")
@@ -147,7 +147,7 @@ def slidingWindow(window_size=0, step=0):
             out.close()
             f.close()
             debut = debut + step
-            fin = fin + step             # 大概是在"output/windows/"产生了一个file群。每个file里列的是各个sequence在特定window的cut
+            fin = fin + step             
     except:
         print("An error occurred.")
 
