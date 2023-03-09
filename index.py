@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 
 from dash import dcc, html, State, Input, Output
 import dash_daq as daq
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, ClientsideFunction
 
 
 # Connect to main app.py file
@@ -15,14 +15,16 @@ sidebar = html.Div(
     [
         html.Div(
             className="nav-bar-container",
+            id="navBar",
             children=[
                 html.Div([
                     html.Div([
-                        html.Img(src='../assets/logo/LabLogo.png', className="logo"),
-                        html.Div('Tahiri Lab', className="lab-name"),
+                        html.Div(id='dummy-output'),
+                        html.Img(src='../assets/logo/LabLogo.png', id="labLogo", className="logo"),
+                        html.Div('Tahiri Lab', id="lab-name", className="lab-name"),
                         daq.BooleanSwitch(id='theme-switch', className="themeSwitcher", on=True),
                         html.Div(id='theme-switch-output')
-                    ], className="lab-container"),
+                    ], id="lab-container", className="lab-container"),
                     ], className="nav-bar"),
                 html.Div([
                     dbc.NavLink([
@@ -37,20 +39,20 @@ sidebar = html.Div(
                         html.Img(src='../assets/icons/dashboard.svg', className="icon"),
                         html.Div("Check Results", className="text"),
                     ], href='/apps/checkResults', active="exact", className="nav-link"),
-                    # Legacy
+                    #Legacy
                     # html.Div("Legacy"),
                     # dbc.NavLink("Upload Meteorological Data", href='/apps/upload_MeteorologicalDataset', active="exact"),
                     # dbc.NavLink("Uploaded Genetic Data", href='/apps/pipelineWithUploadedData', active="exact"),
                     # dbc.NavLink("Using Our Meteorological Data (yellow-legged hornet)", href='/apps/usingOurMeteorologicalDataset', active="exact"),
                     # dbc.NavLink("Phylogeography Analysis With Our Data (yellow-legged hornet)", href='/apps/pipelineWithOurData', active="exact"),
                     # dbc.NavLink("See my Results", href='/apps/checkResults', active="exact"),
-                ], className="nav-link-container"),
+                ], id="nav-link", className="nav-link-container"),
                 html.Div([
                     html.A([
                         html.Img(src='../assets/icons/github.svg', className="icon"),
                         html.Div("Visit our GitHub", className="text"),
                     ], target='_blank', href="https://github.com/tahiri-lab", className="gitHub"),
-                ], className="gitHub-container"),
+                ], id="gitHub-container", className="gitHub-container"),
             ],
         ),
     ],
@@ -59,17 +61,28 @@ sidebar = html.Div(
 content = html.Div(id="page-content", children=[])
 
 app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
     dcc.Store(id='theme', data='light', storage_type='local'), # store to store theme data
-    dcc.Location(id="url"),
     html.Div(children=[
-    sidebar,
-    content
-    ], id='themer', style={'display': 'flex'})
-])
+        sidebar,
+        content
+    ], id='themer', style={'display': 'flex'}),
+],)
+
+
+app.clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='navbar_function'
+    ),
+    Output("dummy-output", "children"), # needed for the callback to trigger
+    Input("labLogo", "n_clicks"),
+)
+
 
 @app.callback(Output('page-content', 'children'),
-              [Input('url', 'pathname')])
-
+              Input('url', 'pathname'),
+)
 def display_page(pathname):
     if pathname == '/apps/homePage':
         return homePage.layout
@@ -93,9 +106,8 @@ def display_page(pathname):
           Input('theme-switch', 'on'),  # button to trigger callback (need at least one parameter, but we dont use n_clicks)
           prevent_initial_call=True,
 )
-
 def change_theme(on):
-    app.logger.info('change_theme'),
+    #app.logger.info('change_theme'),
     return on
 
 @app.callback(

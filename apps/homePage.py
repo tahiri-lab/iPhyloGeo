@@ -58,7 +58,7 @@ def update_output(children):
     if children == False :
         return html.Div(
             children=[
-                 html.Video(src='../assets/indexPhylogeo_light.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
+                 html.Video(src='../assets/videos/indexPhylogeo_light.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
               ] ),
     else :
-        return html.Video(src='../assets/indexPhylogeo.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
+        return html.Video(src='../assets/videos/indexPhylogeo.mp4', autoPlay=True, loop=True, muted=True, controls=False, className="home-page__video"),
