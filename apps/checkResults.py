@@ -107,7 +107,7 @@ layout = dbc.Container([
              ],xs=3, sm=3, md=3, lg=3, xl=3),
 
 
-         ], justify='around'),
+         ], style={"margin": "60px"}, justify='around'),
 
     # For Graph
     dbc.Row([
@@ -149,7 +149,7 @@ layout = dbc.Container([
 
 
 
-    ], fluid=True)
+    ], style={"margin": "40px"}, fluid=True)
 
 
 #-----------------------------------------------------------------------
