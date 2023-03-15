@@ -23,6 +23,8 @@ DATA_PATH = PATH.joinpath("../datasets").resolve()
 
 dfg = pd.read_csv(DATA_PATH.joinpath("donnees.csv"))
 
+figures = []
+
 # Creating an ID column name gives us more interactive capabilities
 #dfg['id'] = dfg['iso_alpha']
 #dfg.set_index('id', inplace=True, drop=False)
@@ -165,7 +167,9 @@ def parse_contents_fromInteractiveDT(all_rows_data):
         dcc.RadioItems(id='choose-graph-type-filtered',
                         options=[
                             {'label': 'Bar Graph', 'value': 'Bar'},
-                            {'label': 'Scatter Plot', 'value': 'Scatter'}
+                            {'label': 'Scatter Plot', 'value': 'Scatter'},
+                            {'label': 'Line Plot', 'value': 'Line'},
+                            {'label': 'Pie Plot', 'value': 'Pie'},
                         ],
                         value='Bar'
                     ),  
@@ -193,18 +197,21 @@ def parse_contents_fromInteractiveDT(all_rows_data):
               State('xaxis-data-filtered','value'),
               State('yaxis-data-filtered', 'value'))
 
-def make_graphs(n, graph_type, all_rows_data, x_data, y_data):
+def make_list_graphs(n, graph_type, all_rows_data, x_data, y_data):
     dff = pd.DataFrame(all_rows_data)
     if n is None:
         return dash.no_update
     else:
         if graph_type == 'Bar':
-            bar_fig = px.bar(dff, x=x_data, y=y_data)
+            fig = px.bar(dff, x=x_data, y=y_data)
         if graph_type =='Scatter':
-            bar_fig = px.scatter(dff, x=x_data, y=y_data)
-        # print(data)
-        return dcc.Graph(figure=bar_fig)
-
+            fig = px.scatter(dff, x=x_data, y=y_data)
+        if graph_type == 'Line':
+            fig = px.line(dff, x=x_data, y=y_data)
+        if graph_type == 'Pie':
+            fig = px.pie(dff, values=y_data, names=x_data, labels=x_data)
+        figures.append(dcc.Graph(figure=fig))
+    return figures
 # -------------------------------------------------------------------------------------
 # Highlight selected column
 @app.callback(

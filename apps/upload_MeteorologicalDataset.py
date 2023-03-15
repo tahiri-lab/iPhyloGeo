@@ -21,7 +21,7 @@ import subprocess
 import importlib
 import tree
 
-
+figures = []
 # For uploaded dataset
 
 layout = dbc.Container([
@@ -158,7 +158,7 @@ def parse_contents(contents, filename, date):
                                 #}),
                         ],xs=12, sm=12, md=12, lg=10, xl=10),
 
-                    ],no_gutters=True, justify='around'), 
+                    ],className="g-0", justify='around'), 
 
                 dbc.Row([
                         dbc.Col([
@@ -178,7 +178,9 @@ def parse_contents(contents, filename, date):
                                 dcc.RadioItems(id='choose-graph-type',
                                                 options=[
                                                     {'label': 'Bar Graph', 'value': 'Bar'},
-                                                    {'label': 'Scatter Plot', 'value': 'Scatter'}
+                                                    {'label': 'Scatter Plot', 'value': 'Scatter'},
+                                                    {'label': 'Line Plot', 'value': 'Line'},
+                                                    {'label': 'Pie Plot', 'value': 'Pie'},
                                                 ],
                                                 value='Bar'
                                             ),  
@@ -202,7 +204,7 @@ def parse_contents(contents, filename, date):
 
                                 ])
                         ],xs=12, sm=12, md=12, lg=10, xl=10),
-                    ],no_gutters=True, justify='around'), 
+                    ],className="g-0", justify='around'), 
 
                    
          ], fluid=True)
@@ -234,11 +236,15 @@ def make_graphs(n, graph_type, data, x_data, y_data):
         return dash.no_update
     else:
         if graph_type == 'Bar':
-            bar_fig = px.bar(data, x=x_data, y=y_data)
+            fig = px.bar(data, x=x_data, y=y_data)
         if graph_type =='Scatter':
-            bar_fig = px.scatter(data, x=x_data, y=y_data)
-        # print(data)
-        return dcc.Graph(figure=bar_fig)
+            fig = px.scatter(data, x=x_data, y=y_data)
+        if graph_type == 'Line':
+            fig = px.line(data, x=x_data, y=y_data)
+        if graph_type == 'Pie':
+            fig = px.pie(data, values=y_data, names=x_data, labels=x_data)
+        figures.append(dcc.Graph(figure=fig))
+    return figures
 
 # Choropleth Map
 @app.callback(
@@ -254,8 +260,7 @@ def update_output(num_clicks, data, val_selected):
         return dash.no_update
     else:
         if "iso_alpha" in data[0].keys():
-
-            fig = px.choropleth(data, locations="iso_alpha",
+            fig = px.choropleth(data, locations="iso_alpha",scope="continent",
                                 color=val_selected,
                                 projection='natural earth',
                                 color_continuous_scale=px.colors.sequential.Turbo)
