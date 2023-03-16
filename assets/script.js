@@ -45,6 +45,17 @@
           navbar_function: function() {
             responsiveNavbar()
             return ''
+          },
+
+          next_option_function: function(largeValue1) {
+            document.getElementById('DropFileSection').scrollIntoView({ behavior: 'smooth', block: 'start'});
+            return ''
+          },
+
+          show_text_field: function () {
+            document.getElementById('manualField').classList.remove("hidden");
+            document.getElementById('dropContainer').classList.add("hidden");
+            document.getElementById('manualInsert').classList.add("hidden");
           }
       }
     });

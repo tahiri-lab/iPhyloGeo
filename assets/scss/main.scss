@@ -4,6 +4,12 @@ body {
     box-sizing: border-box;
 }
 
+.buttonPack {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 .button {
   display: inline-block;
   border-radius: 10px;
@@ -383,9 +389,9 @@ body {
 
 .getStarted {
   background-color: var(--background-color);
-  height: 100vh;
+  //height: 100vh;
   overflow: auto;
-  padding: 80px;
+  padding: 0 80px;
 
   .container {
     display: flex;
@@ -393,18 +399,28 @@ body {
     justify-content: center;
   }
 
+  .title {
+    color: var(--reverse-black-white-color);
+    font-size: 25px;
+    font-weight: bold;
+  }
+
   .ChoiceSection {
-    margin-top: 90px;
+    //top: 25%;
+    position: relative;
+    height: 100vh;
+    //margin-top: 90px;
     text-align: center;
+
+    .choiceSectionInside {
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
 
     .button {
       margin-top: 30px;
-    }
-
-    .title {
-      color: var(--reverse-black-white-color);
-      font-size: 25px;
-      font-weight: bold;
     }
 
     .option {
@@ -462,13 +478,16 @@ body {
   }
 
   .DropFileSection {
-    margin-top: 90px;
+    top: 25%;
+    position: relative;
+    height: 100vh;
     text-align: center;
 
-    .title {
-      color: var(--reverse-black-white-color);
-      font-size: 25px;
-      font-weight: bold;
+    .DropFileSectionInside {
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .icon {
@@ -482,12 +501,26 @@ body {
     }
 
     .dropZone {
+      user-select: none;
       width: 80%;
       height: 150px;
       line-height: 60px;
       border: 2px dashed var(--reverse-black-white-color);
       border-radius: 5px;
       text-align: center;
+
+      .textArea {
+        display: flex;
+        width: 100%;
+        height: 150px;
+        max-height: 150px;
+        min-height: 150px;
+        line-height: initial;
+
+        &.hidden {
+          display: none;
+        }
+      }
 
       .dropContainer {
         position: relative;
@@ -504,14 +537,78 @@ body {
           justify-content: center;
           color: var(--reverse-black-white-color);
         }
+
+        &.hidden {
+          display: none;
+        }
       }
 
       .ManualInsertText {
+        user-select: none;
         position: relative;
         cursor: pointer;
         color: #299FF5;
         z-index: 2;
-        margin-top: -30px;
+        width: 250px;
+        margin: -30px auto 0 auto;
+
+        &:hover {
+          transition: color 0.3s ease-in-out;
+          color: #175887;
+        }
+
+        &.hidden {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .ParametersSection {
+    top: 25%;
+    position: relative;
+    height: 100vh;
+    text-align: center;
+
+    &.hidden {
+      display: none;
+    }
+
+    .ParametersSectionInside {
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      .ParameterContainer {
+        display: grid;
+        //grid-template-columns: 360px 360px;
+        border-radius: 5px;
+        grid-row: auto;
+        grid-column-gap: 20px;
+        grid-row-gap: 20px;
+        margin-top: 20px;
+        justify-content: center;
+
+        .ParameterContainerInside {
+          display: grid;
+          grid-template-areas:
+          'title slider counter';
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          width: 800px;
+          padding: 15px;
+          border-radius: 5px;
+          background-color: white;
+
+          .paramTitle {
+            grid-area: title;
+          }
+
+          .slider {
+            grid-area: slider ;
+          }
+        }
       }
     }
   }
