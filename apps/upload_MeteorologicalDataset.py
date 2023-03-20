@@ -25,34 +25,6 @@ figures = []
 # For uploaded dataset
 
 layout = dbc.Container([
-    html.H1('Phylogeography', style={"textAlign": "center"}),  #title
-    dbc.Row([
-        dbc.Col([
-            dcc.Upload(
-                id='upload-data',
-                children=html.Div([
-                    'Drag and Drop or ',
-                    html.A('Select Files')
-                ]),
-                style={
-                    'width': '99%',
-                    'height': '60px',
-                    'lineHeight': '60px',
-                    'borderWidth': '1px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '5px',
-                    'textAlign': 'center',
-                    'margin': '10px'
-                },
-                # Allow multiple files to be uploaded
-                multiple=True
-            ),
-        ],# width={'size':3, 'offset':1, 'order':1},
-           xs=12, sm=12, md=12, lg=10, xl=10
-        ),
-    ], justify='around'),  # Horizontal:start,center,end,between,around
-
-
     dbc.Row([
         dbc.Col([
             html.Div(id='output-datatable'),

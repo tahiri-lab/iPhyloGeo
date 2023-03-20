@@ -38,14 +38,6 @@ layout = html.Div([
             ),
         ]
     ),
-    html.Div(
-        children=html.Div([
-            html.H5('Overview'),
-            html.Div('''
-                Testing
-            ''')
-        ])
-    )
 ])
 
 @app.callback(Output('output', 'children'),
