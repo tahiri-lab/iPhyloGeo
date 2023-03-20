@@ -8,5 +8,4 @@ venv/
 node_modules/
 datasets/
 __pycache__/
-/assets/main.css
-/assets/main.css.map
+*.css
