@@ -1,16 +1,14 @@
 
 
     // Scroll detection to minimize navBar
-
-    //let prevScroll = window.scrollY;
-    let open = true;
-    // window.onscroll = ()  => {
-    //   responsiveNavbar()
-    // };
+    let open = false;
+    window.onscroll = ()  => {
+      open = true;
+      responsiveNavbar()
+    };
 
     function responsiveNavbar() {
       if (open) {
-          console.log('plus petit');
           document.getElementById('lab-container').classList.add("minimized");
           document.getElementById('navBar').classList.add("minimized");
           document.getElementById('lab-name').classList.add("minimized");
@@ -19,13 +17,9 @@
           document.getElementById('gitHub-container').classList.add("minimized");
 
           open = false;
-          // prevScroll = window.scrollY;
-          // localStorage.setItem('scroll', prevScroll)
-
         }
 
         else {
-          console.log('plus grand');
           document.getElementById('lab-container').classList.remove("minimized");
           document.getElementById('navBar').classList.remove("minimized");
           document.getElementById('lab-name').classList.remove("minimized");
@@ -34,9 +28,6 @@
           document.getElementById('gitHub-container').classList.remove("minimized");
 
           open = true
-          // prevScroll = window.scrollY;
-          // localStorage.setItem('scroll', prevScroll)
-
         }
     }
 
@@ -47,8 +38,8 @@
             return ''
           },
 
-          next_option_function: function(largeValue1) {
-            document.getElementById('DropFileSection').scrollIntoView({ behavior: 'smooth', block: 'start'});
+          next_option_function: function(currentDiv, desireDiv) {
+            document.getElementById(desireDiv).scrollIntoView({ behavior: 'smooth', block: 'start'});
             return ''
           },
 
