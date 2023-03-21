@@ -9,3 +9,5 @@ node_modules/
 datasets/
 __pycache__/
 *.css
+
+.env

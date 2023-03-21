@@ -15,11 +15,13 @@ import io
 import pipeline
 from Bio import SeqIO
 
+from utils.utils import *
+
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("../datasets").resolve()
 
-# get all the newick files produced 
+# get all the newick files produced
 tree_path = os.listdir()
 tree_files = []
 for item in tree_path:
@@ -29,7 +31,7 @@ for item in tree_path:
 #-------------------------------------------
 layout = dbc.Container([
     html.H1('Phylogenetic Tree', style={"textAlign": "center"}),  #title
-    
+
     # the first row
     dbc.Row([
         dbc.Col([
@@ -64,7 +66,7 @@ layout = dbc.Container([
             html.Div([
                 html.H3("Bootstrap value threshold"),
                 dcc.Slider(id='BootstrapThreshold-slider',
-                            min=0,  
+                            min=0,
                             max=100,
                             step=0.1,
                             marks={
@@ -74,7 +76,7 @@ layout = dbc.Container([
                                 75: {'label':'75.0%','style': {'color': '#77b0b1'}},
                                 100: {'label':'100.0%','style': {'color': '#77b0b1'}}},
                             value=10),
-                html.Div(id='BootstrapThreshold-slider-output-container')        
+                html.Div(id='BootstrapThreshold-slider-output-container')
             ]),
         ], #width={'size':5, 'offset':0, 'order':2},
            xs=12, sm=12, md=12, lg=5, xl=5
@@ -94,23 +96,23 @@ layout = dbc.Container([
                                 75: {'label':'75.0%', 'style': {'color': '#77b0b1'}},
                                 100: {'label':'100.0%','style': {'color': '#77b0b1'}}},
                             value=10),
-                html.Div(id='RFThreshold-slider-output-container'),       
+                html.Div(id='RFThreshold-slider-output-container'),
             ]),
             ], #width={'size':5, 'offset':0, 'order':2},
             xs=12, sm=12, md=12, lg=5, xl=5
             ),
     ], justify='around'),  # Horizontal:start,center,end,between,around
-    
-    # for sliding window size & step size 
+
+    # for sliding window size & step size
     dbc.Row([
 
         dbc.Col([
             html.Div([
                 html.H3("Sliding Window Size"),
                 dcc.Input(id = "input_windowSize1", type = "number", min = 0, max = 50000,
-                    placeholder = "Enter Sliding Window Size", 
-                    style= {'width': '65%','marginRight':'20px'}), 
-                html.Div(id='WindowSize-output-container1')        
+                    placeholder = "Enter Sliding Window Size",
+                    style= {'width': '65%','marginRight':'20px'}),
+                html.Div(id='WindowSize-output-container1')
                     ]),
 
         ],# width={'size':3, 'offset':1, 'order':1},
@@ -120,10 +122,10 @@ layout = dbc.Container([
         dbc.Col([
             html.Div([
                 html.H3("Step Size"),
-                dcc.Input(id = "input_stepSize1", type = "number", min = 0, max = 50000, 
-                    placeholder = "Enter Step Size", 
+                dcc.Input(id = "input_stepSize1", type = "number", min = 0, max = 50000,
+                    placeholder = "Enter Step Size",
                     style= {'width': '65%','marginRight':'20px'}),
-                html.Div(id='StepSize-output-container1')        
+                html.Div(id='StepSize-output-container1')
                     ]),
         ],# width={'size':3, 'offset':1, 'order':1},
            xs=12, sm=12, md=12, lg=5, xl=5
@@ -154,7 +156,7 @@ layout = dbc.Container([
            xs=12, sm=12, md=12, lg=10, xl=10
         ),
     ],justify='around'),  # Horizontal:start,center,end,between,around
-    
+
     #submit button
     dbc.Row([
         dbc.Col([
@@ -175,15 +177,15 @@ layout = dbc.Container([
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
          ],justify='around'),
-  
+
     dbc.Row([
             dbc.Col([
                 html.Div(id='output-container'),
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
          ],justify='around'),
-   
-    
+
+
 ], fluid=True)
 
 
@@ -233,10 +235,10 @@ def update_output(value):
         else:
             value_max = ref_genes_len - 1 - value
         return 'The input value must be an integer from 0 to {}'.format(value_max)
-    
+
 
 #------------------------------------
-# get the contens of uploaded files    
+# get the contens of uploaded files
 
 def parse_fasta_contents(contents, filename, date):
     content_type, content_string = contents.split(',')
@@ -264,16 +266,16 @@ def parse_fasta_contents(contents, filename, date):
         else:
             # Assume that the user uploaded other files
             return html.Div([
-                dcc.Markdown('Please upload a **fasta file**.'),   
+                dcc.Markdown('Please upload a **fasta file**.'),
         ])
     except Exception as e:
         print(e)
         return html.Div([
-            'There was an error processing this file.' 
+            'There was an error processing this file.'
         ])
 
 
-    
+
 #callback for uploaded data
 
 @app.callback(Output('output-fasta', 'children'),
@@ -281,11 +283,24 @@ def parse_fasta_contents(contents, filename, date):
               State('upload-data', 'filename'),
               State('upload-data', 'last_modified'))
 def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_fasta_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+    # if list_of_contents is not None:
+    #     children = [
+    #         parse_fasta_contents(c, n, d) for c, n, d in
+    #         zip(list_of_contents, list_of_names, list_of_dates)]
+    #     return children
+
+    # should not enter this function if list_of_contents is None
+    # TODO: check when upload-data its call
+    if list_of_contents is None:
+        return
+
+    files = get_files_from_base64(list_of_contents, list_of_names, list_of_dates)
+
+    results = []
+    for file in files:
+        results.append(create_seq_html(file))
+
+    return results
 
 
 #---------------------------------------
@@ -316,7 +331,7 @@ def update_output(n_clicks, bootstrap_threshold, rf_threshold, window_size, step
                 dcc.Markdown('window_size :  **{}**'.format(window_size),className="card-text"),
                 dcc.Markdown('step_size :  {}'.format(step_size),className="card-text"),
                 dcc.Markdown('data_names :  {}'.format(data_names),className="card-text"),
-                
+
                 dbc.CardLink("Check Results", href="checkResults"),
                 #dbc.Button("Go somewhere", color="primary"),
             ]
