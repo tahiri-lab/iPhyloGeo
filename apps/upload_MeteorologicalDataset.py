@@ -15,11 +15,13 @@ from dash.exceptions import PreventUpdate
 import base64
 import datetime
 import io
-import os 
+import os
 import subprocess
 
 import importlib
 import tree
+
+from utils.utils import *
 
 figures = []
 # For uploaded dataset
@@ -40,7 +42,7 @@ layout = dbc.Container([
                 xs=12, sm=12, md=12, lg=10, xl=10
                 ),
             ], justify='around'),  # Horizontal:start,center,end,between,around
-        
+
     # another row for Choropleth Map
     dbc.Row([
             dbc.Col([
@@ -81,120 +83,30 @@ layout = dbc.Container([
 
          ], fluid=True)
 
-
-        
-    
-
-#---------------------------------------------------------
-
-def parse_contents(contents, filename, date):
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-        else:
-            # Assume that the user uploaded other files
-            return html.Div([
-                'Please upload a CSV file or an excel file.'
-        ])
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    param_selection = dbc.Container([ 
-                dbc.Row([
-                        dbc.Col([
-                            dash_table.DataTable(
-                                    data= df.to_dict('records'),
-                                    columns=[{'name': i, 'id': i} for i in df.columns],
-                                    page_size=15
-                                ),
-                                dcc.Store(id='stored-data', data=df.to_dict('records')),
-
-                                html.Hr(),  # horizontal line
-
-                                # For debugging, display the raw contents provided by the web browser
-                                #html.Div('Raw Content'),
-                                #html.Pre(contents[0:200] + '...', style={
-                                #    'whiteSpace': 'pre-wrap',
-                                #    'wordBreak': 'break-all'
-                                #}),
-                        ],xs=12, sm=12, md=12, lg=10, xl=10),
-
-                    ],className="g-0", justify='around'), 
-
-                dbc.Row([
-                        dbc.Col([
-                            html.Div([
-                                html.H5(filename),
-                                #html.H6(datetime.datetime.fromtimestamp(date)),
-                                html.P("Inset X axis data"),
-                                dcc.Dropdown(id='xaxis-data',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.P("Inset Y axis data"),
-                                dcc.Dropdown(id='yaxis-data',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.P("Select data for choropleth map"),
-                                dcc.Dropdown(id='map-data',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.Br(),
-                                dcc.RadioItems(id='choose-graph-type',
-                                                options=[
-                                                    {'label': 'Bar Graph', 'value': 'Bar'},
-                                                    {'label': 'Scatter Plot', 'value': 'Scatter'},
-                                                    {'label': 'Line Plot', 'value': 'Line'},
-                                                    {'label': 'Pie Plot', 'value': 'Pie'},
-                                                ],
-                                                value='Bar'
-                                            ),  
-                                html.Br(),
-                                html.Button(id="submit-button", children="Create Graph"),
-                                html.Hr(),
-                            # parameters for creating phylogeography trees
-                                html.H2('Create Phylogeography Trees', style={"textAlign": "center"}),  #title
-                                html.H4("Inset the name of the column containing the sequence Id"),
-                                dcc.Dropdown(id='col-specimens',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.H4("select the name of the column to analyze"),
-                                html.P('The values of the column must be numeric for the program to work properly.'),
-                                dcc.Checklist(id = 'col-analyze',
-                                            options =[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
-                                            labelStyle={'display': 'inline-block','marginRight':'20px'}
-                                        ),
-                                html.Br(),
-                                html.Button(id="submit-forTree", children="Create Newick files"),  
-                                html.Hr(),
-
-                                ])
-                        ],xs=12, sm=12, md=12, lg=10, xl=10),
-                    ],className="g-0", justify='around'), 
-
-                   
-         ], fluid=True)
-
-    return param_selection
-        
-
 #--------------------------------------------------------------------------------
 @app.callback(Output('output-datatable', 'children'),
               Input('upload-data', 'contents'),
               State('upload-data', 'filename'),
               State('upload-data', 'last_modified'))
 def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+    # if list_of_contents is not None:
+    #     children = [
+    #         parse_contents(c, n, d) for c, n, d in
+    #         zip(list_of_contents, list_of_names, list_of_dates)]
+    #     return children
+
+    # should not enter this function if list_of_contents is None
+    # TODO: check when upload-data its call
+    if list_of_contents is None:
+        return
+
+    files = get_files_from_base64(list_of_contents, list_of_names, list_of_dates)
+    app.logger.info("files: {}".format(files))
+    tables = []
+    for file in files:
+        tables.append(create_table(file))
+
+    return tables
 
 @app.callback(Output('output-div', 'children'),
               Input('submit-button','n_clicks'),
@@ -275,7 +187,7 @@ def update_output(n,names):
         return dash.no_update
     else:
         return dcc.Markdown('In order to create reference trees, the columns selected are:  **{}**'.format("; ".join(names)))
-    
+
 # phylogeography trees : newick files
 @app.callback(
     Output('newick-files-container4','children'),
@@ -290,7 +202,7 @@ def update_output(n,file_name,specimen,names):
     else:
         col_names = [specimen] + list(names)
         tree.create_tree(file_name[0], list(col_names)) # run tree.py
-        
+
         tree_path = os.listdir()
         tree_files = []
         for item in tree_path:
@@ -303,8 +215,8 @@ def update_output(n,file_name,specimen,names):
             html.Hr(),
             html.H6('output files:'),
             html.H5("; ".join(tree_files)),
-            dcc.Input(id = "input_fileName", type = "text", 
-                    placeholder = "Enter the name of the file to be downloaded", 
+            dcc.Input(id = "input_fileName", type = "text",
+                    placeholder = "Enter the name of the file to be downloaded",
                     style= {'width': '68%','marginRight':'20px'}),
             dbc.Button(id='btn-newick',
                             children=[html.I(className="fa fa-download mr-1"), "Download newick files"],
@@ -319,7 +231,7 @@ def update_output(n,file_name,specimen,names):
 
 # for download buttonv
     Input("btn-newick", "n_clicks"),
-    State('input_fileName','value'), 
+    State('input_fileName','value'),
     prevent_initial_call=True,
 
 def func(n_clicks, fileName):

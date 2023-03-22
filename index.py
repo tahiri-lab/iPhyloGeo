@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+import os
 from pydoc import classname
 import dash_bootstrap_components as dbc
 
@@ -12,6 +14,12 @@ from app import app
 from apps import pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset
 from apps.upload import getStarted
 from apps.results import results
+
+from flask_pymongo import PyMongo
+
+from db.db_validator import db_schema_validator
+
+load_dotenv()
 
 sidebar = html.Div(
     [
@@ -154,6 +162,21 @@ def update_color(children):
             "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
             "--result-row-color": "#444444",
         }
+
+#  TODO Add a local and remote database
+mongo_uri = os.environ.get('MONGO_URI')
+db_name = os.environ.get('DB_NAME')
+
+app.server.config['DB_NAME'] = db_name
+
+mongo_client = PyMongo(app.server, uri=mongo_uri)
+
+db_schema_validator(mongo_client.cx[db_name])
+
+files_db = mongo_client.db.Files
+results_db = mongo_client.db.Results
+
+app.logger.info('MongoDB connected')
 
 if __name__ == '__main__':
     app.run_server(debug=True)

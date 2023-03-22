@@ -17,6 +17,8 @@ import re
 
 from app import app
 
+from utils.utils import *
+
 # get relative data folder
 '''
 def getOutputCSV(fileName = "output.csv"):
@@ -29,6 +31,9 @@ def getOutputCSV(fileName = "output.csv"):
 output_df = getOutputCSV()
 '''
 
+output_file_name = "output.csv"
+
+output_df = get_file(output_file_name, options={'pd': True})
 
 output_df = pd.read_csv("output.csv")
 
@@ -74,7 +79,7 @@ layout = dbc.Container([
                 #html.Br(),
                 #html.Br(),
                 html.Div(table_interact,id= "output-csv"),
-                
+
             ],xs=12, sm=12, md=12, lg=10, xl=10),
 
          ], justify='around'),
@@ -212,11 +217,11 @@ def func(n_clicks,all_rows_data):
                 facet_col="Arbre phylogeographique",
                 facet_col_wrap=1,
                 title="phylogeographic analysis of {}".format(gene),
-                
+
                 #symbol = "Arbre phylogeographique",
                 )
-            graphs.append(dcc.Graph(figure=scatter_output))""" 
-            
+            graphs.append(dcc.Graph(figure=scatter_output))"""
+
             line_output = px.scatter(
                 data_frame=dfg,
                 x="Position ASM",
@@ -228,7 +233,7 @@ def func(n_clicks,all_rows_data):
                 )
             #fig2 = line_output.add_trace(bar_output[0])
             line_output.update_traces(mode='lines+markers')
-            
+
             graphs.append(dcc.Graph(figure=line_output))
 
         return graphs
@@ -275,10 +280,10 @@ def func(n_clicks,all_rows_data,select_rows):
                     html.Div(tree_txt, style={'whiteSpace': 'pre-line'}),
                 ]),
                     ],style={"width": "95%"},)
-            
+
             trees_display.append(tree_card)
- 
-        
+
+
     return trees_display
 
 #-----------------------------------
@@ -301,18 +306,18 @@ def func(n_clicks,all_rows_data,select_rows):
         genes_selected = df_select['Gene'].unique()
         #print(genes_selected)
         if genes_selected[0] != 'output/reference_gene.fasta':
-            
+
             return html.Div([
                 html.H4("Select gene for alignment visualisation"),
                 dcc.RadioItems(id='choose-align-gene',
-                            options=[{'label':x, 'value':x} for x in genes_selected],),  
+                            options=[{'label':x, 'value':x} for x in genes_selected],),
                             ])
         else:
             positions_selected = df_select['Position ASM'].unique()
             return html.Div([
                 html.H4("Select position ASM for alignment visualisation"),
                 dcc.RadioItems(id='choose-align-gene',
-                            options=[{'label':x, 'value':x} for x in positions_selected],),  
+                            options=[{'label':x, 'value':x} for x in positions_selected],),
                             ])
 
 
@@ -330,7 +335,7 @@ def make_alignement_chart(sliding_window_value):
         val_split = sliding_window_value.split('_')
         first_value = val_split[0]
         second_value = val_split[1]
-      
+
         for record in SeqIO.parse(ref_gene_path, "fasta"):
             f.write('>'+ record.id + '\n')
             #app.logger.info(record.seq[0:250])
@@ -379,7 +384,7 @@ def make_decision_tree(n_clicks,all_rows_data):
 
 
         fig = px.line(dff_sliding_window, x="Position ASM", y="RF normalise", title='Decision tree')
-    
+
         fig.update_xaxes(
             tickmode = 'array',
             tickvals = dff_sliding_window['Position ASM'],
@@ -396,15 +401,15 @@ def make_decision_tree(n_clicks,all_rows_data):
             ticktext = [0, 20, 40, 60, 80, 100],
             tickangle = 45,
             tickfont = dict(
-                
+
                 family = 'Rockwell',
                 size = 12,
                 color = 'black'
             ))
 
         return fig
-    #Integrate the figure in the html   
-"""  
+    #Integrate the figure in the html
+"""
   return html.div([
         dcc.Graph(
             id='decision-tree',
