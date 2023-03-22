@@ -1,3 +1,4 @@
+from tkinter import S
 import dash_bootstrap_components as dbc
 
 from dash import dcc, html, State, Input, Output
@@ -5,6 +6,8 @@ import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 
 from app import app
+
+from utils.utils import *
 
 layout = html.Div([
     html.Div(id='output_file_drop_position_prev'), # use only to store output value
@@ -89,3 +92,25 @@ app.clientside_callback(
     Input("manualInsert", "n_clicks"),
     prevent_initial_call=True,
 )
+
+# Section backend ## TODO: brainstorming to name this section
+
+# Function to upload file and store it in the server
+@app.callback(
+    Output('upload-data-output', 'children'),
+    Input('upload-data', 'contents'),
+    State('upload-data', 'filename'),
+    State('upload-data', 'last_modified'))
+def upload_file(list_of_contents, list_of_names, list_of_dates):
+    app.logger.info("upload_file")
+
+    if list_of_contents is None:
+        return
+
+    files = get_files_from_base64(list_of_contents, list_of_names, list_of_dates)
+    app.logger.info("files: {}".format(files))
+    tables = []
+    for file in files:
+        tables.append(create_table(file))
+
+    return tables
