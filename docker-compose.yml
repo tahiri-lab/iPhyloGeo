@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./db/data:/data/db
+      # - ./db/backup.agz:/database_backup/backup.agz # eventually restore from backup
+
+
+

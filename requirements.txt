@@ -13,3 +13,4 @@ typing-extensions==3.7.4.3
 dash_daq==0.5.0
 openpyxl==3.1.1
 python-dotenv==1.0.0
+Flask-PyMongo==2.3.0

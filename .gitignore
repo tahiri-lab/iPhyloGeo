@@ -11,3 +11,4 @@ __pycache__/
 *.css
 
 .env
+db/data/*
