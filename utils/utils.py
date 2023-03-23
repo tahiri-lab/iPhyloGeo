@@ -7,10 +7,14 @@ from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 
 from app import app
+import db.controllers.files as files_ctrl
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
 APP_ENV = 'local' # os.environ.get('APP_ENV', 'local')
+
+def get_all_files():
+    return files_ctrl.get_all_files()
 
 def get_file(id, options={}):
     """
@@ -18,6 +22,9 @@ def get_file(id, options={}):
         If the app is running in local mode, the file is read from the local file system.
         Otherwise, the file is read from database.
     """
+    # for testing purposes
+    if 'mongo' in options and options['mongo']:
+        return get_file_from_db(id)
 
     if APP_ENV == 'local':
         return read_local_file(FILES_PATH + id, options)
@@ -43,25 +50,29 @@ def get_file_from_db(id):
     Args:
         id (string): The id of the file.
     """
-    # TODO: implement this function
-    pass
+    return files_ctrl.get_files_by_id(id)
 
-def get_files_from_base64(list_of_contents, list_of_names, list_of_dates):
+def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
     app.logger.info('get_files')
 
     app.logger.info("list_of_contents: {}".format(list_of_contents))
     app.logger.info("list_of_names: {}".format(list_of_names))
-    app.logger.info("list_of_dates: {}".format(list_of_dates))
+    app.logger.info("list_of_dates: {}".format(last_modifieds))
 
     results = []
-    for content, file_name, date in zip(list_of_contents, list_of_names, list_of_dates):
+    for content, file_name, date in zip(list_of_contents, list_of_names, last_modifieds):
         results.append(parse_contents(content, file_name, date))
+
+    files_ctrl.save_files(results)
+
+    app.logger.info("save files done")
+
     return results
 
 def parse_contents(content, file_name, date):
     res = {
         'file_name': file_name,
-        'date': date,
+        'last_modified_date': date,
     }
 
     try:

@@ -1,3 +1,4 @@
+import os # test only
 from tkinter import S
 import dash_bootstrap_components as dbc
 
@@ -12,6 +13,7 @@ from utils.utils import *
 layout = html.Div([
     html.Div(id='output_file_drop_position_prev'), # use only to store output value
     html.Div(id='output_file_drop_position_next'), # use only to store output value
+    html.Div(id='upload-data-output'), # use only to store output value
     html.Div(children=[
         html.Div(
             className="DropFileSection",
@@ -100,17 +102,48 @@ app.clientside_callback(
     Output('upload-data-output', 'children'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
-    State('upload-data', 'last_modified'))
-def upload_file(list_of_contents, list_of_names, list_of_dates):
-    app.logger.info("upload_file")
+    State('upload-data', 'last_modified'),
+    prevent_initial_call=True,
+    )
+def upload_file(list_of_contents, list_of_names, last_modifieds):
+    # app.logger.info("upload_file")
+    # app.logger.info("list_of_contents: {}".format(list_of_contents))
+    # app.logger.info("list_of_names: {}".format(list_of_names))
+    # app.logger.info("list_of_dates: {}".format(list_of_dates))
 
-    if list_of_contents is None:
-        return
+    test = False
 
-    files = get_files_from_base64(list_of_contents, list_of_names, list_of_dates)
-    app.logger.info("files: {}".format(files))
-    tables = []
-    for file in files:
-        tables.append(create_table(file))
+    if test:
+        files = get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
+        # app.logger.info("files: {}".format(files))
+        tables = []
+        for file in files:
+            tables.append(create_table(file))
 
-    return tables
+        return tables
+    else:
+        # get file
+        files = get_all_files()
+
+        app.logger.info("files_info: {}".format(files))
+
+        for file in files:
+            res = get_file(file['_id'], {"mongo": True})
+            app.logger.info("res res: {}".format(res))
+
+            # create a file with the content with the name of the file in file['file_name']
+            with open("test/" + file['file_name'], 'wb') as f:
+                # take res['file'] (a df) and convert it to text
+                # reverse of this:
+                # res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
+                app.logger.info("res['df']: {}".format(res['df']))
+                csv = res['df'].to_csv()
+
+                app.logger.info("csv: {}".format(csv))
+                app.logger.info("csv: {}".format(type(csv)))
+                # write the text to the file
+                f.write(csv.encode('utf-8'))
+
+            app.logger.info("files created")
+
+        return "ok"

@@ -2,15 +2,25 @@ schema_files = {
     '$jsonSchema': {
         'bsonType': 'object',
         'additionalProperties': False,
-        'required': ['name'],
+        'required': ['file_name', 'file', 'created_at', 'expired_at'],
         'properties': {
             '_id': {
                 'bsonType': 'objectId',
             },
-            'name': {
+            'file_name': {
                 'bsonType': 'string',
-                'description' : 'must be a string and is required'
             },
+            'file': {
+                'bsonType': 'array',
+                'items': {
+                    'bsonType': 'array',
+                    'items': {
+                        'bsonType': ['string', 'int', 'double']
+                    }
+                }
+            },
+            'last_modified_date': {"bsonType": 'date'},
+            'expired_at': {"bsonType": 'date'},
             'created_at': {"bsonType": 'date'},
         }
     }
