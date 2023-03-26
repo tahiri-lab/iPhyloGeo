@@ -88,7 +88,6 @@ def choose_option(meteo, genetic, meteoGene):
 )
 
 def choose_option(meteo, genetic, meteoGene):
-    app.logger.info('choose_option')
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     # return (upload_MeteorologicalDataset.layout if button_id == 'meteo' else '',
     #         params.layout if button_id == 'genetic' else '',

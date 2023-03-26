@@ -11,13 +11,23 @@ schema_files = {
                 'bsonType': 'string',
             },
             'file': {
-                'bsonType': 'array',
-                'items': {
-                    'bsonType': 'array',
-                    'items': {
-                        'bsonType': ['string', 'int', 'double']
+                'oneOf': [
+                    {
+                        'bsonType': 'array',
+                        'items': {
+                            'bsonType': 'array',
+                            'items': {
+                                'bsonType': ['string', 'int', 'double']
+                            }
+                        }
+                    },
+                    {
+                        'bsonType': 'object',
+                        'additionalProperties': {
+                            'bsonType': 'string'
+                        }
                     }
-                }
+                ]
             },
             'last_modified_date': {"bsonType": 'date'},
             'expired_at': {"bsonType": 'date'},

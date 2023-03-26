@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 import pandas as pd
+from Bio import SeqIO
+from io import StringIO
 
 from app import app, files_db
 
@@ -40,10 +42,18 @@ def parse_file(file):
     """
     result = {
         'file_name': file['file_name'],
-        'file': [list(file['df'].columns)] + file['df'].values.tolist(),
         'created_at': datetime.now(),
         'expired_at': datetime.now() + timedelta(days=14),
     }
+
+    if 'df' in file:
+        # csv or excel
+        result['file'] = [list(file['df'].columns)] + file['df'].values.tolist()
+    elif 'file' in file:
+        # fasta format SeqIO
+        result['file'] = SeqIO.to_dict(file['file'])
+        for key in result['file']:
+            result['file'][key] = str(result['file'][key].seq)
 
     if 'last_modified_date' in file:
         result['last_modified_date'] = datetime.fromtimestamp(file['last_modified_date'])
@@ -57,53 +67,25 @@ def parse_document(document):
     Args:
         document (dict): The document to be parsed.
     """
-
-    df = pd.DataFrame(document['file'])
-    app.logger.info('befor df: {}'.format(df))
-    # remove the first row wich is 0 1 2 3 4 ...
-    # and the first colum wich is 0 1 2 3 4 ...
-
-    app.logger.info('res df: {}'.format(df))
-
-
     result = {
         'file_name': document['file_name'],
-        'df': df,
         'created_at': document['created_at'],
-        'expired_at': document['expired_at'],
+        'expired_at': document['expired_at']
     }
 
+    if document['file_name'].endswith('.fasta'):
+        fasta_str = ''
+        for key, seq in document['file'].items():
+            fasta_str += f'>{key}\n{seq}\n'
 
+        result['file'] = SeqIO.FastaIO.FastaIterator(StringIO(fasta_str))
+
+    elif document['file_name'].endswith('.csv') or document['file_name'].endswith('.xlsx'):
+        df = pd.DataFrame(document['file'])
+        df = df.rename(columns=df.iloc[0]).drop(df.index[0])
+        result['df'] = df
 
     if 'last_modified_date' in document:
         result['last_modified_date'] = document['last_modified_date']
 
     return result
-
-
-
-
-
-
-"""
-[
-['OM739053', 4.7, 14.803333333333336, 6.713333333333334, 1.623333333333333, 2.553333333333333],
-['OU471040', 1.46, 4.19, 4.516666666666667, 0.12, 3.043333333333333],
-['ON129429', 6.8933333333333335, 27.066666666666663, 15.156666666666665, 0.7166666666666667, 1.36],
-['OL989074', 4.6466666666666665, 26.12, 18.10666666666668, 0.4733333333333334, 5.66],
-['ON134852', 6.8400000000000025, 16.973333333333333, 5.576666666666667, 0.4966666666666666, 4.666666666666667]
-]
-
-[['OM739053', 'OU471040', 'ON129429', 'OL989074', 'ON134852'],
-[4.7, 1.46, 6.8933333333333335, 4.6466666666666665, 6.8400000000000025],
-...]
-
-[
-['OM739053', 4.7, 14.803333333333336, 6.713333333333334, 1.623333333333333, 2.553333333333333],
-['OU471040', 1.46, 4.19, 4.516666666666667, 0.12, 3.043333333333333],
-['ON129429', 6.8933333333333335, 27.066666666666663, 15.156666666666665, 0.7166666666666667, 1.36],
-['OL989074', 4.6466666666666665, 26.12, 18.10666666666668, 0.4733333333333334, 5.66],
-['ON134852', 6.8400000000000025, 16.973333333333333, 5.576666666666667, 0.4966666666666666, 4.666666666666667]
-]
-
-"""

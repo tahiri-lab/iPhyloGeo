@@ -2,6 +2,7 @@ import pandas as pd
 import base64
 import io
 import os
+from Bio import SeqIO
 
 from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
@@ -53,21 +54,32 @@ def get_file_from_db(id):
     return files_ctrl.get_files_by_id(id)
 
 def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
-    app.logger.info('get_files')
-
-    app.logger.info("list_of_contents: {}".format(list_of_contents))
-    app.logger.info("list_of_names: {}".format(list_of_names))
-    app.logger.info("list_of_dates: {}".format(last_modifieds))
-
     results = []
     for content, file_name, date in zip(list_of_contents, list_of_names, last_modifieds):
         results.append(parse_contents(content, file_name, date))
 
     files_ctrl.save_files(results)
-
-    app.logger.info("save files done")
-
     return results
+
+def download_file_from_db(id, root_path='./'):
+    """ Download the file from the database.
+
+    Args:
+        id (string): The id of the file.
+    """
+    res = get_file(id, {"mongo": True})
+
+    with open(root_path + res['file_name'], 'wb') as f:
+        if res['file_name'].endswith('.xlsx'):
+            res['df'].to_excel(f, index=False, header=True)
+        elif res['file_name'].endswith('.csv'):
+            res['df'].to_csv(f, index=False, header=True)
+        elif res['file_name'].endswith('.fasta'):
+            res['file'] = SeqIO.to_dict(res['file'])
+            fasta_str = ''
+            for key, seq in res['file'].items():
+                fasta_str += f'>{key}\n{str(seq.seq)}\n'
+            f.write(fasta_str.encode('utf-8'))
 
 def parse_contents(content, file_name, date):
     res = {
@@ -86,14 +98,14 @@ def parse_contents(content, file_name, date):
             # Assume that the user uploaded an excel file
             res['df'] = pd.read_excel(io.BytesIO(decoded_content))
         elif 'fasta' in file_name:
-            res['file'] = decoded_content.decode('utf-8')
+            res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
         else:
             app.logger.info('Unknown file type', content_type)
             res['error'] = True
 
         return res
     except Exception as e:
-        app.logger.info('parse_contents2 error: {}'.format(e))
+        app.logger.info('parse_contents error: {}'.format(e))
 
 def create_table(file):
     df = file['df']

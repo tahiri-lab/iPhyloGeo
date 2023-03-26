@@ -1,4 +1,3 @@
-import os # test only
 from tkinter import S
 import dash_bootstrap_components as dbc
 
@@ -8,7 +7,7 @@ from dash.dependencies import Input, Output, ClientsideFunction
 
 from app import app
 
-from utils.utils import *
+import utils.utils as utils
 
 layout = html.Div([
     html.Div(id='output_file_drop_position_prev'), # use only to store output value
@@ -106,44 +105,19 @@ app.clientside_callback(
     prevent_initial_call=True,
     )
 def upload_file(list_of_contents, list_of_names, last_modifieds):
-    # app.logger.info("upload_file")
-    # app.logger.info("list_of_contents: {}".format(list_of_contents))
-    # app.logger.info("list_of_names: {}".format(list_of_names))
-    # app.logger.info("list_of_dates: {}".format(list_of_dates))
-
-    test = False
+    test = True # For testing purpose
 
     if test:
-        files = get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
-        # app.logger.info("files: {}".format(files))
+        files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
         tables = []
         for file in files:
-            tables.append(create_table(file))
+            if not file['file_name'].endswith('.fasta'):
+                tables.append(utils.create_table(file))
 
         return tables
     else:
-        # get file
-        files = get_all_files()
-
-        app.logger.info("files_info: {}".format(files))
-
+        files = utils.get_all_files()
         for file in files:
-            res = get_file(file['_id'], {"mongo": True})
-            app.logger.info("res res: {}".format(res))
-
-            # create a file with the content with the name of the file in file['file_name']
-            with open("test/" + file['file_name'], 'wb') as f:
-                # take res['file'] (a df) and convert it to text
-                # reverse of this:
-                # res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
-                app.logger.info("res['df']: {}".format(res['df']))
-                csv = res['df'].to_csv()
-
-                app.logger.info("csv: {}".format(csv))
-                app.logger.info("csv: {}".format(type(csv)))
-                # write the text to the file
-                f.write(csv.encode('utf-8'))
-
-            app.logger.info("files created")
+            utils.download_file_from_db(file['_id'], './test/')
 
         return "ok"
