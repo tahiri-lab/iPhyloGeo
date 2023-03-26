@@ -33,7 +33,7 @@ output_df = getOutputCSV()
 
 output_file_name = "output.csv"
 
-output_df = get_file(output_file_name, options={'pd': True})
+# output_df = get_file(output_file_name, options={'pd': True})
 
 output_df = pd.read_csv("output.csv")
 
