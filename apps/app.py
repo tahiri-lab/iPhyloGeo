@@ -33,8 +33,9 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB], #https://b
 # }
 
 
-app.layout = html.Div(
-    [
+app.layout = html.Div([
+    html.Div('Your window is to small to show the content of this page.', className="smallWindow"),
+    html.Div([
         dash.page_container,
         html.Div([
             html.Div(
@@ -74,11 +75,10 @@ app.layout = html.Div(
                         html.Div("Visit our GitHub", className="text"),
                     ], target='_blank', href="https://github.com/tahiri-lab", className="gitHub"),
                 ], id="gitHub-container", className="gitHub-container"),
-            ],
-        ),
-        ],),
-    ], id='themer'
-)
+            ]),
+        ]),
+    ], id='themer'),
+])
 
 app.clientside_callback(
     ClientsideFunction(
