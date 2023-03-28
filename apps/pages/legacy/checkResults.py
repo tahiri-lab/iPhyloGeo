@@ -13,7 +13,6 @@ from dash import dash_table
 
 import os
 from Bio import SeqIO, Phylo
-import re
 
 from app import app
 

@@ -1,6 +1,4 @@
-
-
-    // Scroll detection to minimize navBar
+// Scroll detection to minimize navBar
     let open = false;
     window.onscroll = ()  => {
       open = true;

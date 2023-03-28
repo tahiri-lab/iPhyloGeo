@@ -115,11 +115,13 @@
 
       .text {
         font-size: 15px;
+        color: var(--text-color) !important;
         text-align: center;
         opacity: 1;
         overflow: hidden;
         height: 24px;
         transition: all 0.3s ease-in-out;
+        text-decoration: none;
       }
 
       .icon {

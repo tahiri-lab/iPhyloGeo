@@ -1,24 +1,43 @@
-import os
-from pydoc import classname
+import dash
 import dash_bootstrap_components as dbc
+from flask import Flask
 
-from dash import dcc, html, State, Input, Output
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
+from dash import dcc,html
+
+path_params = {
+    '/': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
+    '/results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
+    '/getStarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
+    #'': {'img': '/assets/icons/dashboard.svg', 'name': 'Check results'}
+}
+
+server = Flask(__name__)
+
+# meta_tags are required for the app layout to be mobile responsive
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB], #https://bootswatch.com/default/
+                suppress_callback_exceptions=True,
+                meta_tags=[{'name': 'viewport',
+                            'content': 'width=device-width, initial-scale=1.0'}],
+                server=server,use_pages=True)
 
 
-# Connect to main app.py file
-from app import app
-# Connect to your app pages
-from apps import pipelineWithOurData, pipelineWithUploadedData, upload_MeteorologicalDataset, homePage, checkResults, usingOurMeteorologicalDataset
-from apps.upload import getStarted
-from apps.results import results
+#mongo_client = db_validator.connect_db(app)
+
+#files_db = mongo_client.db.Files
+#results_db = mongo_client.db.Results
+
+# ENV_CONFIG = {
+#     'APP_ENV': os.environ.get('APP_ENV', 'local'),
+# }
 
 
-
-sidebar = html.Div(
+app.layout = html.Div(
     [
-        html.Div(
+        dash.page_container,
+        html.Div([
+            html.Div(
             className="nav-bar-container",
             id="navBar",
             children=[
@@ -31,19 +50,21 @@ sidebar = html.Div(
                         html.Div(id='theme-switch-output')
                     ], id="lab-container", className="lab-container"),
                     ], className="nav-bar"),
-                html.Div([
-                    dbc.NavLink([
-                        html.Img(src='/assets/icons/house-solid.svg', className="icon"),
-                        html.Div("Home", className="text"),
-                    ], href='/apps/homePage', active="exact", className="nav-link"),
-                    dbc.NavLink([
-                        html.Img(src='/assets/icons/folder-upload.svg', className="icon"),
-                        html.Div("Upload Data", className="text"),
-                    ], href='/apps/getStarted', active="exact", className="nav-link"),
-                    dbc.NavLink([
-                        html.Img(src='/assets/icons/dashboard.svg', className="icon"),
-                        html.Div("Check Results", className="text"),
-                    ], href='/apps/results/results', active="exact", className="nav-link"),
+                 html.Div([
+                    html.Div(
+                        [
+                            html.Div([
+                                #html.Img(src=path_params[page['path']]['img'], className="icon"),
+                                dcc.Link(
+                                    f"{page['path']}", href=page["relative_path"], className="text",                                    
+                                    #f"{path_params[page['path']]['name']}", href=page["relative_path"], className="text"
+
+                                )
+                            ], className="nav-link")
+                            for page in dash.page_registry.values()
+                                
+                        ]
+                    ),
                     #Legacy
                     # html.Div("Legacy"),
                     # dbc.NavLink("Upload Meteorological Data", href='/apps/upload_MeteorologicalDataset', active="exact"),
@@ -51,7 +72,7 @@ sidebar = html.Div(
                     # dbc.NavLink("Using Our Meteorological Data (yellow-legged hornet)", href='/apps/usingOurMeteorologicalDataset', active="exact"),
                     # dbc.NavLink("Phylogeography Analysis With Our Data (yellow-legged hornet)", href='/apps/pipelineWithOurData', active="exact"),
                     # dbc.NavLink("See my Results", href='/apps/checkResults', active="exact"),
-                ], id="nav-link", className="nav-link-container"),
+                ],id="nav-link", className="nav-link-container"),
                 html.Div([
                     html.A([
                         html.Img(src='/assets/icons/github.svg', className="icon"),
@@ -60,20 +81,9 @@ sidebar = html.Div(
                 ], id="gitHub-container", className="gitHub-container"),
             ],
         ),
-    ],
+        ], id='themer'),
+    ]    
 )
-
-content = html.Div(id="page-content", children=[])
-
-app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    dcc.Store(id='theme', data='light', storage_type='local'), # store to store theme data
-    html.Div(children=[
-        sidebar,
-        content
-    ], id='themer', style={'display': 'flex'}),
-],)
-
 
 app.clientside_callback(
     ClientsideFunction(
@@ -82,36 +92,13 @@ app.clientside_callback(
     ),
     Output("dummy-output", "children"), # needed for the callback to trigger
     Input("labLogo", "n_clicks"),
+    prevent_initial_call=True,
 )
-
-
-@app.callback(Output('page-content', 'children'),
-              Input('url', 'pathname'),
-)
-def display_page(pathname):
-    if pathname == '/apps/homePage':
-        return homePage.layout
-    if pathname == '/apps/upload_MeteorologicalDataset':
-        return upload_MeteorologicalDataset.layout
-    if pathname == '/apps/pipelineWithUploadedData':
-        return pipelineWithUploadedData.layout
-    if pathname == '/apps/usingOurMeteorologicalDataset':
-        return usingOurMeteorologicalDataset.layout
-    if pathname == '/apps/pipelineWithOurData':
-        return pipelineWithOurData.layout
-    if pathname == '/apps/checkResults':
-        return checkResults.layout
-    if pathname == '/apps/results/results':
-        return results.layout
-    if pathname == '/apps/getStarted':
-        return getStarted.layout
-    else:
-        return homePage.layout
 
 @app.callback(
           Output('theme-switch-output', 'children'), # hidden div to trigger callback
           Input('theme-switch', 'on'),  # button to trigger callback (need at least one parameter, but we dont use n_clicks)
-          prevent_initial_call=True,
+            prevent_initial_call=True,
 )
 def change_theme(on):
     #app.logger.info('change_theme'),
@@ -122,9 +109,9 @@ def change_theme(on):
     [Input("theme-switch-output", "children")]
 )
 def update_color(children):
-    app.logger.info(children),
+    #app.logger.info(children),
     # CSS for light theme
-    if children == False:
+    if not children:
         return {
             "--theme-icon": "url(../assets/icons/theme-light.svg)",
             "--switch-toggle-background": "rgb(230, 230, 230)",

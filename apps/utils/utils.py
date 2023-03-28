@@ -7,7 +7,7 @@ from Bio import SeqIO
 from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 
-from app import app
+from apps.app import app
 import db.controllers.files as files_ctrl
 
 FILES_PATH = 'files/'

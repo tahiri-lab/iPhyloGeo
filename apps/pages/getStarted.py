@@ -2,13 +2,13 @@ from typing import Container
 from dash import Dash, html, dcc, ctx
 from dash.dependencies import Output, Input, ClientsideFunction
 import dash_bootstrap_components as dbc
-from app import app
 # import pandas as pd
 # import pathlib
+import dash
+from .upload.geo import params
+from .upload import dataTypeSection, dropFileSection
 
-from apps import upload_MeteorologicalDataset
-from apps.upload.geo import params
-from apps.upload import dataTypeSection, dropFileSection
+dash.register_page(__name__, path='/getStarted')
 
 content = html.Div(id="third-section", children=[params.layout])
 

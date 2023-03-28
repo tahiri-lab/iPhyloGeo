@@ -2,13 +2,16 @@ from typing import Container
 from dash import Dash, html, dcc
 from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
-from app import app
 import pandas as pd
 import pathlib
-
+from dash import callback
+import dash 
 # Font Awesome
 import plotly.express as px
 import plotly.graph_objs as go
+
+dash.register_page(__name__,path='/')
+
 
 external_stylesheets = [
 {
@@ -40,13 +43,11 @@ layout = html.Div([
     ),
 ])
 
-@app.callback(Output('output', 'children'),
+@callback(Output('output', 'children'),
               [Input('theme-switch-output', 'children')]
 )
 
 def update_output(children):
-    app.logger.info('update_output'),
-    app.logger.info(children),
     if children == False :
         return html.Div(
             children=[

@@ -1,12 +1,12 @@
 import dash_bootstrap_components as dbc
 
-from app import app
-from dash import dcc, html, State, Input, Output, ctx
+from dash import dcc, html, State, Input, Output, ctx, callback
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
+import dash
 
-from apps import upload_MeteorologicalDataset
-from apps.upload.geo import params
+from .geo import params
+
 
 layout = html.Div([
     html.Div(id='output_option_position'), # use only to store output value
@@ -51,19 +51,19 @@ layout = html.Div([
 ],)
 
 
-app.clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='next_option_function'
-    ),
-    Output("output_option_position", "children"), # needed for the callback to trigger
-    [Input("option_choice_next", "n_clicks"),
-     Input("drop_file_section", "id"),], # This is where we want the button to redirect the user
-    prevent_initial_call=True,
-)
+# clientside_callback(
+#     ClientsideFunction(
+#         namespace='clientside',
+#         function_name='next_option_function'
+#     ),
+#     Output("output_option_position", "children"), # needed for the callback to trigger
+#     [Input("option_choice_next", "n_clicks"),
+#      Input("drop_file_section", "id"),], # This is where we want the button to redirect the user
+#     prevent_initial_call=True,
+# )
 
 # Callback to style the selected option
-@app.callback(
+@callback(
         Output('meteo', 'className'),
         Output('genetic', 'className'),
         Output('meteoGene', 'className'),
@@ -79,7 +79,7 @@ def choose_option(meteo, genetic, meteoGene):
             'option selected' if button_id == 'genetic' else 'option',
             'option selected' if button_id == 'meteoGene' else 'option')
 
-@app.callback(
+@callback(
         Output('third-section', 'children'), # showing or not the params section
           [Input('meteo', 'n_clicks'),
             Input('genetic', 'n_clicks'),

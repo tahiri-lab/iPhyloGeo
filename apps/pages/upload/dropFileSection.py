@@ -1,13 +1,15 @@
 from tkinter import S
 import dash_bootstrap_components as dbc
 
-from dash import dcc, html, State, Input, Output
+from dash import dcc, html, State, Input, Output, clientside_callback,callback
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 
-from app import app
+#import ...utils as utils
+#from ...utils import utils
+# from ..apps.utils import utils
+import dash
 
-import utils.utils as utils
 
 layout = html.Div([
     html.Div(id='output_file_drop_position_prev'), # use only to store output value
@@ -62,7 +64,7 @@ layout = html.Div([
 ],)
 
 
-app.clientside_callback(
+clientside_callback(
     ClientsideFunction(
         namespace='clientside',
         function_name='next_option_function'
@@ -73,7 +75,7 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
-app.clientside_callback(
+clientside_callback(
     ClientsideFunction(
         namespace='clientside',
         function_name='next_option_function'
@@ -84,7 +86,7 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
-app.clientside_callback(
+clientside_callback(
     ClientsideFunction(
         namespace='clientside',
         function_name='show_text_field'
@@ -97,27 +99,27 @@ app.clientside_callback(
 # Section backend ## TODO: brainstorming to name this section
 
 # Function to upload file and store it in the server
-@app.callback(
-    Output('upload-data-output', 'children'),
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename'),
-    State('upload-data', 'last_modified'),
-    prevent_initial_call=True,
-    )
-def upload_file(list_of_contents, list_of_names, last_modifieds):
-    test = True # For testing purpose
+# @callback(
+#     Output('upload-data-output', 'children'),
+#     Input('upload-data', 'contents'),
+#     State('upload-data', 'filename'),
+#     State('upload-data', 'last_modified'),
+#     prevent_initial_call=True,
+#     )
+# def upload_file(list_of_contents, list_of_names, last_modifieds):
+#     test = True # For testing purpose
 
-    if test:
-        files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
-        tables = []
-        for file in files:
-            if not file['file_name'].endswith('.fasta'):
-                tables.append(utils.create_table(file))
+#     if test:
+#         files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
+#         tables = []
+#         for file in files:
+#             if not file['file_name'].endswith('.fasta'):
+#                 tables.append(utils.create_table(file))
 
-        return tables
-    else:
-        files = utils.get_all_files()
-        for file in files:
-            utils.download_file_from_db(file['_id'], './test/')
+#         return tables
+#     else:
+#         files = utils.get_all_files()
+#         for file in files:
+#             utils.download_file_from_db(file['_id'], './test/')
 
-        return "ok"
+#         return "ok"
