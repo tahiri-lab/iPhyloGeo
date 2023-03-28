@@ -7,8 +7,10 @@ from Bio import SeqIO
 from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 
-from apps.app import app
 import db.controllers.files as files_ctrl
+
+#from db.db_validator import files_db
+
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
@@ -100,12 +102,13 @@ def parse_contents(content, file_name, date):
         elif 'fasta' in file_name:
             res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
         else:
-            app.logger.info('Unknown file type', content_type)
+            #app.logger.info('Unknown file type', content_type)
             res['error'] = True
 
         return res
     except Exception as e:
-        app.logger.info('parse_contents error: {}'.format(e))
+        #app.logger.info('parse_contents error: {}'.format(e))
+        print(e)
 
 def create_table(file):
     df = file['df']

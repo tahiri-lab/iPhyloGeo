@@ -2,11 +2,9 @@ from typing import Container
 from dash import Dash, html, dcc, ctx
 from dash.dependencies import Output, Input, ClientsideFunction
 import dash_bootstrap_components as dbc
-# import pandas as pd
-# import pathlib
 import dash
-from .upload.geo import params
-from .upload import dataTypeSection, dropFileSection
+from pages.upload.geo import params
+from pages.upload import dataTypeSection, dropFileSection
 
 dash.register_page(__name__, path='/getStarted')
 

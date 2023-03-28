@@ -1,10 +1,11 @@
 import dash
 import dash_bootstrap_components as dbc
 from flask import Flask
-
+import os
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc,html
+
 
 path_params = {
     'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
@@ -22,15 +23,9 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB], #https://b
                             'content': 'width=device-width, initial-scale=1.0'}],
                 server=server,use_pages=True)
 
-
-#mongo_client = db_validator.connect_db(app)
-
-#files_db = mongo_client.db.Files
-#results_db = mongo_client.db.Results
-
-# ENV_CONFIG = {
-#     'APP_ENV': os.environ.get('APP_ENV', 'local'),
-# }
+ENV_CONFIG = {
+     'APP_ENV': os.environ.get('APP_ENV', 'local'),
+}
 
 
 app.layout = html.Div([
