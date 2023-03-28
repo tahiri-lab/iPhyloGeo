@@ -1,9 +1,10 @@
 import dash_bootstrap_components as dbc
-from dash import html
+from dash import html, callback
 import dash_daq as daq
 import pandas as pd
 import dash
 from flask import request
+from dash.dependencies import Input, Output, ClientsideFunction
 #import db.controllers.files as files_ctrl
 
 
@@ -18,6 +19,7 @@ data = {'results': [
     [{'name': 'result4'}, {'creationDate': '2023/01/05'}, {'expirationDate': '2023/01/25'}, {'progress': 85}],
 ]}
 df_results = pd.DataFrame(data)
+
 
 def generate_result_list(result_data):
     return html.Div([
@@ -47,6 +49,8 @@ def generate_result_list(result_data):
 
 layout = html.Div([
     html.Div(children=[
+        dash.dcc.Location(id='url', refresh=False),
+        html.Div(id='cookie_output', className="hidden"), # needed for the callback to trigger
         html.Div([
             html.Div('Results', className="title"),
             html.Div([
@@ -67,12 +71,18 @@ layout = html.Div([
 ])
 
 
-def layout(result_id=None):
+
+@callback(
+        Output('cookie_output', 'children'),
+        [Input('url', 'pathname')],
+)
+
+def make_cookie(result_id=None):
     """Create a cookie with the result id
 
     Args:
         result_id (str): The id of the result to add to the cookie
-    
+
     """
 
     auth_cookie= request.cookies.get("AUTH")
@@ -95,6 +105,9 @@ def layout(result_id=None):
 
     response = dash.callback_context.response
     response.set_cookie("AUTH", auth_cookie_value)
+
+    return result_id
+
 
 
 

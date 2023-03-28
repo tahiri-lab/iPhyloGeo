@@ -7,9 +7,9 @@ from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc,html
 
 path_params = {
-    '/': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
-    '/results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
-    '/getStarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
+    'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
+    'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
+    'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
     #'': {'img': '/assets/icons/dashboard.svg', 'name': 'Check results'}
 }
 
@@ -53,16 +53,11 @@ app.layout = html.Div(
                  html.Div([
                     html.Div(
                         [
-                            html.Div([
-                                #html.Img(src=path_params[page['path']]['img'], className="icon"),
-                                dcc.Link(
-                                    f"{page['path']}", href=page["relative_path"], className="text",                                    
-                                    #f"{path_params[page['path']]['name']}", href=page["relative_path"], className="text"
-
-                                )
-                            ], className="nav-link")
-                            for page in dash.page_registry.values()
-                                
+                            dcc.Link([
+                                html.Img(src=path_params[page['name']]['img'], className="icon"),
+                                html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
+                            ], href=page["relative_path"], className="nav-link")
+                        for page in dash.page_registry.values()
                         ]
                     ),
                     #Legacy
@@ -81,8 +76,8 @@ app.layout = html.Div(
                 ], id="gitHub-container", className="gitHub-container"),
             ],
         ),
-        ], id='themer'),
-    ]    
+        ],),
+    ], id='themer'
 )
 
 app.clientside_callback(
@@ -98,7 +93,7 @@ app.clientside_callback(
 @app.callback(
           Output('theme-switch-output', 'children'), # hidden div to trigger callback
           Input('theme-switch', 'on'),  # button to trigger callback (need at least one parameter, but we dont use n_clicks)
-            prevent_initial_call=True,
+          #prevent_initial_call=True,
 )
 def change_theme(on):
     #app.logger.info('change_theme'),
