@@ -79,18 +79,18 @@ def choose_option(meteo, genetic, meteoGene):
             'option selected' if button_id == 'genetic' else 'option',
             'option selected' if button_id == 'meteoGene' else 'option')
 
-@callback(
-        Output('third-section', 'children'), # showing or not the params section
-          [Input('meteo', 'n_clicks'),
-            Input('genetic', 'n_clicks'),
-            Input('meteoGene', 'n_clicks')],
-          prevent_initial_call=True,
-)
-
-def choose_option(meteo, genetic, meteoGene):
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    # return (upload_MeteorologicalDataset.layout if button_id == 'meteo' else '',
-    #         params.layout if button_id == 'genetic' else '',
-    #         params.layout if button_id == 'meteoGene' else '')
-    return (params.layout if button_id == 'genetic' else '',
-            params.layout if button_id == 'meteoGene' else '')
+# @callback(
+#         Output('third-section', 'children'), # showing or not the params section
+#           [Input('meteo', 'n_clicks'),
+#             Input('genetic', 'n_clicks'),
+#             Input('meteoGene', 'n_clicks')],
+#           prevent_initial_call=True,
+# )
+#
+# def choose_option(meteo, genetic, meteoGene):
+#     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+#     # return (upload_MeteorologicalDataset.layout if button_id == 'meteo' else '',
+#     #         params.layout if button_id == 'genetic' else '',
+#     #         params.layout if button_id == 'meteoGene' else '')
+#     return (params.layout if button_id == 'genetic' else '',
+#             params.layout if button_id == 'meteoGene' else '')

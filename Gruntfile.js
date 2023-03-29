@@ -11,6 +11,7 @@ module.exports = function (grunt) {
                     'apps/assets/home_page.css': 'apps/assets/styles/home_page.scss',
                     'apps/assets/nav_bar.css': 'apps/assets/styles/nav_bar.scss',
                     'apps/assets/results.css': 'apps/assets/styles/results.scss',
+                    'apps/assets/params_meteo.css': 'apps/assets/styles/params_meteo.scss',
                     'apps/assets/upload_page.css': 'apps/assets/styles/upload_page.scss',
                     'apps/assets/helper.css': 'apps/assets/styles/utils/helper.scss',
                     'apps/assets/button.css': 'apps/assets/styles/utils/button.scss'
@@ -24,6 +25,7 @@ module.exports = function (grunt) {
                     'apps/assets/styles/home_page.scss',
                     'apps/assets/styles/nav_bar.scss',
                     'apps/assets/styles/results.scss',
+                    'apps/assets/styles/params_meteo.scss',
                     'apps/assets/styles/upload_page.scss',
                     'apps/assets/styles/utils/helper.scss',
                     'apps/assets/styles/utils/button.scss',

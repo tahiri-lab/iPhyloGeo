@@ -110,80 +110,80 @@ def parse_contents(content, file_name, date):
         #app.logger.info('parse_contents error: {}'.format(e))
         print(e)
 
-def create_table(file):
-    df = file['df']
-    file_name = file['file_name']
-
-    param_selection = dbc.Container([
-                dbc.Row([
-                        dbc.Col([
-                            dash_table.DataTable(
-                                    data= df.to_dict('records'),
-                                    columns=[{'name': i, 'id': i} for i in df.columns],
-                                    page_size=15
-                                ),
-                                dcc.Store(id='stored-data', data=df.to_dict('records')),
-
-                                html.Hr(),  # horizontal line
-
-                                # For debugging, display the raw contents provided by the web browser
-                                #html.Div('Raw Content'),
-                                #html.Pre(contents[0:200] + '...', style={
-                                #    'whiteSpace': 'pre-wrap',
-                                #    'wordBreak': 'break-all'
-                                #}),
-                        ],xs=12, sm=12, md=12, lg=10, xl=10),
-
-                    ],className="g-0", justify='around'),
-
-                dbc.Row([
-                        dbc.Col([
-                            html.Div([
-                                html.H5(file_name),
-                                #html.H6(datetime.datetime.fromtimestamp(date)),
-                                html.P("Inset X axis data"),
-                                dcc.Dropdown(id='xaxis-data',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.P("Inset Y axis data"),
-                                dcc.Dropdown(id='yaxis-data',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.P("Select data for choropleth map"),
-                                dcc.Dropdown(id='map-data',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.Br(),
-                                dcc.RadioItems(id='choose-graph-type',
-                                                options=[
-                                                    {'label': 'Bar Graph', 'value': 'Bar'},
-                                                    {'label': 'Scatter Plot', 'value': 'Scatter'}
-                                                ],
-                                                value='Bar'
-                                            ),
-                                html.Br(),
-                                html.Button(id="submit-button", children="Create Graph"),
-                                html.Hr(),
-                            # parameters for creating phylogeography trees
-                                html.H2('Create Phylogeography Trees', style={"textAlign": "center"}),  #title
-                                html.H4("Inset the name of the column containing the sequence Id"),
-                                dcc.Dropdown(id='col-specimens',
-                                            options=[{'label':x, 'value':x} for x in df.columns]),
-                                html.H4("select the name of the column to analyze"),
-                                html.P('The values of the column must be numeric for the program to work properly.'),
-                                dcc.Checklist(id = 'col-analyze',
-                                            options =[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
-                                            labelStyle={'display': 'inline-block','marginRight':'20px'}
-                                        ),
-                                html.Br(),
-                                html.Button(id="submit-forTree", children="Create Newick files"),
-                                html.Hr(),
-
-                                ])
-                        ],xs=12, sm=12, md=12, lg=10, xl=10),
-                ],className="g-0", justify='around'),
-
-
-         ], fluid=True)
-
-    return param_selection
+# def create_table(file):
+#     df = file['df']
+#     file_name = file['file_name']
+#
+#     param_selection = dbc.Container([
+#                 dbc.Row([
+#                         dbc.Col([
+#                             dash_table.DataTable(
+#                                     data= df.to_dict('records'),
+#                                     columns=[{'name': i, 'id': i} for i in df.columns],
+#                                     page_size=15
+#                                 ),
+#                                 dcc.Store(id='stored-data', data=df.to_dict('records')),
+#
+#                                 html.Hr(),  # horizontal line
+#
+#                                 # For debugging, display the raw contents provided by the web browser
+#                                 #html.Div('Raw Content'),
+#                                 #html.Pre(contents[0:200] + '...', style={
+#                                 #    'whiteSpace': 'pre-wrap',
+#                                 #    'wordBreak': 'break-all'
+#                                 #}),
+#                         ],xs=12, sm=12, md=12, lg=10, xl=10),
+#
+#                     ],className="g-0", justify='around'),
+#
+#                 dbc.Row([
+#                         dbc.Col([
+#                             html.Div([
+#                                 html.H5(file_name),
+#                                 #html.H6(datetime.datetime.fromtimestamp(date)),
+#                                 html.P("Inset X axis data"),
+#                                 dcc.Dropdown(id='xaxis-data',
+#                                             options=[{'label':x, 'value':x} for x in df.columns]),
+#                                 html.P("Inset Y axis data"),
+#                                 dcc.Dropdown(id='yaxis-data',
+#                                             options=[{'label':x, 'value':x} for x in df.columns]),
+#                                 html.P("Select data for choropleth map"),
+#                                 dcc.Dropdown(id='map-data',
+#                                             options=[{'label':x, 'value':x} for x in df.columns]),
+#                                 html.Br(),
+#                                 dcc.RadioItems(id='choose-graph-type',
+#                                                 options=[
+#                                                     {'label': 'Bar Graph', 'value': 'Bar'},
+#                                                     {'label': 'Scatter Plot', 'value': 'Scatter'}
+#                                                 ],
+#                                                 value='Bar'
+#                                             ),
+#                                 html.Br(),
+#                                 html.Button(id="submit-button", children="Create Graph"),
+#                                 html.Hr(),
+#                             # parameters for creating phylogeography trees
+#                                 html.H2('Create Phylogeography Trees', style={"textAlign": "center"}),  #title
+#                                 html.H4("Inset the name of the column containing the sequence Id"),
+#                                 dcc.Dropdown(id='col-specimens',
+#                                             options=[{'label':x, 'value':x} for x in df.columns]),
+#                                 html.H4("select the name of the column to analyze"),
+#                                 html.P('The values of the column must be numeric for the program to work properly.'),
+#                                 dcc.Checklist(id = 'col-analyze',
+#                                             options =[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
+#                                             labelStyle={'display': 'inline-block','marginRight':'20px'}
+#                                         ),
+#                                 html.Br(),
+#                                 html.Button(id="submit-forTree", children="Create Newick files"),
+#                                 html.Hr(),
+#
+#                                 ])
+#                         ],xs=12, sm=12, md=12, lg=10, xl=10),
+#                 ],className="g-0", justify='around'),
+#
+#
+#          ], fluid=True)
+#
+#     return param_selection
 
 
 def create_seq_html(file):

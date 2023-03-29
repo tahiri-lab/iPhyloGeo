@@ -3,6 +3,8 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html, State, Input, Output, clientside_callback,callback
 from dash.dependencies import Input, Output, ClientsideFunction
 from utils import utils
+from .meteo import paramsMeteo
+from .geo import params
 
 layout = html.Div([
     html.Div(id='output_file_drop_position_prev'), # use only to store output value
@@ -95,13 +97,15 @@ clientside_callback(
 
 # Function to upload file and store it in the server
 @callback(
-    Output('upload-data-output', 'children'),
+    # Output('upload-data-output', 'children'),
+    Output('third-section', 'children'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
     State('upload-data', 'last_modified'),
     prevent_initial_call=True,
     )
 def upload_file(list_of_contents, list_of_names, last_modifieds):
+    print(list_of_names)
     test = True # For testing purpose
 
     if test:
@@ -109,10 +113,13 @@ def upload_file(list_of_contents, list_of_names, last_modifieds):
         
         tables = []
         for file in files:
-            if not file['file_name'].endswith('.fasta'):
-                tables.append(utils.create_table(file))
-
-        return tables
+            if file['file_name'].endswith('.fasta'):
+                print('fasta'),
+                return params.layout
+            if file['file_name'].endswith('.csv'):
+                print('csv')
+                tables.append(paramsMeteo.create_tables(file))
+                return tables
     else:
         files = utils.get_all_files()
         for file in files:
