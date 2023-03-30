@@ -102,7 +102,7 @@ clientside_callback(
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
     State('upload-data', 'last_modified'),
-    prevent_initial_call=True,
+    prevent_initial_call=True,log = True
     )
 def upload_file(list_of_contents, list_of_names, last_modifieds):
     print(list_of_names)
@@ -118,7 +118,7 @@ def upload_file(list_of_contents, list_of_names, last_modifieds):
                 return params.layout
             if file['file_name'].endswith('.csv'):
                 print('csv')
-                tables.append(paramsMeteo.create_tables(file))
+                tables.append(paramsMeteo.create_table(file))
                 return tables
     else:
         files = utils.get_all_files()
