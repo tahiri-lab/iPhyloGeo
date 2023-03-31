@@ -8,6 +8,7 @@ from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 
 import db.controllers.files as files_ctrl
+import db.controllers.results as results_ctrl
 
 #from db.db_validator import files_db
 
@@ -18,6 +19,9 @@ APP_ENV = 'local' # os.environ.get('APP_ENV', 'local')
 
 def get_all_files():
     return files_ctrl.get_all_files()
+
+def get_results(ids):
+    return results_ctrl.get_results(ids)
 
 def get_file(id, options={}):
     """
