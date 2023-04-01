@@ -96,11 +96,14 @@ def parse_contents(content, file_name, date):
         if content_type == 'data:text/csv;base64':
             # Assume that the user uploaded a CSV file
             res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
+            res['type'] = 'climatic'
         elif 'xls' in file_name:
             # Assume that the user uploaded an excel file
             res['df'] = pd.read_excel(io.BytesIO(decoded_content))
+            res['type'] = 'climatic'
         elif 'fasta' in file_name:
             res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
+            res['type'] = 'genetic'
         else:
             #app.logger.info('Unknown file type', content_type)
             res['error'] = True

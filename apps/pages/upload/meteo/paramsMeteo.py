@@ -25,7 +25,7 @@ def create_table(file):
         html.Div([
             html.Div([
                 html.H2('Create Phylogeography Trees', className="title"),  # title
-                dbc.Row([
+                html.Div([
                     dbc.Col([
                         dash_table.DataTable(
                             id='datatable-interactivity',
@@ -39,81 +39,71 @@ def create_table(file):
                             filter_query='',            # query that determines which rows to keep in table
                             #page_action="native",       # all data is passed to the table up-front or not ('none')
                             #sort_by=[],                 # list of columns that user sorts table by
-                            style_header={
-                                'backgroundColor': '#f5f4f6',
+                            style_data={
+                                'color': 'var(--reverse-black-white-color)',
+                                'backgroundColor': 'var(--table-bg-color'
                             },
                         ),
                         dcc.Store(id='stored-data', data=df.to_dict('records')),
                         # html.Hr(),  # horizontal line
-                    ], ),
+                    ], className=""),
 
-                ], className="paramsMeteoTable", justify='around'),
+                ], className="paramsMeteoTable"),
                 html.Div(id='filter-container'),
                 html.Div([
-                    # html.H5(file_name),
-                    # html.H6(datetime.datetime.fromtimestamp(date)),
+                    html.Div('Generate your graph', className="title"),
                     html.Div([
                         html.Div([
-                            html.P("Insert X axis data"),
-                            dcc.Dropdown(id='xaxis-data',
-                                         options=[{'label': x, 'value': x} for x in df.columns]),
-                        ], className=""),
+                            html.Div([
+                                html.P("Insert X axis data"),
+                                dcc.Dropdown(id='xaxis-data',
+                                             options=[{'label': x, 'value': x} for x in df.columns]),
+                            ], className="field"),
+                            html.Div([
+                                html.P("Insert Y axis data"),
+                                dcc.Dropdown(id='yaxis-data',
+                                             options=[{'label': x, 'value': x} for x in df.columns]),
+                            ], className="field"),
+                            dcc.RadioItems(id='choose-graph-type',
+                                           options=[
+                                               {'label': 'Bar Graph', 'value': 'Bar'},
+                                               {'label': 'Scatter Plot', 'value': 'Scatter'},
+                                               {'label': 'Line Plot', 'value': 'Line'},
+                                               {'label': 'Pie Plot', 'value': 'Pie'}
+                                           ], value='Bar', className="field graphType"),
+                            html.Div([
+                                html.P("Select data for choropleth map"),
+                                dcc.Dropdown(id='map-data',
+                                             options=[{'label': x, 'value': x} for x in df.columns]),
+                            ], className="field"),
+                            html.Button(id="submit-button", className='button', children="Create Graph"),
+                        ], className="axisField"),
                         html.Div([
-                            html.P("Insert Y axis data"),
-                            dcc.Dropdown(id='yaxis-data',
-                                         options=[{'label': x, 'value': x} for x in df.columns]),
-                        ], className=""),
-                        html.Div([
-                        html.P("Select data for choropleth map"),
-                        dcc.Dropdown(id='map-data',
-                                     options=[{'label': x, 'value': x} for x in df.columns]),
-                        ], className=""),
+                            html.Div(id='output-map', className="choroplethMap"),
+                        ], className="choroplethMapContainer"),
                     ], className="axis"),
-                    dcc.RadioItems(id='choose-graph-type',
-                                   options=[
-                                       {'label': 'Bar Graph', 'value': 'Bar'},
-                                       {'label': 'Scatter Plot', 'value': 'Scatter'},
-                                       {'label': 'Line Plot', 'value': 'Line'},
-                                       {'label': 'Pie Plot', 'value': 'Pie'}
-                                   ],
-                                   value='Bar'
-                                   ),
-                    html.Br(),
-                    html.Button(id="submit-button", className='button', children="Create Graph"),
                 ], className="paramsMeteoParameters"),
-                dbc.Row([ # for Bar Graph, Scatter Plot,Line Plot and Pie Plot
-                    dbc.Col([
-                        html.Div(id='output-div'),
-                            ],# width={'size':3, 'offset':1, 'order':1},
-                            xs=12, sm=12, md=12, lg=10, xl=10
-                            ),
-                        ], justify='around'),
-                dbc.Row([ # Choropleth Map
-                    dbc.Col([
-                        html.Div(id='output-map'),
-                        html.Hr()
-                    ],xs=12, sm=12, md=12, lg=10, xl=10),
-                ],justify='around'),                             
+                html.Div([
+                    html.Div(id='output-graph', className="generatedGraph"),
+                ], className="graphGeneratorContainer"),
                 html.Div([
                     html.Div([
-                        # parameters for creating phylogeography trees
-                        html.H4("Inset the name of the column containing the sequence Id"),
-                        dcc.Dropdown(id='col-specimens',
-                                     options=[{'label': x, 'value': x} for x in df.columns]),
-                        html.H4("select the name of the column to analyze"),
-                        html.P('The values of the column must be numeric for the program to work properly.'),
+                        html.Div([
+                            html.H4("Select the name of the column to analyze"),
+                        ]),
+
                         dcc.Checklist(id='col-analyze',
                                       options=[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
                                       labelStyle={'display': 'inline-block', 'marginRight': '20px'}
                                       ),
-                        html.Br(),
-                        html.Button(id="submit-forTree", className='button primary', children="Submit"),
-                        html.Hr(),
+                        # html.Br(),
+                        # html.Button(id="submit-forTree", className='button primary', children="Submit"),
+                        # html.Hr(),
                     ], className="axis")
                 ], className="paramsMeteoParameters")
             ], className="params_meteo"),
         ], className="ParametersSectionInside"),
-    ], className="ParametersSection")
+    ], className="ParametersSection", id="meteo_params_section")
 
     return param_selection
 """
@@ -186,7 +176,7 @@ def update_table(page_current, page_size, sort_by, filter):
         page_current*page_size: (page_current + 1)*page_size
     ].to_dict('records')
 """
-@callback(Output('output-div', 'children'),
+@callback(Output('output-graph', 'children'),
               [Input('submit-button','n_clicks')],
               State('choose-graph-type','value'),
               State('stored-data','data'),
@@ -207,12 +197,15 @@ def make_graphs(n, graph_type, filter_query, x_data, y_data):
         if graph_type == 'Pie':
             fig = px.pie(filter_query, values=y_data, names=x_data, labels=x_data)
         figures.append(dcc.Graph(figure=fig))
+        fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='var(--reverse-black-white-color)')),
+        fig.update_annotations(font_color='white'),
+
     return figures
 
 # Choropleth Map
 @callback(
     Output('output-map','children'),
-    Input('submit-button','n_clicks'),
+    Input('upload-data','contents'),
     State('datatable-interactivity','data'),
     State('map-data', 'value')
 )
@@ -227,11 +220,24 @@ def update_output(num_clicks, data, val_selected):
                                 projection='natural earth',
                                 color_continuous_scale=px.colors.sequential.Turbo)
 
+            fig.update_geos(
+                showocean=True, oceancolor="LightBlue",
+                showlakes=True, lakecolor="Blue",
+                showrivers=True, rivercolor="Blue"
+            )
+
             fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
-                            margin=dict(l=60, r=60, t=50, b=50))
+                            margin=dict(l=60, r=60, t=50, b=50), paper_bgcolor='rgba(0,0,0,0)',
+                              plot_bgcolor='rgba(0,0,0,0)'),
+
+            fig.update_annotations(text="No matching data found")
 
             return dcc.Graph(figure=fig)
-
+        else:
+            map_fig = html.Div([
+                html.H3("No data to display.")
+            ])
+            return map_fig
 
 
 #Après integration aphylo dans le code, on pourra work sur le code ci-dessous pour créer le newick file

@@ -106,6 +106,10 @@
       margin-right: 10px;
       width: 40px;
       filter: var(--icon-filter);
+
+      &.arrow {
+        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%) !important;
+      }
     }
 
     .text {
@@ -178,9 +182,9 @@
   }
 
   .ParametersSection {
-    top: 25%;
-    position: relative;
-    height: 100vh;
+    //top: 25%;
+    //position: relative;
+    //height: 100vh;
     text-align: center;
 
     &.hidden {
@@ -188,10 +192,10 @@
     }
 
     .ParametersSectionInside {
-      position: relative;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      //position: relative;
+      //top: 50%;
+      //left: 50%;
+      //transform: translate(-50%, -50%);
 
       .ParameterContainer {
         display: grid;

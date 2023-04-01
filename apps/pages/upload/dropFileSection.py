@@ -2,9 +2,6 @@ from tkinter import S
 import dash_bootstrap_components as dbc
 from dash import dcc, html, State, Input, Output, clientside_callback,callback
 from dash.dependencies import Input, Output, ClientsideFunction
-from utils import utils
-from .meteo import paramsMeteo
-from .geo import params
 
 layout = html.Div([
     html.Div(id='output_file_drop_position_prev'), # use only to store output value
@@ -46,10 +43,10 @@ layout = html.Div([
                             html.Div('No worries, let’s try with some of our already made example.',
                                      className="description"),
                         ], className="content"),
-                        html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon"),
+                        html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon arrow"),
                     ], href='/apps/getStarted', id='themes', className="helper primary", active="exact"),
                     html.Div([
-                        html.Div("Previous", id='drop_option_choice_prev', className="button actions"),
+                        # html.Div("Previous", id='drop_option_choice_prev', className="button actions"),
                         html.Div("Next", id='drop_option_choice_next', className="button actions"),
                     ], className="buttonPack"),
                 ], className="DropFileSectionInside"),
@@ -59,16 +56,16 @@ layout = html.Div([
 ],)
 
 
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='next_option_function'
-    ),
-    Output("output_file_drop_position_prev", "children"), # needed for the callback to trigger
-    [Input("drop_option_choice_prev", "n_clicks"),
-     Input("choice_section", "id"),], # This is where we want the button to redirect the user
-    prevent_initial_call=True,
-)
+# clientside_callback(
+#     ClientsideFunction(
+#         namespace='clientside',
+#         function_name='next_option_function'
+#     ),
+#     Output("output_file_drop_position_prev", "children"), # needed for the callback to trigger
+#     [Input("drop_option_choice_prev", "n_clicks"),
+#      Input("choice_section", "id"),], # This is where we want the button to redirect the user
+#     prevent_initial_call=True,
+# )
 
 clientside_callback(
     ClientsideFunction(
@@ -90,39 +87,3 @@ clientside_callback(
     Input("manualInsert", "n_clicks"),
     prevent_initial_call=True,
 )
-
-
-
-# Section backend ## TODO: brainstorming to name this section
-
-# Function to upload file and store it in the server
-@callback(
-    # Output('upload-data-output', 'children'),
-    Output('third-section', 'children'),
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename'),
-    State('upload-data', 'last_modified'),
-    prevent_initial_call=True,log = True
-    )
-def upload_file(list_of_contents, list_of_names, last_modifieds):
-    print(list_of_names)
-    test = True # For testing purpose
-
-    if test:
-        files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
-        
-        tables = []
-        for file in files:
-            if file['file_name'].endswith('.fasta'):
-                print('fasta'),
-                return params.layout
-            if file['file_name'].endswith('.csv'):
-                print('csv')
-                tables.append(paramsMeteo.create_table(file))
-                return tables
-    else:
-        files = utils.get_all_files()
-        for file in files:
-            utils.download_file_from_db(file['_id'], './test/')
-
-        return "ok"

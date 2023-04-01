@@ -10,8 +10,7 @@ from dash import dcc,html
 path_params = {
     'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
-    'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
-    #'': {'img': '/assets/icons/dashboard.svg', 'name': 'Check results'}
+    'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'}
 }
 
 server = Flask(__name__)
@@ -116,6 +115,8 @@ def update_color(children):
             "--glass-style": "rgba(173, 173, 173, 0.5)",
             "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
             "--result-row-color": "#E7E7E7",
+            "--black-and-white": "white",
+            "--table-bg-color": "white"
         }
     # CSS for dark theme
     else:
@@ -133,6 +134,8 @@ def update_color(children):
             "--glass-style": "rgba(41, 40, 50, 0.5)",
             "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
             "--result-row-color": "#444444",
+            "--black-and-white": "#111111",
+            "--table-bg-color": "#282b32"
         }
 
 

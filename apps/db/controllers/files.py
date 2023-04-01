@@ -42,6 +42,7 @@ def parse_file(file):
     """
     result = {
         'file_name': file['file_name'],
+        'type': file['type'],
         'created_at': datetime.now(),
         'expired_at': datetime.now() + timedelta(days=14),
     }
