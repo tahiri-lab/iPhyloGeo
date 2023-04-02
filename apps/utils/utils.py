@@ -140,18 +140,17 @@ def create_seq_html(file):
     ])
 
 
-def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params):
+def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, file_name):
     """
 
     """
     # TODO POUR LE MOMENT LES VALEURS SONT HARDCODÉES
     climatic_trees = run_climatic_pipeline(climatic_data, climatic_params)
-    window_size = genetic_params['window_size'] = 200
-    step_size = genetic_params['step_size'] = 100
-    bootstrap_amount = genetic_params['bootstrap_amount'] = 100
-    bootstrap_threshold = genetic_params['bootstrap_threshold'] = 0
-    ls_threshold = genetic_params['ls_threshold'] = 60
-    reference_gene_filename = genetic_params['reference_gene_filename'] = 'seq very small.fasta'
+    window_size = genetic_params['window_size']
+    step_size = genetic_params['step_size']
+    bootstrap_amount = genetic_params['bootstrap_amount']
+    bootstrap_threshold = genetic_params['bootstrap_threshold']
+    ls_threshold = genetic_params['ls_threshold']
 
     alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount)
 
@@ -159,20 +158,20 @@ def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_
     geneticTrees = aPhyloGeo.createBoostrap(msaSet, bootstrap_amount)
     # TODO enregistrer les arbres dans la base de données
 
-    aPhyloGeo.filterResults(climatic_trees, geneticTrees, bootstrap_threshold, ls_threshold, pd.read_json(climatic_data), reference_gene_filename)
+    aPhyloGeo.filterResults(climatic_trees, geneticTrees, bootstrap_threshold, ls_threshold, pd.read_json(climatic_data), file_name)
 
     return
 
 def run_climatic_pipeline(climatic_data, climatic_params):
     """
 
+
     args:
         climatic_data: json object with the climatic data
         climatic_params: json object with the parameters for the climatic pipeline
     """
     df = pd.read_json(climatic_data)
-    # TODO POUR LE MOMENT LES VALEURS SONT HARDCODÉES
-    names = climatic_params['names'] = ['id', 'ALLSKY_SFC_SW_DWN', 'T2M', 'PRECTOTCORR', 'QV2M', 'WS10M']
+    names = ['id'] + climatic_params['names']
     climatic_trees = aPhyloGeo.climaticPipeline(df, names)
     # TODO enregistrer les arbres dans la base de données
     return climatic_trees

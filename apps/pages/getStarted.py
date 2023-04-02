@@ -11,13 +11,15 @@ from pages.upload import dataTypeSection, dropFileSection
 
 from utils import utils
 from pages.upload.meteo import paramsMeteo
-from pages.upload.geo import params
+from pages.upload.geo import paramsGenetic
 from pages.upload import submitButton
 
 dash.register_page(__name__, path='/getStarted')
 
 layout = html.Div([
-    dcc.Store(id='params', data={'genetic': {'file': None, 'layout': None}, 'climatic': {'file': None, 'layout': None}}),
+    dcc.Store(id='params', data={'genetic': {'file': None, 'layout': None, 'name': None}, 'climatic': {'file': None, 'layout': None}}),
+    dcc.Store(id='params_climatic', data={'names': None}),
+    dcc.Store(id='params_genetic', data={'window_size': None, 'step_size': None, 'bootstrap_amount': None, 'bootstrap_threshold': None, 'ls_threshold': None}),
     html.Div(id='action'),
     html.Div(
         className="getStarted",
@@ -51,10 +53,14 @@ layout = html.Div([
 def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
 
-    for file in files:
+    # print('Luca')
+    # print(col_analyze)
+
+    for file, name in zip(files, list_of_names):
         if file['type'] == 'genetic':
             current_data['genetic']['file'] = file
-            current_data['genetic']['layout'] = params.layout
+            current_data['genetic']['layout'] = paramsGenetic.layout
+            current_data['genetic']['name'] = name
         elif file['type'] == 'climatic':
             current_data['climatic']['layout'] = paramsMeteo.create_table(file['df'])
             current_data['climatic']['file'] = file
@@ -62,20 +68,53 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
 
     return current_data['genetic']['layout'], current_data['climatic']['layout'], submitButton.layout, current_data
 
+
+@callback(
+    Output('params_genetic', 'data'),
+    Input('input_windowSize', 'value'),
+    Input('bootstrap_threshold', 'value'),
+    Input('ls_threshold_slider', 'value'),
+    Input('input_stepSize', 'value'),
+    Input('bootstrap_amount', 'value'),
+    State('params_genetic', 'data'),
+    prevent_initial_call=True
+)
+def params_climatic(window_size, bootstrap_threshold, ls_distance, step_size, bootstrap_amount, current_data):
+    current_data['window_size'] = window_size
+    current_data['step_size'] = step_size
+    current_data['input_stepSize_container'] = step_size
+    current_data['bootstrap_threshold'] = bootstrap_threshold
+    current_data['ls_threshold'] = ls_distance
+    current_data['bootstrap_amount'] = bootstrap_amount
+    return current_data
+
+@callback(
+    Output('params_climatic', 'data'),
+    Input('col-analyze', 'value'),
+    State('params_climatic', 'data'),
+    prevent_initial_call=True
+)
+def params_climatic(col_analyze, current_data):
+    current_data['names'] = col_analyze
+    return current_data
+
 @callback(
     Output('sumbit_button', 'children'),
     Input('submit_dataSet', 'n_clicks'),
     State('params', 'data'),
+    State('params_climatic', 'data'),
+    State('params_genetic', 'data'),
     prevent_initial_call=True
 )
-def submit_button(n_clicks, params):
+
+def submit_button(n_clicks, params, params_climatic, params_genetic):
     if n_clicks is None or n_clicks < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
 
     if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
         utils.save_files([params['climatic']['file'], params['genetic']['file']])
-        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], {}, {})
+        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'])
     elif params['climatic']['file'] is not None:
         utils.save_files(params['climatic']['file'])
-        utils.run_climatic_pipeline(params['climatic']['file']['df'], {})
+        utils.run_climatic_pipeline(params['climatic']['file']['df'], params_climatic)
     return ''

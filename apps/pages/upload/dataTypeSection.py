@@ -5,9 +5,6 @@ import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 import dash
 
-from .geo import params
-
-
 layout = html.Div([
     html.Div(id='output_option_position'), # use only to store output value
     html.Div(children=[
