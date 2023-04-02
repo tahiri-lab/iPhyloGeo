@@ -52,8 +52,7 @@ layout = html.Div([
                                       style={'width': '65%', 'marginRight': '20px'}),
                             html.Div(id='input_stepSize-container1'),
                         ], className="ParameterContainerInside"),
-                    ], className="ParameterContainer", id="params_section",),
-                    html.Div("Submit", className="button actions"),
+                    ], className="ParameterContainer", id="geo_params_section",),
                 ], className="ParametersSectionInside"),
             ], className="ParametersSection", id="ParametersSection"
         ),

@@ -4,8 +4,7 @@ import pandas as pd
 from Bio import SeqIO
 from io import StringIO
 from db.db_validator import files_db
-
-from pprint import pprint
+import json
 
 def get_all_files():
     res = files_db.find({}, {'_id': 1, 'file_name': 1})
@@ -17,6 +16,9 @@ def save_files(files):
 
     for file in files:
         parsed_file = parse_file(file)
+        if isinstance(parsed_file['file'], str):
+            parsed_file['file'] = json.loads(parsed_file['file'])
+
         files_db.insert_one(parsed_file)
 
 def get_files_by_id(ids):
@@ -45,6 +47,7 @@ def parse_file(file):
     """
     result = {
         'file_name': file['file_name'],
+        'type': file['type'],
         'created_at': datetime.now(),
         'expired_at': datetime.now() + timedelta(days=14),
     }

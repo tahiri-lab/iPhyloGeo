@@ -9,8 +9,7 @@ import dash_bootstrap_components as dbc
 
 import db.controllers.files as files_ctrl
 
-#from db.db_validator import files_db
-
+from aPhyloGeo import aPhyloGeo
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
@@ -97,11 +96,11 @@ def parse_contents(content, file_name, date):
 
         if content_type == 'data:text/csv;base64':
             # Assume that the user uploaded a CSV file
-            res['df'] = files_ctrl.df_to_str_csv(pd.read_csv(io.StringIO(decoded_content.decode('utf-8'))))
+            res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
             res['type'] = 'climatic'
         elif 'xls' in file_name:
             # Assume that the user uploaded an excel file
-            res['df'] = files_ctrl.df_to_str_csv(pd.read_excel(io.BytesIO(decoded_content)))
+            res['df'] = pd.read_excel(io.BytesIO(decoded_content))
             res['type'] = 'climatic'
         elif 'fasta' in file_name:
             # res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
@@ -135,3 +134,41 @@ def create_seq_html(file):
             #   'wordBreak': 'break-all'
         #})
     ])
+
+
+def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params):
+    """
+
+    """
+    # TODO POUR LE MOMENT LES VALEURS SONT HARDCODÉES
+    climatic_trees = run_climatic_pipeline(climatic_data, climatic_params)
+    window_size = genetic_params['window_size'] = 200
+    step_size = genetic_params['step_size'] = 100
+    bootstrap_amount = genetic_params['bootstrap_amount'] = 100
+    bootstrap_threshold = genetic_params['bootstrap_threshold'] = 0
+    ls_threshold = genetic_params['ls_threshold'] = 60
+    reference_gene_filename = genetic_params['reference_gene_filename'] = 'seq very small.fasta'
+
+    alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount)
+
+    msaSet = alignementObject.msaSet
+    geneticTrees = aPhyloGeo.createBoostrap(msaSet, bootstrap_amount)
+    # TODO enregistrer les arbres dans la base de données
+
+    aPhyloGeo.filterResults(climatic_trees, geneticTrees, bootstrap_threshold, ls_threshold, pd.read_json(climatic_data), reference_gene_filename)
+
+    return
+
+def run_climatic_pipeline(climatic_data, climatic_params):
+    """
+
+    args:
+        climatic_data: json object with the climatic data
+        climatic_params: json object with the parameters for the climatic pipeline
+    """
+    df = pd.read_json(climatic_data)
+    # TODO POUR LE MOMENT LES VALEURS SONT HARDCODÉES
+    names = climatic_params['names'] = ['id', 'ALLSKY_SFC_SW_DWN', 'T2M', 'PRECTOTCORR', 'QV2M', 'WS10M']
+    climatic_trees = aPhyloGeo.climaticPipeline(df, names)
+    # TODO enregistrer les arbres dans la base de données
+    return climatic_trees

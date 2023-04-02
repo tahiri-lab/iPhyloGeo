@@ -1,5 +1,4 @@
-from dash import dcc, html, State, Input, Output, clientside_callback,callback
-
+from dash import dcc, html, State, Input, Output, clientside_callback, callback
 
 layout = html.Div([
     html.Div(
