@@ -55,12 +55,7 @@ def upload_file(list_of_contents, list_of_names, last_modifieds):
             result['climatic'] = file['df'].to_json()
             all_section.append(paramsMeteo.create_table(file))
         if file['type'] == 'genetic':
-            print(file['file'])
-
-            result['genetic'] = SeqIO.to_dict(file['file'])
-            print(result['genetic'])
-            for key in result['genetic']:
-                result['genetic'][key] = str(result['genetic'][key].seq)
+            result['genetic'] = file['file']
             all_section.append(params.layout)
 
     all_section.append(submitButton.layout)
@@ -77,7 +72,12 @@ def upload_file(list_of_contents, list_of_names, last_modifieds):
     prevent_initial_call=True,log = True
 )
 def test2(data, click):
+    # TODO : enregistrer les données dans la base de données
     if click is not None:
-        print(data)
+        if data['climatic'] is not None and data['genetic'] is not None:
+            utils.run_complete_pipeline(data['climatic'], data['genetic'], {}, {})
+        elif data['climatic'] is not None:
+            utils.run_climatic_pipeline(data['climatic'], {})
+
     return ''
 

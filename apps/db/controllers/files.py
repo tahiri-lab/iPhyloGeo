@@ -52,9 +52,9 @@ def parse_file(file):
         result['file'] = [list(file['df'].columns)] + file['df'].values.tolist()
     elif 'file' in file:
         # fasta format SeqIO
-        result['file'] = SeqIO.to_dict(file['file'])
+        result['file'] = file['file']
         for key in result['file']:
-            result['file'][key] = str(result['file'][key].seq)
+            result['file'][key] = str(result['file'][key])
 
     if 'last_modified_date' in file:
         result['last_modified_date'] = datetime.fromtimestamp(file['last_modified_date'])
