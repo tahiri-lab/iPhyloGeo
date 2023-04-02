@@ -111,9 +111,9 @@ def submit_button(n_clicks, params, params_climatic, params_genetic):
         raise PreventUpdate
 
     if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
-        utils.save_files([params['climatic']['file'], params['genetic']['file']])
-        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'])
+        files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
+        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'], files_ids[0], files_ids[1])
     elif params['climatic']['file'] is not None:
-        utils.save_files(params['climatic']['file'])
-        utils.run_climatic_pipeline(params['climatic']['file']['df'], params_climatic)
+        files_id = utils.save_files(params['climatic']['file'])
+        utils.run_climatic_pipeline(params['climatic']['file']['df'], params_climatic, files_id)
     return ''

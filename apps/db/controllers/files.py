@@ -14,12 +14,17 @@ def save_files(files):
     if not isinstance(files, list):
         files = [files]
 
+    results = []
     for file in files:
         parsed_file = parse_file(file)
         if isinstance(parsed_file['file'], str):
             parsed_file['file'] = json.loads(parsed_file['file'])
 
-        files_db.insert_one(parsed_file)
+        # save the file to the database and return the id
+        result = files_db.insert_one(parsed_file)
+        results.append(str(result.inserted_id))
+
+    return results[0] if len(results) == 1 else results
 
 def get_files_by_id(ids):
     if not isinstance(ids, list):
