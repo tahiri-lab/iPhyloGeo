@@ -94,35 +94,3 @@ clientside_callback(
 
 
 # Section backend ## TODO: brainstorming to name this section
-
-# Function to upload file and store it in the server
-@callback(
-    # Output('upload-data-output', 'children'),
-    Output('third-section', 'children'),
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename'),
-    State('upload-data', 'last_modified'),
-    prevent_initial_call=True,log = True
-    )
-def upload_file(list_of_contents, list_of_names, last_modifieds):
-    print(list_of_names)
-    test = True # For testing purpose
-
-    if test:
-        files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
-        
-        tables = []
-        for file in files:
-            if file['file_name'].endswith('.fasta'):
-                print('fasta'),
-                return params.layout
-            if file['file_name'].endswith('.csv'):
-                print('csv')
-                tables.append(paramsMeteo.create_table(file))
-                return tables
-    else:
-        files = utils.get_all_files()
-        for file in files:
-            utils.download_file_from_db(file['_id'], './test/')
-
-        return "ok"
