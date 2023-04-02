@@ -11,6 +11,7 @@ import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
 
 from aPhyloGeo import aPhyloGeo
+from pprint import pprint
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
@@ -21,6 +22,12 @@ def get_all_files():
 
 def get_results(ids):
     return results_ctrl.get_results(ids)
+
+def get_result(id):
+    return results_ctrl.get_result(id)
+
+def get_all_results():
+    return results_ctrl.get_all_results()
 
 def get_file(id, options={}):
     """
@@ -66,7 +73,7 @@ def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
     return results
 
 def save_files(results):
-    files_ctrl.save_files(results)
+    return files_ctrl.save_files(results)
 
 def download_file_from_db(id, root_path='./'):
     """ Download the file from the database.
@@ -139,34 +146,31 @@ def create_seq_html(file):
         #})
     ])
 
-
-def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, file_name):
+def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, file_name, climatic_files_id, genetic_files_id):
+    """ Run the complete pipeline.
     """
+    climatic_trees, result_id = run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id)
 
-    """
-    # TODO POUR LE MOMENT LES VALEURS SONT HARDCODÉES
-    climatic_trees = run_climatic_pipeline(climatic_data, climatic_params)
-    window_size = genetic_params['window_size']
-    step_size = genetic_params['step_size']
-    bootstrap_amount = genetic_params['bootstrap_amount']
-    bootstrap_threshold = genetic_params['bootstrap_threshold']
-    ls_threshold = genetic_params['ls_threshold']
-
-    alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount)
-
+    alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
     msaSet = alignementObject.msaSet
-    geneticTrees = aPhyloGeo.createBoostrap(msaSet, bootstrap_amount)
-    # TODO enregistrer les arbres dans la base de données
 
-    output = aPhyloGeo.filterResults(climatic_trees, geneticTrees, bootstrap_threshold, ls_threshold, pd.read_json(climatic_data), file_name)
-    # TODO enregistrer output dans la base de données
+    geneticTrees = aPhyloGeo.createBoostrap(msaSet, genetic_params['bootstrap_amount'])
+    results_ctrl.update_result({
+        '_id': result_id,
+        'msaSet': msaSet,
+        'genetic_params': genetic_params,
+        'geneticTrees': geneticTrees,
+        'name': file_name
+    })
 
-    return
+    output = aPhyloGeo.filterResults(climatic_trees, geneticTrees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), file_name)
+    results_ctrl.update_result({
+        '_id': result_id,
+        'output': output,
+    })
 
-def run_climatic_pipeline(climatic_data, climatic_params):
-    """
-
-
+def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id):
+    """ Run the climatic pipeline.
     args:
         climatic_data: json object with the climatic data
         climatic_params: json object with the parameters for the climatic pipeline
@@ -174,5 +178,10 @@ def run_climatic_pipeline(climatic_data, climatic_params):
     df = pd.read_json(climatic_data)
     names = ['id'] + climatic_params['names']
     climatic_trees = aPhyloGeo.climaticPipeline(df, names)
-    # TODO enregistrer les arbres dans la base de données
-    return climatic_trees
+    result_id = results_ctrl.create_result({
+        'climatic_files_id': str(climatic_files_id),
+        'climatic_trees': climatic_trees,
+        'climatic_params': climatic_params,
+    })
+
+    return climatic_trees, result_id
