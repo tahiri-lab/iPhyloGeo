@@ -5,22 +5,19 @@ from dash import dcc, html, State, Input, Output, clientside_callback,callback
 from dash.dependencies import Output, Input, ClientsideFunction
 import dash_bootstrap_components as dbc
 import dash
-from utils import utils
+from dash.exceptions import PreventUpdate
 from pages.upload import dataTypeSection, dropFileSection
+
+
+from utils import utils
 from pages.upload.meteo import paramsMeteo
 from pages.upload.geo import params
 from pages.upload import submitButton
-import json
 
 dash.register_page(__name__, path='/getStarted')
 
-# climatic = html.Div(id="climatic-section", children=[])
-# genetic = html.Div(id="genetic-section", children=[])
-all_section = []
-
 layout = html.Div([
-    dcc.Store(data='test', id='memory'),
-    dcc.Store(id='memory-output'),
+    dcc.Store(id='params', data={'genetic': {'file': None, 'layout': None}, 'climatic': {'file': None, 'layout': None}}),
     html.Div(id='action'),
     html.Div(
         className="getStarted",
@@ -30,54 +27,55 @@ layout = html.Div([
             # Drop file section
             html.Div(children=[dropFileSection.layout]),
             # params (determine with the choose_option function in dataTypeSection)
-            html.Div(id="climatic-section", children=[]),
+            html.Div(id="climatic_params_layout"),
+            html.Div(id="genetic_params_layout"),
+            html.Div(id="submit_button"),
+            html.Div(id="output_hidden_1", children=[], className="hidden"),
         ]
     ),
 ])
 
+# Function to upload file and store it in the server
 @callback(
-    # Output('upload-data-output', 'children'),
-    Output('climatic-section', 'children'),
-    Output('memory', 'data'),
-    # Output('genetic-section', 'children'),
-    # Output('all-section', 'children'),
+    Output('genetic_params_layout', 'children'),
+    Output('climatic_params_layout', 'children'),
+    Output('submit_button', 'children'),
+    Output('params', 'data'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
     State('upload-data', 'last_modified'),
-    prevent_initial_call=True,log = True
+    State('params', 'data'),
+    prevent_initial_call=True,
+    log = True
 )
-def upload_file(list_of_contents, list_of_names, last_modifieds):
-    result = {}
-
+def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
+
     for file in files:
-        if file['type'] == 'climatic':
-            result['climatic'] = file['df'].to_json()
-            all_section.append(paramsMeteo.create_table(file))
         if file['type'] == 'genetic':
-            result['genetic'] = file['file']
-            all_section.append(params.layout)
+            current_data['genetic']['file'] = file
+            current_data['genetic']['layout'] = params.layout
+        elif file['type'] == 'climatic':
+            current_data['climatic']['layout'] = paramsMeteo.create_table(file['df'])
+            current_data['climatic']['file'] = file
+            current_data['climatic']['file']['df'] = file['df'].to_json()
 
-    all_section.append(submitButton.layout)
-
-    #
-    # print(type(files[0]))
-    return all_section, result
+    return current_data['genetic']['layout'], current_data['climatic']['layout'], submitButton.layout, current_data
 
 @callback(
-    Output('memory-output', 'children'),
-    Input('memory', 'data'),
+    Output('sumbit_button', 'children'),
     Input('submit_dataSet', 'n_clicks'),
-    # Input('memory', 'value'),
-    prevent_initial_call=True,log = True
+    State('params', 'data'),
+    prevent_initial_call=True
 )
-def test2(data, click):
-    # TODO : enregistrer les données dans la base de données
-    if click is not None:
-        if data['climatic'] is not None and data['genetic'] is not None:
-            utils.run_complete_pipeline(data['climatic'], data['genetic'], {}, {})
-        elif data['climatic'] is not None:
-            utils.run_climatic_pipeline(data['climatic'], {})
+def submit_button(n_clicks, params):
+    if n_clicks is None or n_clicks < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
+        raise PreventUpdate
 
+    if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
+        utils.save_files([params['climatic']['file'], params['genetic']['file']])
+        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], {}, {})
+    elif params['climatic']['file'] is not None:
+        utils.save_files(params['climatic']['file'])
+        utils.run_climatic_pipeline(params['climatic']['file']['df'], {})
     return ''
-

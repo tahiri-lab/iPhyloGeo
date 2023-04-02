@@ -15,12 +15,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 figures =[]
 
-def create_table(file):
-    df = pd.DataFrame(file['df'])
-    #global dff 
-    #dff = df
-    file_name = file['file_name']
-
+def create_table(df):
     param_selection = html.Div([
         html.Div([
             html.Div([

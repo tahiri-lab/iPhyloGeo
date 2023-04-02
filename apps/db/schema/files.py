@@ -26,9 +26,6 @@ schema_files = {
                     },
                     {
                         'bsonType': 'object',
-                        'additionalProperties': {
-                            'bsonType': 'string'
-                        }
                     }
                 ]
             },
