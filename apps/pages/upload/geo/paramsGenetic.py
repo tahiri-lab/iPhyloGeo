@@ -54,8 +54,8 @@ layout = html.Div([
                         ], className="ParameterContainerInside"),
                         html.Div([
                             html.Div("Bootstrap amount"),
-                            dcc.Input(id="bootstrap_amount", type="number", min=0, max=500,
-                                      placeholder="Enter Step Size", value=0,
+                            dcc.Input(id="bootstrap_amount", type="number", min=1, max=500,
+                                      placeholder="Enter Step Size", value=1,
                                       style={'width': '65%', 'marginRight': '20px'}),
                             html.Div(id='bootstrap_amount_container'),
                         ], className="ParameterContainerInside"),
