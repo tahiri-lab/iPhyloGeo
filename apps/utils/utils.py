@@ -158,7 +158,8 @@ def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_
     geneticTrees = aPhyloGeo.createBoostrap(msaSet, bootstrap_amount)
     # TODO enregistrer les arbres dans la base de données
 
-    aPhyloGeo.filterResults(climatic_trees, geneticTrees, bootstrap_threshold, ls_threshold, pd.read_json(climatic_data), file_name)
+    output = aPhyloGeo.filterResults(climatic_trees, geneticTrees, bootstrap_threshold, ls_threshold, pd.read_json(climatic_data), file_name)
+    # TODO enregistrer output dans la base de données
 
     return
 
