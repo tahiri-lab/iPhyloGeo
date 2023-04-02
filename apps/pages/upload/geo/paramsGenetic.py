@@ -10,7 +10,6 @@ layout = html.Div([
         html.Div(
             children=[
                 html.Div([
-                    html.Div('Parameters', className="title"),
                     html.Div([
                         html.Div('Genetic parameters', className="title"),
                         html.Div([
