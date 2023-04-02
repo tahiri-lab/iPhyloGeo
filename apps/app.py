@@ -70,6 +70,7 @@ app.layout = html.Div([
                     ], target='_blank', href="https://github.com/tahiri-lab", className="gitHub"),
                 ], id="gitHub-container", className="gitHub-container"),
             ]),
+            html.Div(className="footer"),
         ]),
     ], id='themer'),
 ])

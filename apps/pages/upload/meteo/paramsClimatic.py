@@ -19,7 +19,6 @@ def create_table(df):
     param_selection = html.Div([
         html.Div([
             html.Div([
-                html.H2('Create Phylogeography Trees', className="title"),  # title
                 html.Div([
                     dbc.Col([
                         dash_table.DataTable(
@@ -43,12 +42,12 @@ def create_table(df):
                         # html.Hr(),  # horizontal line
                     ], className=""),
 
-                ], className="paramsMeteoTable"),
+                ], className="paramsClimaticTable"),
                 html.Div(id='filter-container'),
                 html.Div([
-                    html.Div('Generate your graph', className="title"),
                     html.Div([
                         html.Div([
+                            html.Div('Generate your graph', className="title"),
                             html.Div([
                                 html.P("Insert X axis data"),
                                 dcc.Dropdown(id='xaxis-data',
@@ -77,26 +76,20 @@ def create_table(df):
                             html.Div(id='output-map', className="choroplethMap"),
                         ], className="choroplethMapContainer"),
                     ], className="axis"),
-                ], className="paramsMeteoParameters"),
+                ], className="paramsClimaticParameters"),
                 html.Div([
                     html.Div(id='output-graph', className="generatedGraph"),
                 ], className="graphGeneratorContainer"),
                 html.Div([
                     html.Div([
-                        html.Div([
-                            html.H4("Select the name of the column to analyze"),
-                        ]),
-
+                        html.Div("Select the name of the column to analyze"),
                         dcc.Checklist(id='col-analyze',
                                       options=[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
                                       labelStyle={'display': 'inline-block', 'marginRight': '20px'}
                                       ),
-                        # html.Br(),
-                        # html.Button(id="submit-forTree", className='button primary', children="Submit"),
-                        # html.Hr(),
                     ], className="axis")
-                ], className="paramsMeteoParameters")
-            ], className="params_meteo"),
+                ], className="colToAnalyseContainer")
+            ], className="params_climatic"),
         ], className="ParametersSectionInside"),
     ], className="ParametersSection", id="meteo_params_section")
 
@@ -161,8 +154,8 @@ def update_output(num_clicks, data, val_selected):
             return dcc.Graph(figure=fig)
         else:
             map_fig = html.Div([
-                html.H3("No data to display.")
-            ])
+                html.Div("No map to display.")
+            ], className="noMapAvailable")
             return map_fig
 
 

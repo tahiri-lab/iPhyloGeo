@@ -10,8 +10,8 @@ layout = html.Div([
         html.Div(
             children=[
                 html.Div([
-                    html.Div('Parameters', className="title"),
                     html.Div([
+                        html.Div('Genetic parameters', className="title"),
                         html.Div([
                             html.Div("Bootstrap value threshold", className="paramTitle"),
                             dcc.Slider(id='bootstrap_threshold', className="slider",
@@ -39,28 +39,27 @@ layout = html.Div([
                             html.Div(id='ls_threshold_slider_output_container'),
                         ], className="ParameterContainerInside"),
                         html.Div([
+                            html.Div([
                                 html.Div("Sliding Window Size"),
                                 dcc.Input(id="input_windowSize", type="number", min=0, max=10,
-                                          placeholder="Enter Sliding Window Size", value=0,
-                                          style={'width': '65%', 'marginRight': '20px'}),
+                                          placeholder="Enter Sliding Window Size", value=0,  className="inputField"),
                                 html.Div(id='input_windowSize_container'),
-                        ], className="ParameterContainerInside"),
-                        html.Div([
-                            html.Div("Step Size"),
-                            dcc.Input(id="input_stepSize", type="number", min=0, max=10,
-                                      placeholder="Enter Step Size", value=0,
-                                      style={'width': '65%', 'marginRight': '20px'}),
-                            html.Div(id='input_stepSize_container'),
-                        ], className="ParameterContainerInside"),
-                        html.Div([
-                            html.Div("Bootstrap amount"),
-                            dcc.Input(id="bootstrap_amount", type="number", min=0, max=500,
-                                      placeholder="Enter Step Size", value=0,
-                                      style={'width': '65%', 'marginRight': '20px'}),
-                            html.Div(id='bootstrap_amount_container'),
-                        ], className="ParameterContainerInside"),
+                            ], className="manualInput"),
+                            html.Div([
+                                html.Div("Step Size"),
+                                dcc.Input(id="input_stepSize", type="number", min=0, max=10,
+                                          placeholder="Enter Step Size", value=0, className="inputField"),
+                                html.Div(id='input_stepSize_container'),
+                            ], className="manualInput"),
+                            html.Div([
+                                html.Div("Bootstrap amount"),
+                                dcc.Input(id="bootstrap_amount", type="number", min=0, max=500,
+                                          placeholder="Enter Step Size", value=0, className="inputField"),
+                                html.Div(id='bootstrap_amount_container'),
+                            ], className="manualInput"),
+                        ], className="manualInputContainer")
                     ], className="ParameterContainer", id="geo_params_section",),
-                ], className="ParametersSectionInside"),
+                ], className="params_genetic"),
             ], className="ParametersSection", id="ParametersSection"
         ),
     ],),

@@ -4,8 +4,10 @@ layout = html.Div([
     html.Div(
         className="getStarted",
         children=[
-            html.Div(id='sumbit_button'),
-            html.Div("Submit", id='submit_dataSet', className="button actions"),
-        ]
+            html.Div([
+                html.Div(id='sumbit_button'),
+                html.Div("Submit", id='submit_dataSet', className="button actions"),
+            ], className="submitButton")
+        ],
     ),
 ])

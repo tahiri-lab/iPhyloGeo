@@ -74,7 +74,7 @@ clientside_callback(
     ),
     Output("output_file_drop_position_next", "children"), # needed for the callback to trigger
     [Input("drop_option_choice_next", "n_clicks"),
-     Input("params_section", "id"),], # This is where we want the button to redirect the user
+     Input("params_sections", "id")], # This is where we want the button to redirect the user
     prevent_initial_call=True,
 )
 

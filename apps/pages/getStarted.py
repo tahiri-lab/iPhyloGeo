@@ -10,7 +10,7 @@ from pages.upload import dataTypeSection, dropFileSection
 
 
 from utils import utils
-from pages.upload.meteo import paramsMeteo
+from pages.upload.meteo import paramsClimatic
 from pages.upload.geo import paramsGenetic
 from pages.upload import submitButton
 
@@ -29,10 +29,12 @@ layout = html.Div([
             # Drop file section
             html.Div(children=[dropFileSection.layout]),
             # params (determine with the choose_option function in dataTypeSection)
-            html.Div(id="climatic_params_layout"),
-            html.Div(id="genetic_params_layout"),
-            html.Div(id="submit_button"),
-            html.Div(id="output_hidden_1", children=[], className="hidden"),
+            html.Div([
+                html.Div(id="climatic_params_layout"),
+                html.Div(id="genetic_params_layout"),
+                html.Div(id="submit_button"),
+                html.Div(id="output_hidden_1", children=[], className="hidden"),
+            ], id="params_sections")
         ]
     ),
 ])
@@ -53,16 +55,13 @@ layout = html.Div([
 def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
 
-    # print('Luca')
-    # print(col_analyze)
-
     for file, name in zip(files, list_of_names):
         if file['type'] == 'genetic':
             current_data['genetic']['file'] = file
             current_data['genetic']['layout'] = paramsGenetic.layout
             current_data['genetic']['name'] = name
         elif file['type'] == 'climatic':
-            current_data['climatic']['layout'] = paramsMeteo.create_table(file['df'])
+            current_data['climatic']['layout'] = paramsClimatic.create_table(file['df'])
             current_data['climatic']['file'] = file
             current_data['climatic']['file']['df'] = file['df'].to_json()
 
