@@ -1,16 +1,14 @@
 import dash_bootstrap_components as dbc
 from dash import html, callback
 import dash_daq as daq
+from datetime import datetime
 import pandas as pd
 import dash
 from flask import request
 from dash.dependencies import Input, Output, ClientsideFunction
-#import db.controllers.files as files_ctrl
-
-
+import utils.utils as utils
 
 dash.register_page(__name__, path_template='/results/<result_id>')
-
 
 data = {'results': [
     [{'name': 'result1'}, {'creationDate': '2023/01/02'}, {'expirationDate': '2023/01/22'}, {'progress': 10}],
@@ -21,31 +19,46 @@ data = {'results': [
 df_results = pd.DataFrame(data)
 
 
-def generate_result_list(result_data):
-    return html.Div([
-        html.Div([
-            html.Div('Name', className="label"),
-            html.Div(result_data[0]['name'], className="data"),
-        ], className="nameContainer"),
-        html.Div([
-            html.Div('Creation date', className="label"),
-            html.Div(result_data[1]['creationDate'], className="data"),
-        ], className="creationDateContainer"),
-        html.Div([
-            html.Div('Expiration date', className="label"),
-            html.Div(result_data[2]['expirationDate'], className="data"),
-        ], className="expirationDateContainer"),
-        html.Div([
-            html.Div('Progress', className="label"),
+def generate_result_list():
+    # TODO: Change this to get id from the cookie
+    results_ids = [
+        "642738b83a11ba3ac2427b0b",
+        "642738bf3a11ba3ac2427b0c",
+        "642738ca3a11ba3ac2427b0d",
+        "642738d33a11ba3ac2427b0e"
+    ]
+
+    results = utils.get_results(results_ids)
+    layout = []
+    for result in results:
+        layout.append(
             html.Div([
-                dbc.Progress(value=result_data[3]['progress']),
-            ], className='progressBar'),
-        ], className="progressContainer"),
-        html.Div([
-            # html.Div('Expiration date', className="label"),
-            html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
-        ], className="arrowContainer"),
-    ], className="row")
+                html.Div([
+                    html.Div('Name', className="label"),
+                    html.Div(result['name'], className="data"),
+                ], className="nameContainer"),
+                html.Div([
+                    html.Div('Creation date', className="label"),
+                    html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
+                ], className="creationDateContainer"),
+                html.Div([
+                    html.Div('Expiration date', className="label"),
+                    html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
+                ], className="expirationDateContainer"),
+                html.Div([
+                    html.Div('Progress', className="label"),
+                    html.Div([
+                        dbc.Progress(value=50),
+                    ], className='progressBar'),
+                ], className="progressContainer"),
+                html.Div([
+                    # html.Div('Expiration date', className="label"),
+                    html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
+                ], className="arrowContainer"),
+            ], className="row")
+        )
+
+    return layout
 
 layout = html.Div([
     html.Div(children=[
@@ -65,12 +78,10 @@ layout = html.Div([
                     html.Div('days before your files expire', className="notificationFooter")
                 ], className="notification"),
             ], className="notificationStack"),
-            html.Div(children=[generate_result_list(i) for i in df_results['results']], className="resultsRow"),
+            html.Div(children=generate_result_list(), className="resultsRow"),
         ], className="resultsContainer"),
     ], className="results"),
 ])
-
-
 
 @callback(
         Output('cookie_output', 'children'),
@@ -84,7 +95,6 @@ def make_cookie(result_id=None):
         result_id (str): The id of the result to add to the cookie
 
     """
-
     auth_cookie= request.cookies.get("AUTH")
     if auth_cookie:
         # If the "Auth" cookie exists, split the value into a list of IDs
@@ -93,8 +103,6 @@ def make_cookie(result_id=None):
         # If the "Auth" cookie does not exist, set the value to an empty list
         auth_ids = []
 
-    print(result_id)
-    print (auth_ids)
     auth_ids.append(str(result_id))
 
     #Check if the id exists in the mongo db and remove it if it doesn't
@@ -108,9 +116,6 @@ def make_cookie(result_id=None):
 
     return result_id
 
-
-
-
 def check_id_exist(auth_ids):
     """Check if the id exists in the mongo db and remove it if it doesn't
 
@@ -119,17 +124,15 @@ def check_id_exist(auth_ids):
 
     Returns:
         list: The list of ids that exist in the mongo db
-    
-    """
 
+    """
     tmp_auth_ids = auth_ids
 
     for index in auth_ids:
-        print(index)
         #if files_ctrl.get_file_by_id(index) == []: # de ce que j'ai compis du get_files_by_id, il renvoie un tableau vide si l'id n'existe pas
         #    tmp_auth_ids.remove(index)
+        pass
 
-    
     return tmp_auth_ids
 
 
