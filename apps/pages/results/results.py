@@ -1,5 +1,5 @@
 import dash_bootstrap_components as dbc
-from dash import html, callback
+from dash import html, callback, dash_table,dcc,State
 import dash_daq as daq
 from datetime import datetime
 import pandas as pd
@@ -7,6 +7,7 @@ import dash
 from flask import request
 from dash.dependencies import Input, Output, ClientsideFunction
 import utils.utils as utils
+import dash.dependencies as dd
 
 dash.register_page(__name__, path_template='/results/<result_id>')
 
@@ -21,14 +22,8 @@ df_results = pd.DataFrame(data)
 
 def generate_result_list():
     # TODO: Change this to get id from the cookie
-    results_ids = [
-        "642738b83a11ba3ac2427b0b",
-        "642738bf3a11ba3ac2427b0c",
-        "642738ca3a11ba3ac2427b0d",
-        "642738d33a11ba3ac2427b0e"
-    ]
-
-    results = utils.get_results(results_ids)
+ 
+    results = utils.get_all_results()
     layout = []
     for result in results:
         layout.append(
@@ -42,23 +37,36 @@ def generate_result_list():
                     html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
                 ], className="creationDateContainer"),
                 html.Div([
-                    html.Div('Expiration date', className="label"),
+                    html.Div('Expiration date',className="label"),
                     html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
                 ], className="expirationDateContainer"),
                 html.Div([
-                    html.Div('Progress', className="label"),
+                    html.Div('Progress',className="label"),
                     html.Div([
                         dbc.Progress(value=50),
                     ], className='progressBar'),
                 ], className="progressContainer"),
                 html.Div([
                     # html.Div('Expiration date', className="label"),
-                    html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
+                    html.A(
+                        html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
+                        href=f'/result/{result["_id"]}',
+                    ),
+                    dcc.Store(id='result_res', data=str(result["_id"])),
                 ], className="arrowContainer"),
             ], className="row")
         )
 
     return layout
+
+
+@callback(
+    Output('result_id', 'data'),
+    Input('result_res', 'data'),
+)
+def update_result(result_id):
+    return result_id
+
 
 layout = html.Div([
     html.Div(children=[
@@ -134,5 +142,3 @@ def check_id_exist(auth_ids):
         pass
 
     return tmp_auth_ids
-
-

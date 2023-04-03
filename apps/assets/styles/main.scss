@@ -40,3 +40,8 @@ body {
 .hidden {
     display: none;
 }
+.center {
+    text-align: center;
+    display:flex;
+    justify-content: center;
+}

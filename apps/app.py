@@ -10,7 +10,9 @@ from dash import dcc,html
 path_params = {
     'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
-    'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'}
+    'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
+    'Result': {'img': '/assets/icons/dashboard.svg', 'name': 'Result'},
+
 }
 
 server = Flask(__name__)
@@ -27,7 +29,10 @@ ENV_CONFIG = {
 }
 
 
+
+
 app.layout = html.Div([
+    dcc.Store(id='result_id', data=None,storage_type='session'),
     html.Div('Your window is to small to show the content of this page.', className="smallWindow"),
     html.Div([
         dash.page_container,
