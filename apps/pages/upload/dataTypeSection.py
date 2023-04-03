@@ -1,9 +1,6 @@
-import dash_bootstrap_components as dbc
+from dash import html, Input, Output, ctx, callback
+from dash.dependencies import Input, Output
 
-from dash import dcc, html, State, Input, Output, ctx, callback
-import dash_daq as daq
-from dash.dependencies import Input, Output, ClientsideFunction
-import dash
 
 layout = html.Div([
     html.Div(id='output_option_position'), # use only to store output value

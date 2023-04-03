@@ -16,6 +16,9 @@ schema_results = {
             'climatic_files_id': {
                 'bsonType': 'objectId',
             },
+            'genetic_files_id': {
+                'bsonType': 'objectId',
+            },
             'climatic_params': {
                 'bsonType': 'object',
                 'required': ['names'],
@@ -32,7 +35,7 @@ schema_results = {
             'climatic_trees': {
                 'bsonType': 'object',
             },
-            'geneticTrees': {
+            'genetic_trees': {
                 'bsonType': 'object',
             },
             'genetic_params': {

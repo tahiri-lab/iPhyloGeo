@@ -1,18 +1,11 @@
 import dash_bootstrap_components as dbc
 
 from dash import dcc, html, State, Input, Output, dash_table,callback
-import dash_daq as daq
-from dash.dependencies import Input, Output, ClientsideFunction
+from dash.dependencies import Input, Output
 import dash
 import plotly.express as px
-from io import StringIO
-from base64 import b64encode
-import pandas as pd
-import logging
 
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 figures =[]
 
 def create_table(df):

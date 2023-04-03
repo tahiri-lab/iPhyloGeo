@@ -1,18 +1,13 @@
-from typing import Container
-
-from Bio import SeqIO
-from dash import dcc, html, State, Input, Output, clientside_callback,callback
-from dash.dependencies import Output, Input, ClientsideFunction
-import dash_bootstrap_components as dbc
+from dash import dcc, html, State, Input, Output, callback
+from dash.dependencies import Output, Input
 import dash
 from dash.exceptions import PreventUpdate
-from pages.upload import dataTypeSection, dropFileSection
 
-
-from utils import utils
-from pages.upload.meteo import paramsClimatic
-from pages.upload.geo import paramsGenetic
-from pages.upload import submitButton
+import pages.upload.dropFileSection as dropFileSection
+import utils.utils as utils
+import pages.upload.meteo.paramsClimatic as paramsClimatic
+import pages.upload.geo.paramsGenetic as paramsGenetic
+import pages.upload.submitButton as submitButton
 
 dash.register_page(__name__, path='/getStarted')
 
@@ -24,11 +19,7 @@ layout = html.Div([
     html.Div(
         className="getStarted",
         children=[
-            # Upload type section
-            # html.Div(children=[dataTypeSection.layout]),
-            # Drop file section
             html.Div(children=[dropFileSection.layout]),
-            # params (determine with the choose_option function in dataTypeSection)
             html.Div([
                 html.Div(id="climatic_params_layout"),
                 html.Div(id="genetic_params_layout"),

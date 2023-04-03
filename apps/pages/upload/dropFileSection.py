@@ -1,6 +1,6 @@
 from tkinter import S
 import dash_bootstrap_components as dbc
-from dash import dcc, html, State, Input, Output, clientside_callback,callback
+from dash import dcc, html, Input, Output, clientside_callback
 from dash.dependencies import Input, Output, ClientsideFunction
 
 layout = html.Div([

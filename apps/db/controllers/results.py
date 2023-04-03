@@ -35,6 +35,8 @@ def parse_result(result):
         document['_id'] = ObjectId(result['_id'])
     if 'climatic_files_id' in result:
         document['climatic_files_id'] = ObjectId(result['climatic_files_id'])
+    if 'genetic_files_id' in result:
+        document['genetic_files_id'] = ObjectId(result['genetic_files_id'])
     if 'climatic_params' in result:
         document['climatic_params'] = result['climatic_params']
     if 'climatic_trees' in result:
@@ -42,11 +44,11 @@ def parse_result(result):
         for key, value in result['climatic_trees'].items():
             climatic_trees[key] = value.format('newick')
         document['climatic_trees'] = climatic_trees
-    if 'geneticTrees' in result:
+    if 'genetic_trees' in result:
         genetic_trees = {}
-        for key, value in result['geneticTrees'].items():
+        for key, value in result['genetic_trees'].items():
             genetic_trees[key] = value.format('newick')
-        document['geneticTrees'] = genetic_trees
+        document['genetic_trees'] = genetic_trees
     if 'genetic_params' in result:
         document['genetic_params'] = result['genetic_params']
     if 'msaSet' in result:

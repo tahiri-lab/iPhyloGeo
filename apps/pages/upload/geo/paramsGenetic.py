@@ -1,9 +1,4 @@
-import dash_bootstrap_components as dbc
-
-from dash import dcc, html, State, Input, Output
-import dash_daq as daq
-from dash.dependencies import Input, Output, ClientsideFunction
-
+from dash import dcc, html
 
 layout = html.Div([
     html.Div(children=[

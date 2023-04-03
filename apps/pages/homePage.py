@@ -1,17 +1,10 @@
-from typing import Container
-from dash import Dash, html, dcc
-from dash.dependencies import Output, Input, State
+from dash import html
+from dash.dependencies import Output, Input
 import dash_bootstrap_components as dbc
-import pandas as pd
-import pathlib
 from dash import callback
-import dash 
-# Font Awesome
-import plotly.express as px
-import plotly.graph_objs as go
+import dash
 
 dash.register_page(__name__,path='/')
-
 
 external_stylesheets = [
 {

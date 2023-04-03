@@ -3,15 +3,11 @@ import base64
 import io
 import os
 from Bio import SeqIO
-
-from dash import dcc, html, dash_table
-import dash_bootstrap_components as dbc
+from dash import dcc, html
 
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
-
 from aPhyloGeo import aPhyloGeo
-from pprint import pprint
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
@@ -154,16 +150,17 @@ def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_
     alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
     msaSet = alignementObject.msaSet
 
-    geneticTrees = aPhyloGeo.createBoostrap(msaSet, genetic_params['bootstrap_amount'])
+    genetic_trees = aPhyloGeo.createBoostrap(msaSet, genetic_params['bootstrap_amount'])
     results_ctrl.update_result({
         '_id': result_id,
         'msaSet': msaSet,
         'genetic_params': genetic_params,
-        'geneticTrees': geneticTrees,
+        'genetic_trees': genetic_trees,
+        'genetic_files_id': genetic_files_id,
         'name': file_name
     })
 
-    output = aPhyloGeo.filterResults(climatic_trees, geneticTrees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), file_name)
+    output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), file_name)
     results_ctrl.update_result({
         '_id': result_id,
         'output': output,

@@ -1,13 +1,13 @@
-from dash import html, dash_table,callback, Output, Input,State
+from dash import html, dash_table,callback, Output, Input
 import dash
 import dash_bootstrap_components as dbc
-from pprint import pprint
-from utils import utils
-from db.controllers.files import str_csv_to_df
 import dash_cytoscape as cyto
 import math
 from Bio import Phylo
 from io import StringIO
+
+import utils.utils as utils
+from db.controllers.files import str_csv_to_df
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
@@ -42,7 +42,7 @@ def show_result(result_id):
     data = str_csv_to_df(data)
     return dbc.Col([
         dash_table.DataTable(
-            id='datatable-interactivity',                                
+            id='datatable-interactivity',
             data=data.to_dict('records'),
             columns=[{'name': i, 'id': i} for i in data.columns],
             filter_action="native",     # allow filtering of data by user ('native') or not ('none')
@@ -83,8 +83,8 @@ def create_climatic_trees(result_id):
 )
 def create_genetic_trees(result_id):
 
-    genetic_trees = utils.get_result(result_id)['geneticTrees']
-        
+    genetic_trees = utils.get_result(result_id)['genetic_trees']
+
     genetic_elements = []
     for tree in genetic_trees.values():
         tree = Phylo.read(StringIO(tree), "newick")
