@@ -8,16 +8,9 @@ from flask import request
 from dash.dependencies import Input, Output, ClientsideFunction
 import utils.utils as utils
 import dash.dependencies as dd
+from pprint import pprint
 
 dash.register_page(__name__, path_template='/results/<result_id>')
-
-data = {'results': [
-    [{'name': 'result1'}, {'creationDate': '2023/01/02'}, {'expirationDate': '2023/01/22'}, {'progress': 10}],
-    [{'name': 'result2'}, {'creationDate': '2023/01/03'}, {'expirationDate': '2023/01/23'}, {'progress': 50}],
-    [{'name': 'result3'}, {'creationDate': '2023/01/04'}, {'expirationDate': '2023/01/24'}, {'progress': 100}],
-    [{'name': 'result4'}, {'creationDate': '2023/01/05'}, {'expirationDate': '2023/01/25'}, {'progress': 85}],
-]}
-df_results = pd.DataFrame(data)
 
 
 def generate_result_list():

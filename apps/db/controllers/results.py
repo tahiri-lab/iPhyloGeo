@@ -20,6 +20,7 @@ def create_result(result):
     document['status'] = 'pending'
     document['created_at'] = datetime.utcnow()
     document['expired_at'] = datetime.utcnow() + timedelta(days=14)
+    document['name'] = 'result'
 
     res = results_db.insert_one(document)
     return str(res.inserted_id)

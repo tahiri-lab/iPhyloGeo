@@ -6,6 +6,8 @@ from utils import utils
 from db.controllers.files import str_csv_to_df
 import dash_cytoscape as cyto
 import math
+from Bio import Phylo
+from io import StringIO
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
@@ -14,10 +16,14 @@ layout = html.Div([
         html.Div([
             html.H2('Results table', className="title"),  # title
             html.Div(id='output_results'),
+            html.H2('Climatic Trees', className="title"),
             html.Div(id='climatic-tree'),
-        ], className="center"),
-    ], className="ParametersSectionInside"),
-], className="ParametersSection")
+            html.H2('Genetic Trees', className="title"),
+            html.Div(id='genetic-tree'),
+        ],className='resultsContainer'),
+    ],),
+],className="results" )
+
 
 @callback(
     Output('output_results', 'children'),
@@ -55,28 +61,46 @@ def show_result(result_id):
         # html.Hr(),  # horizontal line
     ], className="center")
 
-"""
 
 @callback(
     Output('climatic-tree','children'),
-    Input('result_id', 'data')
+    Input('result_id', 'data'),
 )
-def update_output(result_id):
+def create_climatic_trees(result_id):
 
     climatic_trees = utils.get_result(result_id)['climatic_trees']
-    elements = []
+    climatic_elements = []
     for tree in climatic_trees.values():
+        tree = Phylo.read(StringIO(tree), "newick")
         nodes, edges = generate_elements(tree)
-        elements.append(nodes + edges)
-    return html.Div(children=[generate_tree(elem) for elem in elements])
+        climatic_elements.append(nodes + edges)
+
+    return html.Div(children=[generate_tree(elem) for elem in climatic_elements])
+
+@callback(
+    Output('genetic-tree','children'),
+    Input('result_id', 'data'),
+)
+def create_genetic_trees(result_id):
+
+    genetic_trees = utils.get_result(result_id)['geneticTrees']
         
+    genetic_elements = []
+    for tree in genetic_trees.values():
+        tree = Phylo.read(StringIO(tree), "newick")
+        nodes, edges = generate_elements(tree)
+        genetic_elements.append(nodes + edges)
+
+
+    return html.Div(children=[generate_tree(elem) for elem in genetic_elements])
+
 def generate_tree(elem):
      return html.Div([
             cyto.Cytoscape(
                 id='cytoscape',
                 elements=elem,
                 stylesheet=stylesheet,
-                layout=layout,
+                layout = {'name': 'preset'},
                 style={
                     'height': '95vh',
                     'width': '100%'
@@ -168,8 +192,8 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
                 },
             }
 
-            if clade.confidence and clade.confidence.value:
-                cy_source['data']['confidence'] = clade.confidence.value
+            if clade.confidence:
+                cy_source['data']['confidence'] = clade.confidence
 
             nodes.append(cy_support_node)
             edges.extend([cy_support_edge, cy_edge])
@@ -186,8 +210,6 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
 
     return nodes, edges
 
-
-layout = {'name': 'preset'}
 
 stylesheet = [
     {
@@ -244,5 +266,3 @@ def color_children(edgeData):
     }]
 
     return stylesheet + children_style
-
-"""
