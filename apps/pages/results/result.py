@@ -14,15 +14,19 @@ dash.register_page(__name__, path_template='/result/<result_id>')
 layout = html.Div([
     html.Div([
         html.Div([
-            html.H2('Results table', className="title"),  # title
-            html.Div(id='output_results'),
-            html.H2('Climatic Trees', className="title"),
-            html.Div(id='climatic-tree'),
-            html.H2('Genetic Trees', className="title"),
-            html.Div(id='genetic-tree'),
-        ],className='resultsContainer'),
+                html.H2('Results table', className="title"),  # title
+                html.Div(id='output_results'),
+                html.H2('Climatic Trees', className="title"),
+                html.Div([
+                    html.Div(id='climatic-tree'),
+                ], className="tree"),
+                html.Div([
+                    html.H2('Genetic Trees', className="title"),
+                    html.Div(id='genetic-tree'),
+                ], className="tree"),
+        ], className='treeContainer'),
     ],),
-],className="results" )
+],className="result")
 
 
 @callback(
@@ -75,7 +79,7 @@ def create_climatic_trees(result_id):
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return html.Div(children=[generate_tree(elem) for elem in climatic_elements])
+    return html.Div(children=[generate_tree(elem) for elem in climatic_elements], className="treeSubContainer")
 
 @callback(
     Output('genetic-tree','children'),
@@ -92,7 +96,7 @@ def create_genetic_trees(result_id):
         genetic_elements.append(nodes + edges)
 
 
-    return html.Div(children=[generate_tree(elem) for elem in genetic_elements])
+    return html.Div(children=[generate_tree(elem) for elem in genetic_elements], className="treeSubContainer")
 
 def generate_tree(elem):
      return html.Div([
@@ -102,7 +106,7 @@ def generate_tree(elem):
                 stylesheet=stylesheet,
                 layout = {'name': 'preset'},
                 style={
-                    'height': '95vh',
+                    'height': '350px',
                     'width': '100%'
                 }
             )

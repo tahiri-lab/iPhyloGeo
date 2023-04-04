@@ -11,7 +11,6 @@ path_params = {
     'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
     'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
-    'Result': {'img': '/assets/icons/dashboard.svg', 'name': 'Result'},
 
 }
 
@@ -28,7 +27,7 @@ ENV_CONFIG = {
      'APP_ENV': os.environ.get('APP_ENV', 'local'),
 }
 
-
+pages = [page for page in dash.page_registry.values() if page['name'] != "Result"] #Exclude the result page from the navbar
 
 
 app.layout = html.Div([
@@ -57,7 +56,7 @@ app.layout = html.Div([
                                 html.Img(src=path_params[page['name']]['img'], className="icon"),
                                 html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
                             ], href=page["relative_path"], className="nav-link")
-                        for page in dash.page_registry.values()
+                        for page in pages
                         ]
                     ),
                     #Legacy
