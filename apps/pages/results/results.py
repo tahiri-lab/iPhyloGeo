@@ -1,21 +1,38 @@
 import dash_bootstrap_components as dbc
-from dash import html, callback, dash_table,dcc,State
-import dash_daq as daq
-from datetime import datetime
-import pandas as pd
+from dash import html, callback, dcc
 import dash
 from flask import request
-from dash.dependencies import Input, Output, ClientsideFunction
+from dash.dependencies import Input, Output
 import utils.utils as utils
-import dash.dependencies as dd
-from pprint import pprint
 
-dash.register_page(__name__, path_template='/results/<result_id>')
+dash.register_page(__name__, path_template='/results')
 
+def get_layout():
+    return html.Div([
+    html.Div(children=[
+        dash.dcc.Location(id='url', refresh=False),
+        html.Div(id='cookie_output', className="hidden"), # needed for the callback to trigger
+        html.Div([
+            html.Div('Results', className="title"),
+            html.Div([
+                html.Div([
+                    html.Div('3', className="count"),
+                    html.Div(className="img bg1"),
+                    html.Div('Jobs in progress', className="notificationFooter")
+                ], className="notification"),
+                html.Div([
+                    html.Div('12', className="count"),
+                    html.Div(className="img bg2"),
+                    html.Div('days before your files expire', className="notificationFooter")
+                ], className="notification"),
+            ], className="notificationStack"),
+            html.Div(children=generate_result_list(), className="resultsRow"),
+        ], className="resultsContainer"),
+    ], className="results"),
+])
 
 def generate_result_list():
     # TODO: Change this to get id from the cookie
- 
     results = utils.get_all_results()
     layout = []
     for result in results:
@@ -59,30 +76,6 @@ def generate_result_list():
 )
 def update_result(result_id):
     return result_id
-
-
-layout = html.Div([
-    html.Div(children=[
-        dash.dcc.Location(id='url', refresh=False),
-        html.Div(id='cookie_output', className="hidden"), # needed for the callback to trigger
-        html.Div([
-            html.Div('Results', className="title"),
-            html.Div([
-                html.Div([
-                    html.Div('3', className="count"),
-                    html.Div(className="img bg1"),
-                    html.Div('Jobs in progress', className="notificationFooter")
-                ], className="notification"),
-                html.Div([
-                    html.Div('12', className="count"),
-                    html.Div(className="img bg2"),
-                    html.Div('days before your files expire', className="notificationFooter")
-                ], className="notification"),
-            ], className="notificationStack"),
-            html.Div(children=generate_result_list(), className="resultsRow"),
-        ], className="resultsContainer"),
-    ], className="results"),
-])
 
 @callback(
         Output('cookie_output', 'children'),
@@ -135,3 +128,5 @@ def check_id_exist(auth_ids):
         pass
 
     return tmp_auth_ids
+
+layout = get_layout()
