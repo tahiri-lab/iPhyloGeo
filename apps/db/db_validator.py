@@ -9,13 +9,9 @@ load_dotenv()
 def connect_db():
     # TODO Add a local and remote database
     mongo_uri = os.environ.get('MONGO_URI')
-
+    db_name = os.environ.get('DB_NAME')
     mongo_client = MongoClient(mongo_uri)
-    #app.logger.info(mongo_client.cx[db_name])
-
-    db_schema_validator(mongo_client.get_database())
-
-    print("MongoDB connected")
+    db_schema_validator(mongo_client.get_database(db_name))
 
     return mongo_client
 
