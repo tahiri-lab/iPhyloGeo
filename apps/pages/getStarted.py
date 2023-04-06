@@ -96,7 +96,6 @@ def params_climatic(col_analyze, current_data):
     State('params_genetic', 'data'),
     prevent_initial_call=True
 )
-
 def submit_button(n_clicks, params, params_climatic, params_genetic):
     if n_clicks is None or n_clicks < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
