@@ -27,9 +27,6 @@ ENV_CONFIG = {
      'APP_ENV': os.environ.get('APP_ENV', 'local'),
 }
 
-pages = [page for page in dash.page_registry.values() if page['name'] != "Result"] #Exclude the result page from the navbar
-
-
 app.layout = html.Div([
     dcc.Store(id='result_id', data=None,storage_type='session'),
     html.Div('Your window is to small to show the content of this page.', className="smallWindow"),
@@ -56,7 +53,7 @@ app.layout = html.Div([
                                 html.Img(src=path_params[page['name']]['img'], className="icon"),
                                 html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
                             ], href=page["relative_path"], className="nav-link")
-                        for page in pages
+                        for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
                         ]
                     ),
                     #Legacy

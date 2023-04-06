@@ -16,7 +16,8 @@ module.exports = function (grunt) {
                     'apps/assets/params_genetic.css': 'apps/assets/styles/params_genetic.scss',
                     'apps/assets/upload_page.css': 'apps/assets/styles/upload_page.scss',
                     'apps/assets/helper.css': 'apps/assets/styles/utils/helper.scss',
-                    'apps/assets/button.css': 'apps/assets/styles/utils/button.scss'
+                    'apps/assets/button.css': 'apps/assets/styles/utils/button.scss',
+                    'apps/assets/popup.css': 'apps/assets/styles/utils/popup.scss'
                 }
             }
         },
@@ -33,6 +34,7 @@ module.exports = function (grunt) {
                     'apps/assets/styles/upload_page.scss',
                     'apps/assets/styles/utils/helper.scss',
                     'apps/assets/styles/utils/button.scss',
+                    'apps/assets/styles/utils/popup.scss'
                 ],
                 tasks: ['build-css']
             }
