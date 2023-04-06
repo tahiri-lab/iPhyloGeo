@@ -11,6 +11,10 @@
     justify-content: center;
     align-items: center;
 
+    &.hidden {
+        display: none !important;
+    }
+
     .icon {
         width: 75px;
     }
@@ -22,6 +26,17 @@
         border-radius: 10px;
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
         width: 50%;
+
+        .close {
+            text-align: right;
+            position: relative;
+            cursor: pointer;
+
+            .icon {
+                width: 25px;
+
+            }
+        }
 
         .title {
             color: black !important;
