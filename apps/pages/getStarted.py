@@ -2,6 +2,7 @@ from dash import dcc, html, State, Input, Output, callback
 from dash.dependencies import Output, Input
 import dash
 from dash.exceptions import PreventUpdate
+import multiprocessing
 
 import pages.upload.dropFileSection as dropFileSection
 import utils.utils as utils
@@ -9,6 +10,7 @@ import pages.upload.meteo.paramsClimatic as paramsClimatic
 import pages.upload.geo.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
+
 
 dash.register_page(__name__, path='/getStarted')
 
@@ -98,14 +100,18 @@ def params_climatic(col_analyze, current_data):
     State('params_genetic', 'data'),
     prevent_initial_call=True
 )
-
 def submit_button(n_clicks, params, params_climatic, params_genetic):
     if n_clicks is None or n_clicks < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
+    
     if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
         files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
-        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'], files_ids[0], files_ids[1])
+        process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'], files_ids[0], files_ids[1]))
+        process.start()
+       
     elif params['climatic']['file'] is not None:
-        files_id = utils.save_files(params['climatic']['file'])
-        utils.run_climatic_pipeline(params['climatic']['file']['df'], params_climatic, files_id)
+        files_id = utils.save_files(params['climatic']['file'])  
+        process = multiprocessing.Process(target=utils.run_climatic_pipeline, args=(params['climatic']['file']['df'], params_climatic, files_id))
+        process.start()
+
     return popup.layout
