@@ -9,26 +9,23 @@ dash.register_page(__name__, path_template='/results')
 
 def get_layout():
     return html.Div([
-    html.Div(children=[
-        dash.dcc.Location(id='url', refresh=False),
-        html.Div(id='cookie_output', className="hidden"), # needed for the callback to trigger
-        html.Div([
-            html.Div('Results', className="title"),
+    html.Div([
+        html.Div(children=[
+            dash.dcc.Location(id='url', refresh=False),
+            html.Div(id='cookie_output', className="hidden"),  # needed for the callback to trigger
             html.Div([
+                html.Div('Results', className="title"),
+                html.Div(children=generate_result_list(), className="resultsRow"),
                 html.Div([
-                    html.Div('3', className="count"),
-                    html.Div(className="img bg1"),
-                    html.Div('Jobs in progress', className="notificationFooter")
-                ], className="notification"),
-                html.Div([
-                    html.Div('12', className="count"),
-                    html.Div(className="img bg2"),
-                    html.Div('days before your files expire', className="notificationFooter")
-                ], className="notification"),
-            ], className="notificationStack"),
-            html.Div(children=generate_result_list(), className="resultsRow"),
-        ], className="resultsContainer"),
-    ], className="results"),
+                    html.Div([
+                        html.Div('You have no results yet. You can start a new job by going to the "Upload data" page',
+                                 className="text"),
+                        html.Div(className="img bg1"),
+                    ], className="notification"),
+                ], className="emptyResults"),
+            ], className="resultsContainer"),
+        ], className="results"),
+    ])
 ])
 
 def generate_result_list():
