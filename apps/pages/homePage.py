@@ -29,7 +29,7 @@ layout = html.Div([
                     html.ObjectEl(id='icon', data='../assets/icons/up-right-from-square-solid.svg', type="image/svg+xml", className='icon')
                     ], target='_blank', href='https://tahirinadia.github.io/', className="url"),
                 ], className="sub-title"),
-                dbc.NavLink("Get Started", href='/apps/getStarted', id='themes', className="button primary", active="exact"),
+                dbc.NavLink("Get Started", href='/getStarted', id='themes', className="button primary", active="exact"),
                 ]
             ),
         ]
