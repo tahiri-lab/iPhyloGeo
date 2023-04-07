@@ -13,7 +13,8 @@ function createWindow() {
     });
 
     // and load the index.html of the app.
-    win.loadURL(process.env.URL + ':' + process.env.PORT);
+    const url = process.env.URL + ':' + process.env.PORT;
+    win.loadURL(url);
     win.webContents.openDevTools();
 
     // Emitted when the window is closed.
