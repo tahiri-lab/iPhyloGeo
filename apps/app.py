@@ -7,9 +7,9 @@ from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc,html
 
 path_params = {
-    'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
+    'Results': {'img': ' /assets/icons/dashboard.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
-    'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
+    'Getstarted': {'img': '/assets/icons/folder-upload.svg', 'name': 'Upload data'},
 }
 
 server = Flask(__name__)
