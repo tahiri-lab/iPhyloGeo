@@ -145,6 +145,9 @@ def update_color(children):
 if __name__ == '__main__':
     host = ENV_CONFIG['URL']
     port = ENV_CONFIG['PORT']
+    if 'http://' in host:
+        host = host.replace('http://', '')
+
     print('Starting server... on ', host + ':' + port)
 
     app.run_server(
