@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 import os
 from pymongo import MongoClient
 from db.schema.files import schema_files
@@ -6,10 +6,14 @@ from db.schema.results import schema_results
 
 load_dotenv()
 
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
+
 def connect_db():
     # TODO Add a local and remote database
-    mongo_uri = os.environ.get('MONGO_URI')
-    db_name = os.environ.get('DB_NAME')
+    mongo_uri = ENV_CONFIG['MONGO_URI']
+    db_name = ENV_CONFIG['DB_NAME']
     mongo_client = MongoClient(mongo_uri)
     db_schema_validator(mongo_client.get_database(db_name))
 

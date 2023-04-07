@@ -1,13 +1,16 @@
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 import dash
 import dash_bootstrap_components as dbc
 from flask import Flask
-import os
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc,html
 
 load_dotenv()
+
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
 
 path_params = {
     'Results': {'img': ' /assets/icons/dashboard.svg', 'name': 'Check results'},
@@ -24,11 +27,6 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB], #https://b
                             'content': 'width=device-width, initial-scale=1.0'}],
                 server=server,use_pages=True)
 
-ENV_CONFIG = {
-     'APP_ENV': os.environ.get('APP_ENV', 'local'),
-     'PORT': os.environ.get('PORT', 8050),
-     'HOST': os.environ.get('HOST', 'localhost'),
-}
 
 app.layout = html.Div([
     dcc.Store(id='result_id', data=None,storage_type='session'),
@@ -145,9 +143,12 @@ def update_color(children):
 
 
 if __name__ == '__main__':
-    print('Starting server... on ', ENV_CONFIG['HOST'] + ':' + ENV_CONFIG['PORT'])
+    host = ENV_CONFIG['URL']
+    port = ENV_CONFIG['PORT']
+    print('Starting server... on ', host + ':' + port)
+
     app.run_server(
         debug=True,
-        port=ENV_CONFIG['PORT'],
-        host=ENV_CONFIG['HOST'],
+        port=port,
+        host=host,
     )
