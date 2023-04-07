@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import dash
 import dash_bootstrap_components as dbc
 from flask import Flask
@@ -5,6 +6,8 @@ import os
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc,html
+
+load_dotenv()
 
 path_params = {
     'Results': {'img': ' /assets/icons/dashboard.svg', 'name': 'Check results'},
