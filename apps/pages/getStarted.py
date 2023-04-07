@@ -2,12 +2,15 @@ from dash import dcc, html, State, Input, Output, callback
 from dash.dependencies import Output, Input
 import dash
 from dash.exceptions import PreventUpdate
+import multiprocessing
 
 import pages.upload.dropFileSection as dropFileSection
 import utils.utils as utils
 import pages.upload.meteo.paramsClimatic as paramsClimatic
 import pages.upload.geo.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
+import pages.utils.popup as popup
+
 
 dash.register_page(__name__, path='/getStarted')
 
@@ -19,6 +22,7 @@ layout = html.Div([
     html.Div(
         className="getStarted",
         children=[
+            html.Div(children=[popup.layout]),
             html.Div(children=[dropFileSection.layout]),
             html.Div([
                 html.Div(id="climatic_params_layout"),
@@ -89,21 +93,35 @@ def params_climatic(col_analyze, current_data):
     return current_data
 
 @callback(
-    Output('sumbit_button', 'children'),
-    Input('submit_dataSet', 'n_clicks'),
+    Output('popup', 'className'),
+    [Input('submit_dataSet', 'n_clicks'),
+        Input("close_popup", "n_clicks")],
     State('params', 'data'),
     State('params_climatic', 'data'),
     State('params_genetic', 'data'),
     prevent_initial_call=True
 )
-def submit_button(n_clicks, params, params_climatic, params_genetic):
-    if n_clicks is None or n_clicks < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
+
+def submit_button(open, close, params, params_climatic, params_genetic):
+    if open is None or open < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
 
-    if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
-        files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
-        utils.run_complete_pipeline(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'], files_ids[0], files_ids[1])
-    elif params['climatic']['file'] is not None:
-        files_id = utils.save_files(params['climatic']['file'])
-        utils.run_climatic_pipeline(params['climatic']['file']['df'], params_climatic, files_id)
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "close_popup":
+        return "popup hidden"
+
+    if trigger_id == "submit_dataSet":
+        if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
+            files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
+            process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'], files_ids[0], files_ids[1]))
+            process.start()
+            return "popup"
+
+        elif params['climatic']['file'] is not None:
+            files_id = utils.save_files(params['climatic']['file'])
+            process = multiprocessing.Process(target=utils.run_climatic_pipeline, args=(params['climatic']['file']['df'], params_climatic, files_id))
+            process.start()
+            return "popup"
     return ''

@@ -26,7 +26,6 @@ ENV_CONFIG = {
      'PORT': os.environ.get('PORT', 8050),
 }
 
-
 app.layout = html.Div([
     dcc.Store(id='result_id', data=None,storage_type='session'),
     html.Div('Your window is to small to show the content of this page.', className="smallWindow"),
@@ -53,7 +52,7 @@ app.layout = html.Div([
                                 html.Img(src=path_params[page['name']]['img'], className="icon"),
                                 html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
                             ], href=page["relative_path"], className="nav-link")
-                        for page in dash.page_registry.values()
+                        for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
                         ]
                     ),
                     #Legacy
