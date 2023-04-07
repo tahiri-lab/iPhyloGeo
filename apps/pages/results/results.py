@@ -8,31 +8,38 @@ import utils.utils as utils
 dash.register_page(__name__, path_template='/results')
 
 def get_layout():
+    dcc.Location(id="url")
     return html.Div([
     html.Div([
         html.Div(children=[
-            dash.dcc.Location(id='url', refresh=False),
+            dash.dcc.Location(id='url'),
             html.Div(id='cookie_output', className="hidden"),  # needed for the callback to trigger
             html.Div([
                 html.Div('Results', className="title"),
-                html.Div(children=generate_result_list(), className="resultsRow"),
-                html.Div([
+                html.Div(id='results_list', className="resultsRow"),
+            ], className="resultsContainer"),
+        ], className="results"),
+    ])
+])
+
+@callback(
+    Output('results_list', 'children'),
+    Input('url', 'pathname'),
+)
+def generate_result_list(path):
+    # TODO: Change this to get id from the cookie
+    results = utils.get_all_results()
+    layout = []
+    if not results:
+        return html.Div([
                     html.Div([
                         html.Div('You have no results yet. You can start a new job by going to the "Upload data" page',
                                  className="text"),
                         html.Div(className="img bg1"),
                     ], className="notification"),
                 ], className="emptyResults"),
-            ], className="resultsContainer"),
-        ], className="results"),
-    ])
-])
-
-def generate_result_list():
-    # TODO: Change this to get id from the cookie
-    results = utils.get_all_results()
-    layout = []
     for result in results:
+        progress_value = 100 if result['status'] == 'complete' else 50
         layout.append(
             html.Div([
                 html.Div([
@@ -50,7 +57,7 @@ def generate_result_list():
                 html.Div([
                     html.Div('Progress',className="label"),
                     html.Div([
-                        dbc.Progress(value=50),
+                        dbc.Progress(value=progress_value),
                     ], className='progressBar'),
                 ], className="progressContainer"),
                 html.Div([
