@@ -6,12 +6,10 @@ import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc,html
 
-
 path_params = {
     'Results': {'img': '/assets/icons/folder-upload.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
     'Getstarted': {'img': '/assets/icons/dashboard.svg', 'name': 'Upload data'},
-
 }
 
 server = Flask(__name__)
@@ -25,9 +23,8 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB], #https://b
 
 ENV_CONFIG = {
      'APP_ENV': os.environ.get('APP_ENV', 'local'),
+     'PORT': os.environ.get('PORT', 8050),
 }
-
-pages = [page for page in dash.page_registry.values() if page['name'] != "Result"] #Exclude the result page from the navbar
 
 
 app.layout = html.Div([
@@ -56,7 +53,7 @@ app.layout = html.Div([
                                 html.Img(src=path_params[page['name']]['img'], className="icon"),
                                 html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
                             ], href=page["relative_path"], className="nav-link")
-                        for page in pages
+                        for page in dash.page_registry.values()
                         ]
                     ),
                     #Legacy
@@ -145,4 +142,7 @@ def update_color(children):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(
+        debug=True,
+        port=ENV_CONFIG['PORT'],
+    )

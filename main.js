@@ -1,5 +1,5 @@
+require('dotenv').config();
 const {app, BrowserWindow} = require('electron');
-const dash = require('dash');
 
 let win;
 
@@ -13,7 +13,7 @@ function createWindow() {
     });
 
     // and load the index.html of the app.
-    win.loadURL(`http://localhost:8050`);
+    win.loadURL(process.env.URL + ':' + process.env.PORT);
     win.webContents.openDevTools();
 
     // Emitted when the window is closed.
