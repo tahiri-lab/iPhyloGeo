@@ -6,14 +6,18 @@ from db.db_validator import results_db
 def get_results(ids):
     res = results_db.find({'_id': {'$in': [ObjectId(id) for id in ids]}})
     return list(res) # return a list of dictionaries to force convert the pymongo cursor to a list
+
 def get_result(id):
     res = results_db.find_one({'_id': ObjectId(id)})
     return res
 
 # TODO: remove this function just for testing
 def get_all_results():
-    res = results_db.find({})
+    res = results_db.find({'status': 'complete'})
     return list(res)
+
+def delete_result(id):
+    return results_db.delete_one({'_id': ObjectId(id)})
 
 def create_result(result):
     document = parse_result(result)
