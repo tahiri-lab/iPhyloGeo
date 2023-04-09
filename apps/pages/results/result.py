@@ -20,8 +20,8 @@ layout = html.Div([
                 html.Div([
                     html.Div(id='climatic-tree'),
                 ], className="tree"),
-                html.Div([
-                    html.H2('Genetic Trees', className="title"),
+                html.H2('Genetic Trees', className="title"),
+                html.Div([   
                     html.Div(id='genetic-tree'),
                 ], className="tree"),
         ], className='treeContainer'),
@@ -73,13 +73,17 @@ def show_result(result_id):
 def create_climatic_trees(result_id):
 
     climatic_trees = utils.get_result(result_id)['climatic_trees']
+    tree_names = list(climatic_trees.keys())
     climatic_elements = []
     for tree in climatic_trees.values():
         tree = Phylo.read(StringIO(tree), "newick")
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return html.Div(children=[generate_tree(elem) for elem in climatic_elements], className="treeSubContainer")
+    return html.Div(
+        children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)],
+        className="treeSubContainer"
+        )
 
 @callback(
     Output('genetic-tree','children'),
@@ -88,6 +92,7 @@ def create_climatic_trees(result_id):
 def create_genetic_trees(result_id):
 
     genetic_trees = utils.get_result(result_id)['genetic_trees']
+    tree_names = list(genetic_trees.keys())
 
     genetic_elements = []
     for tree in genetic_trees.values():
@@ -96,10 +101,11 @@ def create_genetic_trees(result_id):
         genetic_elements.append(nodes + edges)
 
 
-    return html.Div(children=[generate_tree(elem) for elem in genetic_elements], className="treeSubContainer")
+    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="treeSubContainer")
 
-def generate_tree(elem):
+def generate_tree(elem, name):
      return html.Div([
+            html.H3(name),  # title
             cyto.Cytoscape(
                 id='cytoscape',
                 elements=elem,
