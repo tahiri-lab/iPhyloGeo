@@ -66,20 +66,12 @@ def generate_result_list(path):
                         html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
                         href=f'/result/{result["_id"]}',
                     ),
-                    dcc.Store(id='result_res', data=str(result["_id"])),
                 ], className="arrowContainer"),
             ], className="row")
         )
 
     return layout
 
-
-@callback(
-    Output('result_id', 'data'),
-    Input('result_res', 'data'),
-)
-def update_result(result_id):
-    return result_id
 
 @callback(
         Output('cookie_output', 'children'),

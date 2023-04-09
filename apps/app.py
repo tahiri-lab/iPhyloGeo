@@ -29,7 +29,6 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB], #https://b
 
 
 app.layout = html.Div([
-    dcc.Store(id='result_id', data=None,storage_type='session'),
     html.Div('Your window is to small to show the content of this page.', className="smallWindow"),
     html.Div([
         dash.page_container,

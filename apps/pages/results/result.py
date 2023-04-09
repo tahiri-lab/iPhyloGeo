@@ -1,4 +1,4 @@
-from dash import html, dash_table,callback, Output, Input
+from dash import html, dash_table,callback, Output, Input, dcc
 import dash
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
@@ -12,8 +12,11 @@ from db.controllers.files import str_csv_to_df
 dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
+    
+    dcc.Location(id="url"),
     html.Div([
         html.Div([
+                html.H1(id='results_name', className="title"),
                 html.H2('Results table', className="title"),  # title
                 html.Div(id='output_results'),
                 html.H2('Climatic Trees', className="title"),
@@ -30,10 +33,21 @@ layout = html.Div([
 
 
 @callback(
-    Output('output_results', 'children'),
-    Input('result_id', "data"),
+    Output('results_name', 'children'),
+    Input('url', 'pathname'),
 )
-def show_result(result_id):
+def show_result_name(path):
+    result_id = path.split('/')[-1]
+    title = utils.get_result(result_id)['name']
+    return html.Div(title, className="title", style={'color': 'var(--reverse-black-white-color)', 'text-align': 'center'})
+
+@callback(
+    Output('output_results', 'children'),
+    Input('url', 'pathname'),
+)
+def show_result(path):
+    result_id = path.split('/')[-1]
+
     result = utils.get_result(result_id)
     data = {}
     # TODO - a delete plus tard
@@ -68,9 +82,10 @@ def show_result(result_id):
 
 @callback(
     Output('climatic-tree','children'),
-    Input('result_id', 'data'),
+    Input('url', 'pathname'),
 )
-def create_climatic_trees(result_id):
+def create_climatic_trees(path):
+    result_id = path.split('/')[-1]
 
     climatic_trees = utils.get_result(result_id)['climatic_trees']
     tree_names = list(climatic_trees.keys())
@@ -87,9 +102,10 @@ def create_climatic_trees(result_id):
 
 @callback(
     Output('genetic-tree','children'),
-    Input('result_id', 'data'),
+    Input('url', 'pathname'),
 )
-def create_genetic_trees(result_id):
+def create_genetic_trees(path):
+    result_id = path.split('/')[-1]
 
     genetic_trees = utils.get_result(result_id)['genetic_trees']
     tree_names = list(genetic_trees.keys())
