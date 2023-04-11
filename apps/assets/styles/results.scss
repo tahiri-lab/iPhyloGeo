@@ -99,9 +99,16 @@
 
       .nameContainer {
         grid-area: name;
+        width: 200px;
 
         .label {
           font-weight: bold;
+        }
+
+        .data {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
       }
 
