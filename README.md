@@ -14,23 +14,8 @@ https://github.com/tahiri-lab/phylogeography-algo
 ### Installing:
 
 * First the programm need to be downloaded with Github(git clone command). 
-* Second you need to choose with witch operating system you want to run the programm.
-Mac OS(main), Linux, or Windows.
-* Last step to download the programm. We need to clone the project with the git clone command.
-* For Macbook(MacOSX) users (main branch in our case) use this command :
 ```
-git clone -b "main" https://github.com/tahiri-lab/iPhylogeo
-git clone -b "main" https://github.com/tahiri-lab/aPhylogeo
-```
-* For windows user use this command :
-```
-git clone -b "Windows" https://github.com/tahiri-lab/iPhylogeo
-git clone -b "Windows" https://github.com/tahiri-lab/aPhylogeo
-```
-* For Linux user use this command :
-```
-git clone -b "Linux" https://github.com/tahiri-lab/iPhylogeo
-git clone -b "Linux" https://github.com/tahiri-lab/aPhylogeo
+git clone https://github.com/tahiri-lab/iPhylogeo
 ```
 
 To download the project simply type one of the command above in a terminal.
@@ -39,12 +24,22 @@ To download the project simply type one of the command above in a terminal.
 ## How to use?
 ### Prerequisites,library etc.
 Before using this program make sure that you have installed all the necessary libraries for it to work properly. 
-First, you need to install the aPhyloGeo package. To do this, you can use the following commands:
+First, you need to install the aPhyloGeo package. Depending on your OS, the specific commands will be slightly 
+diffrent. Fof a linux based system, you can use the following commands:
 
-1. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
-2. Create a new virtual environment (venv) in your terminal using `python3 -m venv aPhyloGeo_env`.
-3. Still in the terminal, enter the new venv using `source aPhyloGeo_env/bin/activate`.
-4. Install the package using `pip -e install .`.
+1. git clone https://github.com/tahiri-lab/aPhylogeo
+2. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
+3. Create a new virtual environment (venv) in your terminal using `python3 -m venv aPhyloGeo_env`.
+4. Still in the terminal, enter the new venv using `source aPhyloGeo_env/bin/activate`.
+5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip -e install .`.
+
+Fof a windows based system, you can use the following commands:
+1. git clone https://github.com/tahiri-lab/aPhylogeo
+2. If you do not have `virtualenv` installed, run `py -m pip install --user virtualenv`
+3. Create a new virtual environment (venv) in your terminal using `py -m venv aPhyloGeo_env`.
+4. Still in the terminal, activate the new venv using `aPhyloGeo_env/bin/activate .`.
+5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip -e install .`.
+
 
 Then you can install the other requirements (make sure you are using the same venv as above) : 
 ```
