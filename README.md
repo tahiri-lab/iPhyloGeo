@@ -41,11 +41,14 @@ Fof a windows based system, you can use the following commands:
 5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip -e install .`.
 
 
-Then you can install the other requirements (make sure you are using the same venv as above) : 
+Then you can install the other requirements. Make sure you are using the same venv as above. Make sure youa re in the iPhyloGeo directory. 
+Then run the following commands : 
 ```
 pip install -r requirements.txt
 npm install
 ```
+
+Finally, you need to install. You can find the installation guide here : https://docs.docker.com/get-docker/
 
 - Using index.py to star the program
 - tree.py pipeline.py and pipeline_specific_genes.py are the algorithme
@@ -71,5 +74,6 @@ PORT='8050'
 ### Running
 - To run the programm :
 ```
+docker compose up
 npm start
 ```
