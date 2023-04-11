@@ -13,28 +13,24 @@ def create_table(df):
         html.Div([
             html.Div([
                 html.Div([
-                    dbc.Col([
-                        dash_table.DataTable(
-                            id='datatable-interactivity',
-                            data=df.to_dict('records'),
-                            columns=[{'name': i, 'id': i} for i in df.columns],
-                            filter_action="native",     # allow filtering of data by user ('native') or not ('none')
-                            sort_action="native",       # enables data to be sorted per-column by user or not ('none')
-                            sort_mode="single",         # sort across 'multi' or 'single' columns
-                            page_current=0,             # page number that user is on
-                            page_size=15,               # number of rows visible per page
-                            filter_query='',            # query that determines which rows to keep in table
-                            #page_action="native",       # all data is passed to the table up-front or not ('none')
-                            #sort_by=[],                 # list of columns that user sorts table by
-                            style_data={
-                                'color': 'var(--reverse-black-white-color)',
-                                'backgroundColor': 'var(--table-bg-color'
-                            },
-                        ),
-                        dcc.Store(id='stored-data', data=df.to_dict('records')),
-                        # html.Hr(),  # horizontal line
-                    ], className=""),
-
+                    dash_table.DataTable(
+                        id='datatable-interactivity',
+                        data=df.to_dict('records'),
+                        columns=[{'name': i, 'id': i} for i in df.columns],
+                        filter_action="native",     # allow filtering of data by user ('native') or not ('none')
+                        sort_action="native",       # enables data to be sorted per-column by user or not ('none')
+                        sort_mode="single",         # sort across 'multi' or 'single' columns
+                        page_current=0,             # page number that user is on
+                        page_size=15,               # number of rows visible per page
+                        filter_query='',            # query that determines which rows to keep in table
+                        #page_action="native",       # all data is passed to the table up-front or not ('none')
+                        #sort_by=[],                 # list of columns that user sorts table by
+                        style_data={
+                            'color': 'var(--reverse-black-white-color)',
+                            'backgroundColor': 'var(--table-bg-color'
+                        },
+                    ),
+                    dcc.Store(id='stored-data', data=df.to_dict('records')),
                 ], className="paramsClimaticTable"),
                 html.Div(id='filter-container'),
                 html.Div([

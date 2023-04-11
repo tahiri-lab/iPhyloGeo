@@ -12,24 +12,23 @@ from db.controllers.files import str_csv_to_df
 dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
-    
     dcc.Location(id="url"),
     html.Div([
         html.Div([
-                html.H1(id='results_name', className="title"),
-                html.H2('Results table', className="title"),  # title
-                html.Div(id='output_results'),
-                html.H2('Climatic Trees', className="title"),
-                html.Div([
-                    html.Div(id='climatic-tree'),
-                ], className="tree"),
-                html.H2('Genetic Trees', className="title"),
-                html.Div([   
-                    html.Div(id='genetic-tree'),
-                ], className="tree"),
+            html.H1(id='results_name', className="title"),
+            html.H2('Results table', className="title"),  # title
+            html.Div(id='output_results', className="resultsRow"),
+            html.H2('Climatic Trees', className="title"),
+            html.Div([
+                html.Div(id='climatic-tree'),
+            ], className="tree"),
+            html.H2('Genetic Trees', className="title"),
+            html.Div([
+                html.Div(id='genetic-tree'),
+            ], className="tree"),
         ], className='treeContainer'),
-    ],),
-],className="result")
+    ], className="result")
+], className="resultContainer")
 
 
 @callback(
@@ -58,7 +57,7 @@ def show_result(path):
         for i in range(len(row)):
             data[column_header[i]].append(row[i])
     data = str_csv_to_df(data)
-    return dbc.Col([
+    return html.Div([
         dash_table.DataTable(
             id='datatable-interactivity',
             data=data.to_dict('records'),
@@ -76,8 +75,7 @@ def show_result(path):
                 'backgroundColor': 'var(--table-bg-color'
             },
         ),
-        # html.Hr(),  # horizontal line
-    ], className="center")
+    ])
 
 
 @callback(
@@ -121,7 +119,7 @@ def create_genetic_trees(path):
 
 def generate_tree(elem, name):
      return html.Div([
-            html.H3(name),  # title
+            html.H3(name, className="treeTitle"),  # title
             cyto.Cytoscape(
                 id='cytoscape',
                 elements=elem,

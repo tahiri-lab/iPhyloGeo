@@ -1,41 +1,34 @@
 .params_genetic {
-
-  .title {
-    color: var(--reverse-black-white-color);
-    font-size: 25px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    margin-top: 10px;
-  }
-
+  padding: 15px;
 
   .ParameterContainer {
-    display: grid;
-    //border-radius: 5px;
-    grid-row: auto;
-    grid-column-gap: 20px;
-    grid-row-gap: 20px;
-    //margin-top: 20px;
-    justify-content: center;
-
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
     width: 75%;
     margin: 10px auto auto auto;
     padding: 50px;
     border-radius: 15px;
     background-color: var(--black-and-white);
 
+  .title {
+    color: var(--reverse-black-white-color);
+    font-size: 25px;
+    font-weight: bold;
+    margin: auto;
+  }
+
     .manualInputContainer {
       display: flex;
-      justify-content: space-between;
-      width: 800px;
-      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
 
       .manualInput {
         color: var(--reverse-white-black-color);
         background-color: var(--reverse-black-white-color);
         padding: 15px;
         border-radius: 5px;
-        width: 75%;
+        margin: 10px;
 
         .inputField {
           border-radius: 5px;
@@ -53,10 +46,17 @@
       'title slider counter';
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      width: 800px;
       padding: 15px;
       border-radius: 5px;
       background-color: var(--reverse-black-white-color);
+
+        @media (max-width: 900px) {
+            grid-template-areas:
+            'title'
+            'slider'
+            'counter';
+            grid-template-columns: 1fr;
+        }
 
       .paramTitle {
         grid-area: title;
@@ -64,6 +64,7 @@
 
       .slider {
         grid-area: slider ;
+        padding: 0px 25px 25px;
       }
     }
   }

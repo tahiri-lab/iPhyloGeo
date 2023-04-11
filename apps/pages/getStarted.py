@@ -6,8 +6,8 @@ import multiprocessing
 
 import pages.upload.dropFileSection as dropFileSection
 import utils.utils as utils
-import pages.upload.meteo.paramsClimatic as paramsClimatic
-import pages.upload.geo.paramsGenetic as paramsGenetic
+import pages.upload.climatic.paramsClimatic as paramsClimatic
+import pages.upload.genetic.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
 
