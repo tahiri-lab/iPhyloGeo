@@ -95,14 +95,15 @@ def params_climatic(col_analyze, current_data):
 @callback(
     Output('popup', 'className'),
     [Input('submit_dataSet', 'n_clicks'),
-        Input("close_popup", "n_clicks")],
+        Input("close_popup", "n_clicks"),
+        Input('input_dataSet', 'value')],
     State('params', 'data'),
     State('params_climatic', 'data'),
     State('params_genetic', 'data'),
     prevent_initial_call=True
 )
 
-def submit_button(open, close, params, params_climatic, params_genetic):
+def submit_button(open, close, input_dataSet, params, params_climatic, params_genetic):
     if open is None or open < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
 
@@ -115,7 +116,7 @@ def submit_button(open, close, params, params_climatic, params_genetic):
     if trigger_id == "submit_dataSet":
         if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
             files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
-            process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, params['genetic']['name'], files_ids[0], files_ids[1]))
+            process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, input_dataSet, files_ids[0], files_ids[1]))
             process.start()
             return "popup"
 
