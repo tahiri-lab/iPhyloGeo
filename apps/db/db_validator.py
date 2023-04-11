@@ -28,9 +28,10 @@ def db_schema_validator(db):
     db.command('collMod', 'Files', validator=schema_files)
     db.command('collMod', 'Results', validator=schema_results)
 
+ENV_TYPE = ENV_CONFIG['APP_MODE']
 
-mongo_client = connect_db()
-db_name = os.environ.get('DB_NAME')
+mongo_client = connect_db() if ENV_TYPE != 'local' else None
+db_name = os.environ.get('DB_NAME') if ENV_TYPE != 'local' else None
 
-files_db = mongo_client[db_name].Files
-results_db = mongo_client[db_name].Results
+files_db = mongo_client[db_name].Files if ENV_TYPE != 'local' else None
+results_db = mongo_client[db_name].Results if ENV_TYPE != 'local' else None

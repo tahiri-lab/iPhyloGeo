@@ -1,9 +1,16 @@
+from dotenv import load_dotenv, dotenv_values
 import dash_bootstrap_components as dbc
 from dash import html, callback, dcc
 import dash
 from flask import request
 from dash.dependencies import Input, Output
 import utils.utils as utils
+load_dotenv()
+
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
+
 
 dash.register_page(__name__, path_template='/results')
 
@@ -39,36 +46,7 @@ def generate_result_list(path):
                     ], className="notification"),
                 ], className="emptyResults"),
     for result in results:
-        progress_value = 100 if result['status'] == 'complete' else 50
-        layout.append(
-            html.Div([
-                html.Div([
-                    html.Div('Name', className="label"),
-                    html.Div(result['name'], className="data"),
-                ], className="nameContainer"),
-                html.Div([
-                    html.Div('Creation date', className="label"),
-                    html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
-                ], className="creationDateContainer"),
-                html.Div([
-                    html.Div('Expiration date',className="label"),
-                    html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
-                ], className="expirationDateContainer"),
-                html.Div([
-                    html.Div('Progress',className="label"),
-                    html.Div([
-                        dbc.Progress(value=progress_value),
-                    ], className='progressBar'),
-                ], className="progressContainer"),
-                html.Div([
-                    # html.Div('Expiration date', className="label"),
-                    html.A(
-                        html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
-                        href=f'/result/{result["_id"]}',
-                    ),
-                ], className="arrowContainer"),
-            ], className="row")
-        )
+        layout.append(create_result_html(result))
 
     return layout
 
@@ -124,5 +102,48 @@ def check_id_exist(auth_ids):
         pass
 
     return tmp_auth_ids
+
+
+def create_result_html(result):
+    """
+    Args:
+        result (dict): The result to display
+    Returns:
+        html.Div: The html div containing the result
+    """
+    progress_value = 100 if result['status'] == 'complete' else 50
+
+    html_list = []
+    html_list.append( html.Div([
+                        html.Div('Name', className="label"),
+                        html.Div(result['name'], className="data"),
+                    ], className="nameContainer"))
+    if ENV_CONFIG['APP_MODE'] != 'local':
+        html_list.append( html.Div([
+                        html.Div('Creation date', className="label"),
+                        html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
+                    ], className="creationDateContainer"))
+        html_list.append(
+                    html.Div([
+                        html.Div('Expiration date',className="label"),
+                        html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
+                    ], className="expirationDateContainer"))
+        
+    html_list.append( html.Div([
+                        html.Div('Progress',className="label"),
+                        html.Div([
+                            dbc.Progress(value=progress_value),
+                        ], className='progressBar'),
+                    ], className="progressContainer"))
+    html_list.append(
+                    html.Div([
+                        # html.Div('Expiration date', className="label"),
+                        html.A(
+                            html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
+                            href=f'/result/{result["_id"]}',
+                        ),
+                    ], className="arrowContainer"))
+    
+    return html.Div(html_list, className="row")
 
 layout = get_layout()
