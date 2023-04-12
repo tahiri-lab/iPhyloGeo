@@ -142,11 +142,18 @@ def create_seq_html(file):
         #})
     ])
 
-def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, genetic_file_name, result_name, climatic_files_id, genetic_files_id):
-    """ Run the complete pipeline.
+def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_file_name, genetic_files_id, climatic_trees, result_id):
+    """ 
+    Runs the genetic pipeline from aPhyloGeo.
+    Args:
+        climatic_data: json object with the climatic data
+        genetic_data: json object with the genetic data
+        genetic_params: json object with the genetic parameters
+        genetic_file_name: string with the name of the genetic file
+        genetic_files_id: string with the id of the genetic file
+        climatic_trees: dict of the climatic trees
+        result_id: string with the id of the database result
     """
-    climatic_trees, result_id = run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, 'pending')
-
     alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
     msaSet = alignementObject.msaSet
 
@@ -165,15 +172,21 @@ def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_
         'output': output,
         'status': 'complete'
     })
+    
+    return result_id
 
-def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, status='incompelte'):
-    """ Run the climatic pipeline.
+def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, status='incomplete'):
+    """ 
+    Run the climatic pipeline from aPhyloGeo.
     args:
         climatic_data: json object with the climatic data
         climatic_params: json object with the parameters for the climatic pipeline
         climatic_files_id: the id of the climatic files
         result_name: the name of the result (name in the database)
         status: the status of the result
+    returns:
+        climatic_trees: the climatic trees
+        result_id: the id of the result inserted into the database
     """
     df = pd.read_json(climatic_data)
     names = ['id'] + climatic_params['names']
@@ -185,5 +198,27 @@ def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, res
         'status': status,
         'name': result_name
     })
-
     return climatic_trees, result_id
+
+
+def make_cookie(result_id, auth_cookie):
+    """
+    Create a cookie with the result id
+
+    Args:
+        result_id (str): The id of the result to add to the cookie
+        auth_cookie (str): The current cookie value
+
+    Returns:
+        str: The modified cookie value
+    """
+
+    # If the "Auth" cookie exists, split the value into a list of IDs
+    auth_ids = [] if not auth_cookie else auth_cookie.split('.')
+    
+    auth_ids.append(result_id)
+
+    #Create the string format for the cookie
+    auth_cookie_value = '.'.join(auth_ids)
+    
+    return auth_cookie_value

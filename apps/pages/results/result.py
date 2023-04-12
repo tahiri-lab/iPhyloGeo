@@ -5,7 +5,7 @@ import dash_cytoscape as cyto
 import math
 from Bio import Phylo
 from io import StringIO
-
+from flask import request
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
 
@@ -77,13 +77,13 @@ def show_result(path):
         ),
     ])
 
-
 @callback(
     Output('climatic-tree','children'),
     Input('url', 'pathname'),
 )
 def create_climatic_trees(path):
     result_id = path.split('/')[-1]
+    add_to_cookie(result_id)
 
     climatic_trees = utils.get_result(result_id)['climatic_trees']
     tree_names = list(climatic_trees.keys())
@@ -290,3 +290,12 @@ def color_children(edgeData):
     }]
 
     return stylesheet + children_style
+
+
+def add_to_cookie(result_id):
+
+    auth_cookie= request.cookies.get("AUTH")
+    auth_cookie_value = utils.make_cookie(result_id, auth_cookie)
+
+    response = dash.callback_context.response
+    response.set_cookie("AUTH", auth_cookie_value)

@@ -2,6 +2,7 @@ from dash import dcc, html, State, Input, Output, callback
 from dash.dependencies import Output, Input
 import dash
 from dash.exceptions import PreventUpdate
+from flask import request
 import multiprocessing
 
 import dash_bootstrap_components as dbc
@@ -112,6 +113,9 @@ def submit_button(open, close, result_name, params, params_climatic, params_gene
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
+    if trigger_id == "close_popup":
+        return 'popup hidden', '', ''
+
     if (params_climatic['names'] is None or len(params_climatic['names']) < 2) or (result_name is None or not result_name):
         if (params_climatic['names'] is None or len(params_climatic['names']) < 2) and (result_name is not None or result_name):
             return 'popup hidden', dbc.Alert("You need to select at least two columns", color="danger"), ''
@@ -119,20 +123,46 @@ def submit_button(open, close, result_name, params, params_climatic, params_gene
             return 'popup hidden', '', dbc.Alert("You need to give a name to your DataSet", color="danger")
         return 'popup hidden', dbc.Alert("You need to select at least two column", color="danger"), dbc.Alert("You need to give a name to your DataSet", color="danger")
 
-    if trigger_id == "close_popup":
-        return 'popup hidden', '', ''
+    if trigger_id != "submit_dataSet":
+        return '', '', ''
+  
+    climatic_file = params['climatic']['file']
+    genetic_file = params['genetic']['file']
 
-    if trigger_id == "submit_dataSet":
-        if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
-            files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
-            process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic,
-                                                                                        params_genetic, params['genetic']['name'], result_name, files_ids[0], files_ids[1]))
-            process.start()
-            return 'popup', '', ''
+    if genetic_file is not None and climatic_file is not None:
+        files_ids = utils.save_files([climatic_file, genetic_file])
+        climatic_file_id = files_ids[0]
+        genetic_file_id = files_ids[1]
+        climatic_trees, result_id = run_climatic_pipeline(climatic_file['df'], params_climatic, climatic_file_id, result_name)
+        genetic_filename = params['genetic']['name']
+    
+        process = multiprocessing.Process(target=utils.run_genetic_pipeline, args=(climatic_file['df'], genetic_file['file'],
+                                                                                    params_genetic, genetic_filename,
+                                                                                    genetic_file_id, climatic_trees, result_id))
+        process.start()
 
-        elif params['climatic']['file'] is not None:
-            files_id = utils.save_files(params['climatic']['file'])
-            process = multiprocessing.Process(target=utils.run_climatic_pipeline, args=(params['climatic']['file']['df'], params_climatic, files_id, result_name))
-            process.start()
-            return 'popup', '', ''
-    return '', '', ''
+    elif params['climatic']['file'] is not None:
+        files_id = utils.save_files(params['climatic']['file'])
+        run_climatic_pipeline(params['climatic']['file']['df'], params_climatic, files_id, result_name)
+
+    return 'popup', '', ''
+
+
+def run_climatic_pipeline(climatic_df, params_climatic, climatic_file_id, result_name):
+    """
+    Runs the climatic pipeline and create the cookie
+    Args:
+        climatic_df: the climatic file's dataframe
+        params_climatic: the climatic parameters
+        climatic_file_id: the climatic file id
+        result_name: the name of the result
+    """
+    climatic_trees, result_id = utils.run_climatic_pipeline(climatic_df, params_climatic, climatic_file_id, result_name)
+        
+    auth_cookie = request.cookies.get("AUTH")
+    new_auth_cookie = utils.make_cookie(result_id, auth_cookie)
+    response = dash.callback_context.response
+    response.set_cookie("AUTH", new_auth_cookie)
+
+    return climatic_trees, result_id
+  

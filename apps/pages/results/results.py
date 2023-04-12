@@ -7,6 +7,16 @@ import utils.utils as utils
 
 dash.register_page(__name__, path_template='/results')
 
+NO_RESULTS_HTML = html.Div([
+                    html.Div([
+                        html.Div('You have no results yet. You can start a new job by going to the "Upload data" page',
+                                 className="text"),
+                        html.Div(className="img bg1"),
+                    ], className="notification"),
+                ], className="emptyResults"),
+
+
+
 def get_layout():
     dcc.Location(id="url")
     return html.Div([
@@ -27,17 +37,18 @@ def get_layout():
     Input('url', 'pathname'),
 )
 def generate_result_list(path):
-    # TODO: Change this to get id from the cookie
-    results = utils.get_all_results()
-    layout = []
+   
+    cookie = request.cookies.get("AUTH")
+    if not cookie:
+        return NO_RESULTS_HTML
+    
+    cookies = cookie.split('.')
+    results = utils.get_results(cookies)
+    
     if not results:
-        return html.Div([
-                    html.Div([
-                        html.Div('You have no results yet. You can start a new job by going to the "Upload data" page',
-                                 className="text"),
-                        html.Div(className="img bg1"),
-                    ], className="notification"),
-                ], className="emptyResults"),
+        return NO_RESULTS_HTML
+        
+    layout = []
     for result in results:
         progress_value = 100 if result['status'] == 'complete' else 50
         layout.append(
@@ -71,58 +82,5 @@ def generate_result_list(path):
         )
 
     return layout
-
-
-@callback(
-        Output('cookie_output', 'children'),
-        [Input('url', 'pathname')],
-)
-
-def make_cookie(result_id=None):
-    """Create a cookie with the result id
-
-    Args:
-        result_id (str): The id of the result to add to the cookie
-
-    """
-    auth_cookie= request.cookies.get("AUTH")
-    if auth_cookie:
-        # If the "Auth" cookie exists, split the value into a list of IDs
-        auth_ids = auth_cookie.split('.')
-    else:
-        # If the "Auth" cookie does not exist, set the value to an empty list
-        auth_ids = []
-
-    auth_ids.append(str(result_id))
-
-    #Check if the id exists in the mongo db and remove it if it doesn't
-    auth_ids = check_id_exist(auth_ids)
-
-    #Create the string format for the cookie
-    auth_cookie_value = '.'.join(auth_ids)
-
-    response = dash.callback_context.response
-    response.set_cookie("AUTH", auth_cookie_value)
-
-    return result_id
-
-def check_id_exist(auth_ids):
-    """Check if the id exists in the mongo db and remove it if it doesn't
-
-    Args:
-        auth_ids (list): The list of ids to check
-
-    Returns:
-        list: The list of ids that exist in the mongo db
-
-    """
-    tmp_auth_ids = auth_ids
-
-    for index in auth_ids:
-        #if files_ctrl.get_file_by_id(index) == []: # de ce que j'ai compis du get_files_by_id, il renvoie un tableau vide si l'id n'existe pas
-        #    tmp_auth_ids.remove(index)
-        pass
-
-    return tmp_auth_ids
 
 layout = get_layout()
