@@ -1,5 +1,3 @@
-import dash_bootstrap_components as dbc
-
 from dash import dcc, html, State, Input, Output, dash_table,callback
 from dash.dependencies import Input, Output
 import dash
@@ -70,6 +68,7 @@ def create_table(df):
                     html.Div(id='output-graph', className="generatedGraph"),
                 ], className="graphGeneratorContainer"),
                 html.Div([
+                    html.Div(children=[], id='column_error_message'),
                     html.Div([
                         html.Div("Select the name of the column to analyze"),
                         dcc.Checklist(id='col-analyze',

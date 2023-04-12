@@ -4,6 +4,7 @@ import dash
 from dash.exceptions import PreventUpdate
 import multiprocessing
 
+import dash_bootstrap_components as dbc
 import pages.upload.dropFileSection as dropFileSection
 import utils.utils as utils
 import pages.upload.climatic.paramsClimatic as paramsClimatic
@@ -28,7 +29,6 @@ layout = html.Div([
                 html.Div(id="climatic_params_layout"),
                 html.Div(id="genetic_params_layout"),
                 html.Div(id="submit_button"),
-                html.Div(id="output_hidden_1", children=[], className="hidden"),
             ], id="params_sections")
         ]
     ),
@@ -94,6 +94,8 @@ def params_climatic(col_analyze, current_data):
 
 @callback(
     Output('popup', 'className'),
+    Output('column_error_message', 'children'),
+    Output('name_error_message', 'children'),
     [Input('submit_dataSet', 'n_clicks'),
         Input("close_popup", "n_clicks"),
         Input('input_dataSet', 'value')],
@@ -110,19 +112,26 @@ def submit_button(open, close, input_dataSet, params, params_climatic, params_ge
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
+    if (params_climatic['names'] is None or len(params_climatic['names']) < 2) or (input_dataSet is None or not input_dataSet):
+        if (params_climatic['names'] is None or len(params_climatic['names']) < 2) and (input_dataSet is not None or input_dataSet):
+            return 'popup hidden', dbc.Alert("You need to select at least two columns", color="danger"), ''
+        if (params_climatic['names'] is not None and len(params_climatic['names']) >= 2) and (input_dataSet is None or not input_dataSet):
+            return 'popup hidden', '', dbc.Alert("You need to give a name to your DataSet", color="danger")
+        return 'popup hidden', dbc.Alert("You need to select at least two column", color="danger"), dbc.Alert("You need to give a name to your DataSet", color="danger")
+
     if trigger_id == "close_popup":
-        return "popup hidden"
+        return 'popup hidden', '', ''
 
     if trigger_id == "submit_dataSet":
         if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
             files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
             process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, input_dataSet, files_ids[0], files_ids[1]))
             process.start()
-            return "popup"
+            return 'popup', '', ''
 
         elif params['climatic']['file'] is not None:
             files_id = utils.save_files(params['climatic']['file'])
             process = multiprocessing.Process(target=utils.run_climatic_pipeline, args=(params['climatic']['file']['df'], params_climatic, files_id))
             process.start()
-            return "popup"
-    return ''
+            return 'popup', '', ''
+    return '', '', ''

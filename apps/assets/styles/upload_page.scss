@@ -193,11 +193,15 @@
   .dataSetInputContainer {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    //gap: 30px;
     width: 75%;
     margin: 10px auto auto auto;
     border-radius: 15px;
     background-color: var(--black-and-white);
+
+    .name_error_message {
+      padding: 15px 15px 0 15px;
+    }
 
     .dataSetInput {
       margin: 20px auto;
