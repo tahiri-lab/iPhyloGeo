@@ -6,9 +6,11 @@ from io import StringIO
 from db.db_validator import files_db
 import json
 
+
 def get_all_files():
     res = files_db.find({}, {'_id': 1, 'file_name': 1})
-    return list(res) # return a list of dictionaries to force convert the pymongo cursor to a list
+    return list(res)  # return a list of dictionaries to force convert the pymongo cursor to a list
+
 
 def save_files(files):
     if not isinstance(files, list):
@@ -25,6 +27,7 @@ def save_files(files):
         results.append(str(result.inserted_id))
 
     return results[0] if len(results) == 1 else results
+
 
 def get_files_by_id(ids):
     if not isinstance(ids, list):
@@ -44,6 +47,8 @@ def get_files_by_id(ids):
     return files[0] if len(files) == 1 else files
 
 # utils
+
+
 def parse_file(file):
     """Parse the file to a proper format to be stored in the database.
 
@@ -70,6 +75,8 @@ def parse_file(file):
     return result
 
 # reverse so we need to take a document and parse it to the same format as the file
+
+
 def parse_document(document):
     """Parse the document to a proper format to be returned to the user.
 
@@ -97,14 +104,17 @@ def parse_document(document):
 
     return result
 
+
 def df_to_str_csv(df):
     return [list(df.columns)] + df.values.tolist()
+
 
 def fasta_to_str(fasta):
     result = SeqIO.to_dict(fasta)
     for key in result:
         result[key] = str(result[key].seq)
     return result
+
 
 def str_csv_to_df(str_csv):
     df = pd.DataFrame(str_csv)

@@ -1,10 +1,8 @@
 from dash import dcc, html, State, Input, Output, callback
-from dash.dependencies import Output, Input
 import dash
 from dash.exceptions import PreventUpdate
 from flask import request
 import multiprocessing
-
 import dash_bootstrap_components as dbc
 import pages.upload.dropFileSection as dropFileSection
 import utils.utils as utils
@@ -36,6 +34,8 @@ layout = html.Div([
 ])
 
 # Function to upload file and store it in the server
+
+
 @callback(
     Output('genetic_params_layout', 'children'),
     Output('climatic_params_layout', 'children'),
@@ -46,7 +46,7 @@ layout = html.Div([
     State('upload-data', 'last_modified'),
     State('params', 'data'),
     prevent_initial_call=True,
-    log = True
+    log=True
 )
 def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
@@ -83,6 +83,7 @@ def params_climatic(window_size, bootstrap_threshold, ls_distance, step_size, bo
     current_data['bootstrap_amount'] = bootstrap_amount
     return current_data
 
+
 @callback(
     Output('params_climatic', 'data'),
     Input('col-analyze', 'value'),
@@ -92,6 +93,7 @@ def params_climatic(window_size, bootstrap_threshold, ls_distance, step_size, bo
 def params_climatic(col_analyze, current_data):
     current_data['names'] = col_analyze
     return current_data
+
 
 @callback(
     Output('popup', 'className'),
@@ -105,7 +107,6 @@ def params_climatic(col_analyze, current_data):
     State('params_genetic', 'data'),
     prevent_initial_call=True
 )
-
 def submit_button(open, close, result_name, params, params_climatic, params_genetic):
     if open is None or open < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
@@ -125,7 +126,6 @@ def submit_button(open, close, result_name, params, params_climatic, params_gene
 
     if trigger_id != "submit_dataSet":
         return '', '', ''
-  
     climatic_file = params['climatic']['file']
     genetic_file = params['genetic']['file']
 
@@ -135,10 +135,9 @@ def submit_button(open, close, result_name, params, params_climatic, params_gene
         genetic_file_id = files_ids[1]
         climatic_trees, result_id = run_climatic_pipeline(climatic_file['df'], params_climatic, climatic_file_id, result_name)
         genetic_filename = params['genetic']['name']
-    
         process = multiprocessing.Process(target=utils.run_genetic_pipeline, args=(climatic_file['df'], genetic_file['file'],
-                                                                                    params_genetic, genetic_filename,
-                                                                                    genetic_file_id, climatic_trees, result_id))
+                                                                                   params_genetic, genetic_filename,
+                                                                                   genetic_file_id, climatic_trees, result_id))
         process.start()
 
     elif params['climatic']['file'] is not None:
@@ -158,11 +157,10 @@ def run_climatic_pipeline(climatic_df, params_climatic, climatic_file_id, result
         result_name: the name of the result
     """
     climatic_trees, result_id = utils.run_climatic_pipeline(climatic_df, params_climatic, climatic_file_id, result_name)
-        
+
     auth_cookie = request.cookies.get("AUTH")
     new_auth_cookie = utils.make_cookie(result_id, auth_cookie)
     response = dash.callback_context.response
     response.set_cookie("AUTH", new_auth_cookie)
 
     return climatic_trees, result_id
-  

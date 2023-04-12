@@ -10,6 +10,7 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
+
 def connect_db():
     # TODO Add a local and remote database
     mongo_uri = ENV_CONFIG['MONGO_URI']
@@ -18,6 +19,7 @@ def connect_db():
     db_schema_validator(mongo_client.get_database(db_name))
 
     return mongo_client
+
 
 def db_schema_validator(db):
     if 'Files' not in db.list_collection_names():

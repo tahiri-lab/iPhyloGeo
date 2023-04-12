@@ -7,7 +7,7 @@ schema_results = {
             '_id': {
                 'bsonType': 'objectId',
             },
-            "name":{
+            "name": {
                 'bsonType': 'string',
             },
             'status': {

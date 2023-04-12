@@ -1,12 +1,10 @@
-from tkinter import S
 import dash_bootstrap_components as dbc
-from dash import dcc, html, Input, Output, clientside_callback
-from dash.dependencies import Input, Output, ClientsideFunction
+from dash import dcc, html, Input, Output, clientside_callback, ClientsideFunction
 
 layout = html.Div([
-    html.Div(id='output_file_drop_position_prev'), # use only to store output value
-    html.Div(id='output_file_drop_position_next'), # use only to store output value
-    html.Div(id='upload-data-output'), # use only to store output value
+    html.Div(id='output_file_drop_position_prev'),  # use only to store output value
+    html.Div(id='output_file_drop_position_next'),  # use only to store output value
+    html.Div(id='upload-data-output'),  # use only to store output value
     html.Div(children=[
         html.Div(
             className="DropFileSection",
@@ -72,9 +70,9 @@ clientside_callback(
         namespace='clientside',
         function_name='next_option_function'
     ),
-    Output("output_file_drop_position_next", "children"), # needed for the callback to trigger
+    Output("output_file_drop_position_next", "children"),  # needed for the callback to trigger
     [Input("drop_option_choice_next", "n_clicks"),
-     Input("params_sections", "id")], # This is where we want the button to redirect the user
+     Input("params_sections", "id")],  # This is where we want the button to redirect the user
     prevent_initial_call=True,
 )
 
@@ -83,7 +81,7 @@ clientside_callback(
         namespace='clientside',
         function_name='show_text_field'
     ),
-    Output("manualField", "children"), # needed for the callback to trigger
+    Output("manualField", "children"),  # needed for the callback to trigger
     Input("manualInsert", "n_clicks"),
     prevent_initial_call=True,
 )

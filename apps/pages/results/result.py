@@ -1,6 +1,5 @@
-from dash import html, dash_table,callback, Output, Input, dcc
+from dash import html, dash_table, callback, Output, Input, dcc
 import dash
-import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import math
 from Bio import Phylo
@@ -40,6 +39,7 @@ def show_result_name(path):
     title = utils.get_result(result_id)['name']
     return html.Div(title, className="title", style={'color': 'var(--reverse-black-white-color)', 'text-align': 'center'})
 
+
 @callback(
     Output('output_results', 'children'),
     Input('url', 'pathname'),
@@ -50,7 +50,7 @@ def show_result(path):
     result = utils.get_result(result_id)
     data = {}
     # TODO - a delete plus tard
-    column_header = ["Gene","Phylogeographic tree","Name of species","Position in ASM","Bootstrap mean","Least-Square distance"]
+    column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
     for header in column_header:
         data[header] = [header]
     for row in result['output']:
@@ -68,8 +68,8 @@ def show_result(path):
             page_current=0,             # page number that user is on
             page_size=15,               # number of rows visible per page
             filter_query='',            # query that determines which rows to keep in table
-            #page_action="native",       # all data is passed to the table up-front or not ('none')
-            #sort_by=[],                 # list of columns that user sorts table by
+            # page_action="native",       # all data is passed to the table up-front or not ('none')
+            # sort_by=[],                 # list of columns that user sorts table by
             style_data={
                 'color': 'var(--reverse-black-white-color)',
                 'backgroundColor': 'var(--table-bg-color'
@@ -77,8 +77,9 @@ def show_result(path):
         ),
     ])
 
+
 @callback(
-    Output('climatic-tree','children'),
+    Output('climatic-tree', 'children'),
     Input('url', 'pathname'),
 )
 def create_climatic_trees(path):
@@ -96,10 +97,11 @@ def create_climatic_trees(path):
     return html.Div(
         children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)],
         className="treeSubContainer"
-        )
+    )
+
 
 @callback(
-    Output('genetic-tree','children'),
+    Output('genetic-tree', 'children'),
     Input('url', 'pathname'),
 )
 def create_genetic_trees(path):
@@ -114,23 +116,23 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-
     return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="treeSubContainer")
 
+
 def generate_tree(elem, name):
-     return html.Div([
-            html.H3(name, className="treeTitle"),  # title
-            cyto.Cytoscape(
-                id='cytoscape',
-                elements=elem,
-                stylesheet=stylesheet,
-                layout = {'name': 'preset'},
-                style={
-                    'height': '350px',
-                    'width': '100%'
-                }
-            )
-        ])
+    return html.Div([
+        html.H3(name, className="treeTitle"),  # title
+        cyto.Cytoscape(
+            id='cytoscape',
+            elements=elem,
+            stylesheet=stylesheet,
+            layout={'name': 'preset'},
+            style={
+                'height': '350px',
+                'width': '100%'
+            }
+        )
+    ])
 
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
@@ -161,7 +163,7 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
                 if subclade not in positions:
                     calc_row(subclade)
             positions[clade] = ((positions[clade.clades[0]] +
-                                 positions[clade.clades[-1]]) // 2)
+                                positions[clade.clades[-1]]) // 2)
 
         calc_row(tree.root)
         return positions
@@ -248,7 +250,7 @@ stylesheet = [
     {
         'selector': '.support',
         'style': {'background-opacity': 0,
-                  'background-color':"pink"}
+                  'background-color': "pink"}
     },
     {
         'selector': 'edge',
@@ -272,7 +274,7 @@ stylesheet = [
 
 
 @callback(Output('cytoscape', 'stylesheet'),
-              [Input('cytoscape', 'mouseoverEdgeData')])
+          [Input('cytoscape', 'mouseoverEdgeData')])
 def color_children(edgeData):
     if edgeData is None:
         return stylesheet
@@ -294,7 +296,7 @@ def color_children(edgeData):
 
 def add_to_cookie(result_id):
 
-    auth_cookie= request.cookies.get("AUTH")
+    auth_cookie = request.cookies.get("AUTH")
     auth_cookie_value = utils.make_cookie(result_id, auth_cookie)
 
     response = dash.callback_context.response

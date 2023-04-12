@@ -1,10 +1,10 @@
-from dash import dcc, html, State, Input, Output, dash_table,callback
-from dash.dependencies import Input, Output
+from dash import dcc, html, State, Input, Output, dash_table, callback
 import dash
 import plotly.express as px
 
 
-figures =[]
+figures = []
+
 
 def create_table(df):
     param_selection = html.Div([
@@ -21,8 +21,8 @@ def create_table(df):
                         page_current=0,             # page number that user is on
                         page_size=15,               # number of rows visible per page
                         filter_query='',            # query that determines which rows to keep in table
-                        #page_action="native",       # all data is passed to the table up-front or not ('none')
-                        #sort_by=[],                 # list of columns that user sorts table by
+                        # page_action="native",       # all data is passed to the table up-front or not ('none')
+                        # sort_by=[],                 # list of columns that user sorts table by
                         style_data={
                             'color': 'var(--reverse-black-white-color)',
                             'backgroundColor': 'var(--table-bg-color'
@@ -83,21 +83,22 @@ def create_table(df):
 
     return param_selection
 
+
 @callback(Output('output-graph', 'children'),
-              [Input('submit-button','n_clicks')],
-              State('choose-graph-type','value'),
-              State('stored-data','data'),
-              State('xaxis-data','value'),
-              State('yaxis-data', 'value')
-              )
+          [Input('submit-button', 'n_clicks')],
+          State('choose-graph-type', 'value'),
+          State('stored-data', 'data'),
+          State('xaxis-data', 'value'),
+          State('yaxis-data', 'value')
+          )
 def make_graphs(n, graph_type, filter_query, x_data, y_data):
-    #edge case if only choro map is selected
+    # edge case if only choro map is selected
     if n is None:
         return dash.no_update
     else:
         if graph_type == 'Bar':
             fig = px.bar(filter_query, x=x_data, y=y_data)
-        if graph_type =='Scatter':
+        if graph_type == 'Scatter':
             fig = px.scatter(filter_query, x=x_data, y=y_data)
         if graph_type == 'Line':
             fig = px.line(filter_query, x=x_data, y=y_data)
@@ -110,19 +111,20 @@ def make_graphs(n, graph_type, filter_query, x_data, y_data):
     return figures
 
 # Choropleth Map
+
+
 @callback(
-    Output('output-map','children'),
-    Input('upload-data','contents'),
-    State('datatable-interactivity','data'),
+    Output('output-map', 'children'),
+    Input('upload-data', 'contents'),
+    State('datatable-interactivity', 'data'),
     State('map-data', 'value')
 )
-
 def update_output(num_clicks, data, val_selected):
     if num_clicks is None:
         return dash.no_update
     else:
         if "iso_alpha" in data[0].keys():
-            fig = px.choropleth(data, locations="iso_alpha",scope="world",
+            fig = px.choropleth(data, locations="iso_alpha", scope="world",
                                 color=val_selected,
                                 projection='natural earth',
                                 color_continuous_scale=px.colors.sequential.Turbo)
@@ -133,8 +135,8 @@ def update_output(num_clicks, data, val_selected):
                 showrivers=True, rivercolor="Blue"
             )
 
-            fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
-                            margin=dict(l=60, r=60, t=50, b=50), paper_bgcolor='rgba(0,0,0,0)',
+            fig.update_layout(title=dict(font=dict(size=28), x=0.5, xanchor='center'),
+                              margin=dict(l=60, r=60, t=50, b=50), paper_bgcolor='rgba(0,0,0,0)',
                               plot_bgcolor='rgba(0,0,0,0)'),
 
             fig.update_annotations(text="No matching data found")
@@ -147,7 +149,7 @@ def update_output(num_clicks, data, val_selected):
             return map_fig
 
 
-#Après integration aphylo dans le code, on pourra work sur le code ci-dessous pour créer le newick file
+# Après integration aphylo dans le code, on pourra work sur le code ci-dessous pour créer le newick file
 """
 # phylogeography trees : newick files
 @callback(
@@ -203,4 +205,4 @@ def func(n_clicks, fileName):
 """
 
 
-#Button to extract all graphs to a pdf using js https://community.plotly.com/t/exporting-multi-page-dash-app-to-pdf-with-entire-layout/37953/3 ++
+# Button to extract all graphs to a pdf using js https://community.plotly.com/t/exporting-multi-page-dash-app-to-pdf-with-entire-layout/37953/3 ++

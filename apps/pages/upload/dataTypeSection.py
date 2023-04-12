@@ -1,9 +1,8 @@
 from dash import html, Input, Output, ctx, callback
-from dash.dependencies import Input, Output
 
 
 layout = html.Div([
-    html.Div(id='output_option_position'), # use only to store output value
+    html.Div(id='output_option_position'),  # use only to store output value
     html.Div(children=[
         html.Div(
             className="ChoiceSection",
@@ -58,15 +57,14 @@ layout = html.Div([
 
 # Callback to style the selected option
 @callback(
-        Output('meteo', 'className'),
-        Output('genetic', 'className'),
-        Output('meteoGene', 'className'),
-          [Input('meteo', 'n_clicks'),
-            Input('genetic', 'n_clicks'),
-            Input('meteoGene', 'n_clicks')],
-          prevent_initial_call=True,
+    Output('meteo', 'className'),
+    Output('genetic', 'className'),
+    Output('meteoGene', 'className'),
+    [Input('meteo', 'n_clicks'),
+     Input('genetic', 'n_clicks'),
+     Input('meteoGene', 'n_clicks')],
+    prevent_initial_call=True,
 )
-
 def choose_option(meteo, genetic, meteoGene):
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     return ('option selected' if button_id == 'meteo' else 'option',

@@ -11,19 +11,24 @@ from aPhyloGeo import aPhyloGeo
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
-APP_ENV = 'local' # os.environ.get('APP_ENV', 'local')
+APP_ENV = 'local'  # os.environ.get('APP_ENV', 'local')
+
 
 def get_all_files():
     return files_ctrl.get_all_files()
 
+
 def get_results(ids):
     return results_ctrl.get_results(ids)
+
 
 def get_result(id):
     return results_ctrl.get_result(id)
 
+
 def get_all_results():
     return results_ctrl.get_all_results()
+
 
 def get_file(id, options={}):
     """
@@ -40,6 +45,7 @@ def get_file(id, options={}):
     else:
         return get_file_from_db(id)
 
+
 def read_local_file(path, options={}):
     """ Read the file from the local file system.
 
@@ -53,6 +59,7 @@ def read_local_file(path, options={}):
     if 'pd' in options:
         return pd.read_csv(path)
 
+
 def get_file_from_db(id):
     """ Get the file from the database.
 
@@ -61,6 +68,7 @@ def get_file_from_db(id):
     """
     return files_ctrl.get_files_by_id(id)
 
+
 def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
     results = []
     for content, file_name, date in zip(list_of_contents, list_of_names, last_modifieds):
@@ -68,8 +76,10 @@ def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
 
     return results
 
+
 def save_files(results):
     return files_ctrl.save_files(results)
+
 
 def download_file_from_db(id, root_path='./'):
     """ Download the file from the database.
@@ -90,6 +100,7 @@ def download_file_from_db(id, root_path='./'):
             for key, seq in res['file'].items():
                 fasta_str += f'>{key}\n{str(seq.seq)}\n'
             f.write(fasta_str.encode('utf-8'))
+
 
 def parse_contents(content, file_name, date):
     res = {
@@ -126,24 +137,25 @@ def create_seq_html(file):
 
     if 'error' in file and file['error']:
         return html.Div([
-                dcc.Markdown('Please upload a **fasta file**.'),
+            dcc.Markdown('Please upload a **fasta file**.'),
         ])
 
     return html.Div([
         dcc.Markdown('You have uploades file(s):  **{}**'.format(file_name)),
-        #html.H6(datetime.datetime.fromtimestamp(date)),
-        #html.Small(seq_upload),
+        # html.H6(datetime.datetime.fromtimestamp(date)),
+        # html.Small(seq_upload),
 
         # For debugging, display the raw contents provided by the web browser
-        #html.Div('Raw Content'),
-        #html.Pre(contents[0:200] + '...', style={
-            #   'whiteSpace': 'pre-wrap',
-            #   'wordBreak': 'break-all'
-        #})
+        # html.Div('Raw Content'),
+        # html.Pre(contents[0:200] + '...', style={
+        #   'whiteSpace': 'pre-wrap',
+        #   'wordBreak': 'break-all'
+        # })
     ])
 
+
 def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_file_name, genetic_files_id, climatic_trees, result_id):
-    """ 
+    """
     Runs the genetic pipeline from aPhyloGeo.
     Args:
         climatic_data: json object with the climatic data
@@ -172,11 +184,12 @@ def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_fi
         'output': output,
         'status': 'complete'
     })
-    
+
     return result_id
 
+
 def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, status='incomplete'):
-    """ 
+    """
     Run the climatic pipeline from aPhyloGeo.
     args:
         climatic_data: json object with the climatic data
@@ -215,10 +228,8 @@ def make_cookie(result_id, auth_cookie):
 
     # If the "Auth" cookie exists, split the value into a list of IDs
     auth_ids = [] if not auth_cookie else auth_cookie.split('.')
-    
     auth_ids.append(result_id)
 
-    #Create the string format for the cookie
+    # Create the string format for the cookie
     auth_cookie_value = '.'.join(auth_ids)
-    
     return auth_cookie_value
