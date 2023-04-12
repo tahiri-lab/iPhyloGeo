@@ -101,7 +101,7 @@ def parse_contents(content, file_name, date):
         content_type, content_string = content.split(',')
         decoded_content = base64.b64decode(content_string)
 
-        if content_type == 'data:text/csv;base64':
+        if content_type == 'data:text/csv;base64' or content_type == 'data:application/vnd.ms-excel;base64':
             # Assume that the user uploaded a CSV file
             res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
             res['type'] = 'climatic'
