@@ -105,17 +105,17 @@ def params_climatic(col_analyze, current_data):
     prevent_initial_call=True
 )
 
-def submit_button(open, close, input_dataSet, params, params_climatic, params_genetic):
+def submit_button(open, close, result_name, params, params_climatic, params_genetic):
     if open is None or open < 1 or (params['genetic']['file'] is None and params['climatic']['file'] is None):
         raise PreventUpdate
 
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if (params_climatic['names'] is None or len(params_climatic['names']) < 2) or (input_dataSet is None or not input_dataSet):
-        if (params_climatic['names'] is None or len(params_climatic['names']) < 2) and (input_dataSet is not None or input_dataSet):
+    if (params_climatic['names'] is None or len(params_climatic['names']) < 2) or (result_name is None or not result_name):
+        if (params_climatic['names'] is None or len(params_climatic['names']) < 2) and (result_name is not None or result_name):
             return 'popup hidden', dbc.Alert("You need to select at least two columns", color="danger"), ''
-        if (params_climatic['names'] is not None and len(params_climatic['names']) >= 2) and (input_dataSet is None or not input_dataSet):
+        if (params_climatic['names'] is not None and len(params_climatic['names']) >= 2) and (result_name is None or not result_name):
             return 'popup hidden', '', dbc.Alert("You need to give a name to your DataSet", color="danger")
         return 'popup hidden', dbc.Alert("You need to select at least two column", color="danger"), dbc.Alert("You need to give a name to your DataSet", color="danger")
 
@@ -125,13 +125,14 @@ def submit_button(open, close, input_dataSet, params, params_climatic, params_ge
     if trigger_id == "submit_dataSet":
         if params['genetic']['file'] is not None and params['climatic']['file'] is not None:
             files_ids = utils.save_files([params['climatic']['file'], params['genetic']['file']])
-            process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic, params_genetic, input_dataSet, files_ids[0], files_ids[1]))
+            process = multiprocessing.Process(target=utils.run_complete_pipeline, args=(params['climatic']['file']['df'], params['genetic']['file']['file'], params_climatic,
+                                                                                        params_genetic, params['genetic']['name'], result_name, files_ids[0], files_ids[1]))
             process.start()
             return 'popup', '', ''
 
         elif params['climatic']['file'] is not None:
             files_id = utils.save_files(params['climatic']['file'])
-            process = multiprocessing.Process(target=utils.run_climatic_pipeline, args=(params['climatic']['file']['df'], params_climatic, files_id))
+            process = multiprocessing.Process(target=utils.run_climatic_pipeline, args=(params['climatic']['file']['df'], params_climatic, files_id, result_name))
             process.start()
             return 'popup', '', ''
     return '', '', ''

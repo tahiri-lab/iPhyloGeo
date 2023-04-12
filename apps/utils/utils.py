@@ -142,10 +142,10 @@ def create_seq_html(file):
         #})
     ])
 
-def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, file_name, climatic_files_id, genetic_files_id):
+def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, genetic_file_name, result_name, climatic_files_id, genetic_files_id):
     """ Run the complete pipeline.
     """
-    climatic_trees, result_id = run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, 'pending')
+    climatic_trees, result_id = run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, 'pending')
 
     alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
     msaSet = alignementObject.msaSet
@@ -156,22 +156,24 @@ def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_
         'msaSet': msaSet,
         'genetic_params': genetic_params,
         'genetic_trees': genetic_trees,
-        'genetic_files_id': genetic_files_id,
-        'name': file_name
+        'genetic_files_id': genetic_files_id
     })
 
-    output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), file_name)
+    output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), genetic_file_name)
     results_ctrl.update_result({
         '_id': result_id,
         'output': output,
         'status': 'complete'
     })
 
-def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, status='compelte'):
+def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, status='incompelte'):
     """ Run the climatic pipeline.
     args:
         climatic_data: json object with the climatic data
         climatic_params: json object with the parameters for the climatic pipeline
+        climatic_files_id: the id of the climatic files
+        result_name: the name of the result (name in the database)
+        status: the status of the result
     """
     df = pd.read_json(climatic_data)
     names = ['id'] + climatic_params['names']
@@ -180,7 +182,8 @@ def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, sta
         'climatic_files_id': str(climatic_files_id),
         'climatic_trees': climatic_trees,
         'climatic_params': climatic_params,
-        'status': status
+        'status': status,
+        'name': result_name
     })
 
     return climatic_trees, result_id
