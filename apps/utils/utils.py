@@ -165,6 +165,8 @@ def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_fi
         genetic_files_id: string with the id of the genetic file
         climatic_trees: dict of the climatic trees
         result_id: string with the id of the database result
+    returns:
+        result_id: string with the id of the database result
     """
     alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
     msaSet = alignementObject.msaSet
@@ -232,4 +234,5 @@ def make_cookie(result_id, auth_cookie):
 
     # Create the string format for the cookie
     auth_cookie_value = '.'.join(auth_ids)
+    
     return auth_cookie_value

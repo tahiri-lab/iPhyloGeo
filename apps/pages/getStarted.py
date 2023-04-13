@@ -22,7 +22,7 @@ layout = html.Div([
     dcc.Store(id='params-genetic', data={'window_size': None, 'step_size': None, 'bootstrap_amount': None, 'bootstrap_threshold': None, 'ls_threshold': None}),
     html.Div(id='action'),
     html.Div(
-        className="getStarted",
+        className="get-started",
         children=[
             html.Div(children=[popup.layout]),
             html.Div(children=[dropFileSection.layout]),
@@ -137,9 +137,9 @@ def params_climatic(column_names, current_data):
     Output('popup', 'className'),
     Output('column-error-message', 'children'),
     Output('name-error-message', 'children'),
-    [Input('submit_dataset', 'n_clicks'),
+    [Input('submit-dataset', 'n_clicks'),
         Input("close_popup", "n_clicks"),
-        Input('input_dataset', 'value')],
+        Input('input-dataset', 'value')],
     State('input-data', 'data'),
     State('params-climatic', 'data'),
     State('params-genetic', 'data'),
@@ -186,7 +186,7 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
     if not params_climatic_is_complete and not result_name_is_valid:
         return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
 
-    if trigger_id != "submit_dataset":
+    if trigger_id != "submit-dataset":
         return '', '', ''
     
     climatic_file = input_data['climatic']['file']

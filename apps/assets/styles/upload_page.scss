@@ -1,9 +1,9 @@
-.getStarted {
+.get-started {
   background-color: var(--background-color);
   overflow: hidden;
   padding: 0 80px;
 
-  .submitButton {
+  .submit-button {
     display: flex;
     justify-content: center;
     margin-top: 15px;
@@ -190,7 +190,7 @@
     }
   }
 
-  .dataSetInputContainer {
+  .dataset-input-container {
     display: flex;
     flex-direction: column;
     //gap: 30px;
@@ -199,11 +199,11 @@
     border-radius: 15px;
     background-color: var(--black-and-white);
 
-    .name_error_message {
+    .name-error-message {
       padding: 15px 15px 0 15px;
     }
 
-    .dataSetInput {
+    .data-set-input {
       margin: 20px auto;
       border-radius: 5px;
       border: 2px black solid;
