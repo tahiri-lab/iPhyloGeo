@@ -42,7 +42,7 @@ layout = html.Div(
                         html.Div("Step Size"),
                         dcc.Input(id="input_stepSize", type="number", min=0, max=500,
                                   placeholder="Enter Step Size", value=100, className="inputField"),
-                        html.Div(id='input_stepSize_container'),
+                        html.Div(id='input_step_size_container'),
                     ], className="manualInput"),
                     html.Div([
                         html.Div("Bootstrap amount"),
