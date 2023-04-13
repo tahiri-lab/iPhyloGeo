@@ -1,4 +1,4 @@
-.params_climatic {
+.params-climatic {
   .title {
     color: var(--reverse-black-white-color);
     font-size: 25px;
@@ -7,7 +7,7 @@
     top: 0 !important;
   }
 
-  .paramsClimaticTable {
+  .params-climatic-table {
     margin: auto;
     width: 75%;
   }
@@ -18,7 +18,7 @@
     overflow: auto;
   }
 
-  .paramsClimaticParameters {
+  .params-climatic-parameters {
     width: 75%;
     margin: 10px auto auto auto;
 
@@ -29,7 +29,7 @@
     }
   }
 
-  .colToAnalyseContainer {
+  .col-to-analyse-container {
     width: 75%;
     margin: 10px auto auto auto;
     padding: 50px;
@@ -50,7 +50,7 @@
     }
   }
 
-  .axisField {
+  .axis-field {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -87,7 +87,7 @@
     height: 100%;
   }
 
-  .choroplethMapContainer {
+  .choropleth-map-container {
     width: 50%;
     border-radius: 15px;
     background-color: var(--black-and-white);
@@ -96,7 +96,7 @@
       width: 100%;
     }
 
-    .choroplethMap {
+    .choropleth-map {
       height: 100%;
       .dash-graph {
          height: 100%;
@@ -104,14 +104,14 @@
     }
   }
 
-  .graphGeneratorContainer {
+  .graph-generator-container {
     display: flex;
     width: 75%;
     margin: 10px auto auto auto;
     border-radius: 15px;
     background-color: #dbdbdb;
 
-    .generatedGraph {
+    .generated-graph {
       display: flex;
       flex-wrap: wrap;
       flex-basis: 100%;

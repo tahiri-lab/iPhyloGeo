@@ -1,7 +1,7 @@
-.params_genetic {
+.params-genetic {
   padding: 15px;
 
-  .ParameterContainer {
+  .parameter-container {
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -18,19 +18,19 @@
     margin: auto;
   }
 
-    .manualInputContainer {
+    .manual-input-container {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
 
-      .manualInput {
+      .manual-input {
         color: var(--reverse-white-black-color);
         background-color: var(--reverse-black-white-color);
         padding: 15px;
         border-radius: 5px;
         margin: 10px;
 
-        .inputField {
+        .input-field {
           border-radius: 5px;
           border: 2px black solid;
           width: 150px;
@@ -39,7 +39,7 @@
       }
     }
 
-    .ParameterContainerInside {
+    .parameter-container-inside {
       color: var(--reverse-white-black-color);
       display: grid;
       grid-template-areas:
@@ -58,7 +58,7 @@
             grid-template-columns: 1fr;
         }
 
-      .paramTitle {
+      .param-title {
         grid-area: title;
       }
 
