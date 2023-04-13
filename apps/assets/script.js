@@ -42,9 +42,9 @@
           },
 
           show_text_field: function () {
-            document.getElementById('manualField').classList.remove("hidden");
-            document.getElementById('dropContainer').classList.add("hidden");
-            document.getElementById('manualInsert').classList.add("hidden");
+            document.getElementById('manual-field').classList.remove("hidden");
+            document.getElementById('drop-container').classList.add("hidden");
+            document.getElementById('manual-insert').classList.add("hidden");
           }
       }
     });

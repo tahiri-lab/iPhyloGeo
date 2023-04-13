@@ -91,7 +91,7 @@
     }
   }
 
-  .DropFileSection {
+  .drop-file-section {
     top: 25%;
     position: relative;
     height: 100vh;
@@ -140,7 +140,7 @@
         }
       }
 
-      .dropContainer {
+      .drop-container {
         cursor: pointer;
         position: relative;
         display: flex;
@@ -148,7 +148,7 @@
         margin-top: 20px;
         z-index: 1;
 
-        .dropContent {
+        .drop-content {
           display: flex;
           flex-direction: column;
           text-decoration: none;
@@ -162,7 +162,7 @@
         }
       }
 
-      .ManualInsertText {
+      .manuel-insert-text {
         user-select: none;
         position: relative;
         cursor: pointer;
