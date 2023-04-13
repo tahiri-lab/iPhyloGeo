@@ -19,7 +19,7 @@ layout = html.Div([
     html.Div(
         className="home-page",
         children=[
-            html.Div(id='output'),
+            html.Div(id='backgroud-video'),
             html.Div(
                 className="main-text",
                 children=[
@@ -37,10 +37,18 @@ layout = html.Div([
 ])
 
 
-@callback(Output('output', 'children'),
-          [Input('theme-switch-output', 'children')]
-          )
-def update_output(children):
+@callback(
+        Output('backgroud-video', 'children'),
+        Input('theme-switch-output', 'children')
+)
+def update_background_video(children):
+    """
+    Update the background video according to the theme
+    args:
+        children: the theme
+    return:
+        the background video
+    """
     if children is False:
         return html.Div(
             children=[
