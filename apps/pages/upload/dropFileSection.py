@@ -32,7 +32,7 @@ layout = html.Div([
                             #     ),
                             # ], ),
                             # html.Div('Insert my data manually', id="manual-insert", className="manuel-insert-text"),
-                        ], className="dropZone"),
+                        ], className="drop-zone"),
                     ], id='options', className="container"),
                     dbc.NavLink([
                         html.Div([
@@ -43,9 +43,9 @@ layout = html.Div([
                         html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon arrow"),
                     ], href='/apps/getStarted', id='themes', className="helper primary", active="exact"),
                     html.Div([
-                        html.Div("Next", id='drop_option_choice_next', className="button actions"),
+                        html.Div("Next", id='drop-option-choice-next', className="button actions"),
                     ], className="button-pack"),
-                ], className="DropFileSectionInside"),
+                ], className="drop-file-section-inside"),
             ],
         ),
     ],),
@@ -58,7 +58,7 @@ clientside_callback(
         function_name='next_option_function'
     ),
     Output("output-file-drop-position-next", "children"),  # needed for the callback to trigger
-    [Input("drop_option_choice_next", "n_clicks"),
+    [Input("drop-option-choice-next", "n_clicks"),
      Input("params-sections", "id")],  # This is where we want the button to redirect the user
     prevent_initial_call=True,
 )
