@@ -14,9 +14,9 @@ layout = html.Div([
     dcc.Location(id="url"),
     html.Div([
         html.Div([
-            html.H1(id='results_name', className="title"),
-            html.H2('Results table', className="title"),  # title
-            html.Div(id='output_results', className="results-row"),
+            html.H1(id='results-name', className="title"),
+            html.H2('Results table', className="title"),
+            html.Div(id='output-results', className="results-row"),
             html.H2('Climatic Trees', className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
@@ -31,17 +31,23 @@ layout = html.Div([
 
 
 @callback(
-    Output('results_name', 'children'),
+    Output('results-name', 'children'),
     Input('url', 'pathname'),
 )
 def show_result_name(path):
+    """
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the name of the result
+    """
     result_id = path.split('/')[-1]
     title = utils.get_result(result_id)['name']
-    return html.Div(title, className="title", style={'color': 'var(--reverse-black-white-color)', 'text-align': 'center'})
+    return html.Div(title, className="title")
 
 
 @callback(
-    Output('output_results', 'children'),
+    Output('output-results', 'children'),
     Input('url', 'pathname'),
 )
 def show_result(path):
@@ -68,8 +74,6 @@ def show_result(path):
             page_current=0,             # page number that user is on
             page_size=15,               # number of rows visible per page
             filter_query='',            # query that determines which rows to keep in table
-            # page_action="native",       # all data is passed to the table up-front or not ('none')
-            # sort_by=[],                 # list of columns that user sorts table by
             style_data={
                 'color': 'var(--reverse-black-white-color)',
                 'backgroundColor': 'var(--table-bg-color'
@@ -83,6 +87,14 @@ def show_result(path):
     Input('url', 'pathname'),
 )
 def create_climatic_trees(path):
+    """
+    This function creates the list of divs containing the climatic trees 
+    
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the climatic trees
+    """
     result_id = path.split('/')[-1]
     add_to_cookie(result_id)
 
@@ -96,7 +108,7 @@ def create_climatic_trees(path):
 
     return html.Div(
         children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)],
-        className="treeSubContainer"
+        className="tree-sub-container"
     )
 
 
@@ -105,6 +117,13 @@ def create_climatic_trees(path):
     Input('url', 'pathname'),
 )
 def create_genetic_trees(path):
+    """
+    This function creates the list of divs containing the genetic trees
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the genetic trees
+    """
     result_id = path.split('/')[-1]
 
     genetic_trees = utils.get_result(result_id)['genetic_trees']
@@ -116,9 +135,24 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="treeSubContainer")
+    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
 
 
+def add_to_cookie(result_id):
+    """
+    This function takes the result id and adds it to the cookie
+    args:
+        result_id (str): the id of the result to add to the cookie
+    """
+
+    auth_cookie = request.cookies.get("AUTH")
+    auth_cookie_value = utils.make_cookie(result_id, auth_cookie)
+
+    response = dash.callback_context.response
+    response.set_cookie("AUTH", auth_cookie_value)
+
+
+# the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name):
     return html.Div([
         html.H3(name, className="treeTitle"),  # title
@@ -292,12 +326,3 @@ def color_children(edgeData):
     }]
 
     return stylesheet + children_style
-
-
-def add_to_cookie(result_id):
-
-    auth_cookie = request.cookies.get("AUTH")
-    auth_cookie_value = utils.make_cookie(result_id, auth_cookie)
-
-    response = dash.callback_context.response
-    response.set_cookie("AUTH", auth_cookie_value)
