@@ -12,7 +12,7 @@ NO_RESULTS_HTML = html.Div([
         html.Div('You have no results yet. You can start a new job by going to the "Upload data" page', className="text"),
         html.Div(className="img bg1"),
     ], className="notification"),
-], className="emptyResults"),
+], className="empty-results"),
 
 
 def get_layout():
@@ -20,22 +20,28 @@ def get_layout():
     return html.Div([
         html.Div([
             html.Div(children=[
-                dash.dcc.Location(id='url'),
-                html.Div(id='cookie_output', className="hidden"),  # needed for the callback to trigger
+                dash.dcc.Location(id='url'),  # invisible component needed for the callback
                 html.Div([
                     html.Div('Results', className="title"),
-                    html.Div(id='results_list', className="resultsRow"),
-                ], className="resultsContainer"),
+                    html.Div(id='results-list', className="results-row"),
+                ], className="results-container"),
             ], className="results"),
         ])
     ])
 
 
 @callback(
-    Output('results_list', 'children'),
+    Output('results-list', 'children'),
     Input('url', 'pathname'),
 )
 def generate_result_list(path):
+    """
+    This function generates the list of layout of the results in the cookies.
+    args :
+        path : unused
+    returns :
+        layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
+    """
 
     cookie = request.cookies.get("AUTH")
     if not cookie:
@@ -47,11 +53,19 @@ def generate_result_list(path):
     if not results:
         return NO_RESULTS_HTML
 
-    layout = []
-    for result in results:
-        progress_value = 100 if result['status'] == 'complete' else 50
-        layout.append(
-            html.Div([
+    return [create_layout(result) for result in results]
+
+
+def create_layout(result):
+    """
+    This function creates the layout for a result.
+    args :
+        result (dict) : result object
+    returns :
+        layout : layout containing the result
+    """
+    progress_value = 100 if result['status'] == 'complete' else 50
+    return html.Div([
                 html.Div([
                     html.Div('Name', className="label"),
                     html.Div(result['name'], className="data"),
@@ -71,16 +85,12 @@ def generate_result_list(path):
                     ], className='progressBar'),
                 ], className="progressContainer"),
                 html.Div([
-                    # html.Div('Expiration date', className="label"),
                     html.A(
                         html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
                         href=f'/result/{result["_id"]}',
                     ),
                 ], className="arrowContainer"),
             ], className="row")
-        )
-
-    return layout
 
 
 layout = get_layout()

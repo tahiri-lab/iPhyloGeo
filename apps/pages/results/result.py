@@ -16,7 +16,7 @@ layout = html.Div([
         html.Div([
             html.H1(id='results_name', className="title"),
             html.H2('Results table', className="title"),  # title
-            html.Div(id='output_results', className="resultsRow"),
+            html.Div(id='output_results', className="results-row"),
             html.H2('Climatic Trees', className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
