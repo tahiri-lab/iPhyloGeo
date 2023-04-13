@@ -12,6 +12,42 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
+LIGHT_THEME = {
+            "--theme-icon": "url(../assets/icons/theme-light.svg)",
+            "--switch-toggle-background": "rgb(230, 230, 230)",
+            "--switch-toggle-border": "white 1px solid",
+            "--text-color": "#f5f5f5",
+            "--reverse-black-white-color": "#1A1C1E",
+            "--reverse-white-black-color": "white",
+            "--background-color": "#EBECF0",
+            "--reverse-background-color": "#1A1C1E",
+            "--icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
+            "--reverse-icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
+            "--glass-style": "rgba(173, 173, 173, 0.5)",
+            "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
+            "--result-row-color": "#E7E7E7",
+            "--black-and-white": "white",
+            "--table-bg-color": "white"
+}
+
+DARK_THEME = {
+            "--theme-icon": "url(../assets/icons/theme-dark.svg)",
+            "--switch-toggle-background": "black",
+            "--switch-toggle-border": "white 1px solid",
+            "--text-color": "#E0E0E0",
+            "--reverse-black-white-color": "white",
+            "--reverse-white-black-color": "#1A1C1E",
+            "--background-color": "#1A1C1E",
+            "--reverse-background-color": "#EBECF0",
+            "--icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
+            "--reverse-icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
+            "--glass-style": "rgba(41, 40, 50, 0.5)",
+            "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
+            "--result-row-color": "#444444",
+            "--black-and-white": "#111111",
+            "--table-bg-color": "#282b32"
+}
+
 path_params = {
     'Results': {'img': ' /assets/icons/dashboard.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
@@ -35,14 +71,14 @@ app.layout = html.Div([
         html.Div([
             html.Div(
                 className="nav-bar-container",
-                id="navBar",
+                id="nav-bar",
                 children=[
                     html.Div([
                         html.Div([
                             html.Div(id='dummy-output'),
-                            html.Img(src='/assets/logo/LabLogo.png', id="labLogo", className="logo"),
+                            html.Img(src='/assets/logo/LabLogo.png', id="lab-logo", className="logo"),
                             html.Div('Tahiri Lab', id="lab-name", className="lab-name"),
-                            daq.BooleanSwitch(id='theme-switch', className="themeSwitcher", on=True),
+                            daq.BooleanSwitch(id='theme-switch', className="theme-switcher", on=True),
                             html.Div(id='theme-switch-output')
                         ], id="lab-container", className="lab-container"),
                     ], className="nav-bar"),
@@ -56,13 +92,6 @@ app.layout = html.Div([
                              for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
                              ]
                         ),
-                        # Legacy
-                        # html.Div("Legacy"),
-                        # dbc.NavLink("Upload Meteorological Data", href='/apps/upload_MeteorologicalDataset', active="exact"),
-                        # dbc.NavLink("Uploaded Genetic Data", href='/apps/pipelineWithUploadedData', active="exact"),
-                        # dbc.NavLink("Using Our Meteorological Data (yellow-legged hornet)", href='/apps/usingOurMeteorologicalDataset', active="exact"),
-                        # dbc.NavLink("Phylogeography Analysis With Our Data (yellow-legged hornet)", href='/apps/pipelineWithOurData', active="exact"),
-                        # dbc.NavLink("See my Results", href='/apps/checkResults', active="exact"),
                     ], id="nav-link", className="nav-link-container"),
                     html.Div([
                         html.A([
@@ -82,65 +111,41 @@ app.clientside_callback(
         function_name='navbar_function'
     ),
     Output("dummy-output", "children"),  # needed for the callback to trigger
-    Input("labLogo", "n_clicks"),
+    Input("lab-logo", "n_clicks"),
     prevent_initial_call=True,
 )
 
 
 @app.callback(
-    Output('theme-switch-output', 'children'),  # hidden div to trigger callback
-    Input('theme-switch', 'on'),  # button to trigger callback (need at least one parameter, but we dont use n_clicks)
-    # prevent_initial_call=True,
+    Output('theme-switch-output', 'children'),  
+    Input('theme-switch', 'on'),
 )
 def change_theme(on):
-    # app.logger.info('change_theme'),
+    """
+    
+    args:
+        on: boolean, True if dark theme is selected, False if light theme is selected. 
+            Button to trigger callback (need at least one parameter, but we dont use n_clicks)
+    returns:
+        theme-switch-output: value of the buttone on (true or false). Hidden div to trigger callback
+    """
     return on
 
 
 @app.callback(
     Output("themer", "style"),
-    [Input("theme-switch-output", "children")]
+    Input("theme-switch-output", "children")
 )
 def update_color(children):
-    # app.logger.info(children),
-    # CSS for light theme
-    if not children:
-        return {
-            "--theme-icon": "url(../assets/icons/theme-light.svg)",
-            "--switch-toggle-background": "rgb(230, 230, 230)",
-            "--switch-toggle-border": "white 1px solid",
-            "--text-color": "#f5f5f5",
-            "--reverse-black-white-color": "#1A1C1E",
-            "--reverse-white-black-color": "white",
-            "--background-color": "#EBECF0",
-            "--reverse-background-color": "#1A1C1E",
-            "--icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
-            "--reverse-icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
-            "--glass-style": "rgba(173, 173, 173, 0.5)",
-            "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
-            "--result-row-color": "#E7E7E7",
-            "--black-and-white": "white",
-            "--table-bg-color": "white"
-        }
-    # CSS for dark theme
-    else:
-        return {
-            "--theme-icon": "url(../assets/icons/theme-dark.svg)",
-            "--switch-toggle-background": "black",
-            "--switch-toggle-border": "white 1px solid",
-            "--text-color": "#E0E0E0",
-            "--reverse-black-white-color": "white",
-            "--reverse-white-black-color": "#1A1C1E",
-            "--background-color": "#1A1C1E",
-            "--reverse-background-color": "#EBECF0",
-            "--icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
-            "--reverse-icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
-            "--glass-style": "rgba(41, 40, 50, 0.5)",
-            "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
-            "--result-row-color": "#444444",
-            "--black-and-white": "#111111",
-            "--table-bg-color": "#282b32"
-        }
+    """
+    args:
+        children: boolean, True if dark theme is selected, False if light theme is selected. 
+            Button to trigger callback (need at least one parameter, but we dont use n_clicks)
+    returns:
+        themer: dict, css style for the theme
+    """
+    return LIGHT_THEME if not children else DARK_THEME
+    
 
 
 if __name__ == '__main__':
