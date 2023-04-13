@@ -57,7 +57,7 @@ def create_table(df):
                                 dcc.Dropdown(id='map-data',
                                              options=[{'label': x, 'value': x} for x in df.columns]),
                             ], className="field"),
-                            html.Button(id="submit-button", className='button', children="Create Graph"),
+                            html.Button(id="submit-button-graph", className='button', children="Create Graph"),
                         ], className="axisField"),
                         html.Div([
                             html.Div(id='output-map', className="choroplethMap"),
@@ -68,7 +68,7 @@ def create_table(df):
                     html.Div(id='output-graph', className="generatedGraph"),
                 ], className="graphGeneratorContainer"),
                 html.Div([
-                    html.Div(children=[], id='column_error_message'),
+                    html.Div(children=[], id='column-error-message'),
                     html.Div([
                         html.Div("Select the name of the column to analyze"),
                         dcc.Checklist(id='col-analyze',
@@ -85,7 +85,7 @@ def create_table(df):
 
 
 @callback(Output('output-graph', 'children'),
-          [Input('submit-button', 'n_clicks')],
+          [Input('submit-button-graph', 'n_clicks')],
           State('choose-graph-type', 'value'),
           State('stored-data', 'data'),
           State('xaxis-data', 'value'),

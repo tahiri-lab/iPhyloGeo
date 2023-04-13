@@ -17,9 +17,9 @@ NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
 layout = html.Div([
-    dcc.Store(id='input_data', data={'genetic': {'file': None, 'layout': None, 'name': None}, 'climatic': {'file': None, 'layout': None}}),
-    dcc.Store(id='params_climatic', data={'names': None}),
-    dcc.Store(id='params_genetic', data={'window_size': None, 'step_size': None, 'bootstrap_amount': None, 'bootstrap_threshold': None, 'ls_threshold': None}),
+    dcc.Store(id='input-data', data={'genetic': {'file': None, 'layout': None, 'name': None}, 'climatic': {'file': None, 'layout': None}}),
+    dcc.Store(id='params-climatic', data={'names': None}),
+    dcc.Store(id='params-genetic', data={'window_size': None, 'step_size': None, 'bootstrap_amount': None, 'bootstrap_threshold': None, 'ls_threshold': None}),
     html.Div(id='action'),
     html.Div(
         className="getStarted",
@@ -27,24 +27,24 @@ layout = html.Div([
             html.Div(children=[popup.layout]),
             html.Div(children=[dropFileSection.layout]),
             html.Div([
-                html.Div(id="climatic_params_layout"),
-                html.Div(id="genetic_params_layout"),
-                html.Div(id="submit_button"),
-            ], id="params_sections")
+                html.Div(id="climatic-params-layout"),
+                html.Div(id="genetic-params-layout"),
+                html.Div(id="submit-button"),
+            ], id="params-sections")
         ]
     ),
 ])
 
 
 @callback(
-    Output('genetic_params_layout', 'children'),
-    Output('climatic_params_layout', 'children'),
-    Output('submit_button', 'children'),
-    Output('input_data', 'data'),
+    Output('genetic-params-layout', 'children'),
+    Output('climatic-params-layout', 'children'),
+    Output('submit-button', 'children'),
+    Output('input-data', 'data'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
     State('upload-data', 'last_modified'),
-    State('input_data', 'data'),
+    State('input-data', 'data'),
     prevent_initial_call=True,
     log=True
 )
@@ -82,13 +82,13 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
 
 
 @callback(
-    Output('params_genetic', 'data'),
-    Input('input_windowSize', 'value'),
-    Input('bootstrap_threshold', 'value'),
-    Input('ls_threshold_slider', 'value'),
-    Input('input_stepSize', 'value'),
-    Input('bootstrap_amount', 'value'),
-    State('params_genetic', 'data'),
+    Output('params-genetic', 'data'),
+    Input('input-window-size', 'value'),
+    Input('bootstrap-threshold', 'value'),
+    Input('ls-threshold-slider', 'value'),
+    Input('input-step-size', 'value'),
+    Input('bootstrap-amount', 'value'),
+    State('params-genetic', 'data'),
     prevent_initial_call=True
 )
 def params_climatic(window_size, bootstrap_threshold, ls_threshold, step_size, bootstrap_amount, current_data):
@@ -115,9 +115,9 @@ def params_climatic(window_size, bootstrap_threshold, ls_threshold, step_size, b
 
 
 @callback(
-    Output('params_climatic', 'data'),
+    Output('params-climatic', 'data'),
     Input('col-analyze', 'value'),
-    State('params_climatic', 'data'),
+    State('params-climatic', 'data'),
     prevent_initial_call=True
 )
 def params_climatic(column_names, current_data):
@@ -135,14 +135,14 @@ def params_climatic(column_names, current_data):
 
 @callback(
     Output('popup', 'className'),
-    Output('column_error_message', 'children'),
-    Output('name_error_message', 'children'),
+    Output('column-error-message', 'children'),
+    Output('name-error-message', 'children'),
     [Input('submit_dataset', 'n_clicks'),
         Input("close_popup", "n_clicks"),
         Input('input_dataset', 'value')],
-    State('input_data', 'data'),
-    State('params_climatic', 'data'),
-    State('params_genetic', 'data'),
+    State('input-data', 'data'),
+    State('params-climatic', 'data'),
+    State('params-genetic', 'data'),
     prevent_initial_call=True
 )
 def submit_button(open, close, result_name, input_data, params_climatic, params_genetic):
@@ -162,7 +162,7 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
 
     returns:
         className : class of the popup if the inputs are valid
-        column_error_message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
+        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
         name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
     """
     files_are_present = input_data['genetic']['file'] is not None or input_data['climatic']['file'] is not None
