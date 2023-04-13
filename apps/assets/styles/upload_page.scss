@@ -126,6 +126,9 @@
       border: 2px dashed var(--reverse-black-white-color);
       border-radius: 5px;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .textArea {
         display: flex;

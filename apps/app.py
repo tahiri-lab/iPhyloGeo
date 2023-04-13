@@ -78,7 +78,7 @@ app.layout = html.Div([
                             html.Div(id='dummy-output'),
                             html.Img(src='/assets/logo/LabLogo.png', id="lab-logo", className="logo"),
                             html.Div('Tahiri Lab', id="lab-name", className="lab-name"),
-                            daq.BooleanSwitch(id='theme-switch', className="theme-switcher", on=True),
+                            daq.BooleanSwitch(id='theme-switch', className="theme-switcher", persistence=True, on=True),
                             html.Div(id='theme-switch-output')
                         ], id="lab-container", className="lab-container"),
                     ], className="nav-bar"),

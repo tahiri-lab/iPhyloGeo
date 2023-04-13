@@ -23,14 +23,15 @@ layout = html.Div([
                                 ], className="drop-container", id="drop-container"),
                                 multiple=True  # Allow multiple files to be uploaded
                             ),
-                            html.Div([
-                                dcc.Textarea(
-                                    cols='60', rows='8',
-                                    value='Textarea content initialized\nwith multiple lines of text',
-                                    className="textArea hidden", id='manual-field'
-                                ),
-                            ], ),
-                            html.Div('Insert my data manually', id="manual-insert", className="manuel-insert-text"),
+                            # WIP : add a button to insert the data manually
+                            # html.Div([
+                            #     dcc.Textarea(
+                            #         cols='60', rows='8',
+                            #         value='',
+                            #         className="textArea hidden", id='manual-field'
+                            #     ),
+                            # ], ),
+                            # html.Div('Insert my data manually', id="manual-insert", className="manuel-insert-text"),
                         ], className="dropZone"),
                     ], id='options', className="container"),
                     dbc.NavLink([
