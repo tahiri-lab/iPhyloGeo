@@ -88,8 +88,8 @@ def show_result(path):
 )
 def create_climatic_trees(path):
     """
-    This function creates the list of divs containing the climatic trees 
-    
+    This function creates the list of divs containing the climatic trees
+
     args:
         path (str): the path of the page
     returns:
@@ -136,7 +136,6 @@ def create_genetic_trees(path):
         genetic_elements.append(nodes + edges)
 
     return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
-
 
 def add_to_cookie(result_id):
     """

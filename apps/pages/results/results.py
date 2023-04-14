@@ -42,8 +42,12 @@ def generate_result_list(path):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
+    try:
+        cookie = request.cookies.get("AUTH")
+        print('cookie', cookie)
+    except:
+        return NO_RESULTS_HTML
 
-    cookie = request.cookies.get("AUTH")
     if not cookie:
         return NO_RESULTS_HTML
 
@@ -64,6 +68,11 @@ def create_layout(result):
     returns :
         layout : layout containing the result
     """
+    if result['status'] == 'pending':
+        progress_value = 0
+    elif result['status'] == 'complete':
+        progress_value = 100
+
     progress_value = 100 if result['status'] == 'complete' else 50
     return html.Div([
                 html.Div([

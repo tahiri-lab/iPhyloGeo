@@ -349,10 +349,10 @@ def make_cookie(result_id, auth_cookie):
     Returns:
         str: The modified cookie value
     """
-
     # If the "Auth" cookie exists, split the value into a list of IDs
     auth_ids = [] if not auth_cookie else auth_cookie.split('.')
-    auth_ids.append(result_id)
+    if result_id not in auth_ids:
+        auth_ids.append(result_id)
 
     # Create the string format for the cookie
     auth_cookie_value = '.'.join(auth_ids)
