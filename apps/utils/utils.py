@@ -154,7 +154,168 @@ def create_seq_html(file):
     ])
 
 
-def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_file_name, genetic_files_id, climatic_trees, result_id):
+def create_result(files_ids, result_type, climatic_params=None, genetic_params=None, name='result', status='pending'):
+    """
+    Creates a result in the database.
+
+    Args:
+        files_ids: a dictionary with the ids of the files used in the result.
+        result_type: an array with the types of the files used in the result.
+        climatic_params: json object with the parameters for the climatic pipeline
+        genetic_params: json object with the genetic parameters
+        name: the name of the result
+        status: the status of the result
+
+    Returns:
+        The id of the created result.
+    """
+    try:
+        result = {
+            'name': name,
+            'status': status,
+            'result_type': result_type
+        }
+
+        if 'climatic_files_id' in files_ids:
+            result['climatic_files_id'] = files_ids['climatic_files_id']
+        if 'genetic_files_id' in files_ids:
+            result['genetic_files_id'] = files_ids['genetic_files_id']
+        if genetic_params and 'genetic' in result_type:
+            result['genetic_params'] = genetic_params
+        if climatic_params and 'climatic' in result_type:
+            result['climatic_params'] = climatic_params
+
+        return results_ctrl.create_result(result)
+
+    except Exception as e:
+        print('[Error]:', e)
+        raise Exception('Error creating the result')
+
+
+def create_climatic_trees(result_id, climatic_data, climatic_params, status='climatic_trees'):
+    """ Creates a climatic result.
+
+    Args:
+        climatic_data: json object with the climatic data
+        climatic_params: json object with the climatic parameters
+        status (str, optional): The status of the result. Defaults to 'climatic_trees'.
+
+    Returns:
+        climatic_trees: a dictionary with the climatic trees
+        result_id: the id of the created result
+    """
+    try:
+        df = pd.read_json(climatic_data)
+        names = ['id'] + climatic_params['names']
+        climatic_trees = aPhyloGeo.climaticPipeline(df, names)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'climatic_trees': climatic_trees,
+            'status': status,
+        })
+        return climatic_trees
+    except Exception as e:
+        print('[Error]:', e)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'status': 'error',
+        })
+        raise Exception('Error creating the climatic trees')
+
+
+def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap_amount, status='alignement'):
+    """
+    Creates the alignement of the genetic data.
+
+    Args:
+        result_id (str): the id of the result
+        genetic_data: json object with the genetic data
+        window_size: the size of the window
+        step_size: the size of the step
+        bootstrap_amount: the amount of bootstraps
+
+    Returns:
+        msaSet: the alignement
+    """
+    try:
+
+        alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount)
+        msaSet = alignementObject.msaSet
+
+        results_ctrl.update_result({
+            '_id': result_id,
+            'msaSet': msaSet,
+            'status': status
+        })
+
+        return msaSet
+    except Exception as e:
+        print('[Error]:', e)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'status': 'error',
+        })
+        raise Exception('Error creating the alignement')
+
+
+def create_genetic_trees(result_id, msaSet, bootstrap_amount, status='genetic_trees'):
+    """
+
+    Args:
+        result_id (str): the id of the result
+        msaSet: the alignement
+        bootstrap_amount: the amount of bootstraps
+        status (str, optional): The status of the result. Defaults to 'genetic_trees'.
+    Returns:
+        genetic_trees: a dictionary with the genetic trees
+    """
+    try:
+        genetic_trees = aPhyloGeo.createBoostrap(msaSet, bootstrap_amount)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'genetic_trees': genetic_trees,
+            'status': status
+        })
+        return genetic_trees
+    except Exception as e:
+        print('[Error]:', e)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'status': 'error',
+        })
+        raise Exception('Error creating the genetic trees')
+
+
+def create_output(result_id, climatic_trees, genetic_trees, bootstrap_threshold, ls_threshold, climatic_df, genetic_file_name):
+    """
+
+    Args:
+        result_id (str): the id of the result
+        climatic_trees: a dictionary with the climatic trees
+        genetic_trees: a dictionary with the genetic trees
+        bootstrap_threshold: the bootstrap threshold
+        ls_threshold: the ls threshold
+        climatic_df: the climatic dataframe
+        genetic_file_name: the name of the genetic file
+
+    """
+    try:
+        output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, bootstrap_threshold, ls_threshold, climatic_df, genetic_file_name)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'output': output,
+            'status': 'complete'
+        })
+    except Exception as e:
+        print('[Error]:', e)
+        results_ctrl.update_result({
+            '_id': result_id,
+            'status': 'error',
+        })
+        raise Exception('Error creating the output')
+
+
+def run_genetic_pipeline(result_id, climatic_data, genetic_data, genetic_params, genetic_file_name, climatic_trees):
     """
     Runs the genetic pipeline from aPhyloGeo.
     Args:
@@ -168,52 +329,14 @@ def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_fi
     returns:
         result_id: string with the id of the database result
     """
-    alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
-    msaSet = alignementObject.msaSet
 
-    genetic_trees = aPhyloGeo.createBoostrap(msaSet, genetic_params['bootstrap_amount'])
-    results_ctrl.update_result({
-        '_id': result_id,
-        'msaSet': msaSet,
-        'genetic_params': genetic_params,
-        'genetic_trees': genetic_trees,
-        'genetic_files_id': genetic_files_id
-    })
+    msaSet = create_alignement(result_id, genetic_data, genetic_params['window_size'], genetic_params['step_size'], genetic_params['bootstrap_amount'])
 
-    output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), genetic_file_name)
-    results_ctrl.update_result({
-        '_id': result_id,
-        'output': output,
-        'status': 'complete'
-    })
+    genetic_trees = create_genetic_trees(result_id, msaSet, genetic_params['bootstrap_amount'])
+
+    create_output(result_id, climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), genetic_file_name)
 
     return result_id
-
-
-def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, status='incomplete'):
-    """
-    Run the climatic pipeline from aPhyloGeo.
-    args:
-        climatic_data: json object with the climatic data
-        climatic_params: json object with the parameters for the climatic pipeline
-        climatic_files_id: the id of the climatic files
-        result_name: the name of the result (name in the database)
-        status: the status of the result
-    returns:
-        climatic_trees: the climatic trees
-        result_id: the id of the result inserted into the database
-    """
-    df = pd.read_json(climatic_data)
-    names = ['id'] + climatic_params['names']
-    climatic_trees = aPhyloGeo.climaticPipeline(df, names)
-    result_id = results_ctrl.create_result({
-        'climatic_files_id': str(climatic_files_id),
-        'climatic_trees': climatic_trees,
-        'climatic_params': climatic_params,
-        'status': status,
-        'name': result_name
-    })
-    return climatic_trees, result_id
 
 
 def make_cookie(result_id, auth_cookie):
@@ -227,12 +350,12 @@ def make_cookie(result_id, auth_cookie):
     Returns:
         str: The modified cookie value
     """
-
     # If the "Auth" cookie exists, split the value into a list of IDs
     auth_ids = [] if not auth_cookie else auth_cookie.split('.')
-    auth_ids.append(result_id)
+    if result_id not in auth_ids:
+        auth_ids.append(result_id)
 
     # Create the string format for the cookie
     auth_cookie_value = '.'.join(auth_ids)
-    
+
     return auth_cookie_value

@@ -14,6 +14,8 @@ NO_RESULTS_HTML = html.Div([
     ], className="notification"),
 ], className="empty-results"),
 
+PROGRESS = {'pending': 0, 'climatic_trees': 10, 'alignement': 66, 'genetic_trees': 90, 'complete': 100, 'error': -1}
+
 
 def get_layout():
     dcc.Location(id="url")
@@ -42,13 +44,24 @@ def generate_result_list(path):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
+    try:
+        cookie = request.cookies.get("AUTH")
+    except:
+        return NO_RESULTS_HTML
 
-    cookie = request.cookies.get("AUTH")
     if not cookie:
         return NO_RESULTS_HTML
 
-    cookies = cookie.split('.')
-    results = utils.get_results(cookies)
+    results_ids = cookie.split('.')
+    results = utils.get_results(results_ids)
+
+    new_cookie_ids = []
+
+    for result in results:
+        new_cookie_ids.append(str(result['_id']))
+
+    response = dash.callback_context.response
+    response.set_cookie("AUTH", '.'.join(new_cookie_ids))
 
     if not results:
         return NO_RESULTS_HTML
@@ -64,7 +77,6 @@ def create_layout(result):
     returns :
         layout : layout containing the result
     """
-    progress_value = 100 if result['status'] == 'complete' else 50
     return html.Div([
                 html.Div([
                     html.Div('Name', className="label"),
@@ -81,7 +93,7 @@ def create_layout(result):
                 html.Div([
                     html.Div('Progress', className="label"),
                     html.Div([
-                        dbc.Progress(value=progress_value),
+                        dbc.Progress(value=PROGRESS[result['status']]),
                     ], className='progressBar'),
                 ], className="progressContainer"),
                 html.Div([
