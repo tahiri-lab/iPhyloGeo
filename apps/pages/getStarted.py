@@ -1,6 +1,7 @@
 from dash import dcc, html, State, Input, Output, callback
 import dash
 from dash.exceptions import PreventUpdate
+from exceptiongroup import catch
 from flask import request
 import multiprocessing
 import dash_bootstrap_components as dbc
@@ -50,21 +51,21 @@ layout = html.Div([
 )
 def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     """
-    This function is called when the user uploads one or two files. It stores the data from the files in a json object, 
+    This function is called when the user uploads one or two files. It stores the data from the files in a json object,
     it creates the layout for the genetic and climatic parameters as needed and it creates the submit button.
-    
+
     args:
         list_of_contents : list of the contents of the files
         list_of_names : list of the names of the files
         last_modifieds : list of the last modified dates of the files
         current_data : json file containing the current uploaded files. Should be empty at the beginning
-    
+
     returns:
         paramsGenetic.layout : layout for the genetic parameters
         paramsClimatic.layout : layout for the climatic parameters
         submitButton.layout : layout for the submit button
         current_data : json file containing the current uploaded files
-        
+
     """
     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
 
@@ -150,13 +151,13 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
     When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
     the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
     are valid, a popup appears to notice the user to not close his window.
-    Because the pipeline is a long process, it is executed in a separate process (multiprocessing). 
+    Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
 
     args:
         open : counter of the submit button
         close : counter of the close button - not used but necessary
         result_name : name of the results that will be generated
-        input_data : json file containing the data from the uploaded files 
+        input_data : json file containing the data from the uploaded files
         params_climatic : parameters for the climatic data
         params_genetic : parameters for the genetic data
 
@@ -166,7 +167,7 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
     """
     files_are_present = input_data['genetic']['file'] is not None or input_data['climatic']['file'] is not None
-    
+
     if open is None or open < 1 or not files_are_present:
         raise PreventUpdate
 
@@ -177,7 +178,7 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         return 'popup hidden', '', ''
 
     result_name_is_valid = result_name is not None or result_name
-    params_climatic_is_complete = params_climatic['names'] is not None and len(params_climatic['names']) >= 2 
+    params_climatic_is_complete = params_climatic['names'] is not None and len(params_climatic['names']) >= 2
 
     if not params_climatic_is_complete and result_name_is_valid:
         return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), ''
@@ -188,49 +189,57 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
 
     if trigger_id != "submit-dataset":
         return '', '', ''
-    
+
     climatic_file = input_data['climatic']['file']
     genetic_file = input_data['genetic']['file']
 
-    if genetic_file is not None and climatic_file is not None:
-        files_ids = utils.save_files([climatic_file, genetic_file])
-        climatic_file_id = files_ids[0]
-        genetic_file_id = files_ids[1]
-        climatic_trees, result_id = run_climatic_pipeline(climatic_file['df'], params_climatic, climatic_file_id, result_name)
+    result_type = []
+    files_ids = {}
+    if climatic_file is not None:
+        result_type.append('climatic')
+        climatic_file_id = utils.save_files(climatic_file)
+        files_ids['climatic_files_id'] = climatic_file_id
+
+    if genetic_file is not None:
+        result_type.append('genetic')
+        genetic_file_id = utils.save_files(genetic_file)
+        files_ids['genetic_files_id'] = genetic_file_id
+
+    try:
+        # create a new result in the database
+        result_id = utils.create_result(files_ids, result_type, params_climatic, params_genetic, result_name)
+        add_result_to_cookie(result_id)
+
+        climatic_status = 'climatic_trees' if 'genetic' in result_type else 'complete'
+
+        # add climatic
+        climatic_trees = utils.create_climatic_trees(result_id, climatic_file['df'], params_climatic, climatic_status)
+
+        if 'genetic' not in result_type:
+            return 'popup', '', ''
+
         genetic_filename = input_data['genetic']['name']
 
-        process = multiprocessing.Process(target=utils.run_genetic_pipeline, args=(climatic_file['df'], genetic_file['file'],
-                                                                                   params_genetic, genetic_filename,
-                                                                                   genetic_file_id, climatic_trees, result_id))
+        process = multiprocessing.Process(target=utils.run_genetic_pipeline, args=(result_id, climatic_file['df'], genetic_file['file'],
+                                                                                    params_genetic, genetic_filename, climatic_trees))
         process.start()
-    else : 
-        files_id = utils.save_files(climatic_file)
-        run_climatic_pipeline(climatic_file['df'], params_climatic, files_id, result_name)
+        return 'popup', '', ''
+    except Exception as e:
+        # TODO: print error message popup
+        print('[Error]:', e)
+        return 'popup', '', ''
 
-    return 'popup', '', ''
 
-
-def run_climatic_pipeline(climatic_df, params_climatic, climatic_file_id, result_name):
+def add_result_to_cookie(result_id):
     """
-    Runs the climatic pipeline (calls a function from utils, which then calls a function from aPhyloGeo) and create the cookie.
+    Creates a cookie (AUTH) that contains the id of the result.
 
     args:
-        climatic_df: the climatic file's dataframe
-        params_climatic: the climatic parameters
-        climatic_file_id: the climatic file id (used for saving the result)
-        result_name: the name of the result
+        result_id : id of the result
 
-    returns:
-        climatic_trees: the climatic trees
-        result_id: the result id
     """
-
-    climatic_trees, result_id = utils.run_climatic_pipeline(climatic_df, params_climatic, climatic_file_id, result_name)
-
     auth_cookie = request.cookies.get("AUTH")
     new_auth_cookie = utils.make_cookie(result_id, auth_cookie)
 
     response = dash.callback_context.response
     response.set_cookie("AUTH", new_auth_cookie)
-
-    return climatic_trees, result_id
