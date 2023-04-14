@@ -1,0 +1,62 @@
+.home-page {
+  width: 100%;
+  height: 100%;
+
+  .home-page__video {
+    animation: video-transition linear 1.5s ;
+    filter: blur(0) brightness(50%);
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+
+  @keyframes video-transition {
+    from {
+      filter: brightness(50%);
+      background-color: black;
+    }
+    to {
+      filter: brightness(50%);
+      background-color: black;
+    }
+  }
+
+  .main-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 3;
+
+    .title {
+      font-weight: bold;
+      font-size: 45px;
+      color: #fff;
+    }
+
+    .sub-title {
+      width: 700px;
+      font-weight: bold;
+      font-size: 20px;
+      z-index: 3;
+      color: #B3B3B3;
+
+      .url {
+        color: #318DD1;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .icon {
+        margin-left: 5px;
+        filter: invert(47%) sepia(88%) saturate(505%) hue-rotate(164deg) brightness(90%) contrast(80%);
+        width: 15px;
+      }
+    }
+  }
+}

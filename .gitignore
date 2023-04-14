@@ -4,3 +4,12 @@ outtree
 output.csv
 .idea/
 venv/
+
+node_modules/
+datasets/
+__pycache__/
+*.css
+*.map
+
+.env
+db/data/*
