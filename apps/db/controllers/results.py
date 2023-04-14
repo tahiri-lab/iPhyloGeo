@@ -14,8 +14,6 @@ def get_result(id):
     return res
 
 # TODO: remove this function just for testing
-
-
 def get_all_results():
     res = results_db.find({'status': 'complete'})
     return list(res)

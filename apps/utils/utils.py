@@ -186,7 +186,7 @@ def create_result(files_ids, result_type, climatic_params=None, genetic_params=N
             result['climatic_params'] = climatic_params
 
         return results_ctrl.create_result(result)
-    
+
     except Exception as e:
         print('[Error]:', e)
         raise Exception('Error creating the result')

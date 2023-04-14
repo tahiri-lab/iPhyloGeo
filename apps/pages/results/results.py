@@ -52,8 +52,16 @@ def generate_result_list(path):
     if not cookie:
         return NO_RESULTS_HTML
 
-    cookies = cookie.split('.')
-    results = utils.get_results(cookies)
+    results_ids = cookie.split('.')
+    results = utils.get_results(results_ids)
+
+    new_cookie_ids = []
+
+    for result in results:
+        new_cookie_ids.append(str(result['_id']))
+
+    response = dash.callback_context.response
+    response.set_cookie("AUTH", '.'.join(new_cookie_ids))
 
     if not results:
         return NO_RESULTS_HTML
