@@ -1,4 +1,4 @@
-from dash import html, dash_table, callback, Output, Input, dcc
+from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
 import dash_cytoscape as cyto
 import math
@@ -12,9 +12,16 @@ dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
     dcc.Location(id="url"),
+    html.Div(id="dummy_share_result_output", style={"display": "none"}),
     html.Div([
         html.Div([
-            html.H1(id='results-name', className="title"),
+            html.Div([
+                html.H1(id='results-name', className="title"),
+                html.Div([
+                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="share_icon"),
+                    html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
+                ]),
+            ], className="header"),
             html.H2('Results table', className="title"),
             html.Div(id='output-results', className="results-row"),
             html.H2('Climatic Trees', className="title"),
@@ -29,6 +36,16 @@ layout = html.Div([
     ], className="result")
 ], className="resultContainer")
 
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='share_result__function'
+    ),
+    Output("dummy_share_result_output", "children"),  # needed for the callback to trigger
+    Input("share_result", "n_clicks"),
+    prevent_initial_call=True,
+)
 
 @callback(
     Output('results-name', 'children'),
@@ -166,8 +183,7 @@ def generate_tree(elem, name):
                 'width': '100%'
             }
         )
-    ])
-
+    ], id=name, className="tree-container")
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     def get_col_positions(tree, column_width=80):
@@ -289,6 +305,7 @@ stylesheet = [
     {
         'selector': 'edge',
         'style': {
+            'background-color': "pink",
             "source-endpoint": "inside-to-node",
             "target-endpoint": "inside-to-node",
         }

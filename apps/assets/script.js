@@ -36,6 +36,16 @@
             return ''
           },
 
+          share_result__function: function(currentDiv, desireDiv) {
+            console.log('here')
+            navigator.clipboard.writeText(window.location.href);
+            document.getElementById('share_tooltip').classList.add("visible");
+            window.setTimeout(function() {
+                document.getElementById('share_tooltip').classList.remove("visible");
+            }, 4000);
+            return ''
+          },
+
           next_option_function: function(currentDiv, desireDiv) {
             document.getElementById(desireDiv).scrollIntoView({ behavior: 'smooth', block: 'start'});
             return ''
