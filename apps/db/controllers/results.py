@@ -31,6 +31,7 @@ def create_result(result):
     document['created_at'] = datetime.utcnow()
     document['expired_at'] = datetime.utcnow() + timedelta(days=14)
     document['name'] = result['name']
+    document['result_type'] = result['result_type']
 
     res = results_db.insert_one(document)
     return str(res.inserted_id)

@@ -15,13 +15,12 @@ layout = html.Div([
     html.Div([
         html.Div([
             html.H1(id='results-name', className="title"),
-            html.H2('Results table', className="title"),
             html.Div(id='output-results', className="results-row"),
-            html.H2('Climatic Trees', className="title"),
+            html.H2(id="climatic-tree-title", className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
             ], className="tree"),
-            html.H2('Genetic Trees', className="title"),
+            html.H2(id="genetic-tree-title", className="title"),
             html.Div([
                 html.Div(id='genetic-tree'),
             ], className="tree"),
@@ -50,10 +49,14 @@ def show_result_name(path):
     Output('output-results', 'children'),
     Input('url', 'pathname'),
 )
-def show_result(path):
+def show_genetic_table(path):
     result_id = path.split('/')[-1]
 
     result = utils.get_result(result_id)
+    
+    if 'genetic' not in result['result_type']:
+        return 
+    
     data = {}
     # TODO - a delete plus tard
     column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
@@ -64,6 +67,7 @@ def show_result(path):
             data[column_header[i]].append(row[i])
     data = str_csv_to_df(data)
     return html.Div([
+        html.H2('Results table', className="title"),
         dash_table.DataTable(
             id='datatable-interactivity',
             data=data.to_dict('records'),
@@ -83,6 +87,7 @@ def show_result(path):
 
 
 @callback(
+    Output('climatic-tree-title', 'children'),
     Output('climatic-tree', 'children'),
     Input('url', 'pathname'),
 )
@@ -98,7 +103,11 @@ def create_climatic_trees(path):
     result_id = path.split('/')[-1]
     add_to_cookie(result_id)
 
-    climatic_trees = utils.get_result(result_id)['climatic_trees']
+    result = utils.get_result(result_id)
+    if 'climatic' not in result['result_type']:
+        return None, None
+
+    climatic_trees = result['climatic_trees']
     tree_names = list(climatic_trees.keys())
     climatic_elements = []
     for tree in climatic_trees.values():
@@ -106,13 +115,10 @@ def create_climatic_trees(path):
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return html.Div(
-        children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)],
-        className="tree-sub-container"
-    )
-
+    return html.H2('Climate Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
 
 @callback(
+    Output('genetic-tree-title', 'children'),
     Output('genetic-tree', 'children'),
     Input('url', 'pathname'),
 )
@@ -125,8 +131,11 @@ def create_genetic_trees(path):
         html.Div: the div containing the genetic trees
     """
     result_id = path.split('/')[-1]
-
-    genetic_trees = utils.get_result(result_id)['genetic_trees']
+    result = utils.get_result(result_id)
+    if 'genetic' not in result['result_type']:
+        return None, None
+    
+    genetic_trees = result['genetic_trees']
     tree_names = list(genetic_trees.keys())
 
     genetic_elements = []
@@ -135,7 +144,7 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
+    return html.H2('Genetic Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
 
 def add_to_cookie(result_id):
     """

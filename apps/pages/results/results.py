@@ -14,6 +14,8 @@ NO_RESULTS_HTML = html.Div([
     ], className="notification"),
 ], className="empty-results"),
 
+PROGRESS = {'pending': 0, 'climatic_trees': 10, 'alignement': 66, 'genetic_trees': 90, 'complete': 100, 'error': -1}
+
 
 def get_layout():
     dcc.Location(id="url")
@@ -67,12 +69,6 @@ def create_layout(result):
     returns :
         layout : layout containing the result
     """
-    if result['status'] == 'pending':
-        progress_value = 0
-    elif result['status'] == 'complete':
-        progress_value = 100
-
-    progress_value = 100 if result['status'] == 'complete' else 50
     return html.Div([
                 html.Div([
                     html.Div('Name', className="label"),
@@ -89,7 +85,7 @@ def create_layout(result):
                 html.Div([
                     html.Div('Progress', className="label"),
                     html.Div([
-                        dbc.Progress(value=progress_value),
+                        dbc.Progress(value=PROGRESS[result['status']]),
                     ], className='progressBar'),
                 ], className="progressContainer"),
                 html.Div([
