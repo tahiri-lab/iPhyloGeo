@@ -44,7 +44,6 @@ def generate_result_list(path):
     """
     try:
         cookie = request.cookies.get("AUTH")
-        print('cookie', cookie)
     except:
         return NO_RESULTS_HTML
 

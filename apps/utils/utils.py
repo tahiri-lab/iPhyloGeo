@@ -180,12 +180,13 @@ def create_result(files_ids, result_type, climatic_params=None, genetic_params=N
             result['climatic_files_id'] = files_ids['climatic_files_id']
         if 'genetic_files_id' in files_ids:
             result['genetic_files_id'] = files_ids['genetic_files_id']
-        if genetic_params:
+        if genetic_params and 'genetic' in result_type:
             result['genetic_params'] = genetic_params
-        if climatic_params:
+        if climatic_params and 'climatic' in result_type:
             result['climatic_params'] = climatic_params
 
         return results_ctrl.create_result(result)
+    
     except Exception as e:
         print('[Error]:', e)
         raise Exception('Error creating the result')
