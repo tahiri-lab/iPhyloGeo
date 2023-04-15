@@ -44,6 +44,7 @@ def generate_result_list(path):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
+
     try:
         cookie = request.cookies.get("AUTH")
     except Exception as e:
@@ -56,13 +57,9 @@ def generate_result_list(path):
     results_ids = cookie.split('.')
     results = utils.get_results(results_ids)
 
-    new_cookie_ids = []
-
-    for result in results:
-        new_cookie_ids.append(str(result['_id']))
-
+    new_cookie_ids = [str(result['_id']) for result in results]
     response = dash.callback_context.response
-    response.set_cookie("AUTH", '.'.join(new_cookie_ids))
+    response.set_cookie(utils.COOKIE_NAME, '.'.join(new_cookie_ids), max_age=utils.COOKIE_MAX_AGE)
 
     if not results:
         return NO_RESULTS_HTML

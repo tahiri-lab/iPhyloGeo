@@ -240,7 +240,5 @@ def add_result_to_cookie(result_id):
 
     """
     auth_cookie = request.cookies.get("AUTH")
-    new_auth_cookie = utils.make_cookie(result_id, auth_cookie)
-
     response = dash.callback_context.response
-    response.set_cookie("AUTH", new_auth_cookie)
+    utils.make_cookie(result_id, auth_cookie, response)
