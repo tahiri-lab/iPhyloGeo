@@ -73,7 +73,7 @@ def show_genetic_table(path):
 
     result = utils.get_result(result_id)
 
-    if 'genetic' not in result['result_type']:
+    if 'genetic' not in result['result_type'] or 'output' not in result:
         return None, None
 
     data = {}
@@ -135,6 +135,7 @@ def create_climatic_trees(path):
 
     return html.H2('Climate Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
 
+
 @callback(
     Output('genetic-tree-title', 'children'),
     Output('genetic-tree', 'children'),
@@ -150,7 +151,7 @@ def create_genetic_trees(path):
     """
     result_id = path.split('/')[-1]
     result = utils.get_result(result_id)
-    if 'genetic' not in result['result_type']:
+    if 'genetic' not in result['result_type'] or 'genetic_trees' not in result:
         return None, None
 
     genetic_trees = result['genetic_trees']
@@ -163,6 +164,7 @@ def create_genetic_trees(path):
         genetic_elements.append(nodes + edges)
 
     return html.H2('Genetic Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
+
 
 def add_to_cookie(result_id):
     """
@@ -296,6 +298,27 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     return nodes, edges
 
 
+@callback(Output('cytoscape', 'stylesheet'),
+          [Input('cytoscape', 'mouseoverEdgeData')])
+def color_children(edgeData):
+    if edgeData is None:
+        return stylesheet
+
+    if 's' in edgeData['source']:
+        val = edgeData['source'].split('s')[0]
+    else:
+        val = edgeData['source']
+
+    children_style = [{
+        'selector': f'edge[source *= "{val}"]',
+        'style': {
+            'line-color': 'white'
+        }
+    }]
+
+    return stylesheet + children_style
+
+
 stylesheet = [
     {
         'selector': '.nonterminal',
@@ -331,24 +354,3 @@ stylesheet = [
         }
     }
 ]
-
-
-@callback(Output('cytoscape', 'stylesheet'),
-          [Input('cytoscape', 'mouseoverEdgeData')])
-def color_children(edgeData):
-    if edgeData is None:
-        return stylesheet
-
-    if 's' in edgeData['source']:
-        val = edgeData['source'].split('s')[0]
-    else:
-        val = edgeData['source']
-
-    children_style = [{
-        'selector': f'edge[source *= "{val}"]',
-        'style': {
-            'line-color': 'white'
-        }
-    }]
-
-    return stylesheet + children_style
