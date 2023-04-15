@@ -80,10 +80,15 @@ npm start
 
 ### Using the cronJob
 To create a cron job, you can use the `cronjob` as a template.
-For exemple:
+For exemple create a file named `cronjob` and add the following line:
 ```bash
 00 00 * * * /home/local/USHERBROOKE/belm1207/miniconda3/envs/geo/bin/python /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/delete_files.py >> /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cron.log 2>&1
 ```
+To create the cronjob with the file, you can use the following command:
+```bash
+crontab /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cronjob
+```
+
 This will run the script every day at 00:00 am.
 
 1. The first element of the cronjob is the time. [Usefull tools](https://crontab.guru/)
