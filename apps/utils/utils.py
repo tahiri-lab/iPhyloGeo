@@ -10,6 +10,9 @@ import db.controllers.results as results_ctrl
 from aPhyloGeo import aPhyloGeo
 
 FILES_PATH = 'files/'
+COOKIE_NAME = 'AUTH'
+COOKIE_MAX_AGE = 8640000  # 100 days
+
 # TODO add this to the .env file
 APP_ENV = 'local'  # os.environ.get('APP_ENV', 'local')
 
@@ -339,23 +342,25 @@ def run_genetic_pipeline(result_id, climatic_data, genetic_data, genetic_params,
     return result_id
 
 
-def make_cookie(result_id, auth_cookie):
+def make_cookie(result_id, auth_cookie, response, name=COOKIE_NAME, max_age=COOKIE_MAX_AGE):
     """
     Create a cookie with the result id
 
     Args:
         result_id (str): The id of the result to add to the cookie
         auth_cookie (str): The current cookie value
+        response (Response): The response object to set the cookie on
+        name (str, optional): The name of the cookie. Defaults to COOKIE_NAME.
+        max_age (int, optional): The max age of the cookie. Defaults to COOKIE_MAX_AGE.
 
-    Returns:
-        str: The modified cookie value
     """
     # If the "Auth" cookie exists, split the value into a list of IDs
     auth_ids = [] if not auth_cookie else auth_cookie.split('.')
-    if result_id not in auth_ids:
+    if result_id not in auth_ids and result_id != '':
         auth_ids.append(result_id)
 
     # Create the string format for the cookie
     auth_cookie_value = '.'.join(auth_ids)
+    response.set_cookie(name, auth_cookie_value, max_age=max_age)
 
-    return auth_cookie_value
+

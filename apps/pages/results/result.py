@@ -187,10 +187,8 @@ def add_to_cookie(result_id):
     """
 
     auth_cookie = request.cookies.get("AUTH")
-    auth_cookie_value = utils.make_cookie(result_id, auth_cookie)
-
     response = dash.callback_context.response
-    response.set_cookie("AUTH", auth_cookie_value)
+    utils.make_cookie(result_id, auth_cookie, response)
 
 
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
