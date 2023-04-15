@@ -1,6 +1,25 @@
 
 .resultContainer {
   background-color: var(--background-color);
+  min-height: 100vh;
+
+  .section {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    padding: 50px 0;
+    width: 100%;
+    background-color: var(--background-color);
+
+    .icon {
+      cursor: pointer;
+      width: 20px;
+
+      &.collapse-icon {
+       filter: var(--icon-filter);
+      }
+    }
+  }
 
   .result {
     display: flex;
@@ -14,7 +33,14 @@
     }
 
     .results-row {
+      max-height: 800px;
       padding: 0 25px;
+
+      &.collapse-row {
+        transition: all 0.3s ease-in-out;
+        max-height: 0;
+        overflow: hidden;
+      }
     }
 
     .dash-fixed-content {
@@ -68,6 +94,12 @@
         //padding: 50px;
         //border-radius: 15px;
         //background-color: var(--black-and-white);
+
+        &.collapse-row {
+          transition: all 0.3s ease-in-out;
+          max-height: 0;
+          overflow: hidden;
+        }
 
         .tree-sub-container {
           display: flex;

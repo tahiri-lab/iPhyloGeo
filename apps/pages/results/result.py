@@ -13,6 +13,9 @@ dash.register_page(__name__, path_template='/result/<result_id>')
 layout = html.Div([
     dcc.Location(id="url"),
     html.Div(id="dummy-share-result-output", style={"display": "none"}),
+    html.Div(id="dummy-table-collapse", style={"display": "none"}),
+    html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
+    html.Div(id="dummy-genetic-collapse", style={"display": "none"}),
     html.Div([
         html.Div([
             html.Div([
@@ -27,11 +30,11 @@ layout = html.Div([
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
-            ], className="tree"),
+            ], className="tree", id="climatic-tree-container"),
             html.H2(id="genetic-tree-title", className="title"),
             html.Div([
                 html.Div(id='genetic-tree'),
-            ], className="tree"),
+            ], className="tree", id="genetic-tree-container"),
         ], className='treeContainer'),
     ], className="result")
 ], className="resultContainer")
@@ -85,24 +88,29 @@ def show_genetic_table(path):
         for i in range(len(row)):
             data[column_header[i]].append(row[i])
     data = str_csv_to_df(data)
-    return html.Div('Results table', className="title"), html.Div([
-        dash_table.DataTable(
-            id='datatable-interactivity',
-            data=data.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in data.columns],
-            filter_action="native",     # allow filtering of data by user ('native') or not ('none')
-            sort_action="native",       # enables data to be sorted per-column by user or not ('none')
-            sort_mode="single",         # sort across 'multi' or 'single' columns
-            page_current=0,             # page number that user is on
-            page_size=15,               # number of rows visible per page
-            filter_query='',            # query that determines which rows to keep in table
-            style_data={
-                'color': 'var(--reverse-black-white-color)',
-                'backgroundColor': 'var(--table-bg-color'
-            },
-        ),
-    ])
-
+    return (
+        html.Div([
+                html.Div('Results table', className="title"),
+                html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button", className="icon collapse-icon")
+            ], className="section"),
+        html.Div([
+            dash_table.DataTable(
+                id='datatable-interactivity',
+                data=data.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in data.columns],
+                filter_action="native",     # allow filtering of data by user ('native') or not ('none')
+                sort_action="native",       # enables data to be sorted per-column by user or not ('none')
+                sort_mode="single",         # sort across 'multi' or 'single' columns
+                page_current=0,             # page number that user is on
+                page_size=15,               # number of rows visible per page
+                filter_query='',            # query that determines which rows to keep in table
+                style_data={
+                    'color': 'var(--reverse-black-white-color)',
+                    'backgroundColor': 'var(--table-bg-color'
+                },
+            )
+        ])
+    )
 
 @callback(
     Output('climatic-tree-title', 'children'),
@@ -133,7 +141,13 @@ def create_climatic_trees(path):
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return html.H2('Climate Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
+    return (
+        html.Div([
+                html.Div('Climate Trees', className="title"),
+                html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon")
+            ], className="section"),
+        html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
+    )
 
 @callback(
     Output('genetic-tree-title', 'children'),
@@ -162,7 +176,13 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-    return html.H2('Genetic Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
+    return (
+        html.Div([
+            html.Div('Genetic Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon")
+        ], className="section"),
+        html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
+    )
 
 def add_to_cookie(result_id):
     """
@@ -352,3 +372,36 @@ def color_children(edgeData):
     }]
 
     return stylesheet + children_style
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-climatic-collapse-button", "n_clicks"),
+     Input("climatic-tree-container", "id")],
+    prevent_initial_call=True,
+)
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-table-collapse-button", "n_clicks"),
+     Input("output-results", "id")],
+    prevent_initial_call=True,
+)
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-genetic-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-genetic-collapse-button", "n_clicks"),
+     Input("genetic-tree-container", "id")],
+    prevent_initial_call=True,
+)
