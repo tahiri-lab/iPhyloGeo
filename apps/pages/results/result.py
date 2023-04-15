@@ -76,18 +76,10 @@ def show_genetic_table(path):
 
     result = utils.get_result(result_id)
 
-    if 'genetic' not in result['result_type']:
+    if 'genetic' not in result['result_type'] or 'output' not in result:
         return None, None
 
-    data = {}
-    # TODO - a delete plus tard
-    column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
-    for header in column_header:
-        data[header] = [header]
-    for row in result['output']:
-        for i in range(len(row)):
-            data[column_header[i]].append(row[i])
-    data = str_csv_to_df(data)
+    data = str_csv_to_df(result['output'])
     return (
         html.Div([
                 html.Div('Results table', className="title"),
@@ -111,6 +103,7 @@ def show_genetic_table(path):
             )
         ])
     )
+
 
 @callback(
     Output('climatic-tree-title', 'children'),
@@ -149,6 +142,7 @@ def create_climatic_trees(path):
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
     )
 
+
 @callback(
     Output('genetic-tree-title', 'children'),
     Output('genetic-tree', 'children'),
@@ -164,7 +158,7 @@ def create_genetic_trees(path):
     """
     result_id = path.split('/')[-1]
     result = utils.get_result(result_id)
-    if 'genetic' not in result['result_type']:
+    if 'genetic' not in result['result_type'] or 'genetic_trees' not in result:
         return None, None
 
     genetic_trees = result['genetic_trees']
@@ -183,6 +177,7 @@ def create_genetic_trees(path):
         ], className="section"),
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
     )
+
 
 def add_to_cookie(result_id):
     """
@@ -316,41 +311,25 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     return nodes, edges
 
 
-stylesheet = [
-    {
-        'selector': '.nonterminal',
+@callback(Output('cytoscape', 'stylesheet'),
+          [Input('cytoscape', 'mouseoverEdgeData')])
+def color_children(edgeData):
+    if edgeData is None:
+        return stylesheet
+
+    if 's' in edgeData['source']:
+        val = edgeData['source'].split('s')[0]
+    else:
+        val = edgeData['source']
+
+    children_style = [{
+        'selector': f'edge[source *= "{val}"]',
         'style': {
-            'label': 'data(confidence)',
-            'background-opacity': 0,
-            "text-halign": "left",
-            "text-valign": "top",
+            'line-color': 'white'
         }
-    },
-    {
-        'selector': '.support',
-        'style': {'background-opacity': 0,
-                  'background-color': "pink"}
-    },
-    {
-        'selector': 'edge',
-        'style': {
-            'background-color': "pink",
-            "source-endpoint": "inside-to-node",
-            "target-endpoint": "inside-to-node",
-        }
-    },
-    {
-        'selector': '.terminal',
-        'style': {
-            'label': 'data(name)',
-            'width': 10,
-            'height': 10,
-            "text-valign": "center",
-            "text-halign": "right",
-            'background-color': "pink"
-        }
-    }
-]
+    }]
+
+    return stylesheet + children_style
 
 
 @callback(Output('cytoscape', 'stylesheet'),
@@ -405,3 +384,39 @@ clientside_callback(
      Input("genetic-tree-container", "id")],
     prevent_initial_call=True,
 )
+
+stylesheet = [
+    {
+        'selector': '.nonterminal',
+        'style': {
+            'label': 'data(confidence)',
+            'background-opacity': 0,
+            "text-halign": "left",
+            "text-valign": "top",
+        }
+    },
+    {
+        'selector': '.support',
+        'style': {'background-opacity': 0,
+                  'background-color': "pink"}
+    },
+    {
+        'selector': 'edge',
+        'style': {
+            'background-color': "pink",
+            "source-endpoint": "inside-to-node",
+            "target-endpoint": "inside-to-node",
+        }
+    },
+    {
+        'selector': '.terminal',
+        'style': {
+            'label': 'data(name)',
+            'width': 10,
+            'height': 10,
+            "text-valign": "center",
+            "text-halign": "right",
+            'background-color': "pink"
+        }
+    }
+]
