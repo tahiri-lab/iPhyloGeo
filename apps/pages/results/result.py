@@ -211,7 +211,7 @@ def generate_tree(elem, name):
 
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
-    def get_col_positions(tree, column_width=80):
+    def get_col_positions(tree, column_width=25):
         taxa = tree.get_terminals()
 
         # Some constants for the drawing calculations
@@ -330,60 +330,6 @@ def color_children(edgeData):
 
     return stylesheet + children_style
 
-
-@callback(Output('cytoscape', 'stylesheet'),
-          [Input('cytoscape', 'mouseoverEdgeData')])
-def color_children(edgeData):
-    if edgeData is None:
-        return stylesheet
-
-    if 's' in edgeData['source']:
-        val = edgeData['source'].split('s')[0]
-    else:
-        val = edgeData['source']
-
-    children_style = [{
-        'selector': f'edge[source *= "{val}"]',
-        'style': {
-            'line-color': 'white'
-        }
-    }]
-
-    return stylesheet + children_style
-
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='collapse_result_section_function'
-    ),
-    Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
-    [Input("results-climatic-collapse-button", "n_clicks"),
-     Input("climatic-tree-container", "id")],
-    prevent_initial_call=True,
-)
-
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='collapse_result_section_function'
-    ),
-    Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
-    [Input("results-table-collapse-button", "n_clicks"),
-     Input("output-results", "id")],
-    prevent_initial_call=True,
-)
-
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='collapse_result_section_function'
-    ),
-    Output("dummy-genetic-collapse", "children"),  # needed for the callback to trigger
-    [Input("results-genetic-collapse-button", "n_clicks"),
-     Input("genetic-tree-container", "id")],
-    prevent_initial_call=True,
-)
-
 stylesheet = [
     {
         'selector': '.nonterminal',
@@ -419,3 +365,37 @@ stylesheet = [
         }
     }
 ]
+
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-climatic-collapse-button", "n_clicks"),
+     Input("climatic-tree-container", "id")],
+    prevent_initial_call=True,
+)
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-table-collapse-button", "n_clicks"),
+     Input("output-results", "id")],
+    prevent_initial_call=True,
+)
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-genetic-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-genetic-collapse-button", "n_clicks"),
+     Input("genetic-tree-container", "id")],
+    prevent_initial_call=True,
+)
