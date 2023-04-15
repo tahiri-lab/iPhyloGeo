@@ -362,5 +362,3 @@ def make_cookie(result_id, auth_cookie, response, name=COOKIE_NAME, max_age=COOK
     # Create the string format for the cookie
     auth_cookie_value = '.'.join(auth_ids)
     response.set_cookie(name, auth_cookie_value, max_age=max_age)
-
-
