@@ -83,12 +83,12 @@ def create_table(df):
 
 
 @callback(
-        Output('output-graph', 'children'),
-        Input('submit-button-graph', 'n_clicks'),
-        State('choose-graph-type', 'value'),
-        State('stored-data', 'data'),
-        State('xaxis-data', 'value'),
-        State('yaxis-data', 'value')
+    Output('output-graph', 'children'),
+    Input('submit-button-graph', 'n_clicks'),
+    State('choose-graph-type', 'value'),
+    State('stored-data', 'data'),
+    State('xaxis-data', 'value'),
+    State('yaxis-data', 'value')
 )
 def make_graphs(n, graph_type, filter_query, x_data, y_data):
     """
@@ -102,10 +102,10 @@ def make_graphs(n, graph_type, filter_query, x_data, y_data):
     returns :
 
     """
-    
+
     if n is None:
         return dash.no_update
-    
+
     if graph_type == 'Bar':
         fig = px.bar(filter_query, x=x_data, y=y_data)
     if graph_type == 'Scatter':
@@ -129,17 +129,17 @@ def make_graphs(n, graph_type, filter_query, x_data, y_data):
 )
 def update_output(num_clicks, data, val_selected):
     """
-    
+
     args :
-        num_clicks : 
-        data : 
-        val_selected : 
+        num_clicks :
+        data :
+        val_selected :
     returns :
 
     """
     if num_clicks is None:
         return dash.no_update
-    
+
     if "iso_alpha" not in data[0].keys():
         map_fig = html.Div([
             html.Div("No map to display.")
@@ -158,11 +158,11 @@ def update_output(num_clicks, data, val_selected):
     )
 
     fig.update_layout(title=dict(font=dict(size=28), x=0.5, xanchor='center'),
-                        margin=dict(l=60, r=60, t=50, b=50), paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)'),
+                      margin=dict(l=60, r=60, t=50, b=50), paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)'),
 
     fig.update_annotations(text="No matching data found")
 
     return dcc.Graph(figure=fig)
-    
+
 # Button to extract all graphs to a pdf using js https://community.plotly.com/t/exporting-multi-page-dash-app-to-pdf-with-entire-layout/37953/3 ++

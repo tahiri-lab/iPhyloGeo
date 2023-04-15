@@ -50,6 +50,7 @@ clientside_callback(
     prevent_initial_call=True,
 )
 
+
 @callback(
     Output('results-name', 'children'),
     Input('url', 'pathname'),
@@ -73,7 +74,6 @@ def show_result_name(path):
 )
 def show_genetic_table(path):
     result_id = path.split('/')[-1]
-
     result = utils.get_result(result_id)
 
     if 'genetic' not in result['result_type'] or 'output' not in result:
@@ -209,6 +209,7 @@ def generate_tree(elem, name):
         )
     ], id=name, className="tree-container")
 
+
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     def get_col_positions(tree, column_width=80):
         taxa = tree.get_terminals()
@@ -221,10 +222,9 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
         # If there are no branch lengths, assume unit branch lengths
         if not max(depths.values()):
             depths = tree.depths(unit_branch_lengths=True)
-            # Potential drawing overflow due to rounding -- 1 char per tree layer
+            # Potential drawing overflow due to rounding, 1 char per tree layer
         fudge_margin = int(math.ceil(math.log(len(taxa), 2)))
-        cols_per_branch_unit = ((drawing_width - fudge_margin) /
-                                float(max(depths.values())))
+        cols_per_branch_unit = ((drawing_width - fudge_margin) / float(max(depths.values())))
         return dict((clade, int(blen * cols_per_branch_unit + 1.0))
                     for clade, blen in depths.items())
 
@@ -236,8 +236,7 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
             for subclade in clade:
                 if subclade not in positions:
                     calc_row(subclade)
-            positions[clade] = ((positions[clade.clades[0]] +
-                                positions[clade.clades[-1]]) // 2)
+            positions[clade] = ((positions[clade.clades[0]] + positions[clade.clades[-1]]) // 2)
 
         calc_row(tree.root)
         return positions

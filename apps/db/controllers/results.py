@@ -13,11 +13,6 @@ def get_result(id):
     res = results_db.find_one({'_id': ObjectId(id)})
     return res
 
-# TODO: remove this function just for testing
-def get_all_results():
-    res = results_db.find({'status': 'complete'})
-    return list(res)
-
 
 def delete_result(id):
     return results_db.delete_one({'_id': ObjectId(id)})
