@@ -46,7 +46,8 @@ def generate_result_list(path):
     """
     try:
         cookie = request.cookies.get("AUTH")
-    except:
+    except Exception as e:
+        print(e)
         return NO_RESULTS_HTML
 
     if not cookie:
@@ -78,31 +79,31 @@ def create_layout(result):
         layout : layout containing the result
     """
     return html.Div([
-                html.Div([
-                    html.Div('Name', className="label"),
-                    html.Div(result['name'], className="data"),
-                ], className="nameContainer"),
-                html.Div([
-                    html.Div('Creation date', className="label"),
-                    html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
-                ], className="creationDateContainer"),
-                html.Div([
-                    html.Div('Expiration date', className="label"),
-                    html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
-                ], className="expirationDateContainer"),
-                html.Div([
-                    html.Div('Progress', className="label"),
-                    html.Div([
-                        dbc.Progress(value=PROGRESS[result['status']]),
-                    ], className='progressBar'),
-                ], className="progressContainer"),
-                html.Div([
-                    html.A(
-                        html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
-                        href=f'/result/{result["_id"]}',
-                    ),
-                ], className="arrowContainer"),
-            ], className="row")
+        html.Div([
+            html.Div('Name', className="label"),
+            html.Div(result['name'], className="data"),
+        ], className="nameContainer"),
+        html.Div([
+            html.Div('Creation date', className="label"),
+            html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
+        ], className="creationDateContainer"),
+        html.Div([
+            html.Div('Expiration date', className="label"),
+            html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
+        ], className="expirationDateContainer"),
+        html.Div([
+            html.Div('Progress', className="label"),
+            html.Div([
+                dbc.Progress(value=PROGRESS[result['status']]),
+            ], className='progressBar'),
+        ], className="progressContainer"),
+        html.Div([
+            html.A(
+                html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
+                href=f'/result/{result["_id"]}',
+            ),
+        ], className="arrowContainer"),
+    ], className="row")
 
 
 layout = get_layout()

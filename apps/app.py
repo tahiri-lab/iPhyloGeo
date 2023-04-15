@@ -13,39 +13,39 @@ for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
 LIGHT_THEME = {
-            "--theme-icon": "url(../assets/icons/theme-light.svg)",
-            "--switch-toggle-background": "rgb(230, 230, 230)",
-            "--switch-toggle-border": "white 1px solid",
-            "--text-color": "#f5f5f5",
-            "--reverse-black-white-color": "#1A1C1E",
-            "--reverse-white-black-color": "white",
-            "--background-color": "#EBECF0",
-            "--reverse-background-color": "#1A1C1E",
-            "--icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
-            "--reverse-icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
-            "--glass-style": "rgba(173, 173, 173, 0.5)",
-            "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
-            "--result-row-color": "#E7E7E7",
-            "--black-and-white": "white",
-            "--table-bg-color": "white"
+    "--theme-icon": "url(../assets/icons/theme-light.svg)",
+    "--switch-toggle-background": "rgb(230, 230, 230)",
+    "--switch-toggle-border": "white 1px solid",
+    "--text-color": "#f5f5f5",
+    "--reverse-black-white-color": "#1A1C1E",
+    "--reverse-white-black-color": "white",
+    "--background-color": "#EBECF0",
+    "--reverse-background-color": "#1A1C1E",
+    "--icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
+    "--reverse-icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
+    "--glass-style": "rgba(173, 173, 173, 0.5)",
+    "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
+    "--result-row-color": "#E7E7E7",
+    "--black-and-white": "white",
+    "--table-bg-color": "white"
 }
 
 DARK_THEME = {
-            "--theme-icon": "url(../assets/icons/theme-dark.svg)",
-            "--switch-toggle-background": "black",
-            "--switch-toggle-border": "white 1px solid",
-            "--text-color": "#E0E0E0",
-            "--reverse-black-white-color": "white",
-            "--reverse-white-black-color": "#1A1C1E",
-            "--background-color": "#1A1C1E",
-            "--reverse-background-color": "#EBECF0",
-            "--icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
-            "--reverse-icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
-            "--glass-style": "rgba(41, 40, 50, 0.5)",
-            "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
-            "--result-row-color": "#444444",
-            "--black-and-white": "#111111",
-            "--table-bg-color": "#282b32"
+    "--theme-icon": "url(../assets/icons/theme-dark.svg)",
+    "--switch-toggle-background": "black",
+    "--switch-toggle-border": "white 1px solid",
+    "--text-color": "#E0E0E0",
+    "--reverse-black-white-color": "white",
+    "--reverse-white-black-color": "#1A1C1E",
+    "--background-color": "#1A1C1E",
+    "--reverse-background-color": "#EBECF0",
+    "--icon-filter": "invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%)",
+    "--reverse-icon-filter": "invert(0%) sepia(82%) saturate(7500%) hue-rotate(33deg) brightness(84%) contrast(115%)",
+    "--glass-style": "rgba(41, 40, 50, 0.5)",
+    "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
+    "--result-row-color": "#444444",
+    "--black-and-white": "#111111",
+    "--table-bg-color": "#282b32"
 }
 
 path_params = {
@@ -117,14 +117,14 @@ app.clientside_callback(
 
 
 @app.callback(
-    Output('theme-switch-output', 'children'),  
+    Output('theme-switch-output', 'children'),
     Input('theme-switch', 'on'),
 )
 def change_theme(on):
     """
-    
+
     args:
-        on: boolean, True if dark theme is selected, False if light theme is selected. 
+        on: boolean, True if dark theme is selected, False if light theme is selected.
             Button to trigger callback (need at least one parameter, but we dont use n_clicks)
     returns:
         theme-switch-output: value of the buttone on (true or false). Hidden div to trigger callback
@@ -139,13 +139,12 @@ def change_theme(on):
 def update_color(children):
     """
     args:
-        children: boolean, True if dark theme is selected, False if light theme is selected. 
+        children: boolean, True if dark theme is selected, False if light theme is selected.
             Button to trigger callback (need at least one parameter, but we dont use n_clicks)
     returns:
         themer: dict, css style for the theme
     """
     return LIGHT_THEME if not children else DARK_THEME
-    
 
 
 if __name__ == '__main__':

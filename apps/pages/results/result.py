@@ -51,12 +51,11 @@ def show_result_name(path):
 )
 def show_genetic_table(path):
     result_id = path.split('/')[-1]
-
     result = utils.get_result(result_id)
-    
+
     if 'genetic' not in result['result_type']:
-        return 
-    
+        return
+
     data = {}
     # TODO - a delete plus tard
     column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
@@ -117,6 +116,7 @@ def create_climatic_trees(path):
 
     return html.H2('Climate Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
 
+
 @callback(
     Output('genetic-tree-title', 'children'),
     Output('genetic-tree', 'children'),
@@ -134,7 +134,7 @@ def create_genetic_trees(path):
     result = utils.get_result(result_id)
     if 'genetic' not in result['result_type']:
         return None, None
-    
+
     genetic_trees = result['genetic_trees']
     tree_names = list(genetic_trees.keys())
 
@@ -145,6 +145,7 @@ def create_genetic_trees(path):
         genetic_elements.append(nodes + edges)
 
     return html.H2('Genetic Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
+
 
 def add_to_cookie(result_id):
     """
@@ -189,10 +190,9 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
         # If there are no branch lengths, assume unit branch lengths
         if not max(depths.values()):
             depths = tree.depths(unit_branch_lengths=True)
-            # Potential drawing overflow due to rounding -- 1 char per tree layer
+            # Potential drawing overflow due to rounding, 1 char per tree layer
         fudge_margin = int(math.ceil(math.log(len(taxa), 2)))
-        cols_per_branch_unit = ((drawing_width - fudge_margin) /
-                                float(max(depths.values())))
+        cols_per_branch_unit = ((drawing_width - fudge_margin) / float(max(depths.values())))
         return dict((clade, int(blen * cols_per_branch_unit + 1.0))
                     for clade, blen in depths.items())
 
@@ -204,8 +204,7 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
             for subclade in clade:
                 if subclade not in positions:
                     calc_row(subclade)
-            positions[clade] = ((positions[clade.clades[0]] +
-                                positions[clade.clades[-1]]) // 2)
+            positions[clade] = ((positions[clade.clades[0]] + positions[clade.clades[-1]]) // 2)
 
         calc_row(tree.root)
         return positions

@@ -38,8 +38,8 @@ layout = html.Div([
 
 
 @callback(
-        Output('backgroud-video', 'children'),
-        Input('theme-switch-output', 'children')
+    Output('backgroud-video', 'children'),
+    Input('theme-switch-output', 'children')
 )
 def update_background_video(children):
     """

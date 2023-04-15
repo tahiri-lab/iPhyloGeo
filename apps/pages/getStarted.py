@@ -1,7 +1,6 @@
 from dash import dcc, html, State, Input, Output, callback
 import dash
 from dash.exceptions import PreventUpdate
-from exceptiongroup import catch
 from flask import request
 import multiprocessing
 import dash_bootstrap_components as dbc
@@ -92,7 +91,7 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     State('params-genetic', 'data'),
     prevent_initial_call=True
 )
-def params_climatic(window_size, bootstrap_threshold, ls_threshold, step_size, bootstrap_amount, current_data):
+def params_genetic(window_size, bootstrap_threshold, ls_threshold, step_size, bootstrap_amount, current_data):
     """
     This function fills the params_genetic json object
     args:
@@ -126,6 +125,7 @@ def params_climatic(column_names, current_data):
     This function fills the params_climatic json object
     args:
         names : names of the columns to use
+        current_data : json file containing the current parameters for the climatic data. Should be empty at the beginning
 
     returns:
         current_data : json file containing the current parameters for the climatic data
@@ -220,8 +220,9 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
 
         genetic_filename = input_data['genetic']['name']
 
-        process = multiprocessing.Process(target=utils.run_genetic_pipeline, args=(result_id, climatic_file['df'], genetic_file['file'],
-                                                                                    params_genetic, genetic_filename, climatic_trees))
+        process = multiprocessing.Process(target=utils.run_genetic_pipeline,
+                                          args=(result_id, climatic_file['df'], genetic_file['file'],
+                                                params_genetic, genetic_filename, climatic_trees))
         process.start()
         return 'popup', '', ''
     except Exception as e:
