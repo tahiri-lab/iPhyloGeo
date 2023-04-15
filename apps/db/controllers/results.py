@@ -14,8 +14,6 @@ def get_result(id):
     return res
 
 # TODO: remove this function just for testing
-
-
 def get_all_results():
     res = results_db.find({'status': 'complete'})
     return list(res)
@@ -27,10 +25,11 @@ def delete_result(id):
 
 def create_result(result):
     document = parse_result(result)
-    document['status'] = 'pending'
+    document['status'] = result['status']
     document['created_at'] = datetime.utcnow()
     document['expired_at'] = datetime.utcnow() + timedelta(days=14)
     document['name'] = result['name']
+    document['result_type'] = result['result_type']
 
     res = results_db.insert_one(document)
     return str(res.inserted_id)
