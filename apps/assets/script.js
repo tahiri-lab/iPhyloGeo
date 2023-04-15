@@ -45,6 +45,17 @@
             return ''
           },
 
+          collapse_result_section_function: function(trigger, collapse_section) {
+            if (trigger >= 1) {
+              if (document.getElementById(collapse_section).classList.contains("collapse-row")) {
+                document.getElementById(collapse_section).classList.remove("collapse-row");
+              } else {
+                document.getElementById(collapse_section).classList.add("collapse-row");
+              }
+            }
+            return ''
+          },
+
           next_option_function: function(currentDiv, desireDiv) {
             document.getElementById(desireDiv).scrollIntoView({ behavior: 'smooth', block: 'start'});
             return ''
