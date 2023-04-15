@@ -1,4 +1,4 @@
-from dash import html, dash_table, callback, Output, Input, dcc
+from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
 import dash_cytoscape as cyto
 import math
@@ -12,16 +12,23 @@ dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
     dcc.Location(id="url"),
+    html.Div(id="dummy-share-result-output", style={"display": "none"}),
     html.Div([
         html.Div([
-            html.H1(id='results-name', className="title"),
-            html.H2('Results table', className="title"),
+            html.Div([
+                html.H1(id='results-name', className="title"),
+                html.Div([
+                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="share_icon"),
+                    html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
+                ]),
+            ], className="header"),
+            html.H2(id='results-table-title', className="title"),
             html.Div(id='output-results', className="results-row"),
-            html.H2('Climatic Trees', className="title"),
+            html.H2(id="climatic-tree-title", className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
             ], className="tree"),
-            html.H2('Genetic Trees', className="title"),
+            html.H2(id="genetic-tree-title", className="title"),
             html.Div([
                 html.Div(id='genetic-tree'),
             ], className="tree"),
@@ -29,6 +36,16 @@ layout = html.Div([
     ], className="result")
 ], className="resultContainer")
 
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='share_result_function'
+    ),
+    Output("dummy-share-result-output", "children"),  # needed for the callback to trigger
+    Input("share_result", "n_clicks"),
+    prevent_initial_call=True,
+)
 
 @callback(
     Output('results-name', 'children'),
@@ -47,23 +64,20 @@ def show_result_name(path):
 
 
 @callback(
+    Output('results-table-title', 'children'),
     Output('output-results', 'children'),
     Input('url', 'pathname'),
 )
-def show_result(path):
+def show_genetic_table(path):
     result_id = path.split('/')[-1]
 
     result = utils.get_result(result_id)
-    data = {}
-    # TODO - a delete plus tard
-    column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
-    for header in column_header:
-        data[header] = [header]
-    for row in result['output']:
-        for i in range(len(row)):
-            data[column_header[i]].append(row[i])
-    data = str_csv_to_df(data)
-    return html.Div([
+
+    if 'genetic' not in result['result_type'] or 'output' not in result:
+        return None, None
+
+    data = str_csv_to_df(result['output'])
+    return html.Div('Results table', className="title"), html.Div([
         dash_table.DataTable(
             id='datatable-interactivity',
             data=data.to_dict('records'),
@@ -83,13 +97,14 @@ def show_result(path):
 
 
 @callback(
+    Output('climatic-tree-title', 'children'),
     Output('climatic-tree', 'children'),
     Input('url', 'pathname'),
 )
 def create_climatic_trees(path):
     """
-    This function creates the list of divs containing the climatic trees 
-    
+    This function creates the list of divs containing the climatic trees
+
     args:
         path (str): the path of the page
     returns:
@@ -98,7 +113,11 @@ def create_climatic_trees(path):
     result_id = path.split('/')[-1]
     add_to_cookie(result_id)
 
-    climatic_trees = utils.get_result(result_id)['climatic_trees']
+    result = utils.get_result(result_id)
+    if 'climatic' not in result['result_type']:
+        return None, None
+
+    climatic_trees = result['climatic_trees']
     tree_names = list(climatic_trees.keys())
     climatic_elements = []
     for tree in climatic_trees.values():
@@ -106,13 +125,11 @@ def create_climatic_trees(path):
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return html.Div(
-        children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)],
-        className="tree-sub-container"
-    )
+    return html.H2('Climate Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
 
 
 @callback(
+    Output('genetic-tree-title', 'children'),
     Output('genetic-tree', 'children'),
     Input('url', 'pathname'),
 )
@@ -125,8 +142,11 @@ def create_genetic_trees(path):
         html.Div: the div containing the genetic trees
     """
     result_id = path.split('/')[-1]
+    result = utils.get_result(result_id)
+    if 'genetic' not in result['result_type'] or 'genetic_trees' not in result:
+        return None, None
 
-    genetic_trees = utils.get_result(result_id)['genetic_trees']
+    genetic_trees = result['genetic_trees']
     tree_names = list(genetic_trees.keys())
 
     genetic_elements = []
@@ -135,7 +155,7 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
+    return html.H2('Genetic Trees', className="title"), html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
 
 
 def add_to_cookie(result_id):
@@ -166,8 +186,7 @@ def generate_tree(elem, name):
                 'width': '100%'
             }
         )
-    ])
-
+    ], id=name, className="tree-container")
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     def get_col_positions(tree, column_width=80):
@@ -271,42 +290,6 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     return nodes, edges
 
 
-stylesheet = [
-    {
-        'selector': '.nonterminal',
-        'style': {
-            'label': 'data(confidence)',
-            'background-opacity': 0,
-            "text-halign": "left",
-            "text-valign": "top",
-        }
-    },
-    {
-        'selector': '.support',
-        'style': {'background-opacity': 0,
-                  'background-color': "pink"}
-    },
-    {
-        'selector': 'edge',
-        'style': {
-            "source-endpoint": "inside-to-node",
-            "target-endpoint": "inside-to-node",
-        }
-    },
-    {
-        'selector': '.terminal',
-        'style': {
-            'label': 'data(name)',
-            'width': 10,
-            'height': 10,
-            "text-valign": "center",
-            "text-halign": "right",
-            'background-color': "pink"
-        }
-    }
-]
-
-
 @callback(Output('cytoscape', 'stylesheet'),
           [Input('cytoscape', 'mouseoverEdgeData')])
 def color_children(edgeData):
@@ -326,3 +309,40 @@ def color_children(edgeData):
     }]
 
     return stylesheet + children_style
+
+
+stylesheet = [
+    {
+        'selector': '.nonterminal',
+        'style': {
+            'label': 'data(confidence)',
+            'background-opacity': 0,
+            "text-halign": "left",
+            "text-valign": "top",
+        }
+    },
+    {
+        'selector': '.support',
+        'style': {'background-opacity': 0,
+                  'background-color': "pink"}
+    },
+    {
+        'selector': 'edge',
+        'style': {
+            'background-color': "pink",
+            "source-endpoint": "inside-to-node",
+            "target-endpoint": "inside-to-node",
+        }
+    },
+    {
+        'selector': '.terminal',
+        'style': {
+            'label': 'data(name)',
+            'width': 10,
+            'height': 10,
+            "text-valign": "center",
+            "text-halign": "right",
+            'background-color': "pink"
+        }
+    }
+]

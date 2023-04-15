@@ -26,30 +26,65 @@
       justify-content: center;
       flex-direction: column;
       gap: 30px;
-      margin-top: 50px;
+      max-width: 1200px;
+      margin: auto;
       width: 100%;
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 20px;
+        margin-top: 20px;
+        font-weight: bold;
+        background-color: var(--black-and-white);
+
+        .share_icon {
+          width: 30px;
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          cursor: pointer;
+          filter: var(--icon-filter);
+
+          &:hover {
+            filter: invert(20%) sepia(90%) saturate(3517%) hue-rotate(275deg) brightness(87%) contrast(139%);
+          }
+        }
+      }
 
       .treeTitle {
         padding: 15px;
         font-size: 20px;
         font-weight: bold;
+        word-wrap: break-word;
       }
 
       .tree {
         width: 100%;
         margin: auto;
         //padding: 50px;
-        border-radius: 15px;
+        //border-radius: 15px;
         //background-color: var(--black-and-white);
 
         .tree-sub-container {
           display: flex;
-          flex-direction: column;
+          flex-wrap: wrap;
+          justify-content: center;
+          flex-direction: row;
           gap: 30px;
 
-          > div {
+          .tree-container {
+            width: 45%;
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
             border-radius: 15px;
-            background-color: #e3e3e3;
+            background-color: Var(--result-tree-container);
+
+            @media (max-width: 1500px) {
+              width: 100%;
+            }
           }
         }
       }
