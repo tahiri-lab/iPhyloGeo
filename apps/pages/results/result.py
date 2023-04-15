@@ -76,15 +76,7 @@ def show_genetic_table(path):
     if 'genetic' not in result['result_type'] or 'output' not in result:
         return None, None
 
-    data = {}
-    # TODO - a delete plus tard
-    column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
-    for header in column_header:
-        data[header] = [header]
-    for row in result['output']:
-        for i in range(len(row)):
-            data[column_header[i]].append(row[i])
-    data = str_csv_to_df(data)
+    data = str_csv_to_df(result['output'])
     return html.Div('Results table', className="title"), html.Div([
         dash_table.DataTable(
             id='datatable-interactivity',
