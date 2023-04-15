@@ -27,7 +27,8 @@ LIGHT_THEME = {
     "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
     "--result-row-color": "#E7E7E7",
     "--black-and-white": "white",
-    "--table-bg-color": "white"
+    "--table-bg-color": "white",
+    "--result-tree-container": "white"
 }
 
 DARK_THEME = {
@@ -45,7 +46,8 @@ DARK_THEME = {
     "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
     "--result-row-color": "#444444",
     "--black-and-white": "#111111",
-    "--table-bg-color": "#282b32"
+    "--table-bg-color": "#282b32",
+    "--result-tree-container": "#e3e3e3"
 }
 
 path_params = {
