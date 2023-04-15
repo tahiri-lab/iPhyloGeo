@@ -74,13 +74,7 @@ schema_results = {
                 'bsonType': 'object',
             },
             'output': {
-                'bsonType': 'array',
-                'items': {
-                    'bsonType': 'array',
-                    'items': {
-                        'bsonType': 'string',
-                    }
-                }
+                'bsonType': 'object',
             },
             'expired_at': {"bsonType": 'date'},
             'created_at': {"bsonType": 'date'},
