@@ -47,6 +47,7 @@ clientside_callback(
     prevent_initial_call=True,
 )
 
+
 @callback(
     Output('results-name', 'children'),
     Input('url', 'pathname'),
@@ -186,6 +187,7 @@ def generate_tree(elem, name):
             }
         )
     ], id=name, className="tree-container")
+
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     def get_col_positions(tree, column_width=80):
