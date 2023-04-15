@@ -1,4 +1,4 @@
-from dash import html, dash_table, callback, Output, Input, dcc
+from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
 import dash_cytoscape as cyto
 import math
@@ -12,9 +12,17 @@ dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
     dcc.Location(id="url"),
+    html.Div(id="dummy-share-result-output", style={"display": "none"}),
     html.Div([
         html.Div([
-            html.H1(id='results-name', className="title"),
+            html.Div([
+                html.H1(id='results-name', className="title"),
+                html.Div([
+                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="share_icon"),
+                    html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
+                ]),
+            ], className="header"),
+            html.H2(id='results-table-title', className="title"),
             html.Div(id='output-results', className="results-row"),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
@@ -28,6 +36,16 @@ layout = html.Div([
     ], className="result")
 ], className="resultContainer")
 
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='share_result_function'
+    ),
+    Output("dummy-share-result-output", "children"),  # needed for the callback to trigger
+    Input("share_result", "n_clicks"),
+    prevent_initial_call=True,
+)
 
 @callback(
     Output('results-name', 'children'),
@@ -46,6 +64,7 @@ def show_result_name(path):
 
 
 @callback(
+    Output('results-table-title', 'children'),
     Output('output-results', 'children'),
     Input('url', 'pathname'),
 )
@@ -55,7 +74,7 @@ def show_genetic_table(path):
     result = utils.get_result(result_id)
 
     if 'genetic' not in result['result_type'] or 'output' not in result:
-        return
+        return None, None
 
     data = {}
     # TODO - a delete plus tard
@@ -66,8 +85,7 @@ def show_genetic_table(path):
         for i in range(len(row)):
             data[column_header[i]].append(row[i])
     data = str_csv_to_df(data)
-    return html.Div([
-        html.H2('Results table', className="title"),
+    return html.Div('Results table', className="title"), html.Div([
         dash_table.DataTable(
             id='datatable-interactivity',
             data=data.to_dict('records'),
@@ -176,8 +194,7 @@ def generate_tree(elem, name):
                 'width': '100%'
             }
         )
-    ])
-
+    ], id=name, className="tree-container")
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     def get_col_positions(tree, column_width=80):
@@ -320,6 +337,7 @@ stylesheet = [
     {
         'selector': 'edge',
         'style': {
+            'background-color': "pink",
             "source-endpoint": "inside-to-node",
             "target-endpoint": "inside-to-node",
         }
