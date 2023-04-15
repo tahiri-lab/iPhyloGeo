@@ -77,3 +77,42 @@ PORT='8050'
 docker compose up
 npm start
 ```
+
+## How to generate CSS file?
+### Understanding the structure of the project
+
+* The project use SCSS files witch need to be created in the styles folder.
+```
+apps/assets/styles/your_file.scss
+```
+* Dash dosen't use SCSS files directly, so you need to generate a CSS file from the SCSS file. To do so, you need to include it in the Gruntfile.js file.
+```
+./Gruntfile.js 
+```
+* In the Gruntfile.js file, you need to add the following code in the dist section. `the desire output` : `the SCSS file location`
+
+*The CSS files need to be generated in the **assets** folder, otherwise it won't work*
+```
+ [...]
+ 
+ dist: {
+                files: {
+                    'apps/assets/your_file.css': 'apps/assets/styles/your_file.scss'
+                }
+ [...]
+```
+* In the Gruntfile.js file, you also need to add the following code in the watch/sass/files section. `the desire output`
+
+*The watch section is necessary to regenerate the CSS file when is detected change in the SCSS files, it will also regenerate all CSS files on `npm start`*
+
+```
+ [...]
+        watch: {
+            sass: {
+                files: [
+                    'apps/assets/your_file.css'
+                ],
+            }
+        }
+  [...]
+```

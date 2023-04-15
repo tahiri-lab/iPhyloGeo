@@ -54,3 +54,46 @@ pip install -r requirements.txt
 ### Exécution:
 - Pour exécuter le programme il suffit d'utiliser son interpréteur Python et d'exécuter le fichier index.py dans le
 fichier iPhylogeo.
+```
+docker compose up
+npm start
+```
+
+
+## How to generate CSS file?
+### Understanding the structure of the project
+
+* Le projet utilise des fichiers SCSS qui doivent être créés dans le dossier styles.
+```
+apps/assets/styles/your_file.scss
+```
+* Dash ne supporte pas les fichiers SCSS directement, il faut donc générer un fichier CSS à partir du fichier SCSS. Pour ce faire, il faut l'inclure dans le fichier Gruntfile.js.
+```
+./Gruntfile.js 
+```
+* Dans le fichier Gruntfile.js, vous devez ajouter le code suivant dans la section dist. `le fichier de sortie désiré` : `le fichier SCSS`
+
+*Le fichier CSS doit être généré dans le dossier **assets**, sinon il ne fonctionnera pas.*
+```
+ [...]
+ 
+ dist: {
+                files: {
+                    'apps/assets/your_file.css': 'apps/assets/styles/your_file.scss'
+                }
+ [...]
+```
+* Dans le fichier Gruntfile.js, vous devez ajouter le code suivant dans la section watch/sass/files. `le fichier SCSS`
+
+*La section watch est nécessaire pour régénérer le fichier CSS lorsque des changements sont détectés dans les fichiers SCSS, elle régénérera également tous les fichiers CSS sur `npm start`*
+```
+ [...]
+        watch: {
+            sass: {
+                files: [
+                    'apps/assets/your_file.css'
+                ],
+            }
+        }
+  [...]
+```
