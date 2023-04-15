@@ -12,13 +12,13 @@ dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
     dcc.Location(id="url"),
-    html.Div(id="dummy_share_result_output", style={"display": "none"}),
+    html.Div(id="dummy-share-result-output", style={"display": "none"}),
     html.Div([
         html.Div([
             html.Div([
                 html.H1(id='results-name', className="title"),
                 html.Div([
-                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="share_icon"),
+                    html.Img(src='../../assets/icons/share.svg', id="share-result", className="share_icon"),
                     html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
                 ]),
             ], className="header"),
@@ -40,10 +40,10 @@ layout = html.Div([
 clientside_callback(
     ClientsideFunction(
         namespace='clientside',
-        function_name='share_result__function'
+        function_name='share_result_function'
     ),
-    Output("dummy_share_result_output", "children"),  # needed for the callback to trigger
-    Input("share_result", "n_clicks"),
+    Output("dummy-share-result_output", "children"),  # needed for the callback to trigger
+    Input("share-result", "n_clicks"),
     prevent_initial_call=True,
 )
 

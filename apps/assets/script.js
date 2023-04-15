@@ -36,7 +36,7 @@
             return ''
           },
 
-          share_result__function: function(currentDiv, desireDiv) {
+          share_result_function: function(currentDiv, desireDiv) {
             console.log('here')
             navigator.clipboard.writeText(window.location.href);
             document.getElementById('share_tooltip').classList.add("visible");
