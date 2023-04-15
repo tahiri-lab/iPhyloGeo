@@ -82,9 +82,9 @@ def show_genetic_table(path):
     data = str_csv_to_df(result['output'])
     return (
         html.Div([
-                html.Div('Results table', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button", className="icon collapse-icon")
-            ], className="section"),
+            html.Div('Results table', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button", className="icon collapse-icon")
+        ], className="section"),
         html.Div([
             dash_table.DataTable(
                 id='datatable-interactivity',
@@ -136,9 +136,9 @@ def create_climatic_trees(path):
 
     return (
         html.Div([
-                html.Div('Climate Trees', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon")
-            ], className="section"),
+            html.Div('Climate Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon")
+        ], className="section"),
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
     )
 
@@ -330,26 +330,6 @@ def color_children(edgeData):
 
     return stylesheet + children_style
 
-
-@callback(Output('cytoscape', 'stylesheet'),
-          [Input('cytoscape', 'mouseoverEdgeData')])
-def color_children(edgeData):
-    if edgeData is None:
-        return stylesheet
-
-    if 's' in edgeData['source']:
-        val = edgeData['source'].split('s')[0]
-    else:
-        val = edgeData['source']
-
-    children_style = [{
-        'selector': f'edge[source *= "{val}"]',
-        'style': {
-            'line-color': 'white'
-        }
-    }]
-
-    return stylesheet + children_style
 
 clientside_callback(
     ClientsideFunction(
