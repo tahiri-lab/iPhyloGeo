@@ -1,5 +1,6 @@
 from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
+import json
 import dash_cytoscape as cyto
 import math
 from Bio import Phylo
@@ -27,6 +28,11 @@ layout = html.Div([
             ], className="header"),
             html.H2(id='results-table-title', className="title"),
             html.Div(id='output-results', className="results-row"),
+            html.Button('Download Genetic Tree', id='download-button-genetic', className="download-button"),
+            html.Button('Download Climatic Tree', id='download-button-climatic', className="download-button"),
+            html.Button('Download MSA alignment', id='download-button-msa', className="download-button"),
+            html.Button('Download data', id='download-button-data', className="download-button"),
+            dcc.Download(id='download-link-results'),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
@@ -141,6 +147,41 @@ def create_climatic_trees(path):
         ], className="section"),
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
     )
+
+
+@callback(
+    Output("download-link-results", "data"),
+    [Input("download-button-genetic", "n_clicks"),
+     Input("download-button-climatic", "n_clicks"),
+     Input("download-button-msa", "n_clicks"),
+     Input("download-button-data", "n_clicks"),
+     Input('url', 'pathname')],
+    prevent_initial_call=True
+)
+def download_results(btn_genetic, btn_climatic, btn_msa, btn_data, path):
+
+    result_id = path.split('/')[-1]
+    result = utils.get_result(result_id)
+    result_genetic_trees = result['genetic_trees']
+    result_climatic_trees = result['climatic_trees']
+    result_msa = result['msaSet']
+
+    data_results = str_csv_to_df(result['output'])
+
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "download-button-genetic":
+        data_genetic = "".join(list(result_genetic_trees.values()))
+        return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
+    if trigger_id == "download-button-climatic":
+        data_climatic = "".join(list(result_climatic_trees.values()))
+        return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
+    if trigger_id == "download-button-msa":
+        data_msa = json.dumps(result_msa)
+        return dict(content=data_msa, filename=result["name"] + "_msa.json")
+    if trigger_id == "download-button-data":
+        return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
 
 
 @callback(
