@@ -211,7 +211,7 @@ def generate_tree(elem, name):
 
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
-    def get_col_positions(tree, column_width=80):
+    def get_col_positions(tree, column_width=25):
         taxa = tree.get_terminals()
 
         # Some constants for the drawing calculations
@@ -343,6 +343,7 @@ clientside_callback(
     prevent_initial_call=True,
 )
 
+
 clientside_callback(
     ClientsideFunction(
         namespace='clientside',
@@ -355,6 +356,7 @@ clientside_callback(
     prevent_initial_call=True,
 )
 
+
 clientside_callback(
     ClientsideFunction(
         namespace='clientside',
@@ -366,6 +368,7 @@ clientside_callback(
      Input("results-genetic-collapse-button", "id")],
     prevent_initial_call=True,
 )
+
 
 stylesheet = [
     {
