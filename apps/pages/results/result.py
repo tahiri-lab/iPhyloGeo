@@ -82,9 +82,9 @@ def show_genetic_table(path):
     data = str_csv_to_df(result['output'])
     return (
         html.Div([
-                html.Div('Results table', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button", className="icon collapse-icon")
-            ], className="section"),
+            html.Div('Results table', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button", className="icon collapse-icon")
+        ], className="section"),
         html.Div([
             dash_table.DataTable(
                 id='datatable-interactivity',
@@ -136,9 +136,9 @@ def create_climatic_trees(path):
 
     return (
         html.Div([
-                html.Div('Climate Trees', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon")
-            ], className="section"),
+            html.Div('Climate Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon")
+        ], className="section"),
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
     )
 
@@ -330,6 +330,43 @@ def color_children(edgeData):
 
     return stylesheet + children_style
 
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-climatic-collapse-button", "n_clicks"),
+     Input("climatic-tree-container", "id")],
+    prevent_initial_call=True,
+)
+
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-table-collapse-button", "n_clicks"),
+     Input("output-results", "id")],
+    prevent_initial_call=True,
+)
+
+
+clientside_callback(
+    ClientsideFunction(
+        namespace='clientside',
+        function_name='collapse_result_section_function'
+    ),
+    Output("dummy-genetic-collapse", "children"),  # needed for the callback to trigger
+    [Input("results-genetic-collapse-button", "n_clicks"),
+     Input("genetic-tree-container", "id")],
+    prevent_initial_call=True,
+)
+
+
 stylesheet = [
     {
         'selector': '.nonterminal',
@@ -365,37 +402,3 @@ stylesheet = [
         }
     }
 ]
-
-
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='collapse_result_section_function'
-    ),
-    Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
-    [Input("results-climatic-collapse-button", "n_clicks"),
-     Input("climatic-tree-container", "id")],
-    prevent_initial_call=True,
-)
-
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='collapse_result_section_function'
-    ),
-    Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
-    [Input("results-table-collapse-button", "n_clicks"),
-     Input("output-results", "id")],
-    prevent_initial_call=True,
-)
-
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='collapse_result_section_function'
-    ),
-    Output("dummy-genetic-collapse", "children"),  # needed for the callback to trigger
-    [Input("results-genetic-collapse-button", "n_clicks"),
-     Input("genetic-tree-container", "id")],
-    prevent_initial_call=True,
-)
