@@ -45,11 +45,13 @@
             return ''
           },
 
-          collapse_result_section_function: function(trigger, collapse_section) {
+          collapse_result_section_function: function(trigger, collapse_section, trigger_id) {
             if (trigger >= 1) {
               if (document.getElementById(collapse_section).classList.contains("collapse-row")) {
+                document.getElementById(trigger_id).classList.remove("close");
                 document.getElementById(collapse_section).classList.remove("collapse-row");
               } else {
+                document.getElementById(trigger_id).classList.add("close");
                 document.getElementById(collapse_section).classList.add("collapse-row");
               }
             }

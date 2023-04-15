@@ -338,7 +338,8 @@ clientside_callback(
     ),
     Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
     [Input("results-climatic-collapse-button", "n_clicks"),
-     Input("climatic-tree-container", "id")],
+     Input("climatic-tree-container", "id"),
+     Input("results-climatic-collapse-button", "id")],
     prevent_initial_call=True,
 )
 
@@ -349,7 +350,8 @@ clientside_callback(
     ),
     Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
     [Input("results-table-collapse-button", "n_clicks"),
-     Input("output-results", "id")],
+     Input("output-results", "id"),
+     Input("results-table-collapse-button", "id")],
     prevent_initial_call=True,
 )
 
@@ -360,7 +362,8 @@ clientside_callback(
     ),
     Output("dummy-genetic-collapse", "children"),  # needed for the callback to trigger
     [Input("results-genetic-collapse-button", "n_clicks"),
-     Input("genetic-tree-container", "id")],
+     Input("genetic-tree-container", "id"),
+     Input("results-genetic-collapse-button", "id")],
     prevent_initial_call=True,
 )
 
