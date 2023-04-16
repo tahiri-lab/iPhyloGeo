@@ -190,7 +190,9 @@ def sync_slider_value(value, current_data):
 )
 def update_components(current_value, window_size_prev, starting_position_prev, slider_prev):
     """
-    
+    This function updates the components (input-window-size, input-starting-position and sliding-window-slider) only if needed. The function is 
+    complex because it has a bidirectional synchronization between the components. The soltion is based on the following reference:
+    https://community.plotly.com/t/synchronize-components-bidirectionally/14158/10 
     args:
         current_value: dictionary with the current values
         window_size_prev: previous value of the window size
