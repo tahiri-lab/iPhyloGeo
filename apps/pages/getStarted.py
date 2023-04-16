@@ -77,7 +77,7 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     for file, name in zip(files, list_of_names):
         if file['type'] == 'genetic':
             current_data['genetic']['file'] = file
-            current_data['genetic']['layout'] = paramsGenetic.layout
+            current_data['genetic']['layout'] = paramsGenetic.get_layout(file['file'])
             current_data['genetic']['name'] = name
         elif file['type'] == 'climatic':
             current_data['climatic']['layout'] = paramsClimatic.create_table(file['df'])

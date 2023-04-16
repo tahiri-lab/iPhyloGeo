@@ -1,5 +1,6 @@
 from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
+import json
 import dash_cytoscape as cyto
 import math
 from Bio import Phylo
@@ -7,6 +8,7 @@ from io import StringIO
 from flask import request
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
+
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
@@ -21,12 +23,19 @@ layout = html.Div([
             html.Div([
                 html.H1(id='results-name', className="title"),
                 html.Div([
-                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="share_icon"),
+                    html.Div([
+                        html.Div([
+                            html.Img(src='../../assets/icons/download.svg', id='download-button-data', className="options-icons download"),
+                            html.Div('Download all data', className="tooltips download"),
+                        ], className="download-button-container"),
+                        html.Img(src='../../assets/icons/share.svg', id="share_result", className="options-icons"),
+                    ], className="header-options"),
                     html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
                 ]),
             ], className="header"),
             html.H2(id='results-table-title', className="title"),
             html.Div(id='output-results', className="results-row"),
+            dcc.Download(id='download-link-results'),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
                 html.Div(id='climatic-tree'),
@@ -80,10 +89,18 @@ def show_genetic_table(path):
         return None, None
 
     data = str_csv_to_df(result['output'])
+
     return (
         html.Div([
-            html.Div('Results table', className="title"),
-            html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button", className="icon collapse-icon")
+            html.Div([
+                html.Div('Results table', className="title"),
+                html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button",
+                         className="icon collapse-icon"),
+            ], className="sub-section"),
+            html.Div([
+                html.Div('Download MSA alignment'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-climatic'),
         ], className="section"),
         html.Div([
             dash_table.DataTable(
@@ -96,6 +113,7 @@ def show_genetic_table(path):
                 page_current=0,             # page number that user is on
                 page_size=15,               # number of rows visible per page
                 filter_query='',            # query that determines which rows to keep in table
+                row_selectable="multi",     # allow user to select 'multi' or 'single' rows
                 style_data={
                     'color': 'var(--reverse-black-white-color)',
                     'backgroundColor': 'var(--table-bg-color'
@@ -136,11 +154,52 @@ def create_climatic_trees(path):
 
     return (
         html.Div([
-            html.Div('Climate Trees', className="title"),
-            html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon")
+            html.Div([
+                html.Div('Climate Trees', className="title"),
+                html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon"),
+            ], className="sub-section"),
+            html.Div([
+                html.Div('Download Climatic Tree'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-climatic'),
         ], className="section"),
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
     )
+
+
+@callback(
+    Output("download-link-results", "data"),
+    [Input("download-button-genetic", "n_clicks"),
+     Input("download-button-climatic", "n_clicks"),
+     Input("download-button-msa", "n_clicks"),
+     Input("download-button-data", "n_clicks"),
+     Input('url', 'pathname')],
+    prevent_initial_call=True
+)
+def download_results(btn_genetic, btn_climatic, btn_msa, btn_data, path):
+
+    result_id = path.split('/')[-1]
+    result = utils.get_result(result_id)
+    result_genetic_trees = result['genetic_trees']
+    result_climatic_trees = result['climatic_trees']
+    result_msa = result['msaSet']
+
+    data_results = str_csv_to_df(result['output'])
+
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if trigger_id == "download-button-genetic":
+        data_genetic = "".join(list(result_genetic_trees.values()))
+        return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
+    if trigger_id == "download-button-climatic":
+        data_climatic = "".join(list(result_climatic_trees.values()))
+        return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
+    if trigger_id == "download-button-msa":
+        data_msa = json.dumps(result_msa)
+        return dict(content=data_msa, filename=result["name"] + "_msa.json")
+    if trigger_id == "download-button-data":
+        return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
 
 
 @callback(
@@ -172,8 +231,14 @@ def create_genetic_trees(path):
 
     return (
         html.Div([
-            html.Div('Genetic Trees', className="title"),
-            html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon")
+            html.Div([
+                html.Div('Genetic Trees', className="title"),
+                html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon"),
+            ], className="sub-section"),
+            html.Div([
+                html.Div('Download Genetic Tree'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-genetic'),
         ], className="section"),
         html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
     )

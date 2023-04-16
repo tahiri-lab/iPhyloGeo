@@ -14,7 +14,7 @@ NO_RESULTS_HTML = html.Div([
     ], className="notification"),
 ], className="empty-results"),
 
-PROGRESS = {'pending': 0, 'climatic_trees': 10, 'alignement': 66, 'genetic_trees': 90, 'complete': 100, 'error': -1}
+PROGRESS = {'pending': 0, 'climatic_trees': 10, 'alignement': 66, 'genetic_trees': 90, 'complete': 100, 'error': 100}
 
 
 def get_layout():
@@ -91,7 +91,7 @@ def create_layout(result):
         html.Div([
             html.Div('Progress', className="label"),
             html.Div([
-                dbc.Progress(value=PROGRESS[result['status']]),
+                dbc.Progress(value=PROGRESS[result['status']], label='Error' if result['status'] == 'error' else None, color="danger" if result['status'] == 'error' else ""),
             ], className='progressBar'),
         ], className="progressContainer"),
         html.Div([
