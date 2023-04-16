@@ -17,7 +17,7 @@ NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
 layout = html.Div([
-    dcc.Store(id='input-data', data={'genetic': {'file': None, 'layout': None, 'name': None}, 'climatic': {'file': None, 'layout': None}, 'sumbit button': False}),
+    dcc.Store(id='input-data', data={'genetic': {'file': None, 'layout': None, 'name': None}, 'climatic': {'file': None, 'layout': None}, 'submit button': False}),
     dcc.Store(id='params-climatic', data={'names': None}),
     dcc.Store(id='params-genetic', data={'window_size': None, 'step_size': None, 'bootstrap_amount': None, 'bootstrap_threshold': None, 'ls_threshold': None}),
     html.Div(id='action'),
@@ -68,10 +68,10 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     """
     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
 
-    # if sumbit button is already here, we don't want to recreate the layout
+    # if submit button is already here, we don't want to recreate the layout
     submit_button = None
-    if not current_data['sumbit button']:
-        current_data['sumbit button'] = True
+    if not current_data['submit button']:
+        current_data['submit button'] = True
         submit_button = submitButton.layout
 
     for file, name in zip(files, list_of_names):
