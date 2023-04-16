@@ -1,4 +1,4 @@
-from dash import html, dash_table, callback, Output, State, Input, dcc, clientside_callback, ClientsideFunction
+from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
 import json
 import dash_cytoscape as cyto
@@ -8,10 +8,6 @@ from io import StringIO
 from flask import request
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
-from Bio import AlignIO, SeqIO
-import dash_bio as dashbio
-import pandas as pd
-from pprint import pprint
 
 
 dash.register_page(__name__, path_template='/result/<result_id>')

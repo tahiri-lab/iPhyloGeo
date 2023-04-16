@@ -1,8 +1,7 @@
-from dash import dcc, html, no_update, Output, Input, callback, State
-from pprint import pprint
-from Bio import SeqIO
+from dash import dcc, html, Output, Input, callback, State
 import dash_bio as dashbio
 import dash
+
 
 def get_layout(file):
     max_sequence_length = get_max_sequence_length(file)
@@ -19,67 +18,62 @@ def get_layout(file):
                     html.Div('Genetic parameters', className="title"),
                     html.Div([
                         html.Div("Bootstrap value threshold", className="param-title"),
-                        dcc.Slider(id='bootstrap-threshold', className="slider",
-                                min=0, max=100, step=0.1,
-                                marks={
-                                    0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
-                                    25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
-                                    50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
-                                    75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
-                                    100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}},
-                                value=10),
+                        dcc.Slider(id='bootstrap-threshold', className="slider", min=0, max=100, step=0.1,
+                                   marks={
+                                      0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
+                                      25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
+                                      50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
+                                      75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
+                                      100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}}, value=10),
                         html.Div(id='bootstrap-threshold-output-container')
                     ], className="parameter-container-inside"),
                     html.Div([
                         html.Div('Ls Threshold', className="param-title"),
-                        dcc.Slider(id='ls-threshold-slider', className="slider",
-                                min=0, max=100, step=0.1,
-                                marks={
-                                    0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
-                                    25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
-                                    50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
-                                    75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
-                                    100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}},
-                                value=60),
+                        dcc.Slider(id='ls-threshold-slider', className="slider", min=0, max=100, step=0.1,
+                                   marks={
+                                      0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
+                                      25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
+                                      50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
+                                      75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
+                                      100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}}, value=60),
                         html.Div(id='ls-threshold-slider-output-container'),
                     ], className="parameter-container-inside"),
                     html.Div([
                         html.Div([
                             html.Div("Sliding Window Size"),
                             dcc.Input(id="input-window-size", type="number", min=0, max=max_sequence_length,
-                                    placeholder="Enter Sliding Window Size", value=200, className="input-field"),
+                                      placeholder="Enter Sliding Window Size", value=200, className="input-field"),
                             html.Div(id='input-window-size-container'),
                         ], className="manual-input"),
                         html.Div([
                             html.Div("Step Size"),
                             dcc.Input(id="input-step-size", type="number", min=0, max=max_sequence_length,
-                                    placeholder="Enter Step Size", value=100, className="input-field"),
+                                      placeholder="Enter Step Size", value=100, className="input-field"),
                             html.Div(id='input-step-size-container'),
                         ], className="manual-input"),
                         html.Div([
                             html.Div("Bootstrap amount"),
                             dcc.Input(id="bootstrap-amount", type="number", min=1, max=500,
-                                    placeholder="Enter Step Size", value=100, className="input-field"),
+                                      placeholder="Enter Step Size", value=100, className="input-field"),
                             html.Div(id='bootstrap-amount-container'),
                         ], className="manual-input"),
                         html.Div([
                             html.Div("Starting position"),
                             dcc.Input(id="input-starting-position", type="number", min=0, max=max_sequence_length,
-                                    placeholder="Enter the starting position", value=0, className="input-field"),
+                                      placeholder="Enter the starting position", value=0, className="input-field"),
                             html.Div(id='bootstrap-amount-container'),
                         ], className="manual-input"),
                     ], className="manual-input-container"),
                     html.Div([
                         html.Div("Sliding Window"),
-                        dcc.RangeSlider(id='sliding-window-slider', className="slider",
-                            min=0, max=max_sequence_length, step=1,
-                            marks={
-                                0: {'label': '0', 'style': {'color': '#77b0b1'}},
-                                first_quartile : {'label': str(first_quartile), 'style': {'color': '#77b0b1'}},
-                                second_quartile : {'label': str(second_quartile), 'style': {'color': '#77b0b1'}},
-                                third_quartile : {'label': str(third_quartile), 'style': {'color': '#77b0b1'}},
-                                max_sequence_length: {'label': str(max_sequence_length), 'style': {'color': '#77b0b1'}}},
-                            ),
+                        dcc.RangeSlider(id='sliding-window-slider', className="slider", min=0, max=max_sequence_length, step=1,
+                                        marks={
+                                            0: {'label': '0', 'style': {'color': '#77b0b1'}},
+                                            first_quartile: {'label': str(first_quartile), 'style': {'color': '#77b0b1'}},
+                                            second_quartile: {'label': str(second_quartile), 'style': {'color': '#77b0b1'}},
+                                            third_quartile: {'label': str(third_quartile), 'style': {'color': '#77b0b1'}},
+                                            max_sequence_length: {'label': str(max_sequence_length), 'style': {'color': '#77b0b1'}}},
+                                        ),
                         html.Div(id='sliding-window-slider-output-container')
                     ]),
                     html.Div([
@@ -101,22 +95,29 @@ def get_layout(file):
     Input('stored-data', 'data'),
 )
 def make_alignment_chart(starting_position, window_size, file):
+    """
+    This function creates the alignment chart
+    args:
+        starting_position (int): starting position of the alignment chart
+        window_size (int): size of the window
+        file (dict): dictionary containing the sequences
+    """
     if starting_position is None:
-        return dash.no_update        
-    end_window= starting_position + window_size    
+        return dash.no_update
+    end_window = starting_position + window_size
     genetic_values = ""
-    for key,value in file.items():
-        genetic_values +='>'+ key + '\n'
-        genetic_values +=str(value[int(starting_position):int(end_window)])+'\n'
+    for key, value in file.items():
+        genetic_values += '>' + key + '\n'
+        genetic_values += str(value[int(starting_position):int(end_window)]) + '\n'
     return html.Div([
-                dashbio.AlignmentChart(
-                    id='my-alignment-viewer',
-                    data=genetic_values,
-                    tilewidth=20,
-                    height=600,
-                ),
-                html.Div(id='alignment-viewer-output', className='alignment-chart'),
-            ])
+        dashbio.AlignmentChart(
+            id='my-alignment-viewer',
+            data=genetic_values,
+            tilewidth=20,
+            height=600,
+        ),
+        html.Div(id='alignment-viewer-output', className='alignment-chart'),
+    ])
 
 
 @callback(
@@ -179,7 +180,7 @@ def sync_slider_value(value, current_data):
 
 @callback(
     Output("input-window-size", "value"),
-    Output("input-starting-position", "value"), 
+    Output("input-starting-position", "value"),
     Output("sliding-window-slider", "value"),
     Input("sync", "data"),
     State("input-window-size", "value"),
@@ -188,9 +189,9 @@ def sync_slider_value(value, current_data):
 )
 def update_components(current_value, window_size_prev, starting_position_prev, slider_prev):
     """
-    This function updates the components (input-window-size, input-starting-position and sliding-window-slider) only if needed. The function is 
+    This function updates the components (input-window-size, input-starting-position and sliding-window-slider) only if needed. The function is
     complex because it has a bidirectional synchronization between the components. The soltion is based on the following reference:
-    https://community.plotly.com/t/synchronize-components-bidirectionally/14158/10 
+    https://community.plotly.com/t/synchronize-components-bidirectionally/14158/10
     args:
         current_value: dictionary with the current values
         window_size_prev: previous value of the window size
@@ -208,7 +209,7 @@ def update_components(current_value, window_size_prev, starting_position_prev, s
 
 def get_max_sequence_length(file):
     """
-    
+    This function returns the maximum length of the sequences
     args:
         file: dictionary with the sequences
     returns:
