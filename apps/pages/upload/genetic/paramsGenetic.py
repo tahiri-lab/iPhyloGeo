@@ -14,7 +14,7 @@ def get_layout(file):
             html.Div([
                 dcc.Store(id="sync", data={"starting_position": 0, "window_size": 200}),
                 html.Div([
-                    dcc.Store(id='stored-data', data=file),
+                    dcc.Store(id='stored-genetic-data', data=file),
                     html.Div('Genetic parameters', className="title"),
                     html.Div([
                         html.Div("Bootstrap value threshold", className="param-title"),
@@ -92,7 +92,7 @@ def get_layout(file):
     Output('alignment-chart', 'children'),
     Input('input-starting-position', 'value'),
     Input('input-window-size', 'value'),
-    Input('stored-data', 'data'),
+    Input('stored-genetic-data', 'data'),
 )
 def make_alignment_chart(starting_position, window_size, file):
     """
