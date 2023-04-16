@@ -10,7 +10,6 @@
   font-weight: 400;
   font-size: 15px;
   margin-top: 10px;
-  margin-left: -50px;
   border: #AD00FA 1px solid;
 
   /* Position the tooltip */
@@ -21,5 +20,12 @@
     transition: opacity 0.3s ease-in-out;
     opacity: 1;
     visibility: visible;
+  }
+
+  &.download {
+    visibility: hidden;
+    opacity: 0;
+    margin-top: 40px;
+    transition: all 1.5s ease-in-out;
   }
 }

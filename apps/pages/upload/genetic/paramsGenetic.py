@@ -115,9 +115,7 @@ def make_alignment_chart(starting_position, window_size, file):
                     tilewidth=20,
                     height=600,
                 ),
-                html.Br(),
-                html.Br(),
-                html.Div(id='alignment-viewer-output'),
+                html.Div(id='alignment-viewer-output', className='alignment-chart'),
             ])
 
 
