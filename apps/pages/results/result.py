@@ -37,11 +37,6 @@ layout = html.Div([
             html.Button('Download Climatic Tree', id='download-button-climatic', className="download-button"),
             html.Button('Download MSA alignment', id='download-button-msa', className="download-button"),
             html.Button('Download data', id='download-button-data', className="download-button"),
-            html.Button('Alignment Chart', id='download-alignment', className="download-button"),
-             html.Div([
-                html.Div(id='select-alignment-position'),
-                html.Div(id='alignment-chart'),
-            ]),
             dcc.Download(id='download-link-results'),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
@@ -261,99 +256,6 @@ def generate_tree(elem, name):
         )
     ], id=name, className="tree-container")
 
-
-#-----------------------------------
-# select gene
-@callback(
-    Output("select-alignment-position", "children"),
-    Input("download-alignment", "n_clicks"),
-    State('datatable-interactivity', "derived_virtual_data"),
-    State('datatable-interactivity', 'derived_virtual_selected_rows'),
-    prevent_initial_call=True,
-)
-def select_position_asm(n_clicks,all_rows_data,select_rows):
-    if n_clicks is None:
-        return dash.no_update
-    else:
-        #if row['Gene'] != 'output/reference_gene.fasta':
-        dff = pd.DataFrame(all_rows_data)
-        df_select = dff[dff.index.isin(select_rows)]
-
-        genes_selected = df_select['Gene'].unique()
-        #print(genes_selected)
-        
-        positions_selected = df_select['Position in ASM'].unique()
-        return html.Div([
-            html.H4("Select position ASM for alignment visualisation"),
-            dcc.RadioItems(id='choose-align-gene',
-                        options=[{'label':x, 'value':x} for x in positions_selected],),  
-                        ])
-
-
-
-@callback(
-    Output("alignment-chart", "children"),
-    Input('url', 'pathname'),
-    Input('choose-align-gene','value'),
-    prevent_initial_call=True
-)
-def make_alignment_chart(path,sliding_window_value):
-
-    result_id = path.split('/')[-1]
-    result = utils.get_result(result_id)
-    if sliding_window_value != None:        
-        val_split = sliding_window_value.split('_')
-        first_value = val_split[0]
-        second_value = val_split[1]
-        
-        file_gene_id = result['genetic_files_id']
-        print(file_gene_id)
-        file_gene = utils.get_file_from_db(file_gene_id)
-        print(file_gene)
-        data_gene = file_gene['file']
-        data = {}
-        pprint(data_gene)
-        """
-        for key in data_gene.keys():
-            data +='>'+ key + '\n'
-            #app.logger.info(record.seq[0:250])
-            #app.logger.info("Je suis le record" +record.seq[first_value:second_value])
-            data +=str(data_gene[key][int(first_value):int(second_value)])+'\n'
-        """
-        
-        result = SeqIO.to_dict(data_gene)
-        for key in result:
-            result[key] = str(result[key].seq)
-        #pprint(result)
-        for key in result.keys():
-            data[key] = result[key][int(first_value):int(second_value)]
-        pprint(data)
-        test = ""
-        for key in data.keys():
-            test +='>'+ key + '\n'
-            test +=str(data[key])+'\n'
-        
-        #for record in SeqIO.parse(StringIO(data_gene), "fasta"):
-        #    data[record.id] = str(record.seq[int(first_value):int(second_value)])
-        #pprint(data)
-        #make_alignement_chart(align_chart_path)
-        pprint(test)
-        layout = alignment_chart(test)
-        return layout
-
-
-def alignment_chart(data):
-    return html.Div([
-                    dashbio.AlignmentChart(
-                        id='my-alignment-viewer',
-                        data=data,
-                        tilewidth=30,
-                        height=900,
-                    ),
-                    html.Br(),
-                    html.Br(),
-                    html.Div(id='alignment-viewer-output'),
-                ])
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     def get_col_positions(tree, column_width=25):
