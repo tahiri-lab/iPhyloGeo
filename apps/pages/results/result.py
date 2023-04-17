@@ -33,6 +33,7 @@ layout = html.Div([
             ], className="header"),
             html.H2(id='results-table-title', className="title"),
             html.Div(id='output-results', className="results-row"),
+            html.Div(id='output-results-graph', className="results-row"),
             dcc.Download(id='download-link-results'),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
@@ -77,6 +78,7 @@ def show_result_name(path):
 @callback(
     Output('results-table-title', 'children'),
     Output('output-results', 'children'),
+    Output('output-results-graph', 'children'),
     Input('url', 'pathname'),
 )
 def show_complete_results(path):
@@ -94,7 +96,7 @@ def show_complete_results(path):
         return None, None
     results_data = str_csv_to_df(result['output'])
 
-    return create_result_table_header(), html.Div([create_result_table(results_data), create_result_graphic(results_data)])
+    return create_result_table_header(), create_result_table(results_data), create_result_graphic(results_data)
 
 
 @callback(
