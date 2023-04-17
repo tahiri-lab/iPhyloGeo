@@ -2,6 +2,7 @@
 .resultContainer {
   background-color: var(--background-color);
   min-height: 100vh;
+  transition: all 0.3s ease-in-out;
 
   .section {
     display: flex;
@@ -10,7 +11,6 @@
     gap: 30px;
     padding: 50px;
     width: 100%;
-    background-color: var(--background-color);
 
     .sub-section {
       display: flex;
@@ -31,6 +31,11 @@
           rotate: -90deg;
         }
       }
+    }
+
+    .download-container {
+      display: flex;
+      gap: 15px;
     }
 
     .individual-tree-download-container {
@@ -58,10 +63,11 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: all 0.3s ease-in-out;
     }
 
     .results-row {
-      max-height: 800px;
+      max-height: 1800px;
       padding: 0 25px;
       opacity: 1;
       transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
@@ -71,6 +77,12 @@
         max-height: 0;
         overflow: hidden;
         transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
+      }
+
+      .graph {
+        margin-top: 20px;
+        border-radius: 10px;
+        background-color: black;
       }
     }
 
@@ -97,6 +109,7 @@
         margin-top: 20px;
         font-weight: bold;
         background-color: var(--black-and-white);
+        transition: all 0.3s ease-in-out;
 
         .header-options {
           display: flex;
@@ -116,6 +129,7 @@
           align-items: center;
           cursor: pointer;
           filter: var(--icon-filter);
+          transition: all 0.3s ease-in-out;
 
           &:hover {
             filter: invert(20%) sepia(90%) saturate(3517%) hue-rotate(275deg) brightness(87%) contrast(139%);
@@ -136,6 +150,7 @@
         font-size: 20px;
         font-weight: bold;
         word-wrap: break-word;
+        color: white;
       }
 
       .tree {
@@ -164,7 +179,8 @@
             width: 45%;
             box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
             border-radius: 15px;
-            background-color: Var(--result-tree-container);
+            background-color: black;
+            transition: all 0.3s ease-in-out;
 
             @media (max-width: 1500px) {
               width: 100%;

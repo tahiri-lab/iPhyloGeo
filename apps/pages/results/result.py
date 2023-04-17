@@ -3,9 +3,12 @@ import dash
 import json
 import dash_cytoscape as cyto
 import math
+import numpy as np
 from Bio import Phylo
 from io import StringIO
 from flask import request
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
 
@@ -24,17 +27,16 @@ layout = html.Div([
                 html.H1(id='results-name', className="title"),
                 html.Div([
                     html.Div([
-                        html.Div([
-                            html.Img(src='../../assets/icons/download.svg', id='download-button-data', className="options-icons download"),
-                            html.Div('Download all data', className="tooltips download"),
-                        ], className="download-button-container"),
                         html.Img(src='../../assets/icons/share.svg', id="share_result", className="options-icons"),
                     ], className="header-options"),
                     html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
                 ]),
             ], className="header"),
             html.H2(id='results-table-title', className="title"),
-            html.Div(id='output-results', className="results-row"),
+            html.Div([
+                html.Div(id='output-results'),
+                html.Div(id='output-results-graph', className="graph"),
+            ], id='results-row', className="results-row"),
             dcc.Download(id='download-link-results'),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
@@ -79,48 +81,25 @@ def show_result_name(path):
 @callback(
     Output('results-table-title', 'children'),
     Output('output-results', 'children'),
+    Output('output-results-graph', 'children'),
     Input('url', 'pathname'),
 )
-def show_genetic_table(path):
+def show_complete_results(path):
+    """
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the header (title & download button) of the results
+        html.Div: the div containing the results
+    """
     result_id = path.split('/')[-1]
     result = utils.get_result(result_id)
 
     if 'genetic' not in result['result_type'] or 'output' not in result:
         return None, None
+    results_data = str_csv_to_df(result['output'])
 
-    data = str_csv_to_df(result['output'])
-
-    return (
-        html.Div([
-            html.Div([
-                html.Div('Results table', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button",
-                         className="icon collapse-icon"),
-            ], className="sub-section"),
-            html.Div([
-                html.Div('Download MSA alignment'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-climatic'),
-        ], className="section"),
-        html.Div([
-            dash_table.DataTable(
-                id='datatable-interactivity',
-                data=data.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in data.columns],
-                filter_action="native",     # allow filtering of data by user ('native') or not ('none')
-                sort_action="native",       # enables data to be sorted per-column by user or not ('none')
-                sort_mode="single",         # sort across 'multi' or 'single' columns
-                page_current=0,             # page number that user is on
-                page_size=15,               # number of rows visible per page
-                filter_query='',            # query that determines which rows to keep in table
-                row_selectable="multi",     # allow user to select 'multi' or 'single' rows
-                style_data={
-                    'color': 'var(--reverse-black-white-color)',
-                    'backgroundColor': 'var(--table-bg-color'
-                },
-            )
-        ])
-    )
+    return create_result_table_header(), create_result_table(results_data), create_result_graphic(results_data)
 
 
 @callback(
@@ -152,53 +131,51 @@ def create_climatic_trees(path):
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return (
-        html.Div([
-            html.Div([
-                html.Div('Climate Trees', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon"),
-            ], className="sub-section"),
-            html.Div([
-                html.Div('Download Climatic Tree'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-climatic'),
-        ], className="section"),
-        html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
-    )
+    return create_climatic_trees_header(), html.Div(children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)], className="tree-sub-container")
 
 
 @callback(
     Output("download-link-results", "data"),
-    [Input("download-button-genetic", "n_clicks"),
-     Input("download-button-climatic", "n_clicks"),
-     Input("download-button-msa", "n_clicks"),
-     Input("download-button-data", "n_clicks"),
-     Input('url', 'pathname')],
-    prevent_initial_call=True
+    Input('url', 'pathname'),
+    Input("download-button-genetic", "n_clicks"),
+    Input("download-button-climatic", "n_clicks"),
+    Input("download-button-aligned", "n_clicks"),
+    Input("download-button-complete", "n_clicks"),
+    prevent_initial_call=True,
 )
-def download_results(btn_genetic, btn_climatic, btn_msa, btn_data, path):
+def download_results(path, btn_genetic, btn_climatic, btn_aligned, btn_complete):
+    """
+    This function creates the list of divs containing the genetic trees
+    Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
+
+    args:
+        path (str): the path of the page
+        btn_genetic : dummy inpput needed to trigger the callback
+        btn_climatic : dummy inpput needed to trigger the callback
+        btn_msa : dummy inpput needed to trigger the callback
+        btn_data : dummy inpput needed to trigger the callback
+    """
 
     result_id = path.split('/')[-1]
     result = utils.get_result(result_id)
-    result_genetic_trees = result['genetic_trees']
-    result_climatic_trees = result['climatic_trees']
-    result_msa = result['msaSet']
-
-    data_results = str_csv_to_df(result['output'])
 
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "download-button-genetic":
+    if trigger_id == "download-button-genetic" and btn_genetic:
+        result_genetic_trees = result['genetic_trees']
         data_genetic = "".join(list(result_genetic_trees.values()))
         return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
-    if trigger_id == "download-button-climatic":
+    if trigger_id == "download-button-climatic" and btn_climatic:
+        result_climatic_trees = result['climatic_trees']
         data_climatic = "".join(list(result_climatic_trees.values()))
         return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
-    if trigger_id == "download-button-msa":
+    if trigger_id == "download-button-aligned" and btn_aligned:
+        result_msa = result['msaSet']
         data_msa = json.dumps(result_msa)
         return dict(content=data_msa, filename=result["name"] + "_msa.json")
-    if trigger_id == "download-button-data":
+    if trigger_id == "download-button-complete" and btn_complete:
+        data_results = str_csv_to_df(result['output'])
         return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
 
 
@@ -229,19 +206,7 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-    return (
-        html.Div([
-            html.Div([
-                html.Div('Genetic Trees', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon"),
-            ], className="sub-section"),
-            html.Div([
-                html.Div('Download Genetic Tree'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-genetic'),
-        ], className="section"),
-        html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
-    )
+    return create_genetic_trees_header(), html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
 
 
 def add_to_cookie(result_id):
@@ -256,19 +221,162 @@ def add_to_cookie(result_id):
     utils.make_cookie(result_id, auth_cookie, response)
 
 
+def create_result_table_header():
+    return html.Div([
+        html.Div([
+            html.Div('Results', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button",
+                     className="icon collapse-icon"),
+        ], className="sub-section"),
+        html.Div([
+            html.Div([
+                html.Div('Aligned genetic sequences'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-aligned'),
+            html.Div([
+                html.Div('output.csv'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-complete'),
+        ], className="download-container")
+    ], className="section")
+
+
+def create_result_table(data):
+    """
+    This function creates the results table
+    args:
+        data (pandas.DataFrame): the data to display in the table
+    returns:
+        dash_table.DataTable: the table containing the results
+    """
+
+    return html.Div([
+        dash_table.DataTable(
+            id='datatable-interactivity',
+            data=data.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in data.columns],
+            filter_action="native",     # allow filtering of data by user ('native') or not ('none')
+            sort_action="native",       # enables data to be sorted per-column by user or not ('none')
+            sort_mode="single",         # sort across 'multi' or 'single' columns
+            page_current=0,             # page number that user is on
+            page_size=15,               # number of rows visible per page
+            filter_query='',            # query that determines which rows to keep in table
+            row_selectable="multi",     # allow user to select 'multi' or 'single' rows
+            style_data={
+                'color': 'var(--reverse-black-white-color)',
+                'backgroundColor': 'var(--table-bg-color'
+            },
+        )
+    ])
+
+
+def create_result_graphic(results_data):
+    """
+    This function creates the results graphic
+    args:
+        data (pandas.DataFrame): the data to display in the table
+    returns:
+        dash_table.DataTable: the table containing the results
+    """
+    results_data['starting_position'] = [int(x.split("_")[0]) for x in results_data['Position in ASM']]
+
+    results_data = results_data[['starting_position', 'Bootstrap mean', 'Least-Square distance']]
+    results_data = results_data.groupby('starting_position').mean().reset_index()
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(
+        go.Scatter(
+            x=results_data["starting_position"],
+            y=results_data["Bootstrap mean"],
+            name="bootstrap mean",
+            line=dict(color="#AD00FA")
+        ),
+        secondary_y=False,
+    )
+    #  color="#EA46FF"
+    fig.add_trace(
+        go.Scatter(
+            x=results_data["starting_position"],
+            y=results_data["Least-Square distance"],
+            name="LS distance",
+            line=dict(color="#00faad")
+            # line=dict(color="#FAAD00")
+        ),
+        secondary_y=True,
+    )
+    fig.update_layout(title_text="Bootstrap mean and LS distance", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
+    fig.update_xaxes(
+        title_text="Position in ASM",
+        gridcolor='rgba(255,255,255,0.2)'
+    )
+    fig.update_yaxes(
+        title_text="<b>Bootstrap mean</b>",
+        secondary_y=False,
+        gridcolor='rgba(255,255,255,0.2)'
+    )
+    fig.update_yaxes(
+        title_text="<b>LS distance</b>",
+        secondary_y=True,
+        gridcolor='rgba(255,255,255,0.2)'
+    )
+
+    min_bootstrap = results_data['Bootstrap mean'].min()
+    max_bootstrap = results_data['Bootstrap mean'].max()
+    bootstrap_ticks = np.linspace(min_bootstrap, max_bootstrap, 6)
+
+    min_ls = results_data['Least-Square distance'].min()
+    max_ls = results_data['Least-Square distance'].max()
+    ls_ticks = np.linspace(min_ls, max_ls, 6)
+
+    fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
+
+    return dcc.Graph(figure=fig)
+
+
+def create_climatic_trees_header():
+    """
+    This function creates the header for the climatic trees
+    """
+    return html.Div([
+        html.Div([
+            html.Div('Climatic Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon"),
+        ], className="sub-section"),
+        html.Div([
+            html.Div('Climatic Trees'),
+            html.Img(src='../../assets/icons/download.svg', className="icon"),
+        ], className="individual-tree-download-container button download", id='download-button-climatic'),
+    ], className="section")
+
+
+def create_genetic_trees_header():
+    """
+    This function creates the header for the genetic trees
+    """
+    return html.Div([
+        html.Div([
+            html.Div('Genetic Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon"),
+        ], className="sub-section"),
+        html.Div([
+            html.Div('Genetic Trees'),
+            html.Img(src='../../assets/icons/download.svg', className="icon"),
+        ], className="individual-tree-download-container button download", id='download-button-genetic'),
+    ], className="section"),
+
+
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name):
     return html.Div([
         html.H3(name, className="treeTitle"),  # title
         cyto.Cytoscape(
-            id='cytoscape',
             elements=elem,
             stylesheet=stylesheet,
             layout={'name': 'preset'},
             style={
                 'height': '350px',
                 'width': '100%'
-            }
+            },
         )
     ], id=name, className="tree-container")
 
@@ -373,27 +481,6 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     return nodes, edges
 
 
-@callback(Output('cytoscape', 'stylesheet'),
-          [Input('cytoscape', 'mouseoverEdgeData')])
-def color_children(edgeData):
-    if edgeData is None:
-        return stylesheet
-
-    if 's' in edgeData['source']:
-        val = edgeData['source'].split('s')[0]
-    else:
-        val = edgeData['source']
-
-    children_style = [{
-        'selector': f'edge[source *= "{val}"]',
-        'style': {
-            'line-color': 'white'
-        }
-    }]
-
-    return stylesheet + children_style
-
-
 clientside_callback(
     ClientsideFunction(
         namespace='clientside',
@@ -414,7 +501,7 @@ clientside_callback(
     ),
     Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
     [Input("results-table-collapse-button", "n_clicks"),
-     Input("output-results", "id"),
+     Input("results-row", "id"),
      Input("results-table-collapse-button", "id")],
     prevent_initial_call=True,
 )
@@ -445,13 +532,12 @@ stylesheet = [
     },
     {
         'selector': '.support',
-        'style': {'background-opacity': 0,
-                  'background-color': "pink"}
+        'style': {'background-opacity': 0}
     },
     {
         'selector': 'edge',
         'style': {
-            'background-color': "pink",
+            'line-color': '#AD00FA ',
             "source-endpoint": "inside-to-node",
             "target-endpoint": "inside-to-node",
         }
@@ -460,11 +546,14 @@ stylesheet = [
         'selector': '.terminal',
         'style': {
             'label': 'data(name)',
+            'font-weight': 'bold',
+            'color': 'white',
             'width': 10,
             'height': 10,
             "text-valign": "center",
             "text-halign": "right",
-            'background-color': "pink"
+            # 'background-color': "#faad00"
+            'background-color': "#00faad"
         }
     }
 ]
