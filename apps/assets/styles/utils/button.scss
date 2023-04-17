@@ -49,6 +49,12 @@
     font-weight: bold;
     color: white;
 
+    .text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     &:hover {
       background-color: #8B00D1;
     }

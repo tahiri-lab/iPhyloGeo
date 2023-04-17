@@ -12,6 +12,10 @@
     padding: 50px;
     width: 100%;
 
+    @media (max-width: 1500px) {
+      display: block;
+    }
+
     .sub-section {
       display: flex;
       gap: 30px;
