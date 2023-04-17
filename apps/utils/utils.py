@@ -73,6 +73,17 @@ def get_file_from_db(id):
 
 
 def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
+    """
+    DCC Upload component returns a list of base64 encoded strings.
+    This function decodes the strings and parse them.
+
+    Args:
+        list_of_contents (list): List of base64 encoded strings.
+        list_of_names (list): List of file names.
+        last_modifieds (list): List of last modified dates.
+    returns:
+        list: List of parsed files.
+    """
     results = []
     for content, file_name, date in zip(list_of_contents, list_of_names, last_modifieds):
         results.append(parse_contents(content, file_name, date))
@@ -145,15 +156,6 @@ def create_seq_html(file):
 
     return html.Div([
         dcc.Markdown('You have uploades file(s):  **{}**'.format(file_name)),
-        # html.H6(datetime.datetime.fromtimestamp(date)),
-        # html.Small(seq_upload),
-
-        # For debugging, display the raw contents provided by the web browser
-        # html.Div('Raw Content'),
-        # html.Pre(contents[0:200] + '...', style={
-        #   'whiteSpace': 'pre-wrap',
-        #   'wordBreak': 'break-all'
-        # })
     ])
 
 

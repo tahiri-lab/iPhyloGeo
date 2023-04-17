@@ -64,7 +64,7 @@ Finally, you need to install. You can find the installation guide here : https:/
 - To set up the programm, you need to chahge the .env file with your own data.
 Here is an example of the .env file :
 ```
-APP_MODE='local'
+APP_ENV='local'
 MONGO_URI='mongodb://localhost:27017/iPhyloGeo'
 DB_NAME='iPhyloGeo'
 URL='http://localhost'
@@ -114,14 +114,14 @@ apps/assets/styles/your_file.scss
 ```
 * Dash dosen't use SCSS files directly, so you need to generate a CSS file from the SCSS file. To do so, you need to include it in the Gruntfile.js file.
 ```
-./Gruntfile.js 
+./Gruntfile.js
 ```
 * In the Gruntfile.js file, you need to add the following code in the dist section. `the desire output` : `the SCSS file location`
 
 *The CSS files need to be generated in the **assets** folder, otherwise it won't work*
 ```
  [...]
- 
+
  dist: {
                 files: {
                     'apps/assets/your_file.css': 'apps/assets/styles/your_file.scss'
