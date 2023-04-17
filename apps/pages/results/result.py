@@ -32,8 +32,10 @@ layout = html.Div([
                 ]),
             ], className="header"),
             html.H2(id='results-table-title', className="title"),
-            html.Div(id='output-results', className="results-row"),
-            html.Div(id='output-results-graph', className="results-row"),
+            html.Div([
+                html.Div(id='output-results'),
+                html.Div(id='output-results-graph', className="graph"),
+            ], id='results-row', className="results-row"),
             dcc.Download(id='download-link-results'),
             html.H2(id="climatic-tree-title", className="title"),
             html.Div([
@@ -213,13 +215,15 @@ def create_result_table_header():
                          className="icon collapse-icon"),
             ], className="sub-section"),
             html.Div([
-                html.Div('Aligned genetic sequences'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-aligned'),
-            html.Div([
-                html.Div('output.csv'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-complete'),
+                html.Div([
+                    html.Div('Aligned genetic sequences'),
+                    html.Img(src='../../assets/icons/download.svg', className="icon"),
+                ], className="individual-tree-download-container button download", id='download-button-aligned'),
+                html.Div([
+                    html.Div('output.csv'),
+                    html.Img(src='../../assets/icons/download.svg', className="icon"),
+                ], className="individual-tree-download-container button download", id='download-button-complete'),
+            ], className="download-container")
         ], className="section")
 
 
@@ -273,7 +277,7 @@ def create_result_graphic(results_data):
         go.Scatter(x=results_data["starting_position"], y=results_data["Least-Square distance"],
                    name="LS distance"), secondary_y=True,
     )
-    fig.update_layout(title_text="Bootstrap mean and LS distance")
+    fig.update_layout(title_text="Bootstrap mean and LS distance", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
     fig.update_xaxes(title_text="Position in ASM")
     fig.update_yaxes(
         title_text="<b>Bootstrap mean</b>", 
@@ -537,7 +541,7 @@ clientside_callback(
     ),
     Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
     [Input("results-table-collapse-button", "n_clicks"),
-     Input("output-results", "id"),
+     Input("results-row", "id"),
      Input("results-table-collapse-button", "id")],
     prevent_initial_call=True,
 )

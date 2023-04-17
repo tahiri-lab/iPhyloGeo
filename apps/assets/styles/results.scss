@@ -4,6 +4,7 @@
   flex-direction: column;
   height: 100vh;
   padding: 0 300px;
+  transition: all 0.3s ease-in-out;
 
   .results-container {
     max-width: 1200px;
