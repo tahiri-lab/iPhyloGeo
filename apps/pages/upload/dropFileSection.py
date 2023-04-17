@@ -1,4 +1,3 @@
-import dash_bootstrap_components as dbc
 from dash import callback, dcc, html, Input, Output, clientside_callback, ClientsideFunction
 
 # this is a shortcut. It's the base64 content of the test files (geo.csv and genetic.csv)
@@ -50,6 +49,7 @@ layout = html.Div([
         ),
     ],),
 ],)
+
 
 @callback(
     Output("upload-data", "filename"),
