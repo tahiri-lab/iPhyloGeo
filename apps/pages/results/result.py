@@ -239,11 +239,11 @@ def create_result_table_header():
         ], className="sub-section"),
         html.Div([
             html.Div([
-                html.Div('Aligned genetic sequences'),
+                html.Div('Aligned genetic sequences', className="text"),
                 html.Img(src='../../assets/icons/download.svg', className="icon"),
             ], className="individual-tree-download-container button download", id='download-button-aligned'),
             html.Div([
-                html.Div('output.csv'),
+                html.Div('output.csv', className="text"),
                 html.Img(src='../../assets/icons/download.svg', className="icon"),
             ], className="individual-tree-download-container button download", id='download-button-complete'),
         ], className="download-container")
@@ -350,7 +350,7 @@ def create_climatic_trees_header():
             html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon"),
         ], className="sub-section"),
         html.Div([
-            html.Div('Climatic Trees'),
+            html.Div('Climatic Trees', className="text"),
             html.Img(src='../../assets/icons/download.svg', className="icon"),
         ], className="individual-tree-download-container button download", id='download-button-climatic'),
     ], className="section")
@@ -366,7 +366,7 @@ def create_genetic_trees_header():
             html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon"),
         ], className="sub-section"),
         html.Div([
-            html.Div('Genetic Trees'),
+            html.Div('Genetic Trees', className="text"),
             html.Img(src='../../assets/icons/download.svg', className="icon"),
         ], className="individual-tree-download-container button download", id='download-button-genetic'),
     ], className="section"),
