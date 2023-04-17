@@ -223,22 +223,22 @@ def add_to_cookie(result_id):
 
 def create_result_table_header():
     return html.Div([
+        html.Div([
+            html.Div('Results', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button",
+                     className="icon collapse-icon"),
+        ], className="sub-section"),
+        html.Div([
             html.Div([
-                html.Div('Results', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-table-collapse-button",
-                         className="icon collapse-icon"),
-            ], className="sub-section"),
+                html.Div('Aligned genetic sequences'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-aligned'),
             html.Div([
-                html.Div([
-                    html.Div('Aligned genetic sequences'),
-                    html.Img(src='../../assets/icons/download.svg', className="icon"),
-                ], className="individual-tree-download-container button download", id='download-button-aligned'),
-                html.Div([
-                    html.Div('output.csv'),
-                    html.Img(src='../../assets/icons/download.svg', className="icon"),
-                ], className="individual-tree-download-container button download", id='download-button-complete'),
-            ], className="download-container")
-        ], className="section")
+                html.Div('output.csv'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-complete'),
+        ], className="download-container")
+    ], className="section")
 
 
 def create_result_table(data):
@@ -251,23 +251,23 @@ def create_result_table(data):
     """
 
     return html.Div([
-            dash_table.DataTable(
-                id='datatable-interactivity',
-                data=data.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in data.columns],
-                filter_action="native",     # allow filtering of data by user ('native') or not ('none')
-                sort_action="native",       # enables data to be sorted per-column by user or not ('none')
-                sort_mode="single",         # sort across 'multi' or 'single' columns
-                page_current=0,             # page number that user is on
-                page_size=15,               # number of rows visible per page
-                filter_query='',            # query that determines which rows to keep in table
-                row_selectable="multi",     # allow user to select 'multi' or 'single' rows
-                style_data={
-                    'color': 'var(--reverse-black-white-color)',
-                    'backgroundColor': 'var(--table-bg-color'
-                },
-            )
-        ])
+        dash_table.DataTable(
+            id='datatable-interactivity',
+            data=data.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in data.columns],
+            filter_action="native",     # allow filtering of data by user ('native') or not ('none')
+            sort_action="native",       # enables data to be sorted per-column by user or not ('none')
+            sort_mode="single",         # sort across 'multi' or 'single' columns
+            page_current=0,             # page number that user is on
+            page_size=15,               # number of rows visible per page
+            filter_query='',            # query that determines which rows to keep in table
+            row_selectable="multi",     # allow user to select 'multi' or 'single' rows
+            style_data={
+                'color': 'var(--reverse-black-white-color)',
+                'backgroundColor': 'var(--table-bg-color'
+            },
+        )
+    ])
 
 
 def create_result_graphic(results_data):
@@ -299,7 +299,8 @@ def create_result_graphic(results_data):
             x=results_data["starting_position"],
             y=results_data["Least-Square distance"],
             name="LS distance",
-            line=dict(color="#FAAD00")
+            line=dict(color="#00faad")
+            # line=dict(color="#FAAD00")
         ),
         secondary_y=True,
     )
@@ -327,7 +328,7 @@ def create_result_graphic(results_data):
     max_ls = results_data['Least-Square distance'].max()
     ls_ticks = np.linspace(min_ls, max_ls, 6)
 
-    fig.update_layout(yaxis1_tickvals = bootstrap_ticks, yaxis2_tickvals = ls_ticks)
+    fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
 
     return dcc.Graph(figure=fig)
 
@@ -337,15 +338,15 @@ def create_climatic_trees_header():
     This function creates the header for the climatic trees
     """
     return html.Div([
-            html.Div([
-                html.Div('Climatic Trees', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon"),
-            ], className="sub-section"),
-            html.Div([
-                html.Div('Climatic Trees'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-climatic'),
-        ], className="section")
+        html.Div([
+            html.Div('Climatic Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-climatic-collapse-button", className="icon collapse-icon"),
+        ], className="sub-section"),
+        html.Div([
+            html.Div('Climatic Trees'),
+            html.Img(src='../../assets/icons/download.svg', className="icon"),
+        ], className="individual-tree-download-container button download", id='download-button-climatic'),
+    ], className="section")
 
 
 def create_genetic_trees_header():
@@ -353,15 +354,15 @@ def create_genetic_trees_header():
     This function creates the header for the genetic trees
     """
     return html.Div([
-            html.Div([
-                html.Div('Genetic Trees', className="title"),
-                html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon"),
-            ], className="sub-section"),
-            html.Div([
-                html.Div('Genetic Trees'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-genetic'),
-        ], className="section"),
+        html.Div([
+            html.Div('Genetic Trees', className="title"),
+            html.Img(src='../../assets/icons/angle-down.svg', id="results-genetic-collapse-button", className="icon collapse-icon"),
+        ], className="sub-section"),
+        html.Div([
+            html.Div('Genetic Trees'),
+            html.Img(src='../../assets/icons/download.svg', className="icon"),
+        ], className="individual-tree-download-container button download", id='download-button-genetic'),
+    ], className="section"),
 
 
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
@@ -375,7 +376,7 @@ def generate_tree(elem, name):
             style={
                 'height': '350px',
                 'width': '100%'
-            }
+            },
         )
     ], id=name, className="tree-container")
 
@@ -531,16 +532,12 @@ stylesheet = [
     },
     {
         'selector': '.support',
-        'style': {'background-opacity': 1,
-                  'width': 3,
-                  'height': 3,
-                  'shape': 'rectangle',
-                  'background-color': "#AD00FA"}
+        'style': {'background-opacity': 0}
     },
     {
         'selector': 'edge',
         'style': {
-            'line-color': '#AD00FA',
+            'line-color': '#AD00FA ',
             "source-endpoint": "inside-to-node",
             "target-endpoint": "inside-to-node",
         }
@@ -549,11 +546,14 @@ stylesheet = [
         'selector': '.terminal',
         'style': {
             'label': 'data(name)',
+            'font-weight': 'bold',
+            'color': 'white',
             'width': 10,
             'height': 10,
             "text-valign": "center",
             "text-halign": "right",
-            'background-color': "#EA46FF"
+            # 'background-color': "#faad00"
+            'background-color': "#00faad"
         }
     }
 ]

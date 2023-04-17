@@ -150,6 +150,7 @@
         font-size: 20px;
         font-weight: bold;
         word-wrap: break-word;
+        color: white;
       }
 
       .tree {
@@ -178,7 +179,7 @@
             width: 45%;
             box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
             border-radius: 15px;
-            background-color: Var(--result-tree-container);
+            background-color: black;
             transition: all 0.3s ease-in-out;
 
             @media (max-width: 1500px) {
