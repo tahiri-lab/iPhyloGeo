@@ -141,13 +141,12 @@ def create_climatic_trees(path):
     Input("download-button-aligned", "n_clicks"),
     Input("download-button-complete", "n_clicks"),
     prevent_initial_call=True,
-    suppress_callback_exceptions=True,
 )
 def download_results(path, btn_genetic, btn_climatic, btn_aligned, btn_complete):
     """
     This function creates the list of divs containing the genetic trees
     Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
-    
+
     args:
         path (str): the path of the page
         btn_genetic : dummy inpput needed to trigger the callback
@@ -162,7 +161,21 @@ def download_results(path, btn_genetic, btn_climatic, btn_aligned, btn_complete)
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    return get_file_by_trigger_id(trigger_id, result)
+    if trigger_id == "download-button-genetic" and btn_genetic:
+        result_genetic_trees = result['genetic_trees']
+        data_genetic = "".join(list(result_genetic_trees.values()))
+        return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
+    if trigger_id == "download-button-climatic" and btn_climatic:
+        result_climatic_trees = result['climatic_trees']
+        data_climatic = "".join(list(result_climatic_trees.values()))
+        return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
+    if trigger_id == "download-button-aligned" and btn_aligned:
+        result_msa = result['msaSet']
+        data_msa = json.dumps(result_msa)
+        return dict(content=data_msa, filename=result["name"] + "_msa.json")
+    if trigger_id == "download-button-complete" and btn_complete:
+        data_results = str_csv_to_df(result['output'])
+        return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
 
 
 @callback(
@@ -215,15 +228,13 @@ def create_result_table_header():
                          className="icon collapse-icon"),
             ], className="sub-section"),
             html.Div([
-                html.Div([
-                    html.Div('Aligned genetic sequences'),
-                    html.Img(src='../../assets/icons/download.svg', className="icon"),
-                ], className="individual-tree-download-container button download", id='download-button-aligned'),
-                html.Div([
-                    html.Div('output.csv'),
-                    html.Img(src='../../assets/icons/download.svg', className="icon"),
-                ], className="individual-tree-download-container button download", id='download-button-complete'),
-            ], className="download-container")
+                html.Div('Aligned genetic sequences'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-aligned'),
+            html.Div([
+                html.Div('output.csv'),
+                html.Img(src='../../assets/icons/download.svg', className="icon"),
+            ], className="individual-tree-download-container button download", id='download-button-complete'),
         ], className="section")
 
 
@@ -264,7 +275,7 @@ def create_result_graphic(results_data):
     returns:
         dash_table.DataTable: the table containing the results
     """
-    results_data['starting_position'] = [x.split("_")[0] for x in results_data['Position in ASM']]
+    results_data['starting_position'] = [int(x.split("_")[0]) for x in results_data['Position in ASM']]
 
     results_data = results_data[['starting_position', 'Bootstrap mean', 'Least-Square distance']]
     results_data = results_data.groupby('starting_position').mean().reset_index()
@@ -280,15 +291,15 @@ def create_result_graphic(results_data):
     fig.update_layout(title_text="Bootstrap mean and LS distance", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
     fig.update_xaxes(title_text="Position in ASM")
     fig.update_yaxes(
-        title_text="<b>Bootstrap mean</b>", 
+        title_text="<b>Bootstrap mean</b>",
         secondary_y=False)
     fig.update_yaxes(
-        title_text="<b>LS distance</b>", 
+        title_text="<b>LS distance</b>",
         secondary_y=True)
 
     return dcc.Graph(figure=fig)
-        
-    
+
+
 
 
 def create_climatic_trees_header():
@@ -321,66 +332,6 @@ def create_genetic_trees_header():
                 html.Img(src='../../assets/icons/download.svg', className="icon"),
             ], className="individual-tree-download-container button download", id='download-button-genetic'),
         ], className="section"),
-
-
-def get_file_by_trigger_id(trigger_id, result):
-    """
-    This function returns the file to download
-    args:
-        trigger_id (str): the id of the button that was clicked
-        result (dict): the result dict containing the specific data to download 
-    returns:
-        dict: the file to download
-    """
-    pass
-    # if trigger_id == "download-button-genetic":
-    #     result_genetic_trees = result['genetic_trees']
-    #     data_genetic = "".join(list(result_genetic_trees.values()))
-    #     return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
-    # if trigger_id == "download-button-climatic":
-    #     result_climatic_trees = result['climatic_trees']
-    #     data_climatic = "".join(list(result_climatic_trees.values()))
-    #     return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
-    # if trigger_id == "download-button-aligned":
-    #     result_msa = result['msaSet']
-    #     data_msa = json.dumps(result_msa)
-    #     return dict(content=data_msa, filename=result["name"] + "_msa.json")
-    # if trigger_id == "download-button-complete":
-    #     data_results = str_csv_to_df(result['output'])
-    #     return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
@@ -541,7 +492,7 @@ clientside_callback(
     ),
     Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
     [Input("results-table-collapse-button", "n_clicks"),
-     Input("results-row", "id"),
+     Input("output-results", "id"),
      Input("results-table-collapse-button", "id")],
     prevent_initial_call=True,
 )
