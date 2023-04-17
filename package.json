@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "concurrently --kill-others \"python apps/app.py\" \"electron main.js\" grunt",
-    "server": "concurrently --kill-others \"python apps/app.py\" grunt"
+    "server": "concurrently --kill-others \"python apps/app.py\" grunt",
+    "lint": "flake8 apps"
   },
   "author": "",
   "license": "ISC",

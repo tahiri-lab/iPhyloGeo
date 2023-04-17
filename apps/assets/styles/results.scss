@@ -4,9 +4,12 @@
   flex-direction: column;
   height: 100vh;
   padding: 0 300px;
+  transition: all 0.3s ease-in-out;
 
   .results-container {
-    margin-top: 50px;
+    max-width: 1200px;
+    margin: 50px auto auto;
+    width: 100%;
   }
 
   .empty-results {
@@ -69,6 +72,7 @@
     flex-direction: column;
     gap: 10px;
     width: 100%;
+    min-width: 600px;
     margin-top: 20px;
     padding: 10px;
 
