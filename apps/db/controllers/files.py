@@ -117,10 +117,17 @@ def fasta_to_str(fasta):
 
 
 def str_csv_to_df(str_csv):
-    df = pd.DataFrame(str_csv)
-    df = df.rename(columns=df.iloc[0]).drop(df.index[0])
+    """
+    Convert a list of lists to a pandas dataframe
 
-    # convert all value to numeric
-    for col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors='ignore')
+    Args:
+        str_csv (list): The list of lists to be converted to a dataframe
+
+    Returns:
+        df (pandas.DataFrame): The dataframe
+    """
+    df = pd.DataFrame.from_dict(str_csv)
+    df = df[1:]
+    df = df.apply(pd.to_numeric, errors='ignore')
+
     return df

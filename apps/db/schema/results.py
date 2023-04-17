@@ -12,6 +12,14 @@ schema_results = {
             },
             'status': {
                 'bsonType': 'string',
+                'enum': ['pending', 'climatic_trees', 'alignement', 'genetic_trees', 'complete', 'error'],
+            },
+            'result_type': {
+                'bsonType': 'array',
+                'items': {
+                    'bsonType': 'string',
+                    'enum': ['climatic', 'genetic'],
+                }
             },
             'climatic_files_id': {
                 'bsonType': 'objectId',
@@ -66,13 +74,7 @@ schema_results = {
                 'bsonType': 'object',
             },
             'output': {
-                'bsonType': 'array',
-                'items': {
-                    'bsonType': 'array',
-                    'items': {
-                        'bsonType': 'string',
-                    }
-                }
+                'bsonType': 'object',
             },
             'expired_at': {"bsonType": 'date'},
             'created_at': {"bsonType": 'date'},

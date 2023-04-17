@@ -11,6 +11,9 @@
   margin-top: 10px;
   box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
   width: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     cursor: pointer;
@@ -31,6 +34,17 @@
 
   &.actions {
     background-color: #EA46FF;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+
+    &:hover {
+      background-color: #8B00D1;
+    }
+  }
+
+  &.download {
+    background-color: #AD00FA;
     font-size: 15px;
     font-weight: bold;
     color: white;
