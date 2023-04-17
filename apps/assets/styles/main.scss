@@ -1,0 +1,21 @@
+
+html body {
+    background-color: #1A1C1E;
+    font-family: Inter, sans-serif;
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.footer {
+    background-color: var(--background-color);
+    height: 50px;
+    margin-top: -7px;
+}
+.hidden {
+    display: none;
+}
+.center {
+    text-align: center;
+    display:flex;
+    justify-content: center;
+}
