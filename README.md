@@ -38,7 +38,7 @@ Fof a windows based system, you can use the following commands:
 2. If you do not have `virtualenv` installed, run `py -m pip install --user virtualenv`
 3. Create a new virtual environment (venv) in your terminal using `py -m venv aPhyloGeo_env`.
 4. Still in the terminal, activate the new venv using `aPhyloGeo_env/bin/activate .`.
-5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip -e install .`.
+5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip install -e .`.
 
 
 Then you can install the other requirements. Make sure you are using the same venv as above. Make sure youa re in the iPhyloGeo directory.
