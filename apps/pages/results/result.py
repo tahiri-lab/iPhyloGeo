@@ -143,7 +143,7 @@ def download_results(path, btn_genetic, btn_climatic, btn_aligned, btn_complete)
     """
     This function creates the list of divs containing the genetic trees
     Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
-    
+
     args:
         path (str): the path of the page
         btn_genetic : dummy inpput needed to trigger the callback
@@ -158,7 +158,7 @@ def download_results(path, btn_genetic, btn_climatic, btn_aligned, btn_complete)
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    return get_file_by_trigger_id(trigger_id, result)
+    return get_file_by_trigger_id(trigger_id, result) if trigger_id else None
 
 
 @callback(
@@ -274,15 +274,15 @@ def create_result_graphic(results_data):
     fig.update_layout(title_text="Bootstrap mean and LS distance")
     fig.update_xaxes(title_text="Position in ASM")
     fig.update_yaxes(
-        title_text="<b>Bootstrap mean</b>", 
+        title_text="<b>Bootstrap mean</b>",
         secondary_y=False)
     fig.update_yaxes(
-        title_text="<b>LS distance</b>", 
+        title_text="<b>LS distance</b>",
         secondary_y=True)
 
     return dcc.Graph(figure=fig)
-        
-    
+
+
 
 
 def create_climatic_trees_header():
@@ -322,27 +322,27 @@ def get_file_by_trigger_id(trigger_id, result):
     This function returns the file to download
     args:
         trigger_id (str): the id of the button that was clicked
-        result (dict): the result dict containing the specific data to download 
+        result (dict): the result dict containing the specific data to download
     returns:
         dict: the file to download
     """
     pass
-    # if trigger_id == "download-button-genetic":
-    #     result_genetic_trees = result['genetic_trees']
-    #     data_genetic = "".join(list(result_genetic_trees.values()))
-    #     return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
-    # if trigger_id == "download-button-climatic":
-    #     result_climatic_trees = result['climatic_trees']
-    #     data_climatic = "".join(list(result_climatic_trees.values()))
-    #     return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
-    # if trigger_id == "download-button-aligned":
-    #     result_msa = result['msaSet']
-    #     data_msa = json.dumps(result_msa)
-    #     return dict(content=data_msa, filename=result["name"] + "_msa.json")
-    # if trigger_id == "download-button-complete":
-    #     data_results = str_csv_to_df(result['output'])
-    #     return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
-    
+    if trigger_id == "download-button-genetic":
+        result_genetic_trees = result['genetic_trees']
+        data_genetic = "".join(list(result_genetic_trees.values()))
+        return dict(content=data_genetic, filename=result["name"] + "_genetic_trees.newick")
+    if trigger_id == "download-button-climatic":
+        result_climatic_trees = result['climatic_trees']
+        data_climatic = "".join(list(result_climatic_trees.values()))
+        return dict(content=data_climatic, filename=result["name"] + "_climatic_trees.newick")
+    if trigger_id == "download-button-aligned":
+        result_msa = result['msaSet']
+        data_msa = json.dumps(result_msa)
+        return dict(content=data_msa, filename=result["name"] + "_msa.json")
+    if trigger_id == "download-button-complete":
+        data_results = str_csv_to_df(result['output'])
+        return dict(content=data_results.to_csv(header=True, index=False), filename=result["name"] + "_results.csv")
+
 
 
 
