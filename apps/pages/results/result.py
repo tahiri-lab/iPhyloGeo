@@ -3,6 +3,7 @@ import dash
 import json
 import dash_cytoscape as cyto
 import math
+import numpy as np
 from Bio import Phylo
 from io import StringIO
 from flask import request
@@ -281,6 +282,7 @@ def create_result_graphic(results_data):
 
     results_data = results_data[['starting_position', 'Bootstrap mean', 'Least-Square distance']]
     results_data = results_data.groupby('starting_position').mean().reset_index()
+
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(
         go.Scatter(
@@ -302,13 +304,30 @@ def create_result_graphic(results_data):
         secondary_y=True,
     )
     fig.update_layout(title_text="Bootstrap mean and LS distance", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
-    fig.update_xaxes(title_text="Position in ASM")
+    fig.update_xaxes(
+        title_text="Position in ASM",
+        gridcolor='rgba(255,255,255,0.2)'
+    )
     fig.update_yaxes(
         title_text="<b>Bootstrap mean</b>",
-        secondary_y=False)
+        secondary_y=False,
+        gridcolor='rgba(255,255,255,0.2)'
+    )
     fig.update_yaxes(
         title_text="<b>LS distance</b>",
-        secondary_y=True)
+        secondary_y=True,
+        gridcolor='rgba(255,255,255,0.2)'
+    )
+
+    min_bootstrap = results_data['Bootstrap mean'].min()
+    max_bootstrap = results_data['Bootstrap mean'].max()
+    bootstrap_ticks = np.linspace(min_bootstrap, max_bootstrap, 6)
+
+    min_ls = results_data['Least-Square distance'].min()
+    max_ls = results_data['Least-Square distance'].max()
+    ls_ticks = np.linspace(min_ls, max_ls, 6)
+
+    fig.update_layout(yaxis1_tickvals = bootstrap_ticks, yaxis2_tickvals = ls_ticks)
 
     return dcc.Graph(figure=fig)
 
