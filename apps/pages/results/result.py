@@ -522,7 +522,7 @@ clientside_callback(
     ),
     Output("dummy-table-collapse", "children"),  # needed for the callback to trigger
     [Input("results-table-collapse-button", "n_clicks"),
-     Input("output-results", "id"),
+     Input("results-row", "id"),
      Input("results-table-collapse-button", "id")],
     prevent_initial_call=True,
 )
