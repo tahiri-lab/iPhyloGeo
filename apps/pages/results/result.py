@@ -228,13 +228,15 @@ def create_result_table_header():
                          className="icon collapse-icon"),
             ], className="sub-section"),
             html.Div([
-                html.Div('Aligned genetic sequences'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-aligned'),
-            html.Div([
-                html.Div('output.csv'),
-                html.Img(src='../../assets/icons/download.svg', className="icon"),
-            ], className="individual-tree-download-container button download", id='download-button-complete'),
+                html.Div([
+                    html.Div('Aligned genetic sequences'),
+                    html.Img(src='../../assets/icons/download.svg', className="icon"),
+                ], className="individual-tree-download-container button download", id='download-button-aligned'),
+                html.Div([
+                    html.Div('output.csv'),
+                    html.Img(src='../../assets/icons/download.svg', className="icon"),
+                ], className="individual-tree-download-container button download", id='download-button-complete'),
+            ], className="download-container")
         ], className="section")
 
 
