@@ -90,13 +90,14 @@ def show_complete_results(path):
         path (str): the path of the page
     returns:
         html.Div: the div containing the header (title & download button) of the results
-        html.Div: the div containing the results
+        html.Div: the div containing the results tabke
+        html.Div: the div containing the results graph
     """
     result_id = path.split('/')[-1]
     result = utils.get_result(result_id)
 
     if 'genetic' not in result['result_type'] or 'output' not in result:
-        return None, None
+        return None, None, None
     results_data = str_csv_to_df(result['output'])
 
     return create_result_table_header(), create_result_table(results_data), create_result_graphic(results_data)
@@ -114,6 +115,7 @@ def create_climatic_trees(path):
     args:
         path (str): the path of the page
     returns:
+        htmml.Div: the div containing the header (title & download button) of the climatic trees
         html.Div: the div containing the climatic trees
     """
     result_id = path.split('/')[-1]
@@ -190,6 +192,7 @@ def create_genetic_trees(path):
     args:
         path (str): the path of the page
     returns:
+        htmml.Div: the div containing the header (title & download button) of the genetic trees
         html.Div: the div containing the genetic trees
     """
     result_id = path.split('/')[-1]
@@ -222,6 +225,12 @@ def add_to_cookie(result_id):
 
 
 def create_result_table_header():
+    """
+    This function creates the header of the results table
+    returns:
+        html.Div: the div containing the header of the results table
+    """
+
     return html.Div([
         html.Div([
             html.Div('Results', className="title"),
@@ -293,14 +302,12 @@ def create_result_graphic(results_data):
         ),
         secondary_y=False,
     )
-    #  color="#EA46FF"
     fig.add_trace(
         go.Scatter(
             x=results_data["starting_position"],
             y=results_data["Least-Square distance"],
             name="LS distance",
             line=dict(color="#00faad")
-            # line=dict(color="#FAAD00")
         ),
         secondary_y=True,
     )
@@ -552,7 +559,6 @@ stylesheet = [
             'height': 10,
             "text-valign": "center",
             "text-halign": "right",
-            # 'background-color': "#faad00"
             'background-color': "#00faad"
         }
     }
