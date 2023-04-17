@@ -279,12 +279,23 @@ def create_result_graphic(results_data):
     results_data = results_data.groupby('starting_position').mean().reset_index()
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(
-        go.Scatter(x=results_data["starting_position"], y=results_data["Bootstrap mean"],
-        name="bootstrap mean"), secondary_y=False,
+        go.Scatter(
+            x=results_data["starting_position"],
+            y=results_data["Bootstrap mean"],
+            name="bootstrap mean",
+            line=dict(color="#AD00FA")
+        ),
+        secondary_y=False,
     )
+    #  color="#EA46FF"
     fig.add_trace(
-        go.Scatter(x=results_data["starting_position"], y=results_data["Least-Square distance"],
-                   name="LS distance"), secondary_y=True,
+        go.Scatter(
+            x=results_data["starting_position"],
+            y=results_data["Least-Square distance"],
+            name="LS distance",
+            line=dict(color="#FAAD00")
+        ),
+        secondary_y=True,
     )
     fig.update_layout(title_text="Bootstrap mean and LS distance")
     fig.update_xaxes(title_text="Position in ASM")
@@ -296,8 +307,6 @@ def create_result_graphic(results_data):
         secondary_y=True)
 
     return dcc.Graph(figure=fig)
-
-
 
 
 def create_climatic_trees_header():
