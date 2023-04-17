@@ -369,7 +369,6 @@ def generate_tree(elem, name):
     return html.Div([
         html.H3(name, className="treeTitle"),  # title
         cyto.Cytoscape(
-            id='cytoscape',
             elements=elem,
             stylesheet=stylesheet,
             layout={'name': 'preset'},
@@ -481,27 +480,6 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
     return nodes, edges
 
 
-@callback(Output('cytoscape', 'stylesheet'),
-          [Input('cytoscape', 'mouseoverEdgeData')])
-def color_children(edgeData):
-    if edgeData is None:
-        return stylesheet
-
-    if 's' in edgeData['source']:
-        val = edgeData['source'].split('s')[0]
-    else:
-        val = edgeData['source']
-
-    children_style = [{
-        'selector': f'edge[source *= "{val}"]',
-        'style': {
-            'line-color': 'white'
-        }
-    }]
-
-    return stylesheet + children_style
-
-
 clientside_callback(
     ClientsideFunction(
         namespace='clientside',
@@ -553,13 +531,16 @@ stylesheet = [
     },
     {
         'selector': '.support',
-        'style': {'background-opacity': 0,
-                  'background-color': "pink"}
+        'style': {'background-opacity': 1,
+                  'width': 3,
+                  'height': 3,
+                  'shape': 'rectangle',
+                  'background-color': "#AD00FA"}
     },
     {
         'selector': 'edge',
         'style': {
-            'background-color': "pink",
+            'line-color': '#AD00FA',
             "source-endpoint": "inside-to-node",
             "target-endpoint": "inside-to-node",
         }
@@ -572,7 +553,7 @@ stylesheet = [
             'height': 10,
             "text-valign": "center",
             "text-halign": "right",
-            'background-color': "pink"
+            'background-color': "#EA46FF"
         }
     }
 ]
