@@ -1,13 +1,33 @@
 from datetime import datetime, timedelta
 from bson.objectid import ObjectId
+from dotenv import load_dotenv, dotenv_values
+import os
 import pandas as pd
 from Bio import SeqIO
 from io import StringIO
 from db.db_validator import files_db
 import json
+from pathlib import Path
+
+load_dotenv()
+
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
+
+if ENV_CONFIG['HOST'] == 'local':
+    if not os.path.exists('files'):
+        os.makedirs('files')
 
 
 def get_all_files():
+    if ENV_CONFIG['HOST'] == 'local':
+        files = []
+        for file in os.listdir('files'):
+            with open(Path('files') / file) as f:
+                files.append(f.read())
+        return files
+
     res = files_db.find({}, {'_id': 1, 'file_name': 1})
     return list(res)  # return a list of dictionaries to force convert the pymongo cursor to a list
 
@@ -22,9 +42,19 @@ def save_files(files):
         if isinstance(parsed_file['file'], str):
             parsed_file['file'] = json.loads(parsed_file['file'])
 
-        # save the file to the database and return the id
-        result = files_db.insert_one(parsed_file)
-        results.append(str(result.inserted_id))
+        if ENV_CONFIG['HOST'] == 'local':
+            # save the file to the local directory
+            # create ObjectId if not present
+            id = parsed_file['_id'] if '_id' in parsed_file else ObjectId()
+            parsed_file['_id'] = id
+            with open(Path('files') / (str(id) + '.json'), 'w') as f:
+                f.write(json.dumps(parsed_file, indent=4, sort_keys=True, default=str))
+            results.append(id)
+
+        else:
+            # save the file to the database and return the id
+            result = files_db.insert_one(parsed_file)
+            results.append(str(result.inserted_id))
 
     return results[0] if len(results) == 1 else results
 
@@ -32,10 +62,18 @@ def save_files(files):
 def get_files_by_id(ids):
     if not isinstance(ids, list):
         ids = [ids]
+
     for id in ids:
         # check if its a objectId
         if not isinstance(id, ObjectId):
             id = ObjectId(id)
+
+    if ENV_CONFIG['HOST'] == 'local':
+        files = []
+        for id in ids:
+            with open(Path('files') / (str(id) + '.json')) as f:
+                files.append(f.read())
+        return files[0] if len(files) == 1 else files
 
     results = files_db.find({'_id': {'$in': ids}})
     results = list(results)
@@ -45,8 +83,6 @@ def get_files_by_id(ids):
         files.append(parse_document(file))
 
     return files[0] if len(files) == 1 else files
-
-# utils
 
 
 def parse_file(file):

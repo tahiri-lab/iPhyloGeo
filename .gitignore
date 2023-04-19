@@ -13,3 +13,6 @@ __pycache__/
 
 .env
 db/data/*
+
+files/
+result/

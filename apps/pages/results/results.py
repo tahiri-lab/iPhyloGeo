@@ -1,9 +1,16 @@
+from dotenv import load_dotenv, dotenv_values
 import dash_bootstrap_components as dbc
 from dash import html, callback, dcc
 import dash
 from flask import request
 from dash.dependencies import Input, Output
 import utils.utils as utils
+load_dotenv()
+
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
+
 
 dash.register_page(__name__, path_template='/results')
 
@@ -44,6 +51,11 @@ def generate_result_list(path):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
+    if ENV_CONFIG['HOST'] == 'local':
+        results = utils.get_all_results()
+        if not results:
+            return NO_RESULTS_HTML
+        return [create_layout(result) for result in results]
 
     try:
         cookie = request.cookies.get("AUTH")
@@ -75,6 +87,27 @@ def create_layout(result):
     returns :
         layout : layout containing the result
     """
+    if ENV_CONFIG['HOST'] == 'local':
+
+        return html.Div([
+            html.Div([
+                html.Div('Name', className="label"),
+                html.Div(result['name'], className="data"),
+            ], className="nameContainer"),
+            html.Div([
+                html.Div('Progress', className="label"),
+                html.Div([
+                    dbc.Progress(value=PROGRESS[result['status']], label='Error' if result['status'] == 'error' else None, color="danger" if result['status'] == 'error' else ""),
+                ], className='progressBar'),
+            ], className="progressContainer"),
+            html.Div([
+                html.A(
+                    html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
+                    href=f'/result/{result["_id"]}',
+                ),
+            ], className="arrowContainer"),
+        ], className="row")
+
     return html.Div([
         html.Div([
             html.Div('Name', className="label"),

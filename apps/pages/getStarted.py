@@ -1,6 +1,7 @@
 from dash import dcc, html, State, Input, Output, callback
 import dash
 from dash.exceptions import PreventUpdate
+from dotenv import dotenv_values
 from flask import request
 import multiprocessing
 import dash_bootstrap_components as dbc
@@ -12,6 +13,10 @@ import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
 
 dash.register_page(__name__, path='/getStarted')
+
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
 
 NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
@@ -214,7 +219,8 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
     try:
         # create a new result in the database
         result_id = utils.create_result(files_ids, result_type, params_climatic, params_genetic, result_name)
-        add_result_to_cookie(result_id)
+        if ENV_CONFIG['HOST'] != 'local':
+            add_result_to_cookie(result_id)
 
         climatic_status = 'climatic_trees' if 'genetic' in result_type else 'complete'
 

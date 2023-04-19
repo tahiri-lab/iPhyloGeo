@@ -13,9 +13,6 @@ FILES_PATH = 'files/'
 COOKIE_NAME = 'AUTH'
 COOKIE_MAX_AGE = 8640000  # 100 days
 
-# TODO add this to the .env file
-APP_ENV = 'local'  # os.environ.get('APP_ENV', 'local')
-
 
 def get_all_files():
     return files_ctrl.get_all_files()
@@ -39,14 +36,10 @@ def get_file(id, options={}):
         If the app is running in local mode, the file is read from the local file system.
         Otherwise, the file is read from database.
     """
-    # for testing purposes
     if 'mongo' in options and options['mongo']:
         return get_file_from_db(id)
 
-    if APP_ENV == 'local':
-        return read_local_file(FILES_PATH + id, options)
-    else:
-        return get_file_from_db(id)
+    return read_local_file(FILES_PATH + id, options)
 
 
 def read_local_file(path, options={}):

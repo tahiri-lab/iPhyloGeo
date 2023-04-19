@@ -1,3 +1,4 @@
+from dotenv import dotenv_values
 from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
 import dash
 import json
@@ -12,6 +13,9 @@ from plotly.subplots import make_subplots
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
 
+ENV_CONFIG = {}
+for key, value in dotenv_values().items():
+    ENV_CONFIG[key] = value
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
