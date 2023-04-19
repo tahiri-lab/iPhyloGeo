@@ -1,4 +1,6 @@
 .params-climatic {
+  transition: all 0.3s ease-in-out;
+
   .title {
     color: var(--reverse-black-white-color);
     font-size: 25px;
@@ -38,6 +40,7 @@
   }
 
   .axis {
+    color: var(--reverse-black-white-color);
     border-radius: 5px;
     padding: 10px 0;
     display: flex;

@@ -39,19 +39,15 @@ def get_result(id):
     res = results_db.find_one({'_id': ObjectId(id)})
     return res
 
-# TODO: remove this function just for testing
-
 
 def get_all_results():
-    if ENV_CONFIG['APP_ENV'] == 'local':
-        results = []
-        for file in os.listdir('result'):
-            with open(Path('result') / file) as f:
-                results.append(json.load(f))
-        return results
-
-    res = results_db.find({'status': 'complete'})
-    return list(res)
+    if ENV_CONFIG['APP_ENV'] != 'local':
+        return
+    results = []
+    for file in os.listdir('result'):
+        with open(Path('result') / file) as f:
+            results.append(json.load(f))
+    return results
 
 
 def delete_result(id):
@@ -66,10 +62,11 @@ def delete_result(id):
 def create_result(result):
 
     document = parse_result(result)
-    document['status'] = 'pending'
+    document['status'] = result['status']
     document['created_at'] = datetime.utcnow()
     document['expired_at'] = datetime.utcnow() + timedelta(days=14)
     document['name'] = result['name']
+    document['result_type'] = result['result_type']
 
     if ENV_CONFIG['APP_ENV'] == 'local':
         # save the file to the results directory and return the id
