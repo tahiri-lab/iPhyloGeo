@@ -12,13 +12,13 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-if ENV_CONFIG['APP_ENV'] == 'local':
+if ENV_CONFIG['HOST'] == 'local':
     if not os.path.exists('result'):
         os.makedirs('result')
 
 
 def get_results(ids):
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         # look for ids in the results directory
         results = []
         for id in ids:
@@ -31,7 +31,7 @@ def get_results(ids):
 
 
 def get_result(id):
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         # look for id in the results directory
         with open(Path('result') / (str(id) + '.json')) as f:
             return json.load(f)
@@ -41,7 +41,7 @@ def get_result(id):
 
 
 def get_all_results():
-    if ENV_CONFIG['APP_ENV'] != 'local':
+    if ENV_CONFIG['HOST'] != 'local':
         return
     results = []
     for file in os.listdir('result'):
@@ -51,7 +51,7 @@ def get_all_results():
 
 
 def delete_result(id):
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         # look for id in the results directory
         os.remove(Path('result') / (str(id) + '.json'))
         return
@@ -68,7 +68,7 @@ def create_result(result):
     document['name'] = result['name']
     document['result_type'] = result['result_type']
 
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         # save the file to the results directory and return the id
         id = ObjectId()
         document['_id'] = id
@@ -83,7 +83,7 @@ def create_result(result):
 def update_result(result):
     document = parse_result(result)
 
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         # save the file to the results directory and return the id
         with open(Path('result') / (str(document['_id']) + '.json'), 'r+') as f:
             data = json.load(f)

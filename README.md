@@ -64,7 +64,8 @@ Finally, you need to install. You can find the installation guide here : https:/
 - To set up the programm, you need to chahge the .env file with your own data.
 Here is an example of the .env file :
 ```
-APP_ENV='local'
+APP_ENV='dev'
+HOST='local'
 MONGO_URI='mongodb://localhost:27017/iPhyloGeo'
 DB_NAME='iPhyloGeo'
 URL='http://localhost'

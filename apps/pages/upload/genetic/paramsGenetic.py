@@ -1,4 +1,4 @@
-from dash import dcc, html, Output, Input, callback, State
+from dash import dcc, html, Output, Input, callback  # , State
 import dash_bio as dashbio
 import dash
 
@@ -119,92 +119,96 @@ def make_alignment_chart(starting_position, window_size, file):
         html.Div(id='alignment-viewer-output', className='alignment-chart'),
     ])
 
+# TODO: fix the bug with dash 2.9 and multiprocessing
+# the following callbacks are using allow_duplicate=True, which is a new feature in dash 2.9.0
+# When running the code with dash 2.9.0, the pipeline can't run in a windows environment (because multiprocessing is not supported)
+# We chose to comment the code for now, to make sure the code can run on windows, but it can be uncommented when running on linux (just make sure to install dash 2.9.0 or higher)
 
-@callback(
-    Output("sync", "data", allow_duplicate=True),
-    Input("input-starting-position", "value"),
-    State("sync", "data"),
-    prevent_initial_call=True
-)
-def sync_starting_position_value(value, current_data):
-    """
-    Function to sync the starting position value with it's associated slider (sliding-window-slider)
-    args:
-        value: the new value of the starting position
-        current_data (dict) : the current data
-    returns:
-        current_data (dict) : the updated data
-    """
-    current_data["starting_position"] = value
-    return current_data
-
-
-@callback(
-    Output("sync", "data", allow_duplicate=True),
-    Input("input-window-size", "value"),
-    State("sync", "data"),
-    prevent_initial_call=True
-)
-def sync_window_size_value(value, current_data):
-    """
-    Function to sync the window size value with it's associated slider (sliding-window-slider)
-    args:
-        value: the new value of the window size
-        current_data (dict) : the current data
-    returns:
-        current_data (dict) : the updated data
-    """
-    current_data["window_size"] = value
-    return current_data
+# @callback(
+#     Output("sync", "data", allow_duplicate=True),
+#     Input("input-starting-position", "value"),
+#     State("sync", "data"),
+#     prevent_initial_call=True
+# )
+# def sync_starting_position_value(value, current_data):
+#     """
+#     Function to sync the starting position value with it's associated slider (sliding-window-slider)
+#     args:
+#         value: the new value of the starting position
+#         current_data (dict) : the current data
+#     returns:
+#         current_data (dict) : the updated data
+#     """
+#     current_data["starting_position"] = value
+#     return current_data
 
 
-@callback(
-    Output("sync", "data", allow_duplicate=True),
-    Input("sliding-window-slider", "value"),
-    State("sync", "data"),
-    prevent_initial_call=True
-)
-def sync_slider_value(value, current_data):
-    """
-    function to sync the slider value with it's associated inputs (input-window-size and input-starting-position)
-    args:
-        value: the new value of the slider
-        current_data (dict) : the current data
-    returns:
-        current_data (dict) : the updated data
-    """
-    current_data["starting_position"] = value[0]
-    current_data["window_size"] = value[1] - value[0]
-    return current_data
+# @callback(
+#     Output("sync", "data", allow_duplicate=True),
+#     Input("input-window-size", "value"),
+#     State("sync", "data"),
+#     prevent_initial_call=True
+# )
+# def sync_window_size_value(value, current_data):
+#     """
+#     Function to sync the window size value with it's associated slider (sliding-window-slider)
+#     args:
+#         value: the new value of the window size
+#         current_data (dict) : the current data
+#     returns:
+#         current_data (dict) : the updated data
+#     """
+#     current_data["window_size"] = value
+#     return current_data
 
 
-@callback(
-    Output("input-window-size", "value"),
-    Output("input-starting-position", "value"),
-    Output("sliding-window-slider", "value"),
-    Input("sync", "data"),
-    State("input-window-size", "value"),
-    State("input-starting-position", "value"),
-    State("sliding-window-slider", "value")
-)
-def update_components(current_value, window_size_prev, starting_position_prev, slider_prev):
-    """
-    This function updates the components (input-window-size, input-starting-position and sliding-window-slider) only if needed. The function is
-    complex because it has a bidirectional synchronization between the components. The soltion is based on the following reference:
-    https://community.plotly.com/t/synchronize-components-bidirectionally/14158/10
-    args:
-        current_value: dictionary with the current values
-        window_size_prev: previous value of the window size
-        starting_position_prev: previous value of the starting position
-        slider_prev: previous value of the slider
-    returns:
-        window_size: the new value of the window size
-    """
-    window_size = current_value["window_size"] if current_value["window_size"] != window_size_prev else dash.no_update
-    starting_position = current_value["starting_position"] if current_value["starting_position"] != starting_position_prev else dash.no_update
-    current_slider = [current_value["starting_position"], current_value["starting_position"] + current_value["window_size"]]
-    slider = current_slider if current_slider != slider_prev else dash.no_update
-    return window_size, starting_position, slider
+# @callback(
+#     Output("sync", "data", allow_duplicate=True),
+#     Input("sliding-window-slider", "value"),
+#     State("sync", "data"),
+#     prevent_initial_call=True
+# )
+# def sync_slider_value(value, current_data):
+#     """
+#     function to sync the slider value with it's associated inputs (input-window-size and input-starting-position)
+#     args:
+#         value: the new value of the slider
+#         current_data (dict) : the current data
+#     returns:
+#         current_data (dict) : the updated data
+#     """
+#     current_data["starting_position"] = value[0]
+#     current_data["window_size"] = value[1] - value[0]
+#     return current_data
+
+
+# @callback(
+#     Output("input-window-size", "value"),
+#     Output("input-starting-position", "value"),
+#     Output("sliding-window-slider", "value"),
+#     Input("sync", "data"),
+#     State("input-window-size", "value"),
+#     State("input-starting-position", "value"),
+#     State("sliding-window-slider", "value")
+# )
+# def update_components(current_value, window_size_prev, starting_position_prev, slider_prev):
+#     """
+#     This function updates the components (input-window-size, input-starting-position and sliding-window-slider) only if needed. The function is
+#     complex because it has a bidirectional synchronization between the components. The soltion is based on the following reference:
+#     https://community.plotly.com/t/synchronize-components-bidirectionally/14158/10
+#     args:
+#         current_value: dictionary with the current values
+#         window_size_prev: previous value of the window size
+#         starting_position_prev: previous value of the starting position
+#         slider_prev: previous value of the slider
+#     returns:
+#         window_size: the new value of the window size
+#     """
+#     window_size = current_value["window_size"] if current_value["window_size"] != window_size_prev else dash.no_update
+#     starting_position = current_value["starting_position"] if current_value["starting_position"] != starting_position_prev else dash.no_update
+#     current_slider = [current_value["starting_position"], current_value["starting_position"] + current_value["window_size"]]
+#     slider = current_slider if current_slider != slider_prev else dash.no_update
+#     return window_size, starting_position, slider
 
 
 def get_max_sequence_length(file):

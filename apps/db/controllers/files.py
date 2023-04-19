@@ -15,13 +15,13 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-if ENV_CONFIG['APP_ENV'] == 'local':
+if ENV_CONFIG['HOST'] == 'local':
     if not os.path.exists('files'):
         os.makedirs('files')
 
 
 def get_all_files():
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         files = []
         for file in os.listdir('files'):
             with open(Path('files') / file) as f:
@@ -42,7 +42,7 @@ def save_files(files):
         if isinstance(parsed_file['file'], str):
             parsed_file['file'] = json.loads(parsed_file['file'])
 
-        if ENV_CONFIG['APP_ENV'] == 'local':
+        if ENV_CONFIG['HOST'] == 'local':
             # save the file to the local directory
             # create ObjectId if not present
             id = parsed_file['_id'] if '_id' in parsed_file else ObjectId()
@@ -68,13 +68,12 @@ def get_files_by_id(ids):
         if not isinstance(id, ObjectId):
             id = ObjectId(id)
 
-    if ENV_CONFIG['APP_ENV'] == 'local':
+    if ENV_CONFIG['HOST'] == 'local':
         files = []
         for id in ids:
             with open(Path('files') / (str(id) + '.json')) as f:
                 files.append(f.read())
         return files[0] if len(files) == 1 else files
-
 
     results = files_db.find({'_id': {'$in': ids}})
     results = list(results)
@@ -84,8 +83,6 @@ def get_files_by_id(ids):
         files.append(parse_document(file))
 
     return files[0] if len(files) == 1 else files
-
-# utils
 
 
 def parse_file(file):
