@@ -1,48 +1,53 @@
-from dash import html, dash_table,callback, Output, Input, dcc
+from dash import html, dash_table, callback, Output, Input, dcc
 import dash
-import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import math
 from Bio import Phylo
 from io import StringIO
-
+from flask import request
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
 layout = html.Div([
-    
     dcc.Location(id="url"),
     html.Div([
         html.Div([
-                html.H1(id='results_name', className="title"),
-                html.H2('Results table', className="title"),  # title
-                html.Div(id='output_results'),
-                html.H2('Climatic Trees', className="title"),
-                html.Div([
-                    html.Div(id='climatic-tree'),
-                ], className="tree"),
-                html.H2('Genetic Trees', className="title"),
-                html.Div([   
-                    html.Div(id='genetic-tree'),
-                ], className="tree"),
+            html.H1(id='results-name', className="title"),
+            html.H2('Results table', className="title"),
+            html.Div(id='output-results', className="results-row"),
+            html.H2('Climatic Trees', className="title"),
+            html.Div([
+                html.Div(id='climatic-tree'),
+            ], className="tree"),
+            html.H2('Genetic Trees', className="title"),
+            html.Div([
+                html.Div(id='genetic-tree'),
+            ], className="tree"),
         ], className='treeContainer'),
-    ],),
-],className="result")
+    ], className="result")
+], className="resultContainer")
 
 
 @callback(
-    Output('results_name', 'children'),
+    Output('results-name', 'children'),
     Input('url', 'pathname'),
 )
 def show_result_name(path):
+    """
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the name of the result
+    """
     result_id = path.split('/')[-1]
     title = utils.get_result(result_id)['name']
-    return html.Div(title, className="title", style={'color': 'var(--reverse-black-white-color)', 'text-align': 'center'})
+    return html.Div(title, className="title")
+
 
 @callback(
-    Output('output_results', 'children'),
+    Output('output-results', 'children'),
     Input('url', 'pathname'),
 )
 def show_result(path):
@@ -51,14 +56,14 @@ def show_result(path):
     result = utils.get_result(result_id)
     data = {}
     # TODO - a delete plus tard
-    column_header = ["Gene","Phylogeographic tree","Name of species","Position in ASM","Bootstrap mean","Least-Square distance"]
+    column_header = ["Gene", "Phylogeographic tree", "Name of species", "Position in ASM", "Bootstrap mean", "Least-Square distance"]
     for header in column_header:
         data[header] = [header]
     for row in result['output']:
         for i in range(len(row)):
             data[column_header[i]].append(row[i])
     data = str_csv_to_df(data)
-    return dbc.Col([
+    return html.Div([
         dash_table.DataTable(
             id='datatable-interactivity',
             data=data.to_dict('records'),
@@ -69,23 +74,29 @@ def show_result(path):
             page_current=0,             # page number that user is on
             page_size=15,               # number of rows visible per page
             filter_query='',            # query that determines which rows to keep in table
-            #page_action="native",       # all data is passed to the table up-front or not ('none')
-            #sort_by=[],                 # list of columns that user sorts table by
             style_data={
                 'color': 'var(--reverse-black-white-color)',
                 'backgroundColor': 'var(--table-bg-color'
             },
         ),
-        # html.Hr(),  # horizontal line
-    ], className="center")
+    ])
 
 
 @callback(
-    Output('climatic-tree','children'),
+    Output('climatic-tree', 'children'),
     Input('url', 'pathname'),
 )
 def create_climatic_trees(path):
+    """
+    This function creates the list of divs containing the climatic trees 
+    
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the climatic trees
+    """
     result_id = path.split('/')[-1]
+    add_to_cookie(result_id)
 
     climatic_trees = utils.get_result(result_id)['climatic_trees']
     tree_names = list(climatic_trees.keys())
@@ -97,14 +108,22 @@ def create_climatic_trees(path):
 
     return html.Div(
         children=[generate_tree(elem, name) for elem, name in zip(climatic_elements, tree_names)],
-        className="treeSubContainer"
-        )
+        className="tree-sub-container"
+    )
+
 
 @callback(
-    Output('genetic-tree','children'),
+    Output('genetic-tree', 'children'),
     Input('url', 'pathname'),
 )
 def create_genetic_trees(path):
+    """
+    This function creates the list of divs containing the genetic trees
+    args:
+        path (str): the path of the page
+    returns:
+        html.Div: the div containing the genetic trees
+    """
     result_id = path.split('/')[-1]
 
     genetic_trees = utils.get_result(result_id)['genetic_trees']
@@ -116,23 +135,38 @@ def create_genetic_trees(path):
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
+    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="tree-sub-container")
 
-    return html.Div(children=[generate_tree(elem, name) for elem, name in zip(genetic_elements, tree_names)], className="treeSubContainer")
 
+def add_to_cookie(result_id):
+    """
+    This function takes the result id and adds it to the cookie
+    args:
+        result_id (str): the id of the result to add to the cookie
+    """
+
+    auth_cookie = request.cookies.get("AUTH")
+    auth_cookie_value = utils.make_cookie(result_id, auth_cookie)
+
+    response = dash.callback_context.response
+    response.set_cookie("AUTH", auth_cookie_value)
+
+
+# the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name):
-     return html.Div([
-            html.H3(name),  # title
-            cyto.Cytoscape(
-                id='cytoscape',
-                elements=elem,
-                stylesheet=stylesheet,
-                layout = {'name': 'preset'},
-                style={
-                    'height': '350px',
-                    'width': '100%'
-                }
-            )
-        ])
+    return html.Div([
+        html.H3(name, className="treeTitle"),  # title
+        cyto.Cytoscape(
+            id='cytoscape',
+            elements=elem,
+            stylesheet=stylesheet,
+            layout={'name': 'preset'},
+            style={
+                'height': '350px',
+                'width': '100%'
+            }
+        )
+    ])
 
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
@@ -163,7 +197,7 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
                 if subclade not in positions:
                     calc_row(subclade)
             positions[clade] = ((positions[clade.clades[0]] +
-                                 positions[clade.clades[-1]]) // 2)
+                                positions[clade.clades[-1]]) // 2)
 
         calc_row(tree.root)
         return positions
@@ -250,7 +284,7 @@ stylesheet = [
     {
         'selector': '.support',
         'style': {'background-opacity': 0,
-                  'background-color':"pink"}
+                  'background-color': "pink"}
     },
     {
         'selector': 'edge',
@@ -274,7 +308,7 @@ stylesheet = [
 
 
 @callback(Output('cytoscape', 'stylesheet'),
-              [Input('cytoscape', 'mouseoverEdgeData')])
+          [Input('cytoscape', 'mouseoverEdgeData')])
 def color_children(edgeData):
     if edgeData is None:
         return stylesheet

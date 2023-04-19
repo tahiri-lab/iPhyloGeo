@@ -1,33 +1,25 @@
 {
-  "name": "webapps",
+  "name": "iphylogeo",
   "version": "1.0.0",
-  "description": "iphylogeo",
-  "main": "main.js",
-  "author": "YEET",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "concurrently --kill-others \"python apps/app.py\" \"electron main.js\" grunt",
     "server": "concurrently --kill-others \"python apps/app.py\" grunt",
-    "make": "electron-forge make",
-    "package": "electron-forge package"
+    "lint": "flake8 apps"
   },
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "concurrently": "^7.6.0",
     "dash": "3.23.2",
-    "dotenv": "^16.0.3",
-    "electron-squirrel-startup": "^1.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "node-sass": "^8.0.0"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.1.1",
-    "@electron-forge/maker-deb": "^6.1.1",
-    "@electron-forge/maker-rpm": "^6.1.1",
-    "@electron-forge/maker-squirrel": "^6.1.1",
-    "@electron-forge/maker-zip": "^6.1.1",
-    "dotenv": "^16.0.3",
     "electron": "^22.0.3",
     "grunt": "^1.6.1",
-    "grunt-sass": "^3.1.0"
+    "grunt-sass": "^3.1.0",
+    "dotenv": "^16.0.3"
   }
 }

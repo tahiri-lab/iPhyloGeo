@@ -1,11 +1,9 @@
-.getStarted {
+.get-started {
   background-color: var(--background-color);
-  //height: 100vh;
-  //overflow: auto;
   overflow: hidden;
   padding: 0 80px;
 
-  .submitButton {
+  .submit-button {
     display: flex;
     justify-content: center;
     margin-top: 15px;
@@ -25,10 +23,8 @@
   }
 
   .ChoiceSection {
-    //top: 25%;
     position: relative;
     height: 100vh;
-    //margin-top: 90px;
     text-align: center;
 
     .choiceSectionInside {
@@ -53,7 +49,6 @@
       margin: 10px;
       display: flex;
       flex-direction: column;
-      //justify-content: center;
       cursor: pointer;
 
       &:hover {
@@ -96,13 +91,13 @@
     }
   }
 
-  .DropFileSection {
+  .drop-file-section {
     top: 25%;
     position: relative;
     height: 100vh;
     text-align: center;
 
-    .DropFileSectionInside {
+    .drop-file-section-inside {
       position: relative;
       top: 50%;
       left: 50%;
@@ -123,7 +118,7 @@
       margin-top: -10px;
     }
 
-    .dropZone {
+    .drop-zone {
       user-select: none;
       width: 80%;
       height: 150px;
@@ -131,6 +126,9 @@
       border: 2px dashed var(--reverse-black-white-color);
       border-radius: 5px;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .textArea {
         display: flex;
@@ -145,7 +143,7 @@
         }
       }
 
-      .dropContainer {
+      .drop-container {
         cursor: pointer;
         position: relative;
         display: flex;
@@ -153,7 +151,7 @@
         margin-top: 20px;
         z-index: 1;
 
-        .dropContent {
+        .drop-content {
           display: flex;
           flex-direction: column;
           text-decoration: none;
@@ -167,7 +165,7 @@
         }
       }
 
-      .ManualInsertText {
+      .manuel-insert-text {
         user-select: none;
         position: relative;
         cursor: pointer;
@@ -187,15 +185,32 @@
       }
     }
   }
-
-  .ParametersSection {
-    //top: 25%;
-    //position: relative;
-    //height: 100vh;
+  .parameters-section {
     text-align: center;
 
     &.hidden {
       display: none;
+    }
+  }
+
+  .dataset-input-container {
+    display: flex;
+    flex-direction: column;
+    //gap: 30px;
+    width: 75%;
+    margin: 10px auto auto auto;
+    border-radius: 15px;
+    background-color: var(--black-and-white);
+
+    .name-error-message {
+      padding: 15px 15px 0 15px;
+    }
+
+    .data-set-input {
+      margin: 20px auto;
+      border-radius: 5px;
+      border: 2px black solid;
+      padding: 10px;
     }
   }
 }

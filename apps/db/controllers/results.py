@@ -12,12 +12,13 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-if ENV_CONFIG['APP_MODE'] == 'local':
+if ENV_CONFIG['APP_ENV'] == 'local':
     if not os.path.exists('result'):
         os.makedirs('result')
 
+
 def get_results(ids):
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         # look for ids in the results directory
         results = []
         for id in ids:
@@ -26,10 +27,11 @@ def get_results(ids):
         return results
 
     res = results_db.find({'_id': {'$in': [ObjectId(id) for id in ids]}})
-    return list(res) # return a list of dictionaries to force convert the pymongo cursor to a list
+    return list(res)  # return a list of dictionaries to force convert the pymongo cursor to a list
+
 
 def get_result(id):
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         # look for id in the results directory
         with open(Path('result') / (str(id) + '.json')) as f:
             return json.load(f)
@@ -38,34 +40,38 @@ def get_result(id):
     return res
 
 # TODO: remove this function just for testing
+
+
 def get_all_results():
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         results = []
         for file in os.listdir('result'):
             with open(Path('result') / file) as f:
                 results.append(json.load(f))
         return results
-    
+
     res = results_db.find({'status': 'complete'})
     return list(res)
 
+
 def delete_result(id):
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         # look for id in the results directory
         os.remove(Path('result') / (str(id) + '.json'))
         return
-    
+
     return results_db.delete_one({'_id': ObjectId(id)})
 
+
 def create_result(result):
-   
+
     document = parse_result(result)
     document['status'] = 'pending'
     document['created_at'] = datetime.utcnow()
     document['expired_at'] = datetime.utcnow() + timedelta(days=14)
-    document['name'] = 'result'
+    document['name'] = result['name']
 
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         # save the file to the results directory and return the id
         id = ObjectId()
         document['_id'] = id
@@ -76,15 +82,16 @@ def create_result(result):
     res = results_db.insert_one(document)
     return str(res.inserted_id)
 
+
 def update_result(result):
     document = parse_result(result)
 
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         # save the file to the results directory and return the id
         with open(Path('result') / (str(document['_id']) + '.json'), 'r+') as f:
             data = json.load(f)
             f.close()
-        
+
         for key, value in document.items():
             data[key] = value
         with open(Path('result') / (str(document['_id']) + '.json'), 'w') as f:
@@ -92,6 +99,7 @@ def update_result(result):
         return str(document['_id'])
 
     return results_db.update_one({'_id': document['_id']}, {'$set': document})
+
 
 def parse_result(result):
     document = {}
@@ -128,6 +136,7 @@ def parse_result(result):
         document['name'] = result['name']
 
     return document
+
 
 def parse_document(document):
     pass

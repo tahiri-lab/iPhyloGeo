@@ -8,7 +8,7 @@
     function responsiveNavbar() {
       if (open) {
           document.getElementById('lab-container').classList.add("minimized");
-          document.getElementById('navBar').classList.add("minimized");
+          document.getElementById('nav-bar').classList.add("minimized");
           document.getElementById('lab-name').classList.add("minimized");
           document.getElementById('theme-switch').classList.add("minimized");
           document.getElementById('nav-link').classList.add("minimized");
@@ -19,7 +19,7 @@
 
         else {
           document.getElementById('lab-container').classList.remove("minimized");
-          document.getElementById('navBar').classList.remove("minimized");
+          document.getElementById('nav-bar').classList.remove("minimized");
           document.getElementById('lab-name').classList.remove("minimized");
           document.getElementById('theme-switch').classList.remove("minimized");
           document.getElementById('nav-link').classList.remove("minimized");
@@ -42,9 +42,9 @@
           },
 
           show_text_field: function () {
-            document.getElementById('manualField').classList.remove("hidden");
-            document.getElementById('dropContainer').classList.add("hidden");
-            document.getElementById('manualInsert').classList.add("hidden");
+            document.getElementById('manual-field').classList.remove("hidden");
+            document.getElementById('drop-container').classList.add("hidden");
+            document.getElementById('manual-insert').classList.add("hidden");
           }
       }
     });

@@ -11,19 +11,24 @@ from aPhyloGeo import aPhyloGeo
 
 FILES_PATH = 'files/'
 # TODO add this to the .env file
-APP_ENV = 'local' # os.environ.get('APP_ENV', 'local')
+APP_ENV = 'local'  # os.environ.get('APP_ENV', 'local')
+
 
 def get_all_files():
     return files_ctrl.get_all_files()
 
+
 def get_results(ids):
     return results_ctrl.get_results(ids)
+
 
 def get_result(id):
     return results_ctrl.get_result(id)
 
+
 def get_all_results():
     return results_ctrl.get_all_results()
+
 
 def get_file(id, options={}):
     """
@@ -40,6 +45,7 @@ def get_file(id, options={}):
     else:
         return get_file_from_db(id)
 
+
 def read_local_file(path, options={}):
     """ Read the file from the local file system.
 
@@ -53,6 +59,7 @@ def read_local_file(path, options={}):
     if 'pd' in options:
         return pd.read_csv(path)
 
+
 def get_file_from_db(id):
     """ Get the file from the database.
 
@@ -61,6 +68,7 @@ def get_file_from_db(id):
     """
     return files_ctrl.get_files_by_id(id)
 
+
 def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
     results = []
     for content, file_name, date in zip(list_of_contents, list_of_names, last_modifieds):
@@ -68,8 +76,10 @@ def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
 
     return results
 
+
 def save_files(results):
     return files_ctrl.save_files(results)
+
 
 def download_file_from_db(id, root_path='./'):
     """ Download the file from the database.
@@ -91,6 +101,7 @@ def download_file_from_db(id, root_path='./'):
                 fasta_str += f'>{key}\n{str(seq.seq)}\n'
             f.write(fasta_str.encode('utf-8'))
 
+
 def parse_contents(content, file_name, date):
     res = {
         'file_name': file_name,
@@ -101,7 +112,7 @@ def parse_contents(content, file_name, date):
         content_type, content_string = content.split(',')
         decoded_content = base64.b64decode(content_string)
 
-        if content_type == 'data:text/csv;base64':
+        if content_type == 'data:text/csv;base64' or content_type == 'data:application/vnd.ms-excel;base64':
             # Assume that the user uploaded a CSV file
             res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
             res['type'] = 'climatic'
@@ -126,27 +137,37 @@ def create_seq_html(file):
 
     if 'error' in file and file['error']:
         return html.Div([
-                dcc.Markdown('Please upload a **fasta file**.'),
+            dcc.Markdown('Please upload a **fasta file**.'),
         ])
 
     return html.Div([
         dcc.Markdown('You have uploades file(s):  **{}**'.format(file_name)),
-        #html.H6(datetime.datetime.fromtimestamp(date)),
-        #html.Small(seq_upload),
+        # html.H6(datetime.datetime.fromtimestamp(date)),
+        # html.Small(seq_upload),
 
         # For debugging, display the raw contents provided by the web browser
-        #html.Div('Raw Content'),
-        #html.Pre(contents[0:200] + '...', style={
-            #   'whiteSpace': 'pre-wrap',
-            #   'wordBreak': 'break-all'
-        #})
+        # html.Div('Raw Content'),
+        # html.Pre(contents[0:200] + '...', style={
+        #   'whiteSpace': 'pre-wrap',
+        #   'wordBreak': 'break-all'
+        # })
     ])
 
-def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_params, file_name, climatic_files_id, genetic_files_id):
-    """ Run the complete pipeline.
-    """
-    climatic_trees, result_id = run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, 'pending')
 
+def run_genetic_pipeline(climatic_data, genetic_data, genetic_params, genetic_file_name, genetic_files_id, climatic_trees, result_id):
+    """
+    Runs the genetic pipeline from aPhyloGeo.
+    Args:
+        climatic_data: json object with the climatic data
+        genetic_data: json object with the genetic data
+        genetic_params: json object with the genetic parameters
+        genetic_file_name: string with the name of the genetic file
+        genetic_files_id: string with the id of the genetic file
+        climatic_trees: dict of the climatic trees
+        result_id: string with the id of the database result
+    returns:
+        result_id: string with the id of the database result
+    """
     alignementObject = aPhyloGeo.AlignSequences(genetic_data, genetic_params['window_size'], genetic_params['step_size'], False, genetic_params['bootstrap_amount'])
     msaSet = alignementObject.msaSet
 
@@ -156,22 +177,31 @@ def run_complete_pipeline(climatic_data, genetic_data, climatic_params, genetic_
         'msaSet': msaSet,
         'genetic_params': genetic_params,
         'genetic_trees': genetic_trees,
-        'genetic_files_id': genetic_files_id,
-        'name': file_name
+        'genetic_files_id': genetic_files_id
     })
 
-    output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), file_name)
+    output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), genetic_file_name)
     results_ctrl.update_result({
         '_id': result_id,
         'output': output,
         'status': 'complete'
     })
 
-def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, status='compelte'):
-    """ Run the climatic pipeline.
+    return result_id
+
+
+def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, result_name, status='incomplete'):
+    """
+    Run the climatic pipeline from aPhyloGeo.
     args:
         climatic_data: json object with the climatic data
         climatic_params: json object with the parameters for the climatic pipeline
+        climatic_files_id: the id of the climatic files
+        result_name: the name of the result (name in the database)
+        status: the status of the result
+    returns:
+        climatic_trees: the climatic trees
+        result_id: the id of the result inserted into the database
     """
     df = pd.read_json(climatic_data)
     names = ['id'] + climatic_params['names']
@@ -180,7 +210,29 @@ def run_climatic_pipeline(climatic_data, climatic_params, climatic_files_id, sta
         'climatic_files_id': str(climatic_files_id),
         'climatic_trees': climatic_trees,
         'climatic_params': climatic_params,
-        'status': status
+        'status': status,
+        'name': result_name
     })
-
     return climatic_trees, result_id
+
+
+def make_cookie(result_id, auth_cookie):
+    """
+    Create a cookie with the result id
+
+    Args:
+        result_id (str): The id of the result to add to the cookie
+        auth_cookie (str): The current cookie value
+
+    Returns:
+        str: The modified cookie value
+    """
+
+    # If the "Auth" cookie exists, split the value into a list of IDs
+    auth_ids = [] if not auth_cookie else auth_cookie.split('.')
+    auth_ids.append(result_id)
+
+    # Create the string format for the cookie
+    auth_cookie_value = '.'.join(auth_ids)
+
+    return auth_cookie_value

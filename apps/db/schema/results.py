@@ -7,7 +7,7 @@ schema_results = {
             '_id': {
                 'bsonType': 'objectId',
             },
-            "name":{
+            "name": {
                 'bsonType': 'string',
             },
             'status': {
@@ -48,7 +48,7 @@ schema_results = {
                     'bootstrap_threshold': {
                         'bsonType': ['int', 'double'],
                     },
-                    'input_stepSize_container': {
+                    'input_step_size_container': {
                         'bsonType': ['int', 'double'],
                     },
                     'ls_threshold': {

@@ -5,11 +5,11 @@
   height: 100vh;
   padding: 0 300px;
 
-  .resultsContainer {
+  .results-container {
     margin-top: 50px;
   }
 
-  .emptyResults {
+  .empty-results {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -64,7 +64,7 @@
     }
   }
 
-  .resultsRow {
+  .results-row {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -99,9 +99,16 @@
 
       .nameContainer {
         grid-area: name;
+        width: 200px;
 
         .label {
           font-weight: bold;
+        }
+
+        .data {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
       }
 

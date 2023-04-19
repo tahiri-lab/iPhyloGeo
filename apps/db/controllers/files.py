@@ -15,20 +15,22 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-if ENV_CONFIG['APP_MODE'] == 'local':
+if ENV_CONFIG['APP_ENV'] == 'local':
     if not os.path.exists('files'):
         os.makedirs('files')
 
+
 def get_all_files():
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         files = []
         for file in os.listdir('files'):
             with open(Path('files') / file) as f:
                 files.append(f.read())
         return files
-         
+
     res = files_db.find({}, {'_id': 1, 'file_name': 1})
-    return list(res) # return a list of dictionaries to force convert the pymongo cursor to a list
+    return list(res)  # return a list of dictionaries to force convert the pymongo cursor to a list
+
 
 def save_files(files):
     if not isinstance(files, list):
@@ -40,7 +42,7 @@ def save_files(files):
         if isinstance(parsed_file['file'], str):
             parsed_file['file'] = json.loads(parsed_file['file'])
 
-        if ENV_CONFIG['APP_MODE'] == 'local':
+        if ENV_CONFIG['APP_ENV'] == 'local':
             # save the file to the local directory
             # create ObjectId if not present
             id = parsed_file['_id'] if '_id' in parsed_file else ObjectId()
@@ -48,13 +50,14 @@ def save_files(files):
             with open(Path('files') / (str(id) + '.json'), 'w') as f:
                 f.write(json.dumps(parsed_file, indent=4, sort_keys=True, default=str))
             results.append(id)
-            
+
         else:
             # save the file to the database and return the id
             result = files_db.insert_one(parsed_file)
             results.append(str(result.inserted_id))
 
     return results[0] if len(results) == 1 else results
+
 
 def get_files_by_id(ids):
     if not isinstance(ids, list):
@@ -65,7 +68,7 @@ def get_files_by_id(ids):
         if not isinstance(id, ObjectId):
             id = ObjectId(id)
 
-    if ENV_CONFIG['APP_MODE'] == 'local':
+    if ENV_CONFIG['APP_ENV'] == 'local':
         files = []
         for id in ids:
             with open(Path('files') / (str(id) + '.json')) as f:
@@ -83,6 +86,8 @@ def get_files_by_id(ids):
     return files[0] if len(files) == 1 else files
 
 # utils
+
+
 def parse_file(file):
     """Parse the file to a proper format to be stored in the database.
 
@@ -109,6 +114,8 @@ def parse_file(file):
     return result
 
 # reverse so we need to take a document and parse it to the same format as the file
+
+
 def parse_document(document):
     """Parse the document to a proper format to be returned to the user.
 
@@ -136,14 +143,17 @@ def parse_document(document):
 
     return result
 
+
 def df_to_str_csv(df):
     return [list(df.columns)] + df.values.tolist()
+
 
 def fasta_to_str(fasta):
     result = SeqIO.to_dict(fasta)
     for key in result:
         result[key] = str(result[key].seq)
     return result
+
 
 def str_csv_to_df(str_csv):
     df = pd.DataFrame(str_csv)
