@@ -40,13 +40,16 @@
   }
 
   .axis {
-    color: var(--reverse-black-white-color);
     border-radius: 5px;
     padding: 10px 0;
     display: flex;
     margin: auto ;
     gap: 30px;
     justify-content: space-evenly;
+
+    .sub-title {
+      color: var(--reverse-black-white-color);
+    }
 
     @media (max-width: 1080px) {
       flex-direction: column;
