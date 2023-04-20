@@ -39,8 +39,13 @@ layout = html.Div([
                         ], className="drop-zone"),
                     ], id='options', className="container"),
                     html.Div([
-                        html.Div("Don't know where to start? Try our data", id='upload-test-data', className="button actions"),
-                    ], className="button-pack"),
+                        html.Div([
+                            html.Div('Don’t know where to starts ?', className="title"),
+                            html.Div('No worries, let’s try with some of our already made example.',
+                                     className="description"),
+                        ], className="content"),
+                        html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon arrow"),
+                    ], id='upload-test-data', className="helper primary"),
                     html.Div([
                         html.Div("Next", id='drop-option-choice-next', className="button actions"),
                     ], className="button-pack"),

@@ -2,7 +2,7 @@
   background-color: var(--background-color);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   padding: 0 300px;
   transition: all 0.3s ease-in-out;
 

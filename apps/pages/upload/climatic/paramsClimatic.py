@@ -34,12 +34,12 @@ def create_table(df):
                         html.Div([
                             html.Div('Generate your graph', className="title"),
                             html.Div([
-                                html.P("Insert X axis data"),
+                                html.P("Insert X axis data", className='sub-title'),
                                 dcc.Dropdown(id='xaxis-data',
                                              options=[{'label': x, 'value': x} for x in df.columns]),
                             ], className="field"),
                             html.Div([
-                                html.P("Insert Y axis data"),
+                                html.P("Insert Y axis data", className='sub-title'),
                                 dcc.Dropdown(id='yaxis-data',
                                              options=[{'label': x, 'value': x} for x in df.columns]),
                             ], className="field"),
@@ -51,7 +51,7 @@ def create_table(df):
                                                {'label': 'Pie Plot', 'value': 'Pie'}
                                            ], value='Bar', className="field graphType"),
                             html.Div([
-                                html.P("Select data for choropleth map"),
+                                html.P("Select data for choropleth map", className='sub-title'),
                                 dcc.Dropdown(id='map-data',
                                              options=[{'label': x, 'value': x} for x in df.columns]),
                             ], className="field"),
@@ -68,10 +68,11 @@ def create_table(df):
                 html.Div([
                     html.Div(children=[], id='column-error-message'),
                     html.Div([
-                        html.Div("Select the name of the column to analyze"),
+                        html.Div("Select the name of the column to analyze", className='sub-title'),
                         dcc.Checklist(id='col-analyze',
                                       options=[{'label': x, 'value': x} for x in df._get_numeric_data().columns],
-                                      labelStyle={'display': 'inline-block', 'marginRight': '20px'}
+                                      labelStyle={'display': 'inline-block', 'marginRight': '20px'},
+                                      className='sub-title'
                                       ),
                     ], className="axis")
                 ], className="col-to-analyse-container")

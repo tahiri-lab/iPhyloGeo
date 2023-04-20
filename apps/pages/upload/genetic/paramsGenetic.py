@@ -65,7 +65,7 @@ def get_layout(file):
                         ], className="manual-input"),
                     ], className="manual-input-container"),
                     html.Div([
-                        html.Div("Sliding Window"),
+                        html.Div("Sliding Window", className='sub-title'),
                         dcc.RangeSlider(id='sliding-window-slider', className="slider", min=0, max=max_sequence_length, step=1,
                                         marks={
                                             0: {'label': '0', 'style': {'color': '#77b0b1'}},
@@ -78,7 +78,7 @@ def get_layout(file):
                     ]),
                     html.Div([
                         html.Div([
-                            html.Div("Alignement chart"),
+                            html.Div("Alignement chart", className='sub-title'),
                             html.Div(id='alignment-chart'),
                         ]),
                     ]),
