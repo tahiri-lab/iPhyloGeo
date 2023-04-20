@@ -3,11 +3,9 @@ import dash
 import plotly.express as px
 
 
-figures = []
-
-
 def create_table(df):
     param_selection = html.Div([
+        dcc.Store(id='figures', data=[]),
         html.Div([
             html.Div([
                 html.Div([
@@ -85,13 +83,15 @@ def create_table(df):
 
 @callback(
     Output('output-graph', 'children'),
+    Output('figures', 'data'),
     Input('submit-button-graph', 'n_clicks'),
     State('choose-graph-type', 'value'),
     State('stored-data', 'data'),
     State('xaxis-data', 'value'),
-    State('yaxis-data', 'value')
+    State('yaxis-data', 'value'),
+    State('figures', 'data')
 )
-def make_graphs(n, graph_type, filter_query, x_data, y_data):
+def make_graphs(n, graph_type, filter_query, x_data, y_data, figures):
     """
 
     args :
@@ -115,11 +115,12 @@ def make_graphs(n, graph_type, filter_query, x_data, y_data):
         fig = px.line(filter_query, x=x_data, y=y_data)
     if graph_type == 'Pie':
         fig = px.pie(filter_query, values=y_data, names=x_data, labels=x_data)
+
     figures.append(dcc.Graph(figure=fig))
     fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='var(--reverse-black-white-color)')),
     fig.update_annotations(font_color='white'),
 
-    return figures
+    return figures, figures
 
 
 @callback(
