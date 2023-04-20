@@ -14,7 +14,7 @@ The project can be used in two ways:
 1. Using the filesystem to store the files and results
 2. Using a database to store the files and results
 
-The first option is the default option. If you want to use the database, you need to change the .env file. See the section "Setting up the programm" for more details.
+The first option is the default option. If you want to use the database, you need to change the .env file. See the section "Setting up the program" for more details.
 
 ## Getting started
 
@@ -40,7 +40,7 @@ diffrent. Fof a linux based system, you can use the following commands:
 4. Still in the terminal, enter the new venv using `source aPhyloGeo_env/bin/activate`.
 5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip install -e .`.
 
-Fof a windows based system, you can use the following commands:
+For a windows based system, you can use the following commands:
 1. git clone https://github.com/tahiri-lab/aPhylogeo
 2. If you do not have `virtualenv` installed, run `py -m pip install --user virtualenv`
 3. Create a new virtual environment (venv) in your terminal using `py -m venv aPhyloGeo_env`.
@@ -113,10 +113,6 @@ This will run the script every day at 00:00 am.
 3. The third element is the full path of the script file
 4. The fourth element is the full path of the log file. This is optional, but it is a good practice to log the output of the script
 
-To create the cronjob with the file, you can use the following command:
-```bash
-crontab /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cronjob
-```
 
 If you want to see the list of cronjobs, you can use the following command:
 ```bash

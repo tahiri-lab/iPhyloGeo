@@ -9,61 +9,120 @@ Le but de cette application est la simplification et la visualisation du projet 
 
 https://github.com/tahiri-lab/phylogeography-algo
 
+
+Le projet peut être utilisé de deux façons:
+1. En utilisant le système de fichiers pour stocker les fichiers et les résultats
+2. En utilisant une base de données pour stocker les fichiers et les résultats
+
+La première option est l'option par défaut. Si vous voulez utiliser la base de données, vous devez modifier le fichier .env. Voir la section "Configuration du programme" pour plus de détails.
+
 ## Pour commencer
 
 ### Installation:
 
-* Premièrement, le programme devra être téléchargé à l'aide de GitHub(la commande git clone).  
-* Deuxièmement, vous devez choisir sur quel système d'exploitation vous voulez faire exécuter le programme.
-Mac OS(main), Linux, or Windows.
-* Dernière étape, il faut télécharger le programme. Pour se faire, il faut cloner le projet à l'aide
-de l'une des commandes suivantes.
-* Pour les utilisateurs Macbooks(MacOSX) (la branche principal dans notre cas) utilisez cette commande :
-```
-git clone -b "main" https://github.com/tahiri-lab/iPhylogeo
-```
-* Pour les utilisateurs Windows, utilisez cette commande:
-```
-git clone -b "Windows" https://github.com/tahiri-lab/iPhylogeo
-```
-* Pour les utilisateurs Linux, utilisez cette commande:
-```
-git clone -b "Linux" https://github.com/tahiri-lab/iPhylogeo
+* Tout d'abord, le programme devra être téléchargé à l'aide de GitHub(la commande git clone).
+```	
+git clone https://github.com/tahiri-lab/iPhylogeo 
 ```
 
-Pour télécharger le projet, il suffit d'entrée la commande dans un terminal dans le fichier voulu.
-* Vous pouvez aussi télécharger le fichier zip sur GitHub avec le lien plus haut. 
+Pour télécharger le projet, tapez simplement l'une des commandes ci-dessus dans un terminal.
+
+* Vous pouvez également télécharger le fichier zip avec le lien Github ci-dessus.
+
 
 ## Comment utilisez le programme? 
 ### Préalables,librairies etc.
-Avant d'utilisez se programme il faut s'assurer d'avoir installé les librairies nécéssaire pour le faire fonctionner.
-Pour se faire, il suffit d'utiliser la commande suivante: 
+Avant d'utiliser ce programme, assurez-vous d'avoir installé toutes les bibliothèques nécessaires pour qu'il fonctionne correctement.
+Tout d'abord, vous devez installer le package aPhyloGeo. Selon votre système d'exploitation, les commandes spécifiques seront légèrement différentes. Pour un système basé sur Linux, vous pouvez utiliser les commandes suivantes :
+
+1. git clone https://github.com/tahiri-lab/aPhylogeo
+2. Si vous n'avez pas `virtualenv` installé, exécutez `python3 -m pip install --user virtualenv`
+3. Créez un nouvel environnement virtuel (venv) dans votre terminal en utilisant `python3 -m venv aPhyloGeo_env`.
+4. Toujours dans le terminal, entrez dans le nouvel environnement virtuel en utilisant `source aPhyloGeo_env/bin/activate`.
+5. Assurez-vous que vous êtes dans le répertoire aPhyloGeo, et installez le package aPhyloGeo en utilisant `pip install -e .`.
+
+Si vous utilisez un système basé sur Windows, vous pouvez utiliser les commandes suivantes :
+
+1. git clone https://github.com/tahiri-lab/aPhylogeo
+2. Si vous n'avez pas virtualenv installé, exécutez `py -m pip install --user virtualenv`
+3. Créez un nouvel environnement virtuel (venv) dans votre terminal en utilisant `py -m venv aPhyloGeo_env`.
+4. Toujours dans le terminal, activez le nouveau venv en utilisant `aPhyloGeo_env/bin/activate`.
+5. Assurez-vous d'être dans le répertoire aPhyloGeo, et installez le package aPhyloGeo en utilisant `pip install -e .`.
+
+Ensuite, vous pouvez installer les autres exigences. Assurez-vous d'utiliser le même venv que ci-dessus. Assurez-vous d'être dans le répertoire iPhyloGeo.
 ```
 pip install -r requirements.txt
+npm install
 ```
 
-- Utilisez index.py pour démarer le programme
-- tree.py pipeline.py et pipeline_specific_genes.py sont les algorithmes
-- Fichier apps: modèle pour chaque page web
-- Fichier assets: images utilisez dans les modèles et les fichiers css
-- Fichier datasets: Données météorologiques utilisez dans l'analyse
-- Fichier exec: Programmes biologiques utilisez dans l'analyse
-- Fichier input: Paramètres utilisez avec les programmes biologiques
-- Fichier output: Se fichier est utilisez pour stocker les résultats de l'analyse
+Enfin, si vous voulez exécuter le programme avec une base de données, vous devez installer Docker. Vous pouvez trouver le guide d'installation ici : https://docs.docker.com/get-docker/
+
+- Le dossier apps : un modèle pour chaque page web
+- Le dossier assets : les images utilisées dans le modèle et le fichier CSS
+
+
+### Configuration du programme:
+- Pour configurer le programme, vous devez modifier le fichier .env avec vos propres données.
+Voici un exemple de fichier .env si vous voulez exécuter le programme localement :
+```
+APP_ENV='dev'
+HOST='local'
+MONGO_URI=
+DB_NAME=
+URL='http://localhost'
+PORT='8050'
+```
+- Si vous voulez exécuter le programme avec une base de données, vous devez modifier le fichier .env. Par exemple :
+```
+APP_ENV='dev'
+HOST='server'
+MONGO_URI='mongodb://localhost:27017'
+DB_NAME='iPhyloGeo'
+URL='http://localhost'
+PORT='8050'
+```
+
 
 ### Exécution:
-- Pour exécuter le programme il suffit d'utiliser son interpréteur Python et d'exécuter le fichier index.py dans le
-fichier iPhylogeo.
+- Pour exécuter le programme localement, vous pouvez utiliser la commande suivante :
+```
+npm start
+```
+Pour exécuter le programme avec une base de données, vous devez exécuter les commandes suivantes :
 ```
 docker compose up
 npm start
 ```
 
 
-## How to generate CSS file?
-### Understanding the structure of the project
+### Utilisation de la tâche planifiée cronJob
+Si la base de données est déployée sur un serveur Linux, nous avons inclus un script pour supprimer les fichiers qui ont plus de 14 jours. Pour ce faire, vous devez créer une tâche planifiée cronJob.
+Pour créer une tâche planifiée cron, vous pouvez utiliser le fichier `cronjob` comme modèle.
+Par exemple, créez un fichier nommé `cronjob` et ajoutez la ligne suivante :
+```bash
+00 00 * * * /home/local/USHERBROOKE/belm1207/miniconda3/envs/geo/bin/python /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/delete_files.py >> /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cron.log 2>&1
+```
+Pour créer la tâche planifiée cron avec le fichier, vous pouvez utiliser la commande suivante :
+```bash
+crontab /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cronjob
+```
 
-* Le projet utilise des fichiers SCSS qui doivent être créés dans le dossier styles.
+Cela exécutera le script tous les jours à 00:00.
+
+1. Le premier élément de la tâche planifiée cron est l'heure. [Outils utiles](https://crontab.guru/)
+2. Le deuxième élément est le chemin de l'exécutable Python. Dans ce cas, nous utilisons l'environnement geo de conda.
+3. Le troisième élément est le chemin complet du fichier de script.
+4. Le quatrième élément est le chemin complet du fichier journal. Ceci est facultatif, mais c'est une bonne pratique de journaliser la sortie du script.
+
+Si vous voulez voir la liste des tâches planifiées cron, vous pouvez utiliser la commande suivante :
+```bash
+crontab /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cronjob
+```
+
+## Comment générer un fichier CSS
+### Compréhension de la structure du projet
+
+* Le projet utilise des fichiers SCSS qui doivent être créés dans le dossier des styles.
 ```
 apps/assets/styles/your_file.scss
 ```
