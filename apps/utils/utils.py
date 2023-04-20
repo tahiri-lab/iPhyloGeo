@@ -59,6 +59,7 @@ def get_all_results():
     """
     return results_ctrl.get_all_results()
 
+
 def save_files(results):
     """
     Save the files to the database.
@@ -70,6 +71,7 @@ def save_files(results):
         list: List of ids of the saved files.
     """
     return files_ctrl.save_files(results)
+
 
 def get_file(id, options={}):
     """
