@@ -5,7 +5,7 @@ import plotly.express as px
 
 def create_table(df):
     param_selection = html.Div([
-        dcc.Store(id='figures', data=[]),
+        dcc.Store(id='figures', data=[], storage_type='memory'),
         html.Div([
             html.Div([
                 html.Div([
