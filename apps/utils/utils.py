@@ -15,19 +15,62 @@ COOKIE_MAX_AGE = 8640000  # 100 days
 
 
 def get_all_files():
+    """
+    Get all files from the database.
+
+    Returns:
+        list: List of files.
+    """
     return files_ctrl.get_all_files()
 
 
 def get_results(ids):
+    """
+    Get the results with the given ids.
+
+    Args:
+        ids (list<string>): The ids of the results
+
+    Returns:
+        list: List of results.
+    """
     return results_ctrl.get_results(ids)
 
 
 def get_result(id):
+    """
+    Get one result with the given id.
+
+    Args:
+        id (string): The id of the results
+
+    Returns:
+        dict: results.
+    """
     return results_ctrl.get_result(id)
 
 
 def get_all_results():
+    """
+    Get all results.
+
+    Returns:
+        list: List of results.
+    """
     return results_ctrl.get_all_results()
+
+
+def save_files(results):
+    """
+    Save the files to the database.
+
+    Args:
+        results (list): List of files.
+
+    Returns:
+        list: List of ids of the saved files.
+    """
+    return files_ctrl.save_files(results)
 
 
 def get_file(id, options={}):
@@ -82,10 +125,6 @@ def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
         results.append(parse_contents(content, file_name, date))
 
     return results
-
-
-def save_files(results):
-    return files_ctrl.save_files(results)
 
 
 def download_file_from_db(id, root_path='./'):
