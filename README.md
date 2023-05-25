@@ -1,4 +1,4 @@
-# iPhylogeoGeo
+# iPhyloGeo
 
 - Link for the french version : [french version](README.fr.md)
 
