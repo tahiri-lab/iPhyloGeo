@@ -1,4 +1,4 @@
-# Phylogeo_frelon
+# iPhylogeoGeo
 
 - Link for the french version : [french version](README.fr.md)
 
