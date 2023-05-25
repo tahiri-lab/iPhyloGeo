@@ -1,0 +1,14 @@
+results/**
+workflow/results/**
+resources/**
+logs/**
+data/**
+.snakemake
+.snakemake/**
+test*
+*copy*
+config/filter_list.yaml
+test_*/**
+Dockerfile
+/config
+my.env

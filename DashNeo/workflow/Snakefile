@@ -1,0 +1,42 @@
+from snakemake.utils import min_version
+
+##### set minimum snakemake version #####
+min_version("7.17.0")
+
+##### Config file and sample sheets  #####
+# The following is equivalent to what snakemake does with the configuration file:
+configfile: "config/config.yaml"
+    
+##### setup singularity #####
+# this container defines the underlying OS for each job when using the workflow
+# with --use-conda --use-singularity
+container: "docker://continuumio/miniconda3"
+
+
+##### load rules #####
+include: 'rules/common.smk'
+    
+# step 1a: Sliding windows
+include: 'rules/slidingWindows1a.smk'
+
+# step 1b: Reference trees construction
+include: 'rules/refTrees1b.smk'
+
+
+# Step 2: Phylogenetic trees construction; 
+# Step 3: Filtering -- Bootstrap of consensus; 
+# Step 4: RF distance calculation; 
+# Step 5: Filtering -- RF distance
+include: 'rules/phyML2.smk'
+include: 'rules/rf_phyML.smk'
+
+#step6 to end
+include: 'rules/phyloGeo.smk'
+
+    
+#----------------------------------------------------
+##### target rules #####
+
+rule all:
+    input: 
+        get_windowedFilted
