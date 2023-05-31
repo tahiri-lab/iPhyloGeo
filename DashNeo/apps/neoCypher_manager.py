@@ -274,7 +274,7 @@ def get_seq_length(nodesLabel, seq_list):
     with driver.session() as session:
         result = session.run(
             "MATCH (n:" + nodesLabel +
-            ") WHERE n.accession IN $seq_list RETURN min(n.length)",
+            ") WHERE n.accession IN $seq_list RETURN max(n.length)",
             seq_list=seq_list
         )
         length = result.single()[0]

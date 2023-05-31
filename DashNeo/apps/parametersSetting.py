@@ -435,6 +435,10 @@ def get_paramsInfo(n_clicks, all_rows_data):
             else:
                 db_type = "nucleotide"
             accession_list = config['seqinfo']['accession_lt']
+
+            # Write the updated config dictionary back to the YAML file
+            with open('config/config.yaml', 'w') as file:
+                yaml.dump(config, file)
             # (6) download sequences from NCBI based on df['id'],
 
             seqData_manager.downFromNCBI(
@@ -454,10 +458,6 @@ def get_paramsInfo(n_clicks, all_rows_data):
 
             # (9) When Analysis finished, save output.csv info into Neo4j :Output node
             neoCypher_manager.addOutputNeo()
-
-            # Write the updated config dictionary back to the YAML file
-            with open('config/config.yaml', 'w') as file:
-                yaml.dump(config, file)
 
             success_message = dbc.Card([
                 # (src="/assets/workflow.png", top=True),
@@ -599,7 +599,7 @@ def update_output(value):
 # get seq length for the validation of 'sliding window size' and 'step size'
 # By default, the length of 'ORF10'(117bp) was used as the ref_genes_len, since this is the minimun sequence length in our database
 # Once user click the 'Get Input ID' button
-# (1) sequence list in the config.yaml file calculate the minimum lengh of seq
+# (1) sequence list in the config.yaml file calculate the maximum lengh of seq
 
 
 @app.callback(
