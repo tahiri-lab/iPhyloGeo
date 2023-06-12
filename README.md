@@ -27,7 +27,7 @@ Labels Within the Neo4j database include Lineage, Protein, Nucleotide, Location,
 - The output are saved in the node Output as properties. 
 - Once the analysis is completed, the user is assigned a unique output ID, which they can use to query and visualize the results in the web platform.
 
-<img src="./Neo4j/schema_neo.png" alt="isolated" width="700"/>
+<img src="./DashNeo/assets/visualisation_schema.png" alt="isolated" width="700"/>
 
 ### Snakemake workflow: aPhyloGeo-pipeline
 
