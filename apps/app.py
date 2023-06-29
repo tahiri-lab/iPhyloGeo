@@ -30,6 +30,7 @@ LIGHT_THEME = {
     "--table-bg-color": "white"
 }
 
+
 DARK_THEME = {
     "--theme-icon": "url(../assets/icons/theme-dark.svg)",
     "--switch-toggle-background": "black",
