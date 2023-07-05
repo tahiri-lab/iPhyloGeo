@@ -28,7 +28,7 @@ def get_layout(file):
                         html.Div(id='bootstrap-threshold-output-container')
                     ], className="parameter-container-inside"),
                     html.Div([
-                        html.Div('Ls Threshold', className="param-title"),
+                        html.Div('LS Threshold', className="param-title"),
                         dcc.Slider(id='ls-threshold-slider', className="slider", min=0, max=100, step=0.1,
                                    marks={
                                       0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},

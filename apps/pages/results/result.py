@@ -1,5 +1,5 @@
 from dotenv import dotenv_values
-from dash import html, dash_table, callback, Output, Input, dcc, clientside_callback, ClientsideFunction
+from dash import html, dash_table, callback, Output, Input, State, dcc, clientside_callback, ClientsideFunction
 import dash
 import json
 import dash_cytoscape as cyto
@@ -12,6 +12,13 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import utils.utils as utils
 from db.controllers.files import str_csv_to_df
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import os
+
 
 ENV_CONFIG = {}
 for key, value in dotenv_values().items():
@@ -28,14 +35,21 @@ layout = html.Div([
     html.Div([
         html.Div([
             html.Div([
-                html.H1(id='results-name', className="title"),
+            html.H1(id='results-name', className="title"),
+            html.Div([
+                dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),  # Barre de saisie
+                
+                html.Button([html.Span('Submit', style={'font-size': '18px'})
+                ],id='submit-button', n_clicks=0, style={'font-family': 'Calibri','color': 'white', 'background-color': '#AD00FA','border-radius': '10px'}),  # Bouton "Submit"
+            ], className='input-container'),
+            html.Div([
                 html.Div([
-                    html.Div([
-                        html.Img(src='../../assets/icons/share.svg', id="share_result", className="options-icons"),
-                    ], className="header-options"),
-                    html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
-                ]),
-            ], className="header"),
+                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="options-icons"),
+                ], className="header-options"),
+                html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
+            ]),
+        ], className="header"),
+
             html.H2(id='results-table-title', className="title"),
             html.Div([
                 html.Div(id='output-results'),
@@ -69,7 +83,43 @@ clientside_callback(
 @callback(
     Output('results-name', 'children'),
     Input('url', 'pathname'),
+    Input('submit-button', 'n_clicks'),
+    State('user-input', 'value')
 )
+def handle_submit_click(pathname, n_clicks, user_email):
+    if n_clicks and n_clicks > 0 and user_email:
+        # Récupérer l'URL
+        url = dash.callback_context.inputs['url.pathname']  
+        
+        # Envoyer l'URL dans le message de l'e-mail
+        subject = 'Process finished'
+        content = f"Votre processus Aphylogeo situé à l'URL suivante : http://localhost:8050{url}"
+        
+        # Appeler la fonction send_alarm_email avec l'URL
+        send_alarm_email(subject, content, user_email)
+    return None
+
+def send_alarm_email(subject, content, user_email):
+    try:
+        message = MIMEMultipart()
+        message["From"] = user_email
+        message['To'] = user_email
+        message['Subject'] = subject
+        # body
+
+        plain_text = MIMEText(content, _subtype='plain', _charset='UTF-8')
+        message.attach(plain_text)
+
+        my_message = message.as_string()
+        email_session = smtplib.SMTP('smtp.gmail.com', 587)
+        email_session.starttls()
+        email_session.login('aphylogeotest@gmail.com', 'gmwcxicbgwyiqzgq')
+        email_session.sendmail('aphylogeotest@gmail.com', user_email, my_message)
+        email_session.quit()
+    except Exception as e:
+        print(e)
+        print("Unable to send email")
+
 def show_result_name(path):
     """
     args:
