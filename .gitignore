@@ -16,3 +16,5 @@ db/data/*
 
 files/
 result/
+
+password.env

@@ -7,7 +7,7 @@ from dash import dcc, html
 
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
-from aPhyloGeo import aPhyloGeo
+import aPhyloGeo
 
 FILES_PATH = 'files/'
 COOKIE_NAME = 'AUTH'

@@ -19,10 +19,12 @@ from email.mime.base import MIMEBase
 from email import encoders
 import os
 
-
 ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
+
+with open(os.getcwd()+"\\apps\\pages\\results\\password.env") as f:
+    password = f.read().split('=')[1]
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
@@ -35,21 +37,28 @@ layout = html.Div([
     html.Div([
         html.Div([
             html.Div([
-            html.H1(id='results-name', className="title"),
-            html.Div([
-                dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),  # Barre de saisie
-                
-                html.Button([html.Span('Submit', style={'font-size': '18px'})
-                ],id='submit-button', n_clicks=0, style={'font-family': 'Calibri','color': 'white', 'background-color': '#AD00FA','border-radius': '10px'}),  # Bouton "Submit"
-            ], className='input-container'),
-            html.Div([
+                html.H1(id='results-name', className="title"),
                 html.Div([
-                    html.Img(src='../../assets/icons/share.svg', id="share_result", className="options-icons"),
-                ], className="header-options"),
-                html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
-            ]),
-        ], className="header"),
+                    html.Div([
+                        html.Img(src='../../assets/icons/share.svg', id="share_result", className="options-icons"),
+                    ], className="header-options"),
+                    html.Div('Link copied to your clipboard', id="share_tooltip", className="tooltips"),
+                ]),
+            ], className="header"),
 
+            html.Div([
+                html.H2("If you would like to receive the URL by email, you can enter your address below.", 
+                        style={'text-align': 'center', 'color': '#AD00FA','font-size': '14px'}),
+                html.Div([
+                    dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),  # Barre de saisie
+                    html.Button([html.Span('Submit', style={'font-size': '18px'})], id='submit-button',
+                                n_clicks=0,
+                                style={'font-family': 'Calibri', 'color': 'white',
+                                       'background-color': '#AD00FA',
+                                       'border-radius': '10px'}),  # Bouton "Submit"
+                ], className='input-container', style={'display': 'flex', 'justify-content': 'center'}),
+            ], className='center-container', style={'text-align': 'center'}),
+            
             html.H2(id='results-table-title', className="title"),
             html.Div([
                 html.Div(id='output-results'),
@@ -74,6 +83,7 @@ clientside_callback(
         namespace='clientside',
         function_name='share_result_function'
     ),
+
     Output("dummy-share-result-output", "children"),  # needed for the callback to trigger
     Input("share_result", "n_clicks"),
     prevent_initial_call=True,
@@ -113,7 +123,7 @@ def send_alarm_email(subject, content, user_email):
         my_message = message.as_string()
         email_session = smtplib.SMTP('smtp.gmail.com', 587)
         email_session.starttls()
-        email_session.login('aphylogeotest@gmail.com', 'gmwcxicbgwyiqzgq')
+        email_session.login('aphylogeotest@gmail.com', password)
         email_session.sendmail('aphylogeotest@gmail.com', user_email, my_message)
         email_session.quit()
     except Exception as e:
