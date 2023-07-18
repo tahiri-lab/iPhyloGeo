@@ -138,3 +138,8 @@ rect {
   fill: rgba(0, 0, 0, 0) !important;
 }
 
+/* Ajout de la règle pour le menu déroulant */
+.params-climatic .axis-field .Select-control {
+  font-size: 14px; /* Ajustez la taille du texte du menu déroulant ici */
+  min-height: 36px; /* Ajustez la hauteur du menu déroulant ici */
+}

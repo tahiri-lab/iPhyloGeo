@@ -28,7 +28,11 @@ def get_layout(file):
                         html.Div(id='bootstrap-threshold-output-container')
                     ], className="parameter-container-inside"),
                     html.Div([
-                        html.Div('LS Threshold', className="param-title"),
+                        dcc.Dropdown(id='ls-threshold-dropdown',options=[{'label': 'LS Threshold', 'value': 'ls_threshold'},
+                                                                         {'label': 'RF Threshold', 'value': 'rf_threshold'},
+                                                                         {'label': 'BD Threshold', 'value': 'bd_threshold'},
+                                                                         {'label': 'QT Threshold', 'value': 'qt_threshold'}],
+                                                                         value='ls_threshold',className="param-title", clearable=False, searchable=False, style={'width': '175px'}),
                         dcc.Slider(id='ls-threshold-slider', className="slider", min=0, max=100, step=0.1,
                                    marks={
                                       0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
