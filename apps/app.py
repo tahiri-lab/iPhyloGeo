@@ -3,7 +3,7 @@ import dash
 import dash_bootstrap_components as dbc
 from flask import Flask
 import dash_daq as daq
-from dash.dependencies import Input, Output, ClientsideFunction
+from dash.dependencies import Input, Output, ClientsideFunction, State
 from dash import dcc, html
 
 load_dotenv()
@@ -32,6 +32,7 @@ LIGHT_THEME = {
 
 DARK_THEME = {
     "--theme-icon": "url(../assets/icons/theme-dark.svg)",
+    "--question-icon": "url(../assets/icons/theme-dark.svg)",
     "--switch-toggle-background": "black",
     "--switch-toggle-border": "white 1px solid",
     "--text-color": "#E0E0E0",
@@ -52,6 +53,7 @@ path_params = {
     'Results': {'img': ' /assets/icons/dashboard.svg', 'name': 'Check results'},
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
     'Getstarted': {'img': '/assets/icons/folder-upload.svg', 'name': 'Upload data'},
+    'Settings': {'img': '/assets/icons/gear.svg', 'name': 'Settings'},
 }
 
 server = Flask(__name__)
@@ -82,15 +84,13 @@ app.layout = html.Div([
                         ], id="lab-container", className="lab-container"),
                     ], className="nav-bar"),
                     html.Div([
-                        html.Div(
-                            [
-                             dcc.Link([
-                                 html.Img(src=path_params[page['name']]['img'], className="icon"),
-                                 html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
-                             ], href=page["relative_path"], className="nav-link")
-                             for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
-                             ]
-                        ),
+                        html.Div([
+                            dcc.Link([
+                                html.Img(src=path_params[page['name']]['img'], className="icon"),
+                                html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
+                            ], href=page["relative_path"], className="nav-link")
+                            for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
+                        ])
                     ], id="nav-link", className="nav-link-container"),
                     html.Div([
                         html.A([
