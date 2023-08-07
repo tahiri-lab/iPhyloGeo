@@ -15,15 +15,13 @@ from db.controllers.files import str_csv_to_df
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 import os
 
 ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-with open(os.getcwd()+"\\apps\\pages\\results\\password.env") as f:
+with open(os.getcwd() + "\\apps\\pages\\results\\password.env") as f:
     password = f.read().split('=')[1]
 
 dash.register_page(__name__, path_template='/result/<result_id>')
@@ -47,8 +45,8 @@ layout = html.Div([
             ], className="header"),
 
             html.Div([
-                html.H2("If you would like to receive the URL by email, you can enter your address below.", 
-                        style={'text-align': 'center', 'color': '#AD00FA','font-size': '14px'}),
+                html.H2("If you would like to receive the URL by email, you can enter your address below.",
+                        style={'text-align': 'center', 'color': '#AD00FA', 'font-size': '14px'}),
                 html.Div([
                     dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),  # Barre de saisie
                     html.Button([html.Span('Submit', style={'font-size': '18px'})], id='submit-button',
@@ -58,7 +56,7 @@ layout = html.Div([
                                        'border-radius': '10px'}),  # Bouton "Submit"
                 ], className='input-container', style={'display': 'flex', 'justify-content': 'center'}),
             ], className='center-container', style={'text-align': 'center'}),
-            
+
             html.H2(id='results-table-title', className="title"),
             html.Div([
                 html.Div(id='output-results'),
@@ -98,16 +96,15 @@ clientside_callback(
 )
 def handle_submit_click(pathname, n_clicks, user_email):
     if n_clicks and n_clicks > 0 and user_email:
-        # Récupérer l'URL
-        url = dash.callback_context.inputs['url.pathname']  
-        
-        # Envoyer l'URL dans le message de l'e-mail
+        # Collect URL
+        url = dash.callback_context.inputs['url.pathname']
+        # Send URL in email message
         subject = 'Process finished'
         content = f"Votre processus Aphylogeo situé à l'URL suivante : http://localhost:8050{url}"
-        
-        # Appeler la fonction send_alarm_email avec l'URL
+        # Call send_alarm_email function with URL
         send_alarm_email(subject, content, user_email)
     return None
+
 
 def send_alarm_email(subject, content, user_email):
     try:
@@ -129,6 +126,7 @@ def send_alarm_email(subject, content, user_email):
     except Exception as e:
         print(e)
         print("Unable to send email")
+
 
 def show_result_name(path):
     """

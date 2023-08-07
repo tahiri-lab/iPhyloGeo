@@ -44,7 +44,7 @@ For a windows based system, you can use the following commands:
 1. git clone https://github.com/tahiri-lab/aPhylogeo
 2. If you do not have `virtualenv` installed, run `py -m pip install --user virtualenv`
 3. Create a new virtual environment (venv) in your terminal using `py -m venv aPhyloGeo_env`.
-4. Still in the terminal, activate the new venv using ` aPhyloGeo_env\Scripts\activate `.
+4. Still in the terminal, activate the new venv using `aPhyloGeo_env/bin/activate .`.
 5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip install -e .`.
 
 

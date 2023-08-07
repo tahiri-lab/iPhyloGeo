@@ -1,11 +1,8 @@
 from dash import html
-from dash.dependencies import Output, Input
 import dash_bootstrap_components as dbc
-from dash import callback
 import dash
-from dash import dcc, html
-from flask import Flask
-import dash_daq as daq
+from dash import dcc
+
 
 dash.register_page(__name__, path='/settings')
 

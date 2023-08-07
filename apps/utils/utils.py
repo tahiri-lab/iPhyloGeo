@@ -7,7 +7,7 @@ from dash import dcc, html
 
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
-import aPhyloGeo
+from aPhyloGeo import aPhyloGeo
 
 FILES_PATH = 'files/'
 COOKIE_NAME = 'AUTH'
@@ -275,7 +275,6 @@ def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap
         msaSet: the alignement
     """
     try:
-
         alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount)
         msaSet = alignementObject.msaSet
 

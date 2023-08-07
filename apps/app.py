@@ -3,7 +3,7 @@ import dash
 import dash_bootstrap_components as dbc
 from flask import Flask
 import dash_daq as daq
-from dash.dependencies import Input, Output, ClientsideFunction, State
+from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc, html
 
 load_dotenv()
@@ -32,7 +32,6 @@ LIGHT_THEME = {
 
 DARK_THEME = {
     "--theme-icon": "url(../assets/icons/theme-dark.svg)",
-    "--question-icon": "url(../assets/icons/theme-dark.svg)",
     "--switch-toggle-background": "black",
     "--switch-toggle-border": "white 1px solid",
     "--text-color": "#E0E0E0",
@@ -54,6 +53,7 @@ path_params = {
     'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
     'Getstarted': {'img': '/assets/icons/folder-upload.svg', 'name': 'Upload data'},
     'Settings': {'img': '/assets/icons/gear.svg', 'name': 'Settings'},
+    'Help': {'img': '/assets/icons/question-circle.svg', 'name': 'Help'},
 }
 
 server = Flask(__name__)
