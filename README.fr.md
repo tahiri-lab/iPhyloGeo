@@ -82,6 +82,10 @@ URL='http://localhost'
 PORT='8050'
 ```
 
+Si vous souhaitez que la fonction d'adresse e-mail fonctionne correctement, vous devez générer un fichier `"password.env"` dans le chemin du répertoire `"iPhyloGeo\apps\pages\results\password.env"` avec le format suivant : 
+```
+GMAIL_PASSWORD=(insérez ici le mot de passe d'application de aphylogeotest@gmail.com ou l'adresse e-mail que vous souhaitez utiliser).
+```
 
 ### Exécution:
 - Pour exécuter le programme localement, vous pouvez utiliser la commande suivante :
