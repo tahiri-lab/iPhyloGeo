@@ -81,7 +81,10 @@ DB_NAME='iPhyloGeo'
 URL='http://localhost'
 PORT='8050'
 ```
--If you wish for the email address function to operate correctly, you need to generate a "password.env" file within the directory path "iPhyloGeo\apps\pages\results\password.env" with the following format: GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com here or the e-mail you want to use).
+-If you wish for the email address function to operate correctly, you need to generate a `"password.env"` file within the directory path `"iPhyloGeo\apps\pages\results\password.env"` with the following format: ```
+```
+GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com here or the e-mail you want to use).
+```
 
 
 ### Running
