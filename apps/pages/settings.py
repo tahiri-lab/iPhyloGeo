@@ -1,57 +1,96 @@
-from dash import html
-import dash_bootstrap_components as dbc
+from dash import dcc, html, Output, Input, callback  # , State
 import dash
-from dash import dcc
 
 
 dash.register_page(__name__, path='/settings')
 
 layout = html.Div([
-    # Header
-    html.Div([
-        html.H1("Settings", className="text-center")  # Title centered
-    ], className="header"),
+    html.Div(style={'margin': '0 300px'}, children=[
+        # Header
+        html.Div([
+            html.H1("Settings", className="text-center", style={'color': 'white', 'font-weight': 'bold'})  # Title centered
+        ], className="header"),
 
-    # Settings Form
-    dbc.Container([
-        dbc.Row([
-            dbc.Col([
-                html.Label("Changer l'échelle (0-100%)"),
-                dcc.Slider(
-                    id="scale-slider",
-                    min=0,
-                    max=100,
-                    step=1,
-                    value=50,
-                    marks={i: str(i) for i in range(0, 101, 20)},
-                    tooltip={"placement": "bottom", "always_visible": True}
-                ),
-            ], md=6),  # Half-width column on medium-sized screens
-            dbc.Col([
-                html.Label("Changer les unités"),
-                dcc.Dropdown(
-                    id="unit-dropdown",
-                    options=[
-                        {"label": "Centimètres", "value": "cm"},
-                        {"label": "Pouces", "value": "in"},
-                        {"label": "Mètres", "value": "m"},
-                        {"label": "Pieds", "value": "ft"},
-                    ],
-                    value="cm",
-                    style={"background-color": "#AD00FA", "color": "white"}  # Custom style for the dropdown
-                ),
-            ], md=6),  # Half-width column on medium-sized screens
-        ]),
-        dbc.Row([
-            dbc.Col([
-                # Add any additional settings elements here
-            ], md=12),  # Full-width column on medium-sized screens
-        ]),
-        dbc.Row([
-            dbc.Col([
-                html.Button("Enregistrer", id="save-button", n_clicks=0, className="btn btn-primary"),
-            ], md=6, className="text-center mt-3")  # Half-width column on medium-sized screens, centered
-        ])
-    ], className="settings-form"),
+        # Input parameters
+        html.Div([
+            html.Div([
+                html.Label("Bootstrap value threshold"),
+                dcc.Input(id='bootstrap-value-threshold', type='number', value=10, className="custom-input"),
+            ], className="input-wrapper"),
 
-], className="page-container")
+            html.Div([
+                html.Label("Sliding Window Size:"),
+                dcc.Input(id='window-size', type='number', value=200, className="custom-input"),
+            ], className="input-wrapper"),
+
+            html.Div([
+                html.Label("Step Size:"),
+                dcc.Input(id='step-size', type='number', value=100, className="custom-input"),
+            ], className="input-wrapper"),
+
+            html.Div([
+                html.Label("Bootstrap amount :"),
+                dcc.Input(id='bootstrap-amount', type='number', value=100, className="custom-input"),
+            ], className="input-wrapper"),
+
+            html.Div([
+                html.Label("LS Threshold:"),
+                dcc.Input(id='ls-threshold', type='number', value=50, className="custom-input"),
+            ], className="input-wrapper"),
+
+            html.Div([
+                html.Label("Starting Position:"),
+                dcc.Input(id='starting-position', type='number', value=0, className="custom-input"),
+            ], className="input-wrapper"),
+
+            html.Div([
+                html.Label("Sliding Window (0-1500):"),
+                dcc.Input(id='sliding-window', type='number', value=750, min=0, max=1500, className="custom-input"),
+            ], className="input-wrapper"),
+
+            # Repeat the above pattern for the other input parameters
+        ], className="settings"),
+
+        # Button to reset parameters
+        html.Button("Reset to Defaults", id="reset-button", n_clicks=0, className="custom-button"),
+
+        # Store to save values
+        dcc.Store(id="parameter-store", storage_type="local")
+    ])
+])
+
+
+# Callback to update the stored parameters
+@callback(
+    Output("bootstrap-value-threshold", "value"),
+    Output("window-size", "value"),
+    Output("step-size", "value"),
+    Output("bootstrap-amount", "value"),
+    Output("ls-threshold", "value"),
+    Output("starting-position", "value"),
+    Output("sliding-window", "value"),
+    Input("reset-button", "n_clicks"),
+    prevent_initial_call=True
+)
+def update_parameters(reset_button_clicks):
+    if reset_button_clicks > 0:
+        default_values = {
+            "bootstrap_value_threshold": 10,
+            "window_size": 200,
+            "step_size": 100,
+            "bootstrap_amount": 100,
+            "ls_threshold": 50,
+            "starting_position": 0,
+            "sliding_window": 750
+        }
+        return (
+            default_values["bootstrap_value_threshold"],
+            default_values["window_size"],
+            default_values["step_size"],
+            default_values["bootstrap_amount"],
+            default_values["ls_threshold"],
+            default_values["starting_position"],
+            default_values["sliding_window"]
+        )
+
+    raise dash.exceptions.PreventUpdate
