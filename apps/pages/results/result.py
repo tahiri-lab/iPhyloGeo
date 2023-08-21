@@ -44,19 +44,6 @@ layout = html.Div([
                 ]),
             ], className="header"),
 
-            html.Div([
-                html.H2("If you would like to receive the URL by email, you can enter your address below.",
-                        style={'text-align': 'center', 'color': '#AD00FA', 'font-size': '14px'}),
-                html.Div([
-                    dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),  # Barre de saisie
-                    html.Button([html.Span('Submit', style={'font-size': '18px'})], id='submit-button',
-                                n_clicks=0,
-                                style={'font-family': 'Calibri', 'color': 'white',
-                                       'background-color': '#AD00FA',
-                                       'border-radius': '10px'}),  # Bouton "Submit"
-                ], className='input-container', style={'display': 'flex', 'justify-content': 'center'}),
-            ], className='center-container', style={'text-align': 'center'}),
-
             html.H2(id='results-table-title', className="title"),
             html.Div([
                 html.Div(id='output-results'),
@@ -74,6 +61,24 @@ layout = html.Div([
         ], className='treeContainer'),
     ], className="result")
 ], className="resultContainer")
+
+# E-mail at the end of the page
+bottom_email_div = html.Div([
+    html.Div([
+        html.H2("If you would like to receive the URL by email, you can enter your address below.",
+                style={'text-align': 'center', 'color': '#AD00FA', 'font-size': '14px'}),
+        html.Div([
+            dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),
+            html.Button([html.Span('Submit', style={'font-size': '18px'})], id='submit-button',
+                        n_clicks=0,
+                        style={'font-family': 'Calibri', 'color': 'white',
+                               'background-color': '#AD00FA',
+                               'border-radius': '10px'}),
+        ], className='input-container', style={'display': 'flex', 'justify-content': 'center'}),
+    ], className='center-container', style={'text-align': 'center'}),
+], className="result")
+
+layout.children.append(bottom_email_div)
 
 
 clientside_callback(
