@@ -42,9 +42,9 @@ diffrent. Fof a linux based system, you can use the following commands:
 
 For a windows based system, you can use the following commands:
 1. git clone https://github.com/tahiri-lab/aPhylogeo
-2. If you do not have `virtualenv` installed, run `py -m pip install --user virtualenv`
-3. Create a new virtual environment (venv) in your terminal using `py -m venv aPhyloGeo_env`.
-4. Still in the terminal, activate the new venv using `aPhyloGeo_env/bin/activate .`.
+2. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
+3. Create a new virtual environment (venv) in your terminal using `python3 -m venv aPhyloGeo_env`.
+4. Still in the terminal, activate the new venv using `aPhyloGeo_env/Scripts/activate .`.
 5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip install -e .`.
 
 
@@ -81,6 +81,8 @@ DB_NAME='iPhyloGeo'
 URL='http://localhost'
 PORT='8050'
 ```
+-If you wish for the email address function to operate correctly, you need to generate a "password.env" file within the directory path "iPhyloGeo\apps\pages\results\password.env" with the following format: GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com here or the e-mail you want to use).
+
 
 ### Running
 - To run the programm locally, you can use the following command :
