@@ -18,3 +18,5 @@ files/
 result/
 
 password.env
+seq very small.fasta
+genetic_settings_file.yaml
