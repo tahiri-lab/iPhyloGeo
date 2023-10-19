@@ -22,9 +22,22 @@ NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
 layout = html.Div([
-    dcc.Store(id='input-data', data={'genetic': {'file': None, 'layout': None, 'name': None}, 'climatic': {'file': None, 'layout': None}, 'submit button': False}),
+    dcc.Store(id='input-data', data={'genetic': {'file': None, 
+                                                 'layout': None, 
+                                                 'name': None},
+                                     'climatic': {'file': None, 
+                                                  'layout': None},
+                                     'genetic_tree': {'file': None},
+                                     'climatic_tree': {'file': None},
+                                     'submit button': False}),
     dcc.Store(id='params-climatic', data={'names': None}),
-    dcc.Store(id='params-genetic', data={'window_size': None, 'step_size': None, 'bootstrap_amount': None, 'bootstrap_threshold': None, 'ls_threshold': None}),
+    dcc.Store(id='params-genetic', data={'window_size': None,
+                                         'step_size': None,
+                                         'bootstrap_amount': None,
+                                         'bootstrap_threshold': None,
+                                         'ls_threshold': None,
+                                         'alignment_method': None,
+                                         'distance_method': None}),
     html.Div(id='action'),
     html.Div(
         className="get-started",
@@ -88,9 +101,22 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
             current_data['climatic']['layout'] = paramsClimatic.create_table(file['df'])
             current_data['climatic']['file'] = file
             current_data['climatic']['file']['df'] = file['df'].to_json()
+        # elif file['type'] == 'genetic_tree':
+        #   current_data['genetic_tree']['file'] = file
+        # elif file['type'] == 'climatic_tree':
+        #   current_data['climatic_tree']['file'] = file
 
+    #si pas d'arbres founir retourner ce qui suit
     return current_data['genetic']['layout'], current_data['climatic']['layout'], submit_button, current_data
+    
+    #si données climatiques et arbre génétique fournis
+    # return '', current_data['climatic']['layout'], submit button, current_data
 
+    #si données génétiques et arbre climatique fournis
+    # return current_data['genetic']['layout'], '', submit_button, current_data
+
+    #si arbres génétique et climatique fournis
+    # return '', '', submit_button, current_data
 
 @callback(
     Output('params-genetic', 'data'),
@@ -99,10 +125,12 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     Input('ls-threshold-slider', 'value'),
     Input('input-step-size', 'value'),
     Input('bootstrap-amount', 'value'),
+    Input('alignment-method', 'value'),
+    Input('distance-method', 'value'),
     State('params-genetic', 'data'),
     prevent_initial_call=True
 )
-def params_genetic(window_size, bootstrap_threshold, ls_threshold, step_size, bootstrap_amount, current_data):
+def params_genetic(window_size, bootstrap_threshold, ls_threshold, step_size, bootstrap_amount, alignment_method, distance_method, current_data):
     """
     This function fills the params_genetic json object
     args:
@@ -122,6 +150,9 @@ def params_genetic(window_size, bootstrap_threshold, ls_threshold, step_size, bo
     current_data['bootstrap_threshold'] = bootstrap_threshold
     current_data['ls_threshold'] = ls_threshold
     current_data['bootstrap_amount'] = bootstrap_amount
+    current_data['alignment_method'] = alignment_method
+    current_data['distance_method'] = distance_method
+
     return current_data
 
 
