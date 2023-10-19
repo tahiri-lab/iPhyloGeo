@@ -118,6 +118,7 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     # si arbres génétique et climatique fournis
     # return '', '', submit_button, current_data
 
+
 @callback(
     Output('params-genetic', 'data'),
     Input('input-window-size', 'value'),
