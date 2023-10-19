@@ -1,14 +1,27 @@
 from dash import dcc, html, Output, Input, callback  # , State
 import dash_bio as dashbio
 import dash
+import json
 
 
 def get_layout(file):
+
+    # Load saved settings from YAML file "genetic_settings_file" to populate the form
+    genetic_setting_file = json.load(open('genetic_settings_file.yaml', 'r'))
+
+    BOOTSTRAP_THRESHOLD_DEFAULT = genetic_setting_file['bootstrap-threshold']
+    DISTANCE_THRESHOLD_DEFAULT = genetic_setting_file['distance-threshold']
+    BOOTSTRAP_AMOUNT_DEFAULT = genetic_setting_file['bootstrap-amount']
+    WINDOW_SIZE_DEFAULT = genetic_setting_file['window-size']
+    STEP_SIZE_DEFAULT = genetic_setting_file['step-size']
+    STARTING_POSITION_DEFAULT = genetic_setting_file['starting-position']
+
+    
     max_sequence_length = get_max_sequence_length(file)
-    first_quartile = int(0.25 * max_sequence_length)
-    second_quartile = int(0.5 * max_sequence_length)
-    third_quartile = int(0.75 * max_sequence_length)
-    print(max_sequence_length)
+    # first_quartile = int(0.25 * max_sequence_length)
+    # second_quartile = int(0.5 * max_sequence_length)
+    # third_quartile = int(0.75 * max_sequence_length)
+    # print(max_sequence_length)
     return html.Div(
         children=[
             html.Div([
@@ -16,66 +29,147 @@ def get_layout(file):
                 html.Div([
                     dcc.Store(id='stored-genetic-data', data=file),
                     html.Div('Genetic parameters', className="title"),
+                    # html.Div([
+                    #     # ----- Bootstrap value threshold -----
+                    #     html.Div("Bootstrap value threshold", className="param-title"),
+                    #     dcc.Slider(id='bootstrap-threshold', className="slider", min=0, max=100, step=0.1,
+                    #                marks={
+                    #                   0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
+                    #                   25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
+                    #                   50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
+                    #                   75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
+                    #                   100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}}, value=10),
+                    #     html.Div(id='bootstrap-threshold-output-container')
+                    # ], className="parameter-container-inside"),
+                    # html.Div([
+                    #     # ----- Distance threshold ----- 
+                    #     html.Div('Ls Threshold', className="param-title"),
+                    #     dcc.Slider(id='ls-threshold-slider', className="slider", min=0, max=100, step=0.1,
+                    #                marks={
+                    #                   0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
+                    #                   25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
+                    #                   50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
+                    #                   75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
+                    #                   100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}}, value=60),
+                    #     html.Div(id='ls-threshold-slider-output-container'),
+                    # ], className="parameter-container-inside"),
                     html.Div([
-                        html.Div("Bootstrap value threshold", className="param-title"),
-                        dcc.Slider(id='bootstrap-threshold', className="slider", min=0, max=100, step=0.1,
-                                   marks={
-                                      0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
-                                      25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
-                                      50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
-                                      75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
-                                      100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}}, value=10),
-                        html.Div(id='bootstrap-threshold-output-container')
-                    ], className="parameter-container-inside"),
-                    html.Div([
-                        html.Div('Ls Threshold', className="param-title"),
-                        dcc.Slider(id='ls-threshold-slider', className="slider", min=0, max=100, step=0.1,
-                                   marks={
-                                      0: {'label': '0.0%', 'style': {'color': '#77b0b1'}},
-                                      25: {'label': '25.0%', 'style': {'color': '#77b0b1'}},
-                                      50: {'label': '50.0%', 'style': {'color': '#77b0b1'}},
-                                      75: {'label': '75.0%', 'style': {'color': '#77b0b1'}},
-                                      100: {'label': '100.0%', 'style': {'color': '#77b0b1'}}}, value=60),
-                        html.Div(id='ls-threshold-slider-output-container'),
-                    ], className="parameter-container-inside"),
-                    html.Div([
+                            # ----- Bootstrap value threshold -----
+                        html.Div([
+                            html.Div("Bootstrap threshold"),
+                            dcc.Input(id="bootstrap-threshold", type="number",
+                                        min=0, max=100,
+                                        value=BOOTSTRAP_THRESHOLD_DEFAULT,
+                                        className="input-field"),
+                            html.Div(id='bootstrap-value-threshold-container'),
+                        ], className="manual-input"),
+                            # ----- Distance threshold -----
+                        html.Div([
+                            html.Div("Distance threshold"),
+                            dcc.Input(id="ls-threshold-slider", type="number",
+                                        min=0, max=100,
+                                        value=DISTANCE_THRESHOLD_DEFAULT,
+                                        className="input-field"),
+                        ], className="manual-input"),
+                            # ----- Sliding window size -----
                         html.Div([
                             html.Div("Sliding Window Size"),
-                            dcc.Input(id="input-window-size", type="number", min=0, max=max_sequence_length,
-                                      placeholder="Enter Sliding Window Size", value=200, className="input-field"),
+                            dcc.Input(id="input-window-size", type="number",
+                                      min=0, max=max_sequence_length,
+                                      value=WINDOW_SIZE_DEFAULT,
+                                      className="input-field"),
                             html.Div(id='input-window-size-container'),
                         ], className="manual-input"),
+                            # ----- Step size ----- 
                         html.Div([
                             html.Div("Step Size"),
-                            dcc.Input(id="input-step-size", type="number", min=0, max=max_sequence_length,
-                                      placeholder="Enter Step Size", value=100, className="input-field"),
+                            dcc.Input(id="input-step-size", type="number",
+                                      min=0, max=max_sequence_length,
+                                      value=STEP_SIZE_DEFAULT,
+                                      className="input-field"),
                             html.Div(id='input-step-size-container'),
                         ], className="manual-input"),
+                            # ----- Bootstrap amount -----
                         html.Div([
                             html.Div("Bootstrap amount"),
-                            dcc.Input(id="bootstrap-amount", type="number", min=1, max=500,
-                                      placeholder="Enter Step Size", value=100, className="input-field"),
+                            dcc.Input(id="bootstrap-amount", type="number",
+                                      min=1, max=500,
+                                      value=BOOTSTRAP_AMOUNT_DEFAULT,
+                                      className="input-field"),
                             html.Div(id='bootstrap-amount-container'),
                         ], className="manual-input"),
+                            # ----- Starting position -----
                         html.Div([
                             html.Div("Starting position"),
-                            dcc.Input(id="input-starting-position", type="number", min=0, max=max_sequence_length,
-                                      placeholder="Enter the starting position", value=0, className="input-field"),
-                            html.Div(id='bootstrap-amount-container'),
-                        ], className="manual-input"),
+                            dcc.Input(id="input-starting-position", type="number",
+                                      min=0, max=max_sequence_length,
+                                      value=STARTING_POSITION_DEFAULT,
+                                      className="input-field"),
+                            html.Div(id='starting-position-container'),
+                        ], className="manual-input")
                     ], className="manual-input-container"),
+                    # html.Div([
+                    #     dcc.RangeSlider(id='sliding-window-slider', className="slider", min=0, max=max_sequence_length, step=1,
+                    #                     marks={
+                    #                         0: {'label': '0', 'style': {'color': '#77b0b1'}},
+                    #                         first_quartile: {'label': str(first_quartile), 'style': {'color': '#77b0b1'}},
+                    #                         second_quartile: {'label': str(second_quartile), 'style': {'color': '#77b0b1'}},
+                    #                         third_quartile: {'label': str(third_quartile), 'style': {'color': '#77b0b1'}},
+                    #                         max_sequence_length: {'label': str(max_sequence_length), 'style': {'color': '#77b0b1'}}},
+                    #                     ),
+                    #     html.Div(id='sliding-window-slider-output-container')
+                    # ], className="parameter-container-inside"),
                     html.Div([
-                        html.Div("Sliding Window", className='sub-title'),
-                        dcc.RangeSlider(id='sliding-window-slider', className="slider", min=0, max=max_sequence_length, step=1,
-                                        marks={
-                                            0: {'label': '0', 'style': {'color': '#77b0b1'}},
-                                            first_quartile: {'label': str(first_quartile), 'style': {'color': '#77b0b1'}},
-                                            second_quartile: {'label': str(second_quartile), 'style': {'color': '#77b0b1'}},
-                                            third_quartile: {'label': str(third_quartile), 'style': {'color': '#77b0b1'}},
-                                            max_sequence_length: {'label': str(max_sequence_length), 'style': {'color': '#77b0b1'}}},
-                                        ),
-                        html.Div(id='sliding-window-slider-output-container')
-                    ]),
+                        html.Div("Alignment method"),
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Pairwise2'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "1",
+                                },
+                                {
+                                    "label": html.Div(['Muscle5'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "2",
+                                },
+                                {
+                                    "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "3",
+                                    'disabled': True
+                                },
+                                {
+                                    "label": html.Div(['Clustal2'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "4",
+                                    'disabled': True
+                                },
+                            ], value='Pairwise2', id='alignment-method'
+                        )
+                    ], className="parameter-container-inside"),
+                    html.Div([
+                        html.Div("Distance method"),
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Least Square'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "1",
+                                },
+                                {
+                                    "label": html.Div(['Robinson-Foulds (RF)'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "2",
+                                    'disabled': True
+                                },
+                                {
+                                    "label": html.Div(['Quartet and triplet'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "3",
+                                    'disabled': True
+                                },
+                                {
+                                    "label": html.Div(['Bipartition'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "4",
+                                    'disabled': True
+                                },
+                            ], value='Least Square', id='distance-method'
+                        )
+                    ], className="parameter-container-inside"),
                     html.Div([
                         html.Div([
                             html.Div("Alignement chart", className='sub-title'),
