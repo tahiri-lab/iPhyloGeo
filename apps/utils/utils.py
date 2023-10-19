@@ -7,7 +7,7 @@ from dash import dcc, html
 
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
-from aPhyloGeo import aPhyloGeo
+from aphylogeo import utils as aPhyloGeo
 
 FILES_PATH = 'files/'
 COOKIE_NAME = 'AUTH'
@@ -170,6 +170,12 @@ def parse_contents(content, file_name, date):
             # res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
             res['file'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta'))
             res['type'] = 'genetic'
+        # elif pour les genetic trees
+            # res['file'] = 
+            # res['type'] = 'genetic_tree'
+        # elif pour les climatic trees
+            # res['file'] = 
+            # res['type'] = climatic_tree'
         else:
             res['error'] = True
 
@@ -260,7 +266,7 @@ def create_climatic_trees(result_id, climatic_data, climatic_params, status='cli
         raise Exception('Error creating the climatic trees')
 
 
-def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap_amount, status='alignement'):
+def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap_amount, alignment_method, status='alignement'):
     """
     Creates the alignement of the genetic data.
 
@@ -270,12 +276,13 @@ def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap
         window_size: the size of the window
         step_size: the size of the step
         bootstrap_amount: the amount of bootstraps
+        alignment_method: the method of alignment to use
 
     Returns:
         msaSet: the alignement
     """
     try:
-        alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount)
+        alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount, alignment_method, 'seq very small.fasta')
         msaSet = alignementObject.msaSet
 
         results_ctrl.update_result({
@@ -366,7 +373,7 @@ def run_genetic_pipeline(result_id, climatic_data, genetic_data, genetic_params,
         result_id: string with the id of the database result
     """
 
-    msaSet = create_alignement(result_id, genetic_data, genetic_params['window_size'], genetic_params['step_size'], genetic_params['bootstrap_amount'])
+    msaSet = create_alignement(result_id, genetic_data, genetic_params['window_size'], genetic_params['step_size'], genetic_params['bootstrap_amount'], genetic_params['alignment_method'])
 
     genetic_trees = create_genetic_trees(result_id, msaSet, genetic_params['bootstrap_amount'])
 
