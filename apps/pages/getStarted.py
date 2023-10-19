@@ -22,10 +22,10 @@ NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
 layout = html.Div([
-    dcc.Store(id='input-data', data={'genetic': {'file': None, 
-                                                 'layout': None, 
+    dcc.Store(id='input-data', data={'genetic': {'file': None,
+                                                 'layout': None,
                                                  'name': None},
-                                     'climatic': {'file': None, 
+                                     'climatic': {'file': None,
                                                   'layout': None},
                                      'genetic_tree': {'file': None},
                                      'climatic_tree': {'file': None},
@@ -106,16 +106,16 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
         # elif file['type'] == 'climatic_tree':
         #   current_data['climatic_tree']['file'] = file
 
-    #si pas d'arbres founir retourner ce qui suit
+    # si pas d'arbres founir retourner ce qui suit
     return current_data['genetic']['layout'], current_data['climatic']['layout'], submit_button, current_data
-    
-    #si données climatiques et arbre génétique fournis
+
+    # si données climatiques et arbre génétique fournis
     # return '', current_data['climatic']['layout'], submit button, current_data
 
-    #si données génétiques et arbre climatique fournis
+    # si données génétiques et arbre climatique fournis
     # return current_data['genetic']['layout'], '', submit_button, current_data
 
-    #si arbres génétique et climatique fournis
+    # si arbres génétique et climatique fournis
     # return '', '', submit_button, current_data
 
 @callback(
