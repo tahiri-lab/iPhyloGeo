@@ -18,7 +18,8 @@ module.exports = function (grunt) {
                     'apps/assets/helper.css': 'apps/assets/styles/utils/helper.scss',
                     'apps/assets/button.css': 'apps/assets/styles/utils/button.scss',
                     'apps/assets/popup.css': 'apps/assets/styles/utils/popup.scss',
-                    'apps/assets/tooltip.css': 'apps/assets/styles/utils/tooltip.scss'
+                    'apps/assets/tooltip.css': 'apps/assets/styles/utils/tooltip.scss',
+                    'apps/assets/settings.css': 'apps/assets/styles/settings.scss'
                 }
             }
         },
@@ -36,7 +37,8 @@ module.exports = function (grunt) {
                     'apps/assets/styles/utils/helper.scss',
                     'apps/assets/styles/utils/button.scss',
                     'apps/assets/styles/utils/popup.scss',
-                    'apps/assets/styles/utils/tooltip.scss'
+                    'apps/assets/styles/utils/tooltip.scss',
+                    'apps/assets/styles/settings.scss'
                 ],
                 tasks: ['build-css']
             }
