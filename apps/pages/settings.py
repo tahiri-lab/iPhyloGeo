@@ -25,7 +25,7 @@ genetic_settings_file = json.load(open('genetic_settings_file.yaml', 'r'))
 layout = html.Div([
     dcc.Store(id='genetic-settings', storage_type='session',
               data=genetic_settings_file),
-    html.Div(id='main-container', style={'margin': '0 300px'}, children=[
+    html.Div(id='main-container', style={'margin': '0 150px'}, children=[
         html.Div([
             html.Div('Genetic parameters', className="title"),
             html.Div([
@@ -75,16 +75,17 @@ layout = html.Div([
                               min=STARTING_POSITION_MIN, max=STARTING_POSITION_MAX,
                               value=genetic_settings_file['starting-position'], className="input-field"),
                     html.Div(id='starting-position-container'),
-                ], className="manual-input")
-            ], className="manual-input-container")
+                ], className="manual-input"),
+            ], className="manual-input-container"),
+                html.Div(id='setting-buttons', children=[
+                    # Button to reset settings to default
+                    html.Button("Reset to default", id="reset-button", n_clicks=0),
+
+                    # Button to save settings
+                    html.Button("Save settings", id="save-settings-button", n_clicks=0)
+                ])
         ], className="parameter-container"),
-
-        # Button to reset settings to default
-        html.Button("Reset to default", id="reset-button", n_clicks=0),
-
-        # Button to save settings
-        html.Button("Save settings", id="save-settings-button", n_clicks=0)
-    ])
+    ], className="params-genetic")
 ])
 
 
@@ -107,7 +108,7 @@ def update_settings(settings):
             settings['starting-position'])
 
 
-# Callback to reset or save the stored parameters
+# To reset or save the settings in the YAML file
 @callback(
     Output('genetic-settings', 'data'),
     Input("reset-button", "n_clicks"),
