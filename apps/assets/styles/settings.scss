@@ -23,3 +23,33 @@
         }
     }
 }
+
+.alignment-method-container, .distance-method-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--reverse-white-black-color);
+    background-color: var(--reverse-black-white-color);
+    padding: 15px;
+    border-radius: 5px;
+    width: auto;
+    margin: auto;
+
+    label {
+        text-align: center;
+        padding: 5px;
+        font-size: 14px;
+    }
+    
+    #alignment-method-title, #distance-method-title {
+        display: flex; 
+        margin: auto;
+        margin-bottom: 15px;
+    }
+
+    #alignment-method, #distance-method {
+        display: flex;
+        margin: auto;
+        width: auto;
+    }
+}

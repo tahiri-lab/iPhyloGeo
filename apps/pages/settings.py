@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 
 dash.register_page(__name__, path='/settings')
 
+# Minimum and maximum values for settings
 BOOTSTRAP_THRESHOLD_MIN = 0
 BOOTSTRAP_THRESHOLD_MAX = 100
 DISTANCE_THRESHOLD_MIN = 0
@@ -14,11 +15,21 @@ DISTANCE_THRESHOLD_MAX = 100
 BOOTSTRAP_AMOUNT_MIN = 0
 BOOTSTRAP_AMOUNT_MAX = 100
 WINDOW_SIZE_MIN = 1
-WINDOW_SIZE_MAX = 1500
+WINDOW_SIZE_MAX = 1000
 STEP_SIZE_MIN = 1
-STEP_SIZE_MAX = 1500
+STEP_SIZE_MAX = 500
 STARTING_POSITION_MIN = 1
-STARTING_POSITION_MAX = 1500
+STARTING_POSITION_MAX = 999
+
+# Default values for settings
+BOOTSTRAP_THRESHOLD_DEFAULT = 10
+DISTANCE_THRESHOLD_DEFAULT = 50
+BOOTSTRAP_AMOUNT_DEFAULT = 100
+WINDOW_SIZE_DEFAULT = 200
+STEP_SIZE_DEFAULT = 100
+STARTING_POSITION_DEFAULT = 1
+ALIGNMENT_METHOD_DEFAULT = 1
+DISTANCE_METHOD_DEFAULT = 1
 
 genetic_settings_file = json.load(open('genetic_settings_file.yaml', 'r'))
 
@@ -46,7 +57,7 @@ layout = html.Div([
                 ], className="manual-input"),
                 html.Div([
                     # ----- Sliding window size -----
-                    html.Div("Sliding Window Size"),
+                    html.Div("Window size"),
                     dcc.Input(id="input-window-size", type="number",
                               min=WINDOW_SIZE_MIN, max=WINDOW_SIZE_MAX,
                               value=genetic_settings_file['window-size'], className="input-field"),
@@ -54,7 +65,7 @@ layout = html.Div([
                 ], className="manual-input"),
                 html.Div([
                     # ----- Step size -----
-                    html.Div("Step Size"),
+                    html.Div("Step size"),
                     dcc.Input(id="input-step-size", type="number",
                               min=STEP_SIZE_MIN, max=STEP_SIZE_MAX,
                               value=genetic_settings_file['step-size'], className="input-field"),
@@ -77,7 +88,60 @@ layout = html.Div([
                     html.Div(id='starting-position-container'),
                 ], className="manual-input"),
             ], className="manual-input-container"),
-                html.Div(id='setting-buttons', children=[
+                html.Div([
+                        html.Div("Alignment method", id="alignment-method-title"),
+                        # ----- Alignement method -----
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Pairwise2'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 1,
+                                },
+                                {
+                                    "label": html.Div(['Muscle5'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 2,
+                                },
+                                {
+                                    "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 3,
+                                    'disabled': True
+                                },
+                                {
+                                    "label": html.Div(['Clustal2'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 4,
+                                    'disabled': True
+                                },
+                            ], value=ALIGNMENT_METHOD_DEFAULT, id='alignment-method'
+                        )
+                    ], className="alignment-method-container"),
+                    html.Div([
+                        html.Div("Distance method", id="distance-method-title"),
+                        # ----- Distance method -----
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Least Square'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 1,
+                                },
+                                {
+                                    "label": html.Div(['Robinson-Foulds (RF)'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 2,
+                                    'disabled': True
+                                },
+                                {
+                                    "label": html.Div(['Quartet and triplet'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 3,
+                                    'disabled': True
+                                },
+                                {
+                                    "label": html.Div(['Bipartition'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 4,
+                                    'disabled': True
+                                },
+                            ], value=DISTANCE_METHOD_DEFAULT, id='distance-method'
+                        )
+                    ], className="distance-method-container"),
+                    html.Div(id='setting-buttons', children=[
                     # Button to reset settings to default
                     html.Button("Reset to default", id="reset-button", n_clicks=0),
 
@@ -97,6 +161,8 @@ layout = html.Div([
     Output('input-step-size', 'value'),
     Output('bootstrap-amount', 'value'),
     Output('input-starting-position', 'value'),
+    Output('alignment-method', 'value'),
+    Output('distance-method', 'value'),
     Input('genetic-settings', 'data')
 )
 def update_settings(settings):
@@ -105,7 +171,9 @@ def update_settings(settings):
             settings['window-size'],
             settings['step-size'],
             settings['bootstrap-amount'],
-            settings['starting-position'])
+            settings['starting-position'],
+            settings['alignment-method'],
+            settings['distance-method'])
 
 
 # To reset or save the settings in the YAML file
@@ -119,9 +187,11 @@ def update_settings(settings):
     State('input-step-size', 'value'),
     State('bootstrap-amount', 'value'),
     State('input-starting-position', 'value'),
+    State('alignment-method', 'value'),
+    State('distance-method', 'value'),
     prevent_initial_call=True
 )
-def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position):
+def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position, alignment_method, distance_method):
 
     settings_out_of_bound = (bootstrap_threshold is None or distance_threshold is None or window_size is None or step_size is None or bootstrap_amount is None or starting_position is None)
 
@@ -129,12 +199,14 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
 
     if button_clicked == 'reset-button':
         default_values = {
-            "bootstrap-threshold": 10,
-            "distance-threshold": 50,
-            "window-size": 200,
-            "step-size": 100,
-            "bootstrap-amount": 100,
-            "starting-position": 1
+            "bootstrap-threshold": BOOTSTRAP_THRESHOLD_DEFAULT,
+            "distance-threshold": DISTANCE_THRESHOLD_DEFAULT,
+            "window-size": WINDOW_SIZE_DEFAULT,
+            "step-size": STEP_SIZE_DEFAULT,
+            "bootstrap-amount": BOOTSTRAP_AMOUNT_DEFAULT,
+            "starting-position": STARTING_POSITION_DEFAULT,
+            "alignment-method": ALIGNMENT_METHOD_DEFAULT,
+            "distance-method": DISTANCE_METHOD_DEFAULT
         }
 
         with open('genetic_settings_file.yaml', 'w') as f:
@@ -149,7 +221,9 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             'window-size': window_size,
             'step-size': step_size,
             'bootstrap-amount': bootstrap_amount,
-            'starting-position': starting_position
+            'starting-position': starting_position,
+            'alignment-method': alignment_method,
+            'distance-method': distance_method
         }
 
         with open('genetic_settings_file.yaml', 'w') as f:
