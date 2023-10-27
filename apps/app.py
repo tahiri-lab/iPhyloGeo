@@ -16,7 +16,7 @@ LIGHT_THEME = {
     "--theme-icon": "url(../assets/icons/theme-light.svg)",
     "--switch-toggle-background": "rgb(230, 230, 230)",
     "--switch-toggle-border": "white 1px solid",
-    "--text-color": "#f5f5f5",
+    "--text-color": "#1A1C1E",
     "--reverse-black-white-color": "#1A1C1E",
     "--reverse-white-black-color": "white",
     "--background-color": "#EBECF0",
