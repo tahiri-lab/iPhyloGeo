@@ -206,19 +206,23 @@ def create_climatic_trees(path):
 @callback(
     Output("download-link-results", "data"),
     Input('url', 'pathname'),
+    Input('climatic-tree', 'children'),
+    Input('genetic-tree', 'children'),
     Input("download-button-genetic", "n_clicks"),
     Input("download-button-climatic", "n_clicks"),
     Input("download-button-aligned", "n_clicks"),
     Input("download-button-complete", "n_clicks"),
     prevent_initial_call=True,
 )
-def download_results(path, btn_genetic, btn_climatic, btn_aligned, btn_complete):
+def download_results(path, climatic_tree, genetic_tree, btn_genetic, btn_climatic, btn_aligned, btn_complete):
     """
     This function creates the list of divs containing the genetic trees
     Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
 
     args:
         path (str): the path of the page
+        climatic_tree: Climatic section previously generated, have to be generated for this callback to fire
+        genetic_tree: Genetic section previously generated, have to be generated for this callback to fire
         btn_genetic : dummy inpput needed to trigger the callback
         btn_climatic : dummy inpput needed to trigger the callback
         btn_msa : dummy inpput needed to trigger the callback
