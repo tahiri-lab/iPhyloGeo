@@ -30,6 +30,8 @@ STEP_SIZE_DEFAULT = 100
 STARTING_POSITION_DEFAULT = 1
 ALIGNMENT_METHOD_DEFAULT = 1
 DISTANCE_METHOD_DEFAULT = 1
+FIT_METHOD_DEFAULT = 1
+TREE_TYPE_DEFAULT = 1
 
 genetic_settings_file = json.load(open('genetic_settings_file.yaml', 'r'))
 
@@ -94,25 +96,22 @@ layout = html.Div([
                         dcc.RadioItems(
                             [
                                 {
-                                    "label": html.Div(['Pairwise2'], style={'padding': 5, 'font-size': 14}),
+                                    "label": html.Div(['PairwiseAlign'], style={'padding': 5, 'font-size': 14}),
                                     "value": 1,
                                 },
                                 {
-                                    "label": html.Div(['Muscle5'], style={'padding': 5, 'font-size': 14}),
+                                    "label": html.Div(['MUSCLE'], style={'padding': 5, 'font-size': 14}),
                                     "value": 2,
                                 },
                                 {
-                                    "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)'], style={'padding': 5, 'font-size': 14}),
+                                    "label": html.Div(['ClustalW'], style={'padding': 5, 'font-size': 14}),
                                     "value": 3,
-                                    'disabled': True
                                 },
                                 {
-                                    "label": html.Div(['Clustal2'], style={'padding': 5, 'font-size': 14}),
+                                    "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)'], style={'padding': 5, 'font-size': 14}),
                                     "value": 4,
-                                    'disabled': True
                                 },
-                            ], value=ALIGNMENT_METHOD_DEFAULT, id='alignment-method'
-                        )
+                            ], value=ALIGNMENT_METHOD_DEFAULT, id='alignment-method')
                     ], className="alignment-method-container"),
                     html.Div([
                         html.Div("Distance method", id="distance-method-title"),
@@ -126,21 +125,43 @@ layout = html.Div([
                                 {
                                     "label": html.Div(['Robinson-Foulds (RF)'], style={'padding': 5, 'font-size': 14}),
                                     "value": 2,
-                                    'disabled': True
                                 },
                                 {
-                                    "label": html.Div(['Quartet and triplet'], style={'padding': 5, 'font-size': 14}),
+                                    "label": html.Div(['Euclidean (Dendropy)'], style={'padding': 5, 'font-size': 14}),
                                     "value": 3,
-                                    'disabled': True
+                                },
+                            ], value=DISTANCE_METHOD_DEFAULT, id='distance-method')
+                    ], className="distance-method-container"),
+                    html.Div([
+                        html.Div("Fit method", id="fit-method-title"),
+                        # ----- Fit method -----
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Wider Fit by elongating with Gap (starAlignment)'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 1,
                                 },
                                 {
-                                    "label": html.Div(['Bipartition'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 4,
-                                    'disabled': True
+                                    "label": html.Div(['Narrow-fit prevent elongation with gap when possible'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 2,
                                 },
-                            ], value=DISTANCE_METHOD_DEFAULT, id='distance-method'
-                        )
-                    ], className="distance-method-container"),
+                            ], value=FIT_METHOD_DEFAULT, id='fit-method')
+                    ], className="fit-method-container"),
+                    html.Div([
+                        html.Div("Tree type", id="tree-type-title"),
+                        # ----- Tree type  -----
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Biopython consensus tree'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 1,
+                                },
+                                {
+                                    "label": html.Div(['Fast Tree Application'], style={'padding': 5, 'font-size': 14}),
+                                    "value": 2,
+                                },
+                            ], value=TREE_TYPE_DEFAULT, id='tree-type')
+                    ], className="tree-type-container"),
                     html.Div(id='setting-buttons', children=[
                     # Button to reset settings to default
                     html.Button("Reset to default", id="reset-button", n_clicks=0),
@@ -163,6 +184,8 @@ layout = html.Div([
     Output('input-starting-position', 'value'),
     Output('alignment-method', 'value'),
     Output('distance-method', 'value'),
+    Output('fit-method', 'value'),
+    Output('tree-type', 'value'),
     Input('genetic-settings', 'data')
 )
 def update_settings(settings):
@@ -173,7 +196,9 @@ def update_settings(settings):
             settings['bootstrap-amount'],
             settings['starting-position'],
             settings['alignment-method'],
-            settings['distance-method'])
+            settings['distance-method'],
+            settings['fit-method'],
+            settings['tree-type'])
 
 
 # To reset or save the settings in the YAML file
@@ -189,9 +214,11 @@ def update_settings(settings):
     State('input-starting-position', 'value'),
     State('alignment-method', 'value'),
     State('distance-method', 'value'),
+    State('fit-method', 'value'),
+    State('tree-type', 'value'),
     prevent_initial_call=True
 )
-def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position, alignment_method, distance_method):
+def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position, alignment_method, distance_method, fit_method, tree_type):
 
     settings_out_of_bound = (bootstrap_threshold is None or distance_threshold is None or window_size is None or step_size is None or bootstrap_amount is None or starting_position is None)
 
@@ -206,7 +233,9 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             "bootstrap-amount": BOOTSTRAP_AMOUNT_DEFAULT,
             "starting-position": STARTING_POSITION_DEFAULT,
             "alignment-method": ALIGNMENT_METHOD_DEFAULT,
-            "distance-method": DISTANCE_METHOD_DEFAULT
+            "distance-method": DISTANCE_METHOD_DEFAULT,
+            "fit-method": FIT_METHOD_DEFAULT,
+            "tree-type": TREE_TYPE_DEFAULT
         }
 
         with open('genetic_settings_file.yaml', 'w') as f:
@@ -223,7 +252,9 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             'bootstrap-amount': bootstrap_amount,
             'starting-position': starting_position,
             'alignment-method': alignment_method,
-            'distance-method': distance_method
+            'distance-method': distance_method,
+            'fit-method': fit_method,
+            'tree-type': tree_type
         }
 
         with open('genetic_settings_file.yaml', 'w') as f:

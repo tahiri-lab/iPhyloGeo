@@ -24,7 +24,7 @@
     }
 }
 
-.alignment-method-container, .distance-method-container {
+.alignment-method-container, .distance-method-container, .fit-method-container, .tree-type-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -41,13 +41,13 @@
         font-size: 14px;
     }
     
-    #alignment-method-title, #distance-method-title {
+    #alignment-method-title, #distance-method-title, #fit-method-title, #tree-type-title {
         display: flex; 
         margin: auto;
         margin-bottom: 15px;
     }
 
-    #alignment-method, #distance-method {
+    #alignment-method, #distance-method, #fit-method, #tree-type {
         display: flex;
         margin: auto;
         width: auto;
