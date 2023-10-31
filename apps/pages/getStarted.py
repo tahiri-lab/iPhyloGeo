@@ -11,6 +11,7 @@ import pages.upload.climatic.paramsClimatic as paramsClimatic
 import pages.upload.genetic.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
+import json
 
 dash.register_page(__name__, path='/getStarted')
 
@@ -21,23 +22,29 @@ for key, value in dotenv_values().items():
 NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
+# Load genetic settings from genetic settings file (YAML)
+genetic_setting_file = json.load(open('genetic_settings_file.yaml', 'r'))
+
 layout = html.Div([
     dcc.Store(id='input-data', data={'genetic': {'file': None,
                                                  'layout': None,
                                                  'name': None},
                                      'climatic': {'file': None,
                                                   'layout': None},
+                                     'aligned_genetic': {'file': None},
                                      'genetic_tree': {'file': None},
                                      'climatic_tree': {'file': None},
                                      'submit button': False}),
     dcc.Store(id='params-climatic', data={'names': None}),
-    dcc.Store(id='params-genetic', data={'window_size': None,
-                                         'step_size': None,
-                                         'bootstrap_amount': None,
-                                         'bootstrap_threshold': None,
-                                         'ls_threshold': None,
-                                         'alignment_method': None,
-                                         'distance_method': None}),
+    dcc.Store(id='params-genetic', data={'window_size': genetic_setting_file['window-size'],
+                                         'step_size': genetic_setting_file['step-size'],
+                                         'bootstrap_amount': genetic_setting_file['bootstrap-amount'],
+                                         'bootstrap_threshold': genetic_setting_file['bootstrap-threshold'],
+                                         'ls_threshold': genetic_setting_file['distance-threshold'],
+                                         'alignment_method': genetic_setting_file['alignment-method'],
+                                         'distance_method': genetic_setting_file['distance-method'],
+                                         'fit_method': genetic_setting_file['fit-method'],
+                                         'tree_type': genetic_setting_file['tree-type']}),
     html.Div(id='action'),
     html.Div(
         className="get-started",
@@ -95,7 +102,7 @@ def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
     for file, name in zip(files, list_of_names):
         if file['type'] == 'genetic':
             current_data['genetic']['file'] = file
-            current_data['genetic']['layout'] = paramsGenetic.get_layout(file['file'])
+            current_data['genetic']['layout'] = None # paramsGenetic.get_layout(file['file'])   <-- En commentaire pour ne pas afficher les paramètres génétiques
             current_data['genetic']['name'] = name
         elif file['type'] == 'climatic':
             current_data['climatic']['layout'] = paramsClimatic.create_table(file['df'])
@@ -286,3 +293,151 @@ def add_result_to_cookie(result_id):
     auth_cookie = request.cookies.get("AUTH")
     response = dash.callback_context.response
     utils.make_cookie(result_id, auth_cookie, response)
+
+# Callback to show uploaded climatic data files
+@callback (
+    Output('upload-climatic-data', 'contents'),
+    Output('upload-climatic-tree', 'contents'),
+    Output('upload-climatic-data', 'filename'),
+    Output('upload-climatic-tree', 'filename'),
+    Output('upload-climatic-data', 'children'),
+    Output('upload-climatic-tree', 'children'),
+    Input('upload-climatic-data', 'contents'),
+    Input('upload-climatic-tree', 'contents'),
+    State('upload-climatic-data', 'filename'),
+    State('upload-climatic-tree', 'filename'),
+    prevent_initial_call= True
+)
+def uploaded_climatic_data(climatic_data_contents, climatic_tree_contents, climatic_data_filename, climatic_tree_filename):
+    upload_box = dash.callback_context.triggered_id
+
+    if upload_box == 'upload-climatic-data':
+        return (climatic_data_contents, 
+                None,
+                climatic_data_filename,
+                None,
+                # Output in climatic data upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div(climatic_data_filename, className='text')]),
+                # Output in climatic tree box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload climatic tree (.tree)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"))
+    elif upload_box == 'upload-climatic-tree':
+        return (None,
+                climatic_tree_contents,
+                None,
+                climatic_tree_filename,
+                # Output in climatic data upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload climatic data (.csv)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"),
+                # Output in climatic tree upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div(climatic_tree_filename, className='text')]))
+
+# Callback to show uploaded genetic data files
+@callback (
+    Output('upload-genetic-data', 'contents'),
+    Output('upload-aligned-genetic-data', 'contents'),
+    Output('upload-genetic-tree', 'contents'),
+    Output('upload-genetic-data', 'filename'),
+    Output('upload-aligned-genetic-data', 'filename'),
+    Output('upload-genetic-tree', 'filename'),
+    Output('upload-genetic-data', 'children'),
+    Output('upload-aligned-genetic-data', 'children'),
+    Output('upload-genetic-tree', 'children'),
+    Input('upload-genetic-data', 'contents'),
+    Input('upload-aligned-genetic-data', 'contents'),
+    Input('upload-genetic-tree', 'contents'),
+    State('upload-genetic-data', 'filename'),
+    State('upload-aligned-genetic-data', 'filename'),
+    State('upload-genetic-tree', 'filename'),
+    prevent_initial_call= True
+)
+def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, genetic_tree_contents, genetic_data_filename, aligned_genetic_data_filename, genetic_tree_filename):
+    upload_box = dash.callback_context.triggered_id
+
+    if upload_box == 'upload-genetic-data':
+        return (genetic_data_contents,
+                None,
+                None,
+                genetic_data_filename,
+                None,
+                None,
+                # Output in genetic data upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div(genetic_data_filename, className='text')]),
+                # Output in aligned genetic data upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload aligned genetic data (.fasta)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"),
+                # Output in genetic tree upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload genetic tree (.tree)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"))
+    elif upload_box == 'upload-aligned-genetic-data':
+        return (None,
+                aligned_genetic_data_contents,
+                None,
+                None,
+                aligned_genetic_data_filename,
+                None,
+                # Output in genetic data upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload genetic data (.fasta)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"),
+                # Output in aligned genetic data upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div(aligned_genetic_data_filename, className='text')]),
+                # Output in genetic tree upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload genetic tree (.tree)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"))
+    elif upload_box == 'upload-genetic-tree':
+        return (None,
+                None,
+                genetic_tree_contents,
+                None,
+                None,
+                genetic_tree_filename,
+                # Output in genetic data upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload genetic data (.fasta)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"),
+                # Output in aligned genetic data upload box
+                html.Div([
+                    html.A([
+                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+                        html.Div('Upload aligned genetic data (.fasta)', className="text"),
+                    ], className="drop-content"),
+                ], className="drop-container", id="drop-container"),
+                # Output in genetic tree upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div(genetic_tree_filename, className='text')]))

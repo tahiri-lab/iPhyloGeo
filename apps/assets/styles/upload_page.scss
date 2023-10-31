@@ -222,3 +222,64 @@
     }
   }
 }
+
+#all-upload-container {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 750px;
+  margin-top: 20px;
+
+  #upload-title {
+    color: var(--reverse-black-white-color);
+    font-weight: bold;
+    width: auto;
+    margin: auto;
+    margin-top: 50px;
+    margin-bottom: 25px;
+
+  }
+  .upload-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    margin-bottom: 15px;
+  }
+
+  .upload-drag-drop {
+    user-select: none;
+    width: 340px;
+    height: 125px;
+    line-height: 60px;
+    border: 2px dotted var(--reverse-black-white-color);
+    border-radius: 5px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+
+    margin-right: 10px;
+    padding: 15px;
+    cursor: pointer;
+
+    .icon {
+      margin-right: 10px;
+      width: 30px;
+      filter: var(--icon-filter);
+      transition: all 0.3s ease-in-out;
+
+      &.arrow {
+        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%) !important;
+      }
+    }
+
+    a {
+      color: var(--reverse-black-white-color);
+      text-decoration: none;
+
+    }
+  }
+}
