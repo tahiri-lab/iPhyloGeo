@@ -28,10 +28,10 @@ BOOTSTRAP_AMOUNT_DEFAULT = 100
 WINDOW_SIZE_DEFAULT = 200
 STEP_SIZE_DEFAULT = 100
 STARTING_POSITION_DEFAULT = 1
-ALIGNMENT_METHOD_DEFAULT = 1
-DISTANCE_METHOD_DEFAULT = 1
-FIT_METHOD_DEFAULT = 1
-TREE_TYPE_DEFAULT = 1
+ALIGNMENT_METHOD_DEFAULT = "1"
+DISTANCE_METHOD_DEFAULT = "1"
+FIT_METHOD_DEFAULT = "1"
+TREE_TYPE_DEFAULT = "1"
 
 genetic_settings_file = json.load(open('genetic_settings_file.yaml', 'r'))
 
@@ -97,19 +97,19 @@ layout = html.Div([
                             [
                                 {
                                     "label": html.Div(['PairwiseAlign'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 1,
+                                    "value": "1",
                                 },
                                 {
                                     "label": html.Div(['MUSCLE'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 2,
+                                    "value": "2",
                                 },
                                 {
                                     "label": html.Div(['ClustalW'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 3,
+                                    "value": "3",
                                 },
                                 {
                                     "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 4,
+                                    "value": "4",
                                 },
                             ], value=ALIGNMENT_METHOD_DEFAULT, id='alignment-method')
                     ], className="alignment-method-container"),
@@ -120,15 +120,15 @@ layout = html.Div([
                             [
                                 {
                                     "label": html.Div(['Least Square'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 1,
+                                    "value": "1",
                                 },
                                 {
                                     "label": html.Div(['Robinson-Foulds (RF)'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 2,
+                                    "value": "2",
                                 },
                                 {
                                     "label": html.Div(['Euclidean (Dendropy)'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 3,
+                                    "value": "3",
                                 },
                             ], value=DISTANCE_METHOD_DEFAULT, id='distance-method')
                     ], className="distance-method-container"),
@@ -139,11 +139,11 @@ layout = html.Div([
                             [
                                 {
                                     "label": html.Div(['Wider Fit by elongating with Gap (starAlignment)'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 1,
+                                    "value": "1",
                                 },
                                 {
                                     "label": html.Div(['Narrow-fit prevent elongation with gap when possible'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 2,
+                                    "value": "2",
                                 },
                             ], value=FIT_METHOD_DEFAULT, id='fit-method')
                     ], className="fit-method-container"),
@@ -154,11 +154,11 @@ layout = html.Div([
                             [
                                 {
                                     "label": html.Div(['Biopython consensus tree'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 1,
+                                    "value": "1",
                                 },
                                 {
                                     "label": html.Div(['Fast Tree Application'], style={'padding': 5, 'font-size': 14}),
-                                    "value": 2,
+                                    "value": "2",
                                 },
                             ], value=TREE_TYPE_DEFAULT, id='tree-type')
                     ], className="tree-type-container"),

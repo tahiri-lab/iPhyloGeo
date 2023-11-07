@@ -1,1 +1,1 @@
-{"bootstrap-threshold": 10, "distance-threshold": 50, "window-size": 200, "step-size": 100, "bootstrap-amount": 100, "starting-position": 1, "alignment-method": 1, "distance-method": 1, "fit-method": 1, "tree-type": 1}
+{"bootstrap-threshold": 10, "distance-threshold": 50, "window-size": 200, "step-size": 100, "bootstrap-amount": 100, "starting-position": 1, "alignment-method": "1", "distance-method": "1", "fit-method": "1", "tree-type": "1"}
