@@ -170,12 +170,6 @@ def parse_contents(content, file_name, date):
             # res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
             res['file'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta'))
             res['type'] = 'genetic'
-        # elif pour les genetic trees
-            # res['file'] = 
-            # res['type'] = 'genetic_tree'
-        # elif pour les climatic trees
-            # res['file'] = 
-            # res['type'] = climatic_tree'
         else:
             res['error'] = True
 
