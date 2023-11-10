@@ -48,7 +48,7 @@ layout = html.Div([
                    children=html.Div([
                                     html.A([
                                         html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                                        html.Div('Upload climatic tree (.tree)', className="text"),
+                                        html.Div('Upload climatic tree (.newick)', className="text"),
                                     ], className="drop-content"),
                                 ], className="drop-container", id="drop-container")),
         # Upload section for genetic tree
@@ -57,57 +57,66 @@ layout = html.Div([
                    children=html.Div([
                                     html.A([
                                         html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                                        html.Div('Upload genetic tree (.tree)', className="text"),
+                                        html.Div('Upload genetic tree (.newick)', className="text"),
                                     ], className="drop-content"),
                                 ], className="drop-container", id="drop-container"))]),
         # Show uploaded files
-        html.Div(id="uploaded-files", className="upload-row")
+        html.Div(id="uploaded-files", className="upload-row"),
+        html.Div([
+            html.Div([
+                html.Div('Don’t know where to starts ?', className="title"),
+                html.Div('No worries, let’s try with some of our already made example.',
+                            className="description"),
+            ], className="content"),
+            html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon arrow"),
+        ], id='upload-test-data', className="helper primary"),
+        html.Button("Next", id="next-button", className="button actions", n_clicks=0)
     ]),
-    html.Div(children=[
-        html.Div(
-            className="drop-file-section",
-            id="drop-file-section",
-            children=[
-                html.Div([
-                    html.Div('Please drop your file right here', className="title"),
-                    html.Div([
-                        html.Div([
-                            dcc.Upload(
-                                id='upload-data',
-                                children=html.Div([
-                                    html.A([
-                                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                                        html.Div('Drag and Drop or Select Files', className="text"),
-                                    ], className="drop-content"),
-                                ], className="drop-container", id="drop-container"),
-                                multiple=True  # Allow multiple files to be uploaded
-                            ),
-                            # TODO : add a button to insert the data manually
-                            # html.Div([
-                            #     dcc.Textarea(
-                            #         cols='60', rows='8',
-                            #         value='',
-                            #         className="textArea hidden", id='manual-field'
-                            #     ),
-                            # ], ),
-                            # html.Div('Insert my data manually', id="manual-insert", className="manuel-insert-text"),
-                        ], className="drop-zone"),
-                    ], id='options', className="container"),
-                    html.Div([
-                        html.Div([
-                            html.Div('Don’t know where to starts ?', className="title"),
-                            html.Div('No worries, let’s try with some of our already made example.',
-                                     className="description"),
-                        ], className="content"),
-                        html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon arrow"),
-                    ], id='upload-test-data', className="helper primary"),
-                    html.Div([
-                        html.Div("Next", id='drop-option-choice-next', className="button actions"),
-                    ], className="button-pack"),
-                ], className="drop-file-section-inside"),
-            ],
-        ),
-    ],),
+    # html.Div(children=[
+    #     html.Div(
+    #         className="drop-file-section",
+    #         id="drop-file-section",
+    #         children=[
+    #               html.Div([
+    #                 html.Div('Please drop your file right here', className="title"),
+    #                 html.Div([
+    #                     html.Div([
+    #                         dcc.Upload(
+    #                             id='upload-data',
+    #                             children=html.Div([
+    #                                 html.A([
+    #                                     html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
+    #                                     html.Div('Drag and Drop or Select Files', className="text"),
+    #                                 ], className="drop-content"),
+    #                             ], className="drop-container", id="drop-container"),
+    #                             multiple=True  # Allow multiple files to be uploaded
+    #                         ),
+    #                         # TODO : add a button to insert the data manually
+    #                         # html.Div([
+    #                         #     dcc.Textarea(
+    #                         #         cols='60', rows='8',
+    #                         #         value='',
+    #                         #         className="textArea hidden", id='manual-field'
+    #                         #     ),
+    #                         # ], ),
+    #                         # html.Div('Insert my data manually', id="manual-insert", className="manuel-insert-text"),
+    #                     ], className="drop-zone"),
+    #                 ], id='options', className="container"),
+    #                 html.Div([
+    #                     html.Div([
+    #                         html.Div('Don’t know where to starts ?', className="title"),
+    #                         html.Div('No worries, let’s try with some of our already made example.',
+    #                                  className="description"),
+    #                     ], className="content"),
+    #                     html.Img(src='../../assets/icons/arrow-circle-right.svg', className="icon arrow"),
+    #                 ], id='upload-test-data', className="helper primary"),
+    #                 html.Div([
+    #                     html.Div("Next", id='drop-option-choice-next', className="button actions"),
+    #                 ], className="button-pack"),
+    #             ], className="drop-file-section-inside"),
+    #         ],
+    #     ),
+    # ],),
 ],)
 
 
@@ -127,6 +136,24 @@ def upload_test_data(n_click):
     last_modified = [1680370585.9880235, 1680370585.9890237]
     return names, contents, last_modified
 
+# @callback(
+#     Output("upload-genetic-data", "contents"),
+#     Output("upload-genetic-data", "filename"),
+#     Output("upload-genetic-data", "last_modified"),
+#     Output("upload-climatic-data", "contents"),
+#     Output("upload-climatic-data", "filename"),
+#     Output("upload-climatic-data", "last_modified"),
+#     Input("upload-test-data", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def upload_test_data(n_click):
+#     return (CONTENT_GENETIC,
+#             'seq very small.fasta',
+#             1680370585.9890237,
+#             CONTENT_CLIMATIC,
+#             'geo.csv',
+#             1680370585.9880235)
+
 
 clientside_callback(
     ClientsideFunction(
@@ -134,18 +161,18 @@ clientside_callback(
         function_name='next_option_function'
     ),
     Output("output-file-drop-position-next", "children"),  # needed for the callback to trigger
-    Input("drop-option-choice-next", "n_clicks"),
+    Input("next-button", "n_clicks"),
     Input("params-sections", "id"),
     Input("upload-test-data", "n_clicks"),  # This is where we want the button to redirect the user
     prevent_initial_call=True,
 )
 
-clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='show_text_field'
-    ),
-    Output("manual-field", "children"),  # needed for the callback to trigger
-    Input("manual-insert", "n_clicks"),
-    prevent_initial_call=True,
-)
+# clientside_callback(
+#     ClientsideFunction(
+#         namespace='clientside',
+#         function_name='show_text_field'
+#     ),
+#     Output("manual-field", "children"),  # needed for the callback to trigger
+#     Input("manual-insert", "n_clicks"),
+#     prevent_initial_call=True,
+# )
