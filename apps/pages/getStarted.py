@@ -13,6 +13,16 @@ import pages.upload.genetic.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
 import json
+import pandas as pd
+import base64
+import io
+from Bio import SeqIO, Phylo
+import db.controllers.files as files_ctrl
+
+# this is a shortcut. It's the base64 content of the test files (geo.csv and genetic.csv)
+# TODO: find a way to load the files from the server and use them instead
+CONTENT_CLIMATIC = "data:text/csv;base64,aWQsQUxMU0tZX1NGQ19TV19EV04sVDJNLFFWMk0sUFJFQ1RPVENPUlIsV1MxME0NCk9NNzM5MDUzLDQuNywxNC44MDMzMzMzMzMzMzMzMzUsNi43MTMzMzMzMzMzMzMzMzQsMS42MjMzMzMzMzMzMzMzMzMsMi41NTMzMzMzMzMzMzMzMzMyDQpPVTQ3MTA0MCwxLjQ2LDQuMTksNC41MTY2NjY2NjY2NjY2NjcsMC4xMiwzLjA0MzMzMzMzMzMzMzMzMw0KT04xMjk0MjksNi44OTMzMzMzMzMzMzMzMzM1LDI3LjA2NjY2NjY2NjY2NjY2NiwxNS4xNTY2NjY2NjY2NjY2NjUsMC43MTY2NjY2NjY2NjY2NjY3LDEuMzYNCk9MOTg5MDc0LDQuNjQ2NjY2NjY2NjY2NjY2NSwyNi4xMiwxOC4xMDY2NjY2NjY2NjY2NzYsMC40NzMzMzMzMzMzMzMzMzM0LDUuNjYNCk9OMTM0ODUyLDYuODQwMDAwMDAwMDAwMDAyNSwxNi45NzMzMzMzMzMzMzMzMzMsNS41NzY2NjY2NjY2NjY2NjcsMC40OTY2NjY2NjY2NjY2NjY2LDQuNjY2NjY2NjY2NjY2NjY3"
+CONTENT_GENETIC = "data:application/octet-stream;base64,Pk9OMTI5NDI5DQpBQ1RUVENHQVRDVENUVEdUQUdBVENUR1RUQ1RDVEFBQUNHQUFDVFRUQUFBQVRDVEdUR1RHR0NUR1RDQUMNClRDR0dDVEdDQVRHQ1RUQUdUR0NBQ1RDQUNHQ0FHVEFUQUFUVEFBVEFBQ1RBQVRUQUNUR1RDR1RUR0FDQQ0KR0dBQ0FDR0FHVEFBQ1RDR1RDVEFUQ1RUQ1RHQ0FHR0NUR0NUVEFDR0dUVFRDR1RDQ0dUR1RUR0NBR0NDDQpHQVRDQVRDQUdDQUNBVENUQUdHVFRUVEdUQ0NHR0dUR1RHQUNDR0FBQUdHVEFBR0FUR0dBR0FHQ0NUVEcNClRDQ0NUR0dUVFRDQUFDR0FHQUFBQUNBQ0FDR1RDQ0FBQ1RDQUdUVFRHQ0NUR1RUVFRBQ0FHR1RUQ0dDRw0KQUNHVEdDVENHVEFDR1RHR0NUVFRHR0FHQUNUQ0NHVEdHQUdHQUdHVENUVEFUQ0FHQUdHQ0FDR1RDQUFDDQpBVENUVEFBQUdBVEdHQ0FDVFRHVEdHQ1RUQUdUQUdBQUdUVEdBQUFBQUdHQ0dUVFRUR0NDVENBQUNUVEcNCkFBQ0FHQ0NDVEFUR1RHVFRDQVRDQUFBQ0dUVENHR0FUR0NUQ0dBQUNUR0NBQ0NUQ0FUR0dUQ0FUR1RUQQ0KVEdHVFRHQVRDVEdHVEFHQ0FHQUFDVENHQUFHR0NBVFRDQUdUQUNHR1RDR1RBR1RHR1RHQUdBQ0FDVFRHDQpHVEdUQ0NUVEdUQ0NDVENBVEdUR0dHQ0dBQUFUQUNDQUdUR0dDVFRBQ0NHQ0FBR0dUVENUVENUVENHVEENCkFHQUFDR0dUQUFUQUFBR0dBR0NUR0dUR0dDQ0FUQUdUVEFDR0dDR0NDR0FUQ1RBQUFHVENBVFRUR0FDVA0KVEFHR0NHQUNHQUdDVFRHR0NBQ1RHQVRDQ1RUQVRHQUFHQVRUVFRDQUFHQUFBQUNUR0dBQUNBQ1RBQUFDDQpBVEFHQ0FHVEdHVEdUVEFDQ0NHVEdBQUNUQ0FUR0NHVEdBR0NUVEFBQ0dHQUdHR0dDVFRBQ0FDVENHQ1QNCkFUR1RDR0FUQUFDQUFDVFRDVEdUR0dDQ0NUR0FUR0dDVEFDQ0NUQ1RUR0FHVEdDQVRUQUFBR0FDQ1RUQw0KVEFHQ0FDR1RHQ1RHR1RBQUFHQ1RUQ0FUR0NBQ1RUVEdUQ1RHQUFDQUFDVEdHQUNUVFRBVFRHQUNBQ1RBDQpBR0FHR0dHVEdUQVRBQ1RHQ1RHQ0NHVEdBQUNBVEdBR0NBVEdBQUFUVEdDVFRHR1RBQ0FDR0dBQUNHVFQNCkNUR0FBQUFHQUdDVEFUR0FBVFRHQ0FHQUNBQ0NUVFRUR0FBQVRUQUFBVFRHR0NBQUFHQUFBVFRUR0FDQQ0KQ0NUVENBQVRHR0dHQUFUR1RDQ0FBQVRUVFRHVEFUVFRDQ0NUVEFBQVRUQ0NBVEFBVENBQUdBQ1RBVFRDDQpBQUNDQUFHR0dUVEdBQUFBR0FBQUFBR0NUVEdBVEdHQ1RUVEFUR0dHVEFHQUFUVENHQVRDVEdUQ1RBVEMNCkNBR1RUR0NHVENBQ0NBQUFUR0FBVEdDQUFDQ0FBQVRHVEdDQ1RUVENBQUNUQ1RDQVRHQUFHVEdUR0FUQw0KQVRUR1RHR1RHQUFBQ1RUQ0FUR0dDQUdBQ0dHR0NHQVRUVFRHVFRBQUFHQ0NBQ1RUR0NHQUFUVFRUR1RHDQo+T04xMzQ4NTINCkFHQVRDVEdUVENUQ1RBQUFDR0FBQ1RUVEFBQUFUQ1RHVEdUR0dDVEdUQ0FDVENHR0NUR0NBVEdDVFRBRw0KVEdDQUNUQ0FDR0NBR1RBVEFBVFRBQVRBQUNUQUFUVEFDVEdUQ0dUVEdBQ0FHR0FDQUNHQUdUQUFDVENHDQpUQ1RBVENUVENUR0NBR0dDVEdDVFRBQ0dHVFRUQ0dUQ0NHVEdUVEdDQUdDQ0dBVENBVENBR0NBQ0FUQ1QNCkFHR1RUVFRHVENDR0dHVEdUR0FDQ0dBQUFHR1RBQUdBVEdHQUdBR0NDVFRHVENDQ1RHR1RUVENBQUNHQQ0KR0FBQUFDQUNBQ0dUQ0NBQUNUQ0FHVFRUR0NDVEdUVFRUQUNBR0dUVENHQ0dBQ0dUR0NUQ0dUQUNHVEdHDQpDVFRUR0dBR0FDVENDR1RHR0FHR0FHR1RDVFRBVENBR0FHR0NBQ0dUQ0FBQ0FUQ1RUQUFBR0FUR0dDQUMNClRUR1RHR0NUVEFHVEFHQUFHVFRHQUFBQUFHR0NHVFRUVEdDQ1RDQUFDVFRHQUFDQUdDQ0NUQVRHVEdUVA0KQ0FUQ0FBQUNHVFRDR0dBVEdDVENHQUFDVEdDQUNDVENBVEdHVENBVEdUVEFUR0dUVEdBR0NUR0dUQUdDDQpBR0FBQ1RDR0FBR0dDQVRUQ0FHVEFDR0dUQ0dUQUdUR0dUR0FHQUNBQ1RUR0dUR1RDQ1RUR1RDQ0NUQ0ENClRHVEdHR0NHQUFBVEFDQ0FHVEdHQ1RUQUNDR0NBQUdHVFRDVFRDVFRDR1RBQUdBQUNHR1RBQVRBQUFHRw0KQUdDVEdHVEdHQ0NBVEFHVFRBQ0dHQ0dDQ0dBVENUQUFBR1RDQVRUVEdBQ1RUQUdHQ0dBQ0dBR0NUVEdHDQpDQUNUR0FUQ0NUVEFUR0FBR0FUVFRUQ0FBR0FBQUFDVEdHQUFDQUNUQUFBQ0FUQUdDQUdUR0dUR1RUQUMNCkNDR1RHQUFDVENBVEdDR1RHQUdDVFRBQUNHR0FHR0dHQ0FUQUNBQ1RDR0NUQVRHVENHQVRBQUNBQUNUVA0KQ1RHVEdHQ0NDVEdBVEdHQ1RBQ0NDVENUVEdBR1RHQ0FUVEFBQUdBQ0NUVENUQUdDQUNHVEdDVEdHVEFBDQpBR0NUVENBVEdDQUNUVFRHVENDR0FBQ0FBQ1RHR0FDVFRUQVRUR0FDQUNUQUFHQUdHR0dUR1RBVEFDVEcNCkNUR0NDR1RHQUFDQVRHQUdDQVRHQUFBVFRHQ1RUR0dUQUNBQ0dHQUFDR1RUQ1RHQUFBQUdBR0NUQVRHQQ0KQVRUR0NBR0FDQUNDVFRUVEdBQUFUVEFBQVRUR0dDQUFBR0FBQVRUVEdBQ0FDQ1RUQ0FBVEdHR0dBQVRHDQpUQ0NBQUFUVFRUR1RBVFRUQ0NDVFRBQUFUVENDQVRBQVRDQUFHQUNUQVRUQ0FBQ0NBQUdHR1RUR0FBQUENCkdBQUFBQUdDVFRHQVRHR0NUVFRBVEdHR1RBR0FBVFRDR0FUQ1RHVENUQVRDQ0FHVFRHQ0dUQ0FDQ0FBQQ0KVEdBQVRHQ0FBQ0NBQUFUR1RHQ0NUVFRDQUFDVENUQ0FUR0FBR1RHVEdBVENBVFRHVEdHVEdBQUFDVFRDDQpBVEdHQ0FHQUNHR0dDR0FUVFRUR1RUQUFBR0NDQUNUVEdDR0FBVFRUVEdUR0dDQUNUR0FHQUFUVFRHQUMNClQNCj5PTDk4OTA3NA0KQVRUQUFBR0dUVFRBVEFDQ1RUQ0NDQUdHVEFBQ0FBQUNDQUFDQ0FBQ1RUVENHQVRDVENUVEdUQUdBVENUDQpHVFRDVFRUQUFBQ0dBQUNUVFRBQUFBVENUR1RHVEdHQ1RHVENBQ1RDR0dDVEdDQVRHQ1RUQUdUR0NBQ1QNCkNBQ0dDQUdUQVRBQVRUQUFUQUFDVEFBVFRBQ1RHVENHVFRHQUNBR0dBQ0FDR0FHVEFBQ1RDR1RDVEFUQw0KVFRDVEdDQUdHQ1RHQ1RUQUNHR1RUVENHVENDR1RHVFRHQ0FHQ0NHQVRDQVRDQUdDQUNBVENUQUdHVFRUDQpUR1RDQ0dHR1RHVEdBQ0NHQUFBR0dUQUFHQVRHR0FHQUdDQ1RUR1RDQ0NUR0dUVFRDQUFDR0FHQUFBQUMNCkFDQUNHVENDQUFDVENBR1RUVEdDQ1RHVFRUVEFDQUdHVFRDR0NHQUNHVEdDVENHVEFDR1RHR0NUVFRHRw0KQUdBQ1RDQ0dUR0dBR0dBR0dUQ1RUQVRDQUdBR0dDQUNHVENBQUNBVENUVEFBQUdBVEdHQ0FDVFRHVEdHDQpDVFRBR1RBR0FBR1RUR0FBQUFBR0dDR1RUVFRHQ0NUQ0FBQ1RUR0FBQ0FHQ0NDVEFUR1RHVFRDQVRDQUENCkFDR1RUQ0dHQVRHQ1RDR0FBQ1RHQ0FDQ1RDQVRHR1RDQVRHVFRBVEdHVFRHQUdDVEdHVEFHQ0FHQUFDVA0KQ0dBQUdHQ0FUVENBR1RBQ0dHVENHVEFHVEdHVEdBR0FDQUNUVEdHVEdUQ0NUVEdUQ0NDVENBVEdUR0dHDQpDR0FBQVRBQ0NBR1RHR0NUVEFDQ0dDQUFHR1RUQ1RUQ1RUQ0dUQUFHQUFDR0dUQUFUQUFBR0dBR0NUR0cNClRHR0NDQVRBR1RUQUNHR0NHQ0NHQVRDVEFOTk5OTk5OTk5HQUNUVEFHR0NHQUNHQUdDVFRHR0NBQ1RHQQ0KVENDVFRBVEdBQUdBVFRUVENBQUdBQUFBQ1RHR0FBQ0FDVEFBQUNBVEFHQ0FHVEdHVEdUVEFDQ0NHVEdBDQpBQ1RDQVRHQ0dUR0FHQ1RUQUFDR0dBR0dHR0NBVEFDQUNUQ0dDVEFUR1RDR0FUQUFDQUFDVFRDVEdUR0cNCkNDQ1RHQVRHR0NUQUNDQ1RDVFRHQUdUR0NBVFRBQUFHQUNDVFRDVEFHQ0FDR1RHQ1RHR1RBQUFHQ1RUQw0KQVRHQ0FDVFRUR1RDQ0dBQUNBQUNUR0dBQ1RUVEFUVEdBQ0FDVEFBR0FHR0dHVEdUQVRBQ1RHQ1RHQ0NHDQpUR0FBQ0FUR0FHQ0FUR0FBQVRUR0NUVEdHVEFDQUNHR0FBQ0dUVENUR0FBQUFHQUdDVEFUR0FBVFRHQ0ENCkdBQ0FDQ1RUVFRHQUFBVFRBQUFUVEdHQ0FBQUdBQUFUVFRHQUNBQ0NUVENBQVRHR0dHQUFUR1RDQ0FBQQ0KVFRUVEdUQVRUVENDQ1RUQUFBVFRDQ0FUQUFUQ0FBR0FDVEFUVENBQUNDQUFHR0dUVEdBQUFBR0FBQUFBDQpHQ1RUR0FUR0dDVFRUQVRHR0dUQUdBQVRUQ0dBVENUR1RDVEFUQ0NBR1RUR0NHVENBQ0NBQUFUR0FBVEcNCkNBQUNDQUFBVEdUR0NDVFRUQ0FBQ1RDVENBVEdBQUdUR1RHQVRDQVRUR1RHR1RHQUFBQ1RUQ0FUR0dDQQ0KPk9NNzM5MDUzDQpBQ1RUVENHQVRDVENUVEdUQUdBVENUR1RUQ1RDVEFBQUNHQUFDVFRUQUFBQVRDVEdUR1RHR0NUR1RDQUMNClRDR0dDVEdDQVRHQ1RUQUdUR0NBQ1RDQUNHQ0FHVEFUQUFUVEFBVEFBQ1RBQVRUQUNUR1RDR1RUR0FDQQ0KR0dBQ0FDR0FHVEFBQ1RDR1RDVEFUQ1RUQ1RHQ0FHR0NUR0NUVEFDR0dUVFRDR1RDQ0dUR1RUR0NBR0NDDQpHQVRDQVRDQUdDQUNBVENUQUdHVFRUVEdUQ0NHR0dUR1RHQUNDR0FBQUdHVEFBR0FUR0dBR0FHQ0NUVEcNClRDQ0NUR0dUVFRDQUFDR0FHQUFBQUNBQ0FDR1RDQ0FBQ1RDQUdUVFRHQ0NUR1RUVFRBQ0FHR1RUQ0dDRw0KQUNHVEdDVENHVEFDR1RHR0NUVFRHR0FHQUNUQ0NHVEdHQUdHQUdHVENUVEFUQ0FHQUdHQ0FDR1RDQUFDDQpBVENUVEFBQUdBVEdHQ0FDVFRHVEdHQ1RUQUdUQUdBQUdUVEdBQUFBQUdHQ0dUVFRUR0NDVENBQUNUVEcNCkFBQ0FHQ0NDVEFUR1RHVFRDQVRDQUFBQ0dUVENHR0FUR0NUQ0dBQUNUR0NBQ0NUQ0FUR0dUQ0FUR1RUQQ0KVEdHVFRHQUdDVEdHVEFHQ0FHQUFDVENHQUFHR0NBVFRDQUdUQUNHR1RDR1RBR1RHR1RHQUdBQ0FDVFRHDQpHVEdUQ0NUVEdUQ0NDVENBVEdUR0dHQ0dBQUFUQUNDQUdUR0dDVFRBQ0NHQ0FBR0dUVENUVENUVENHVEENCkFHQUFDR0dUQUFUQUFBR0dBR0NUR0dUR0dDQ0FUQUdUVEFDR0dDR0NDR0FUQ1RBQUFHVENBVFRUR0FDVA0KVEFHR0NHQUNHQUdDVFRHR0NBQ1RHQVRDQ1RUQVRHQUFHQVRUVFRDQUFHQUFBQUNUR0dBQUNBQ1RBQUFDDQpBVEFHQ0FHVEdHVEdUVEFDQ0NHVEdBQUNUQ0FUR0NHVEdBR0NUVEFBQ0dHQUdHR0dDQVRBQ0FDVENHQ1QNCkFUR1RDR0FUQUFDQUFDVFRDVEdUR0dDQ0NUR0FUR0dDVEFDQ0NUQ1RUR0FHVEdDQVRUQUFBR0FDQ1RUQw0KVEFHQ0FDR1RHQ1RHR1RBQUFHQ1RUQ0FUR0NBQ1RUVEdUQ0NHQUFDQUFDVEdHQUNUVFRBVFRHQUNBQ1RBDQpBR0FHR0dHVEdUQVRBQ1RHQ1RHQ0NHVEdBQUNBVEdBR0NBVEdBQUFUVEdDVFRHR1RBQ0FDR0dBQUNHVFQNCkNUR0FBQUFHQUdDVEFUR0FBVFRHQ0FHQUNBQ0NUVFRUR0FBQVRUQUFBVFRHR0NBQUFHQUFBVFRUR0FDQQ0KQ0NUVENBQVRHR0dHQUFUR1RDQ0FBQVRUVFRHVEFUVFRDQ0NUVEFBQVRUQ0NBVEFBVENBQUdBQ1RBVFRDDQpBQUNDQUFHR0dUVEdBQUFBR0FBQUFBR0NUVEdBVEdHQ1RUVEFUR0dHVEFHQUFUVENHQVRDVEdUQ1RBVEMNCkNBR1RUR0NHVENBQ0NBQUFUR0FBVEdDQUFDQ0FBQVRHVEdDQ1RUVENBQUNUQ1RDQVRHQUFHVEdUR0FUQw0KQVRUR1RHR1RHQUFBQ1RUQ0FUR0dDQUdBQ0dHR0NHQVRUVFRHVFRBQUFHQ0NBQ1RUR0NHQUFUVFRUR1RHDQo+T1U0NzEwNDANCkFBQ0FBQUNDQUFDQ0FBQ1RUVENHQVRDVENUVEdUQUdBVENUR1RUQ1RDVEFBQUNHQUFDVFRUQUFBQVRDVA0KR1RHVEdHQ1RHVENBQ1RDR0dDVEdDQVRHQ1RUQUdUR0NBQ1RDQUNHQ0FHVEFUQUFUVEFBVEFBQ1RBQVRUDQpBQ1RHVENHVFRHQUNBR0dBQ0FDR0FHVEFBQ1RDR1RDVEFUQ1RUQ1RHQ0FHR0NUR0NUVEFDR0dUVFRDR1QNCkNDR1RHVFRHQ0FHQ0NHQVRDQVRDQUdDQUNBVENUQUdHVFRUVEdUQ0NHR0dUR1RHQUNDR0FBQUdHVEFBRw0KQVRHR0FHQUdDQ1RUR1RDQ0NUR0dUVFRDQUFDR0FHQUFBQUNBQ0FDR1RDQ0FBQ1RDQUdUVFRHQ0NUR1RUDQpUVEFDQUdHVFRDR0NHQUNHVEdDVENHVEFDR1RHR0NUVFRHR0FHQUNUQ0NHVEdHQUdHQUdHVENUVEFUQ0ENCkdBR0dDQUNHVENBQUNBVENUVEFBQUdBVEdHQ0FDVFRHVEdHQ1RUQUdUQUdBQUdUVEdBQUFBQUdHQ0dUVA0KVFRHQ0NUQ0FBQ1RUR0FBQ0FHQ0NDVEFUR1RHVFRDQVRDQUFBQ0dUVENHR0FUR0NUQ0dBQUNUR0NBQ0NUDQpDQVRHR1RDQVRHVFRBVEdHVFRHQUdDVEdHVEFHQ0FHQUFDVENHQUFHR0NBVFRDQUdUQUNHR1RDR1RBR1QNCkdHVEdBR0FDQUNUVEdHVEdUQ0NUVEdUQ0NDVENBVEdUR0dHQ0dBQUFUQUNDQUdUR0dDVFRBQ0NHQ0FBRw0KR1RUQ1RUQ1RUQ0dUQUFHQUFDR0dUQUFUQUFBR0dBR0NUR0dUR0dDQ0FUQUdUVEFDR0dDR0NDR0FUQ1RBDQpBQUdUQ0FUVFRHQUNUVEFHR0NHQUNHQUdDVFRHR0NBQ1RHQVRDQ1RUQVRHQUFHQVRUVFRDQUFHQUFBQUMNClRHR0FBQ0FDVEFBQUNBVEFHQ0FHVEdHVEdUVEFDQ0NHVEdBQUNUQ0FUR0NHVEdBR0NUVEFBQ0dHQUdHRw0KR0NBVEFDQUNUQ0dDVEFUR1RDR0FUQUFDQUFDVFRDVEdUR0dDQ0NUR0FUR0dDVEFDQ0NUQ1RUR0FHVEdDDQpBVFRBQUFHQUNDVFRDVEFHQ0FDR1RHQ1RHR1RBQUFHQ1RUQ0FUR0NBQ1RUVEdUQ1RHQUFDQUFDVEdHQUMNClRUVEFUVEdBQ0FDVEFBR0FHR0dHVEdUQVRBQ1RHQ1RHQ0NHVEdBQUNBVEdBR0NBVEdBQUFUVEdDVFRHRw0KVEFDQUNHR0FBQ0dUVENUR0FBQUFHQUdDVEFUR0FBVFRHQ0FHQUNBQ0NUVFRUR0FBQVRUQUFBVFRHR0NBDQpBQUdBQUFUVFRHQUNBQ0NUVENBQVRHR0dHQUFUR1RDQ0FBQVRUVFRHVEFUVFRDQ0NUVEFBQVRUQ0NBVEENCkFUQ0FBR0FDVEFUVENBQUNDQUFHR0dUVEdBQUFBR0FBQUFBR0NUVEdBVEdHQ1RUVEFUR0dHVEFHQUFUVA0KQ0dBVENUR1RDVEFUQ0NBR1RUR0NHVENBQ0NBQUFUR0FBVEdDQUFDQ0FBQVRHVEdDQ1RUVENBQUNUQ1RDDQpBVEdBQUdUR1RHQVRDQVRUR1RHR1RHQUFBQ1RUQ0FUR0dDQUdBQ0dHR0NHQVRUVFRHVFRBQUFHQ0NBQ1Q="
 
 dash.register_page(__name__, path='/getStarted')
 
@@ -37,7 +47,8 @@ layout = html.Div([
                                                  'layout': None,
                                                  'name': None},
                                      'climatic': {'file': None,
-                                                  'layout': None},
+                                                  'layout': None,
+                                                  'name': None},
                                      'aligned_genetic': {'file': None,
                                                          'layout': None,
                                                          'name': None},
@@ -72,55 +83,55 @@ layout = html.Div([
 ])
 
 
-@callback(
-    Output('genetic-params-layout', 'children'),
-    Output('climatic-params-layout', 'children'),
-    Output('submit-button', 'children'),
-    Output('input-data', 'data'),
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename'),
-    State('upload-data', 'last_modified'),
-    State('input-data', 'data'),
-    prevent_initial_call=True,
-    log=True
-)
-def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
-    """
-    This function is called when the user uploads one or two files. It stores the data from the files in a json object,
-    it creates the layout for the genetic and climatic parameters as needed and it creates the submit button.
+# @callback(
+#     Output('genetic-params-layout', 'children'),
+#     Output('climatic-params-layout', 'children'),
+#     Output('submit-button', 'children'),
+#     Output('input-data', 'data'),
+#     Input('upload-data', 'contents'),
+#     State('upload-data', 'filename'),
+#     State('upload-data', 'last_modified'),
+#     State('input-data', 'data'),
+#     prevent_initial_call=True,
+#     log=True
+# )
+# def upload_file(list_of_contents, list_of_names, last_modifieds, current_data):
+#     """
+#     This function is called when the user uploads one or two files. It stores the data from the files in a json object,
+#     it creates the layout for the genetic and climatic parameters as needed and it creates the submit button.
 
-    args:
-        list_of_contents : list of the contents of the files
-        list_of_names : list of the names of the files
-        last_modifieds : list of the last modified dates of the files
-        current_data : json file containing the current uploaded files. Should be empty at the beginning
+#     args:
+#         list_of_contents : list of the contents of the files
+#         list_of_names : list of the names of the files
+#         last_modifieds : list of the last modified dates of the files
+#         current_data : json file containing the current uploaded files. Should be empty at the beginning
 
-    returns:
-        paramsGenetic.layout : layout for the genetic parameters
-        paramsClimatic.layout : layout for the climatic parameters
-        submitButton.layout : layout for the submit button
-        current_data : json file containing the current uploaded files
+#     returns:
+#         paramsGenetic.layout : layout for the genetic parameters
+#         paramsClimatic.layout : layout for the climatic parameters
+#         submitButton.layout : layout for the submit button
+#         current_data : json file containing the current uploaded files
 
-    """
-    files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
+#     """
+#     files = utils.get_files_from_base64(list_of_contents, list_of_names, last_modifieds)
 
-    # if submit button is already here, we don't want to recreate the layout
-    submit_button = None
-    if not current_data['submit button']:
-        current_data['submit button'] = True
-        submit_button = submitButton.layout
+#     # if submit button is already here, we don't want to recreate the layout
+#     submit_button = None
+#     if not current_data['submit button']:
+#         current_data['submit button'] = True
+#         submit_button = submitButton.layout
 
-    for file, name in zip(files, list_of_names):
-        if file['type'] == 'genetic':
-            current_data['genetic']['file'] = file
-            current_data['genetic']['layout'] = paramsGenetic.get_layout(file['file'])   # <-- En commentaire pour ne pas afficher les paramètres génétiques
-            current_data['genetic']['name'] = name
-        elif file['type'] == 'climatic':
-            current_data['climatic']['layout'] = paramsClimatic.create_table(file['df'])
-            current_data['climatic']['file'] = file
-            current_data['climatic']['file']['df'] = file['df'].to_json()
+#     for file, name in zip(files, list_of_names):
+#         if file['type'] == 'genetic':
+#             current_data['genetic']['file'] = file
+#             current_data['genetic']['layout'] = paramsGenetic.get_layout(file['file'])   # <-- En commentaire pour ne pas afficher les paramètres génétiques
+#             current_data['genetic']['name'] = name
+#         elif file['type'] == 'climatic':
+#             current_data['climatic']['layout'] = paramsClimatic.create_table(file['df'])
+#             current_data['climatic']['file'] = file
+#             current_data['climatic']['file']['df'] = file['df'].to_json()
 
-    return current_data['genetic']['layout'], current_data['climatic']['layout'], submit_button, current_data
+#     return current_data['genetic']['layout'], current_data['climatic']['layout'], submit_button, current_data
 
 # @callback(
 #     Output('params-genetic', 'data'),
@@ -584,3 +595,202 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div(className='loaded-file', children=[
                         html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
                         html.Div('File must be .newick', className='text')]))
+        
+@callback(
+    Output('genetic-params-layout', 'children'),
+    Output('climatic-params-layout', 'children'),
+    Output('submit-button', 'children'),
+    Output('input-data', 'data'),
+    Input('next-button', 'n_clicks'),
+    Input('upload-test-data', 'n_clicks'),
+    State('upload-genetic-data', 'contents'),
+    State('upload-genetic-data', 'filename'),
+    State('upload-genetic-data', 'last_modified'),
+    State('upload-aligned-genetic-data', 'contents'),
+    State('upload-aligned-genetic-data', 'filename'),
+    State('upload-aligned-genetic-data', 'last_modified'),
+    State('upload-genetic-tree', 'contents'),
+    State('upload-genetic-tree', 'filename'),
+    State('upload-genetic-tree', 'last_modified'),
+    State('upload-climatic-data', 'contents'),
+    State('upload-climatic-data', 'filename'),
+    State('upload-climatic-data', 'last_modified'),
+    State('upload-climatic-tree', 'contents'),
+    State('upload-climatic-tree', 'filename'),
+    State('upload-climatic-tree', 'last_modified'),
+    State('input-data', 'data'),
+    prevent_initial_call=True,
+    log=True     
+)
+def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_data_filename, genetic_data_last_modified, aligned_genetic_data_contents, aligned_genetic_data_filename, aligned_genetic_data_last_modified, genetic_tree_contents, genetic_tree_filename, genetic_tree_last_modified, climatic_data_contents, climatic_data_filename, climatic_data_last_modified, climatic_tree_contents, climatic_tree_filename, climatic_tree_last_modified, current_data):
+    """
+    This function is called when the "Next" button is clicked. For genetic data and climatic data,
+    it shows the graph sections and it upload the contents of the upload boxes in the 'input-data' store element.
+
+    Args:
+        n_clicks: the number of clicks of the next-button
+        genetic_data_contents: the genetic data in the base64 string format from Dash Upload
+        genetic_data_filename: genetic data file name
+        genetic_data_last_modified: genetic data 'last modified' timestamp
+        aligned_genetic_data_contents: the aligned genetic data in the base64 string format from Dash Upload
+        aligned_genetic_data_filename: aligned genetic data file name
+        aligned_genetic_data_last_modified: aligned genetic data 'last modified' timestamp
+        genetic_tree_contents: the genetic tree in the base64 string format from Dash Upload
+        genetic_tree_filename: genetic tree file name
+        genetic_tree_last_modified: genetic tree 'last modified' timestamp
+        climatic_data_contents: the climatic data in the base64 string format from Dash Upload
+        climatic_data_filename: climatic data file name
+        climatic_data_last_modified: climatic data 'last modified' timestamp
+        climatic_tree_contents: the climatic tree in the base64 string format from Dash Upload
+        climatic_tree_filename: climatic tree file name
+        climatic_tree_last_modified: climatic tree 'last modified' timestamp
+        current_data: content from the Dash Store element called 'input-data'
+
+    Returns:
+        the layouts to show on the page, and
+        the update content from uploaded files to the Dash Store element 'input-data'
+    """
+    genetic_data_is_present = genetic_data_contents is not None and genetic_data_contents != ''
+    aligned_genetic_data_is_present = aligned_genetic_data_contents is not None and aligned_genetic_data_contents != ''
+    genetic_tree_is_present = genetic_tree_contents is not None and genetic_tree_contents != ''
+    climatic_data_is_present = climatic_data_contents is not None and climatic_data_contents != ''
+    climatic_tree_is_present = climatic_tree_contents is not None and climatic_tree_contents != ''
+    climatic_data_to_show = False
+    genetic_data_to_show = False
+
+    submit_button = None
+    if not current_data['submit button']:
+        current_data['submit button'] = True
+        submit_button = submitButton.layout
+
+    button_clicked = ctx.triggered_id
+
+    if button_clicked == 'upload-test-data':
+        # Test data example "Don't know where to start?"
+        # Show graph for genetic data
+        parsed_genetic_file = parse_uploaded_files(CONTENT_GENETIC, 'seq very small.fasta')
+        current_data['genetic']['file'] = parsed_genetic_file['dataframe'] #dict key=  value= fasta strings
+        current_data['genetic']['layout'] = paramsGenetic.get_layout(parsed_genetic_file['dataframe'])
+        current_data['genetic']['name'] = 'seq very small.fasta'
+        genetic_data_to_show = True
+        # Change aligned genetic data and genetic tree to None
+        current_data['aligned_genetic']['file'] = None
+        current_data['aligned_genetic']['name'] = None
+        current_data['genetic_tree']['file'] = None
+        current_data['genetic_tree']['name'] = None
+        # Show graph for climatic data
+        # Show graphs, table and columns to choose 
+        parsed_climatic_file = parse_uploaded_files(CONTENT_CLIMATIC, 'geo.csv')
+        current_data['climatic']['file'] = parsed_climatic_file['dataframe'].to_json() #json of a pandas dataframe
+        current_data['climatic']['layout'] = paramsClimatic.create_table(parsed_climatic_file['dataframe'])
+        current_data['climatic']['name'] = 'geo.csv'
+        climatic_data_to_show = True
+        # Change climatic tree to None
+        current_data['climatic_tree']['file'] = None
+        current_data['climatic_tree']['name'] = None
+    
+    elif button_clicked == 'next-button':
+        if genetic_data_is_present:
+            # Show graph
+            parsed_genetic_file = parse_uploaded_files(genetic_data_contents, genetic_data_filename)
+            current_data['genetic']['file'] = parsed_genetic_file['dataframe'] #dict key=  value= fasta strings
+            current_data['genetic']['layout'] = paramsGenetic.get_layout(parsed_genetic_file['dataframe'])
+            current_data['genetic']['name'] = genetic_data_filename
+            genetic_data_to_show = True
+            # Change aligned genetic data and genetic tree to None
+            current_data['aligned_genetic']['file'] = None
+            current_data['aligned_genetic']['name'] = None
+            current_data['genetic_tree']['file'] = None
+            current_data['genetic_tree']['name'] = None
+        elif aligned_genetic_data_is_present:
+            # Won't show any graphs
+            current_data['aligned_genetic']['file'] = aligned_genetic_data_contents #json object of aligned genetic data
+            current_data['aligned_genetic']['name'] = aligned_genetic_data_filename
+            # Change genetic data and genetic tree to None
+            current_data['genetic']['file'] = None
+            current_data['genetic']['layout'] = None
+            current_data['genetic']['name'] = None
+            current_data['genetic_tree']['file'] = None
+            current_data['genetic_tree']['name'] = None
+        elif genetic_tree_is_present:
+            # Won't show any graphs
+            current_data['genetic_tree']['file'] = genetic_tree_contents #string in newick format
+            current_data['genetic_tree']['name'] = genetic_tree_filename
+            # Change aligned genetic data and genetic data to None
+            current_data['genetic']['file'] = None
+            current_data['genetic']['layout'] = None
+            current_data['genetic']['name'] = None
+            current_data['aligned_genetic']['file'] = None
+            current_data['aligned_genetic']['name'] = None
+        
+        if climatic_data_is_present:
+            # Show graphs, table and columns to choose 
+            parsed_climatic_file = parse_uploaded_files(climatic_data_contents, climatic_data_filename)
+            current_data['climatic']['file'] = parsed_climatic_file['dataframe'].to_json() #json of a pandas dataframe
+            current_data['climatic']['layout'] = paramsClimatic.create_table(parsed_climatic_file['dataframe'])
+            current_data['climatic']['name'] = climatic_data_filename
+            climatic_data_to_show = True
+            # Change climatic tree to None
+            current_data['climatic_tree']['file'] = None
+            current_data['climatic_tree']['name'] = None
+        elif climatic_tree_is_present:
+            # Won't show table and graph
+            current_data['climatic_tree']['file'] = climatic_tree_contents #string in newick format
+            current_data['climatic_tree']['name'] = climatic_tree_filename
+            # Change climatic data to None
+            current_data['climatic']['file'] = None
+            current_data['climatic']['layout'] = None
+            current_data['climatic']['name'] = None
+
+    
+    if climatic_data_to_show and genetic_data_to_show:
+        return current_data['genetic']['layout'], current_data['climatic']['layout'], submit_button, current_data
+    elif climatic_data_to_show:
+        return '', current_data['climatic']['layout'], submit_button, current_data
+    elif genetic_data_to_show:
+        return current_data['genetic']['layout'], '', submit_button, current_data
+    else:
+        return '', '', submit_button, current_data
+    
+def parse_uploaded_files(content, file_name):
+    """
+    Parse a base64 string into the proper format to pass through the aPhyloGeo pipeline
+
+    Args:
+        content (base64 string): uploaded content from Dash Upload Module
+        file_name (string): file name
+
+    """
+    results = {}
+
+    try:
+        content_type, content_string = content.split(',')
+        decoded_content = base64.b64decode(content_string)
+
+        if content_type == 'data:text/csv;base64' or content_type == 'data:application/vnd.ms-excel;base64':
+            # Assume that the user uploaded a CSV file (climatic data)
+            results['type'] = 'csv'
+            results['dataframe'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
+        elif EXCEL_REGEX.fullmatch(file_name):
+            # Assume that the user uploaded an excel file (climatic data)
+            results['type'] = 'excel'
+            results['dataframe'] = pd.read_excel(io.BytesIO(decoded_content))
+        elif FASTA_REGEX.fullmatch(file_name):
+            # Assume that the user uploaded a fasta file (genetic data)
+            results['type'] = 'fasta'
+            results['dataframe'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta'))
+        elif content_type == 'application/json':
+            # Assume  that the user uploaded a JSON file (aligned genetic data)
+            results['type'] = 'json'
+            results['dataframe'] = json.loads(decoded_content.decode('utf-8'))
+        elif NEWICK_REGEX.fullmatch(file_name):
+            # Assume the user uploaded a newick file (tree)
+            results['type'] = 'tree'
+            results['dataframe'] = decoded_content.decode('utf-8') #String of all trees in newick format
+        
+        results['base64'] = content_string
+
+        return results
+        
+    except Exception as e:
+        print(e)
