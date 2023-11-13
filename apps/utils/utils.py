@@ -215,8 +215,14 @@ def create_result(files_ids, result_type, climatic_params=None, genetic_params=N
 
         if 'climatic_files_id' in files_ids:
             result['climatic_files_id'] = files_ids['climatic_files_id']
+        if 'climatic_tree_files_id' in files_ids:
+            result['climatic_tree_files_id'] = files_ids['climatic_tree_files_id']
         if 'genetic_files_id' in files_ids:
             result['genetic_files_id'] = files_ids['genetic_files_id']
+        if 'aligned_genetic_files_id' in files_ids:
+            result['aligned_genetic_files_id'] = files_ids['aligned_genetic_files_id']
+        if 'genetic_tree_files_id' in files_ids:
+            result['genetic_tree_files_id'] = files_ids['genetic_tree_files_id']
         if genetic_params and 'genetic' in result_type:
             result['genetic_params'] = genetic_params
         if climatic_params and 'climatic' in result_type:
