@@ -161,11 +161,11 @@ clientside_callback(
         function_name='next_option_function'
     ),
     Output("output-file-drop-position-next", "children"),  # needed for the callback to trigger
-    Input("next-button", "n_clicks"),
+    Input("submit-button", "children"),
     Input("params-sections", "id"),
-    Input("upload-test-data", "n_clicks"),  # This is where we want the button to redirect the user
     prevent_initial_call=True,
 )
+
 
 # clientside_callback(
 #     ClientsideFunction(
