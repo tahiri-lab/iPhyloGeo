@@ -659,13 +659,18 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
     climatic_tree_is_present = climatic_tree_contents is not None and climatic_tree_contents != ''
     climatic_data_to_show = False
     genetic_data_to_show = False
+    climatic_data_is_missing = not climatic_data_is_present and not climatic_tree_is_present
+    genetic_data_is_missing = not genetic_data_is_present and not aligned_genetic_data_is_present and  not genetic_tree_is_present
 
+    button_clicked = ctx.triggered_id
+
+    if button_clicked == "next-button" and (climatic_data_is_missing or genetic_data_is_missing):
+            raise PreventUpdate
+    
     submit_button = None
     if not current_data['submit button']:
         current_data['submit button'] = True
         submit_button = submitButton.layout
-
-    button_clicked = ctx.triggered_id
 
     if button_clicked == 'upload-test-data':
         # Test data example "Don't know where to start?"
