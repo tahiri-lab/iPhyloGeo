@@ -125,7 +125,7 @@ def make_graphs(n, graph_type, filter_query, x_data, y_data, figures):
 
 @callback(
     Output('output-map', 'children'),
-    Input('upload-data', 'contents'),
+    Input('upload-climatic-data', 'contents'),
     State('datatable-interactivity', 'data'),
     State('map-data', 'value')
 )
