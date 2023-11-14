@@ -17,7 +17,7 @@ def get_layout(file):
     return html.Div(
         children=[
             html.Div([
-                dcc.Store(id="sync", data={"starting_position": genetic_setting_file['starting-position'], "window_size": genetic_setting_file['window-size']}),
+                dcc.Store(id="sync", data={"starting_position": genetic_setting_file['starting_position'], "window_size": genetic_setting_file['window_size']}),
                 html.Div([
                     dcc.Store(id='stored-genetic-data', data=file),
                     # html.Div('Genetic parameters', className="title"),
