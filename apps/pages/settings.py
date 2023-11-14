@@ -20,6 +20,8 @@ STEP_SIZE_MIN = 1
 STEP_SIZE_MAX = 500
 STARTING_POSITION_MIN = 1
 STARTING_POSITION_MAX = 999
+RATE_SIMILARITY_MIN = 0
+RATE_SIMILARITY_MAX = 100
 
 # Default values for settings
 BOOTSTRAP_THRESHOLD_DEFAULT = 10
@@ -32,6 +34,8 @@ ALIGNMENT_METHOD_DEFAULT = "1"
 DISTANCE_METHOD_DEFAULT = "1"
 FIT_METHOD_DEFAULT = "1"
 TREE_TYPE_DEFAULT = "1"
+RATE_SIMILARITY_DEFAULT = 90
+METHOD_SIMILARITY_DEFAULT = '1'
 
 genetic_settings_file = json.load(open('genetic_settings_file.yaml', 'r'))
 
@@ -47,7 +51,7 @@ layout = html.Div([
                     html.Div("Bootstrap threshold"),
                     dcc.Input(id="bootstrap-threshold", type="number",
                               min=BOOTSTRAP_THRESHOLD_MIN, max=BOOTSTRAP_THRESHOLD_MAX,
-                              value=genetic_settings_file['bootstrap-threshold'], className="input-field"),
+                              value=genetic_settings_file['bootstrap_threshold'], className="input-field"),
                     html.Div(id='bootstrap-value-threshold-container'),
                 ], className="manual-input"),
                 html.Div([
@@ -55,14 +59,14 @@ layout = html.Div([
                     html.Div("Distance threshold"),
                     dcc.Input(id="distance-threshold", type="number",
                               min=DISTANCE_THRESHOLD_MIN, max=DISTANCE_THRESHOLD_MAX,
-                              value=genetic_settings_file['distance-threshold'], className="input-field"),
+                              value=genetic_settings_file['dist_threshold'], className="input-field"),
                 ], className="manual-input"),
                 html.Div([
                     # ----- Sliding window size -----
                     html.Div("Window size"),
                     dcc.Input(id="input-window-size", type="number",
                               min=WINDOW_SIZE_MIN, max=WINDOW_SIZE_MAX,
-                              value=genetic_settings_file['window-size'], className="input-field"),
+                              value=genetic_settings_file['window_size'], className="input-field"),
                     html.Div(id='input-window-size-container'),
                 ], className="manual-input"),
                 html.Div([
@@ -70,7 +74,7 @@ layout = html.Div([
                     html.Div("Step size"),
                     dcc.Input(id="input-step-size", type="number",
                               min=STEP_SIZE_MIN, max=STEP_SIZE_MAX,
-                              value=genetic_settings_file['step-size'], className="input-field"),
+                              value=genetic_settings_file['step_size'], className="input-field"),
                     html.Div(id='input-step-size-container'),
                 ], className="manual-input"),
                 html.Div([
@@ -78,7 +82,7 @@ layout = html.Div([
                     html.Div("Bootstrap amount"),
                     dcc.Input(id="bootstrap-amount", type="number",
                               min=BOOTSTRAP_AMOUNT_MIN, max=BOOTSTRAP_AMOUNT_MAX,
-                              value=genetic_settings_file['bootstrap-amount'], className="input-field"),
+                              value=genetic_settings_file['bootstrap_amount'], className="input-field"),
                     html.Div(id='bootstrap-amount-container'),
                 ], className="manual-input"),
                 html.Div([
@@ -86,9 +90,17 @@ layout = html.Div([
                     html.Div("Starting position"),
                     dcc.Input(id="input-starting-position", type="number",
                               min=STARTING_POSITION_MIN, max=STARTING_POSITION_MAX,
-                              value=genetic_settings_file['starting-position'], className="input-field"),
+                              value=genetic_settings_file['starting_position'], className="input-field"),
                     html.Div(id='starting-position-container'),
                 ], className="manual-input"),
+                html.Div([
+                    # ----- rate similarity  -----
+                    html.Div("Similarity rate"),
+                    dcc.Input(id="rate-similarity", type="number",
+                              min=RATE_SIMILARITY_MIN, max=RATE_SIMILARITY_MAX,
+                              value=genetic_settings_file['rate_similarity'], className="input-field"),
+                    html.Div(id='rate-similarity-container'),
+                ], className="manual-input")
             ], className="manual-input-container"),
                 html.Div([
                         html.Div("Alignment method", id="alignment-method-title"),
@@ -118,6 +130,10 @@ layout = html.Div([
                         # ----- Distance method -----
                         dcc.RadioItems(
                             [
+                                {
+                                    "label": html.Div(['All distance method'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "0",
+                                },
                                 {
                                     "label": html.Div(['Least Square'], style={'padding': 5, 'font-size': 14}),
                                     "value": "1",
@@ -162,6 +178,45 @@ layout = html.Div([
                                 },
                             ], value=TREE_TYPE_DEFAULT, id='tree-type')
                     ], className="tree-type-container"),
+                    html.Div([
+                        html.Div("Similarity method", id="method-similarity-title"),
+                        # ----- Similarity method  -----
+                        dcc.RadioItems(
+                            [
+                                {
+                                    "label": html.Div(['Hamming distance'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "1",
+                                },
+                                {
+                                    "label": html.Div(['Levenshtein distance'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "2",
+                                },
+                                {
+                                    "label": html.Div(['Damerau-Levenshtein distance'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "3",
+                                },
+                                {
+                                    "label": html.Div(['Jaro similarity'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "4",
+                                },
+                                {
+                                    "label": html.Div(['Jaro-Winkler similarity'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "5",
+                                },
+                                {
+                                    "label": html.Div(['Smith-Waterman similarity'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "6",
+                                },
+                                {
+                                    "label": html.Div(['Jaccard similarity'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "7",
+                                },
+                                {
+                                    "label": html.Div(['Sørensen-Dice similarity'], style={'padding': 5, 'font-size': 14}),
+                                    "value": "8",
+                                },
+                            ], value=METHOD_SIMILARITY_DEFAULT, id='method-similarity')
+                    ], className="method-similarity-container"),
                     html.Div(id='setting-buttons', children=[
                     # Button to reset settings to default
                     html.Button("Reset to default", id="reset-button", n_clicks=0),
@@ -186,19 +241,23 @@ layout = html.Div([
     Output('distance-method', 'value'),
     Output('fit-method', 'value'),
     Output('tree-type', 'value'),
+    Output('rate-similarity', 'value'),
+    Output('method-similarity', 'value'),
     Input('genetic-settings', 'data')
 )
 def update_settings(settings):
-    return (settings['bootstrap-threshold'],
-            settings['distance-threshold'],
-            settings['window-size'],
-            settings['step-size'],
-            settings['bootstrap-amount'],
-            settings['starting-position'],
-            settings['alignment-method'],
-            settings['distance-method'],
-            settings['fit-method'],
-            settings['tree-type'])
+    return (settings['bootstrap_threshold'],
+            settings['dist_threshold'],
+            settings['window_size'],
+            settings['step_size'],
+            settings['bootstrap_amount'],
+            settings['starting_position'],
+            settings['alignment_method'],
+            settings['distance_method'],
+            settings['fit_method'],
+            settings['tree_type'],
+            settings['rate_similarity'],
+            settings['method_similarity'])
 
 
 # To reset or save the settings in the YAML file
@@ -216,9 +275,11 @@ def update_settings(settings):
     State('distance-method', 'value'),
     State('fit-method', 'value'),
     State('tree-type', 'value'),
+    State('rate-similarity', 'value'),
+    State('method-similarity', 'value'),
     prevent_initial_call=True
 )
-def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position, alignment_method, distance_method, fit_method, tree_type):
+def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position, alignment_method, distance_method, fit_method, tree_type, rate_similarity, method_similarity):
 
     settings_out_of_bound = (bootstrap_threshold is None or distance_threshold is None or window_size is None or step_size is None or bootstrap_amount is None or starting_position is None)
 
@@ -226,16 +287,18 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
 
     if button_clicked == 'reset-button':
         default_values = {
-            "bootstrap-threshold": BOOTSTRAP_THRESHOLD_DEFAULT,
-            "distance-threshold": DISTANCE_THRESHOLD_DEFAULT,
-            "window-size": WINDOW_SIZE_DEFAULT,
-            "step-size": STEP_SIZE_DEFAULT,
-            "bootstrap-amount": BOOTSTRAP_AMOUNT_DEFAULT,
-            "starting-position": STARTING_POSITION_DEFAULT,
-            "alignment-method": ALIGNMENT_METHOD_DEFAULT,
-            "distance-method": DISTANCE_METHOD_DEFAULT,
-            "fit-method": FIT_METHOD_DEFAULT,
-            "tree-type": TREE_TYPE_DEFAULT
+            "bootstrap_threshold": BOOTSTRAP_THRESHOLD_DEFAULT,
+            "dist_threshold": DISTANCE_THRESHOLD_DEFAULT,
+            "window_size": WINDOW_SIZE_DEFAULT,
+            "step_size": STEP_SIZE_DEFAULT,
+            "bootstrap_amount": BOOTSTRAP_AMOUNT_DEFAULT,
+            "starting_position": STARTING_POSITION_DEFAULT,
+            "alignment_method": ALIGNMENT_METHOD_DEFAULT,
+            "distance_method": DISTANCE_METHOD_DEFAULT,
+            "fit_method": FIT_METHOD_DEFAULT,
+            "tree_type": TREE_TYPE_DEFAULT,
+            "rate_similarity": RATE_SIMILARITY_DEFAULT,
+            "method_similarity": METHOD_SIMILARITY_DEFAULT
         }
 
         with open('genetic_settings_file.yaml', 'w') as f:
@@ -245,16 +308,18 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
 
     elif button_clicked == 'save-settings-button' and not settings_out_of_bound:
         genetic_settings_yaml = {
-            'bootstrap-threshold': bootstrap_threshold,
-            'distance-threshold': distance_threshold,
-            'window-size': window_size,
-            'step-size': step_size,
-            'bootstrap-amount': bootstrap_amount,
-            'starting-position': starting_position,
-            'alignment-method': alignment_method,
-            'distance-method': distance_method,
-            'fit-method': fit_method,
-            'tree-type': tree_type
+            'bootstrap_threshold': bootstrap_threshold,
+            'dist_threshold': distance_threshold,
+            'window_size': window_size,
+            'step_size': step_size,
+            'bootstrap_amount': bootstrap_amount,
+            'starting_position': starting_position,
+            'alignment_method': alignment_method,
+            'distance_method': distance_method,
+            'fit_method': fit_method,
+            'tree_type': tree_type,
+            'rate_similarity': rate_similarity,
+            'method_similarity': method_similarity
         }
 
         with open('genetic_settings_file.yaml', 'w') as f:
