@@ -7,7 +7,7 @@ import json
 def get_layout(file):
 
     # Load saved settings from YAML file "genetic_settings_file" to populate the form
-    genetic_setting_file = json.load(open('genetic_settings_file.yaml', 'r'))
+    genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
 
     max_sequence_length = get_max_sequence_length(file)
     # first_quartile = int(0.25 * max_sequence_length)

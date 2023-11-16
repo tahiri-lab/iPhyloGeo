@@ -37,7 +37,7 @@ TREE_TYPE_DEFAULT = "1"
 RATE_SIMILARITY_DEFAULT = 90
 METHOD_SIMILARITY_DEFAULT = '1'
 
-genetic_settings_file = json.load(open('genetic_settings_file.yaml', 'r'))
+genetic_settings_file = json.load(open('genetic_settings_file.json', 'r'))
 
 layout = html.Div([
     dcc.Store(id='genetic-settings', storage_type='session',
@@ -301,13 +301,13 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             "method_similarity": METHOD_SIMILARITY_DEFAULT
         }
 
-        with open('genetic_settings_file.yaml', 'w') as f:
+        with open('genetic_settings_file.json', 'w') as f:
             json.dump(default_values, f)
 
         return default_values
 
     elif button_clicked == 'save-settings-button' and not settings_out_of_bound:
-        genetic_settings_yaml = {
+        genetic_settings_json = {
             'bootstrap_threshold': bootstrap_threshold,
             'dist_threshold': distance_threshold,
             'window_size': window_size,
@@ -322,9 +322,9 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             'method_similarity': method_similarity
         }
 
-        with open('genetic_settings_file.yaml', 'w') as f:
-            json.dump(genetic_settings_yaml, f)
+        with open('genetic_settings_file.json', 'w') as f:
+            json.dump(genetic_settings_json, f)
 
-        return genetic_settings_yaml
+        return genetic_settings_json
 
     raise PreventUpdate

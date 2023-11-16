@@ -40,7 +40,7 @@ NEWICK_REGEX = re.compile(r'.*\.newick') # ends with .newick
 JSON_REGEX = re.compile(r'.*\.json') # ends with .json
 
 # Load genetic settings from genetic settings file (YAML)
-genetic_setting_file = json.load(open('genetic_settings_file.yaml', 'r'))
+genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
 
 layout = html.Div([
     dcc.Store(id='input-data', data={'genetic': {'file': None,
