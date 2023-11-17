@@ -4,6 +4,7 @@ import json
 from dash import dcc, html, Output, Input, callback, State, ctx
 import dash
 from dash.exceptions import PreventUpdate
+from aphylogeo.params import Params
 
 dash.register_page(__name__, path='/settings')
 
@@ -304,6 +305,8 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
         with open('genetic_settings_file.json', 'w') as f:
             json.dump(default_values, f)
 
+        Params.update(default_values)
+
         return default_values
 
     elif button_clicked == 'save-settings-button' and not settings_out_of_bound:
@@ -324,6 +327,8 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
 
         with open('genetic_settings_file.json', 'w') as f:
             json.dump(genetic_settings_json, f)
+
+        Params().update(genetic_settings_json)
 
         return genetic_settings_json
 
