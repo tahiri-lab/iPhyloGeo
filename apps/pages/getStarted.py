@@ -957,7 +957,7 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         
         # Prepare genetic trees
         if genetic_file is not None:
-            utils.run_genetic_pipeline(result_id, climatic_file, genetic_file, climatic_trees)
+            utils.run_genetic_pipeline(result_id, climatic_file, genetic_file, climatic_trees) 
         elif aligned_genetic_file is not None:
            None # TODO Run pipeline when we already have aligned genetic file (aligned sequence)
         elif genetic_tree is not None:

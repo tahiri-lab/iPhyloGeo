@@ -173,14 +173,16 @@ def show_complete_results(path):
 @callback(
     Output('climatic-tree-title', 'children'),
     Output('climatic-tree', 'children'),
-    Input('url', 'pathname'),
+    State('url', 'pathname'),
+    Input('output-results-graph', 'children')
 )
-def create_climatic_trees(path):
+def create_climatic_trees(path, generated_results_header):
     """
     This function creates the list of divs containing the climatic trees
 
     args:
         path (str): the path of the page
+        generated_results_header: used to wait for the results header to be created before showing climatic trees
     returns:
         htmml.Div: the div containing the header (title & download button) of the climatic trees
         html.Div: the div containing the climatic trees
@@ -255,13 +257,15 @@ def download_results(path, climatic_tree, genetic_tree, btn_genetic, btn_climati
 @callback(
     Output('genetic-tree-title', 'children'),
     Output('genetic-tree', 'children'),
-    Input('url', 'pathname'),
+    State('url', 'pathname'),
+    Input('output-results-graph', 'children')
 )
-def create_genetic_trees(path):
+def create_genetic_trees(path, generated_results_header):
     """
     This function creates the list of divs containing the genetic trees
     args:
         path (str): the path of the page
+        generated_results_header: used to wait for the results header to be created before showing genetic trees
     returns:
         htmml.Div: the div containing the header (title & download button) of the genetic trees
         html.Div: the div containing the genetic trees
@@ -360,7 +364,7 @@ def create_result_graphic(results_data):
     """
     results_data['starting_position'] = [int(x.split("_")[0]) for x in results_data['Position in ASM']]
 
-    results_data = results_data[['starting_position', 'Bootstrap mean', 'Least-Square distance']]
+    results_data = results_data[['starting_position', 'Bootstrap mean', 'Least-Square Distance']]
     results_data = results_data.groupby('starting_position').mean().reset_index()
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -376,7 +380,7 @@ def create_result_graphic(results_data):
     fig.add_trace(
         go.Scatter(
             x=results_data["starting_position"],
-            y=results_data["Least-Square distance"],
+            y=results_data["Least-Square Distance"],
             name="LS distance",
             line=dict(color="#00faad")
         ),
@@ -402,8 +406,8 @@ def create_result_graphic(results_data):
     max_bootstrap = results_data['Bootstrap mean'].max()
     bootstrap_ticks = np.linspace(min_bootstrap, max_bootstrap, 6)
 
-    min_ls = results_data['Least-Square distance'].min()
-    max_ls = results_data['Least-Square distance'].max()
+    min_ls = results_data['Least-Square Distance'].min()
+    max_ls = results_data['Least-Square Distance'].max()
     ls_ticks = np.linspace(min_ls, max_ls, 6)
 
     fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
