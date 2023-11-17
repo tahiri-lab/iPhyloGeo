@@ -120,21 +120,21 @@ layout = html.Div([
 ],)
 
 
-@callback(
-    Output("upload-data", "filename"),
-    Output("upload-data", "contents"),
-    Output("upload-data", "last_modified"),
-    Input("upload-test-data", "n_clicks"),
-    prevent_initial_call=True,
-)
-def upload_test_data(n_click):
-    """
+# @callback(
+#     Output("upload-data", "filename"),
+#     Output("upload-data", "contents"),
+#     Output("upload-data", "last_modified"),
+#     Input("upload-test-data", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def upload_test_data(n_click):
+#     """
 
-    """
-    names = ['geo.csv', 'seq very small.fasta']
-    contents = [CONTENT_CLIMATIC, CONTENT_GENETIC]
-    last_modified = [1680370585.9880235, 1680370585.9890237]
-    return names, contents, last_modified
+#     """
+#     names = ['geo.csv', 'seq very small.fasta']
+#     contents = [CONTENT_CLIMATIC, CONTENT_GENETIC]
+#     last_modified = [1680370585.9880235, 1680370585.9890237]
+#     return names, contents, last_modified
 
 # @callback(
 #     Output("upload-genetic-data", "contents"),

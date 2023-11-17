@@ -7,7 +7,8 @@ from dash import dcc, html
 
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
-from aphylogeo import utils as aPhyloGeo
+from aphylogeo.alignement import AlignSequences
+import aphylogeo.utils as aPhyloGeo
 
 FILES_PATH = 'files/'
 COOKIE_NAME = 'AUTH'
@@ -235,7 +236,7 @@ def create_result(files_ids, result_type, climatic_params=None, genetic_params=N
         raise Exception('Error creating the result')
 
 
-def create_climatic_trees(result_id, climatic_data, climatic_params, status='climatic_trees'):
+def create_climatic_trees(result_id, climatic_data, status='climatic_trees'):
     """ Creates a climatic result.
 
     Args:
@@ -248,9 +249,8 @@ def create_climatic_trees(result_id, climatic_data, climatic_params, status='cli
         result_id: the id of the created result
     """
     try:
-        df = pd.read_json(climatic_data)
-        names = ['id'] + climatic_params['names']
-        climatic_trees = aPhyloGeo.climaticPipeline(df, names)
+        df = pd.read_json(io.StringIO(climatic_data))
+        climatic_trees = aPhyloGeo.climaticPipeline(df)
         results_ctrl.update_result({
             '_id': result_id,
             'climatic_trees': climatic_trees,
@@ -266,24 +266,25 @@ def create_climatic_trees(result_id, climatic_data, climatic_params, status='cli
         raise Exception('Error creating the climatic trees')
 
 
-def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap_amount, alignment_method, status='alignement'):
+def create_alignement(result_id, genetic_data, status='alignement'):
     """
     Creates the alignement of the genetic data.
 
     Args:
         result_id (str): the id of the result
         genetic_data: json object with the genetic data
-        window_size: the size of the window
-        step_size: the size of the step
-        bootstrap_amount: the amount of bootstraps
-        alignment_method: the method of alignment to use
+        # window_size: the size of the window
+        # step_size: the size of the step
+        # bootstrap_amount: the amount of bootstraps
+        # alignment_method: the method of alignment to use
 
     Returns:
         msaSet: the alignement
     """
     try:
-        alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount, alignment_method, 'seq very small.fasta')
-        msaSet = alignementObject.msaSet
+        # alignementObject = aPhyloGeo.AlignSequences(genetic_data, window_size, step_size, False, bootstrap_amount, alignment_method, 'seq very small.fasta')
+        alignmentObject = AlignSequences(genetic_data).align()
+        msaSet = alignmentObject.msa
 
         results_ctrl.update_result({
             '_id': result_id,
@@ -301,19 +302,19 @@ def create_alignement(result_id, genetic_data, window_size, step_size, bootstrap
         raise Exception('Error creating the alignement')
 
 
-def create_genetic_trees(result_id, msaSet, bootstrap_amount, status='genetic_trees'):
+def create_genetic_trees(result_id, msaSet, status='genetic_trees'):
     """
 
     Args:
         result_id (str): the id of the result
         msaSet: the alignement
-        bootstrap_amount: the amount of bootstraps
+        # bootstrap_amount: the amount of bootstraps
         status (str, optional): The status of the result. Defaults to 'genetic_trees'.
     Returns:
         genetic_trees: a dictionary with the genetic trees
     """
     try:
-        genetic_trees = aPhyloGeo.createBoostrap(msaSet, bootstrap_amount)
+        genetic_trees = aPhyloGeo.geneticPipeline(msaSet)
         results_ctrl.update_result({
             '_id': result_id,
             'genetic_trees': genetic_trees,
@@ -329,21 +330,21 @@ def create_genetic_trees(result_id, msaSet, bootstrap_amount, status='genetic_tr
         raise Exception('Error creating the genetic trees')
 
 
-def create_output(result_id, climatic_trees, genetic_trees, bootstrap_threshold, ls_threshold, climatic_df, genetic_file_name):
+def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
     """
 
     Args:
         result_id (str): the id of the result
         climatic_trees: a dictionary with the climatic trees
         genetic_trees: a dictionary with the genetic trees
-        bootstrap_threshold: the bootstrap threshold
-        ls_threshold: the ls threshold
+        # bootstrap_threshold: the bootstrap threshold
+        # ls_threshold: the ls threshold
         climatic_df: the climatic dataframe
-        genetic_file_name: the name of the genetic file
+        # genetic_file_name: the name of the genetic file
 
     """
     try:
-        output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, bootstrap_threshold, ls_threshold, climatic_df, genetic_file_name)
+        output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, climatic_df)
         results_ctrl.update_result({
             '_id': result_id,
             'output': output,
@@ -358,26 +359,26 @@ def create_output(result_id, climatic_trees, genetic_trees, bootstrap_threshold,
         raise Exception('Error creating the output')
 
 
-def run_genetic_pipeline(result_id, climatic_data, genetic_data, genetic_params, genetic_file_name, climatic_trees):
+def run_genetic_pipeline(result_id, climatic_data, genetic_data, climatic_trees):
     """
     Runs the genetic pipeline from aPhyloGeo.
     Args:
+        result_id: string with the id of the database result
         climatic_data: json object with the climatic data
         genetic_data: json object with the genetic data
-        genetic_params: json object with the genetic parameters
-        genetic_file_name: string with the name of the genetic file
-        genetic_files_id: string with the id of the genetic file
+        # genetic_params: json object with the genetic parameters
+        # genetic_file_name: string with the name of the genetic file
+        # genetic_files_id: string with the id of the genetic file
         climatic_trees: dict of the climatic trees
-        result_id: string with the id of the database result
     returns:
         result_id: string with the id of the database result
     """
 
-    msaSet = create_alignement(result_id, genetic_data, genetic_params['window_size'], genetic_params['step_size'], genetic_params['bootstrap_amount'], genetic_params['alignment_method'])
+    msaSet = create_alignement(result_id, genetic_data)
 
-    genetic_trees = create_genetic_trees(result_id, msaSet, genetic_params['bootstrap_amount'])
+    genetic_trees = create_genetic_trees(result_id, msaSet)
 
-    create_output(result_id, climatic_trees, genetic_trees, genetic_params['bootstrap_threshold'], genetic_params['ls_threshold'], pd.read_json(climatic_data), genetic_file_name)
+    create_output(result_id, climatic_trees, genetic_trees, pd.read_json(io.StringIO(climatic_data)))
 
     return result_id
 

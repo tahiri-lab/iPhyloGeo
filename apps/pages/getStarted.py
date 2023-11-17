@@ -1,3 +1,4 @@
+import logging
 import re
 from dash import dcc, html, State, Input, Output, callback, ctx
 import dash
@@ -18,6 +19,7 @@ import base64
 import io
 from Bio import SeqIO, Phylo
 import db.controllers.files as files_ctrl
+from aphylogeo.params import Params
 
 # this is a shortcut. It's the base64 content of the test files (geo.csv and genetic.csv)
 # TODO: find a way to load the files from the server and use them instead
@@ -45,24 +47,34 @@ genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
 layout = html.Div([
     dcc.Store(id='input-data', data={'genetic': {'file': None,
                                                  'layout': None,
-                                                 'name': None},
+                                                 'file_name': None,
+                                                 'last_modified_date': None,
+                                                 'type': 'genetic'},
                                      'climatic': {'file': None,
                                                   'layout': None,
-                                                  'name': None},
+                                                  'file_name': None,
+                                                  'last_modified_date': None,
+                                                  'type': 'climatic'},
                                      'aligned_genetic': {'file': None,
                                                          'layout': None,
-                                                         'name': None},
+                                                         'file_name': None,
+                                                         'last_modified_date': None,
+                                                         'type': None},
                                      'genetic_tree': {'file': None,
-                                                      'name': None},
+                                                      'file_name': None,
+                                                      'last_modified_date': None,
+                                                      'type': None},
                                      'climatic_tree': {'file': None,
-                                                       'name': None},
+                                                       'file_name': None,
+                                                       'last_modified_date': None,
+                                                       'type': None},
                                      'submit button': False}),
     dcc.Store(id='params-climatic', data={'names': None}),
     dcc.Store(id='params-genetic', data={'window_size': genetic_setting_file['window_size'],
                                          'step_size': genetic_setting_file['step_size'],
                                          'bootstrap_amount': genetic_setting_file['bootstrap_amount'],
                                          'bootstrap_threshold': genetic_setting_file['bootstrap_threshold'],
-                                         'distance_threshold': genetic_setting_file['dist_threshold'],
+                                         'dist_threshold': genetic_setting_file['dist_threshold'],
                                          'alignment_method': genetic_setting_file['alignment_method'],
                                          'distance_method': genetic_setting_file['distance_method'],
                                          'fit_method': genetic_setting_file['fit_method'],
@@ -193,102 +205,102 @@ def params_climatic(column_names, current_data):
     return current_data
 
 
-@callback(
-    Output('popup', 'className'),
-    Output('column-error-message', 'children'),
-    Output('name-error-message', 'children'),
-    [Input('submit-dataset', 'n_clicks'),
-        Input("close_popup", "n_clicks"),
-        Input('input-dataset', 'value')],
-    State('input-data', 'data'),
-    State('params-climatic', 'data'),
-    State('params-genetic', 'data'),
-    prevent_initial_call=True
-)
-def submit_button(open, close, result_name, input_data, params_climatic, params_genetic):
-    """
-    When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
-    the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
-    are valid, a popup appears to notice the user to not close his window.
-    Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
+# @callback(
+#     Output('popup', 'className'),
+#     Output('column-error-message', 'children'),
+#     Output('name-error-message', 'children'),
+#     [Input('submit-dataset', 'n_clicks'),
+#         Input("close_popup", "n_clicks"),
+#         Input('input-dataset', 'value')],
+#     State('input-data', 'data'),
+#     State('params-climatic', 'data'),
+#     State('params-genetic', 'data'),
+#     prevent_initial_call=True
+# )
+# def submit_button(open, close, result_name, input_data, params_climatic, params_genetic):
+#     """
+#     When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
+#     the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
+#     are valid, a popup appears to notice the user to not close his window.
+#     Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
 
-    args:
-        open : counter of the submit button
-        close : counter of the close button - not used but necessary
-        result_name : name of the results that will be generated
-        input_data : json file containing the data from the uploaded files
-        params_climatic : parameters for the climatic data
-        params_genetic : parameters for the genetic data
+#     args:
+#         open : counter of the submit button
+#         close : counter of the close button - not used but necessary
+#         result_name : name of the results that will be generated
+#         input_data : json file containing the data from the uploaded files
+#         params_climatic : parameters for the climatic data
+#         params_genetic : parameters for the genetic data
 
-    returns:
-        className : class of the popup if the inputs are valid
-        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
-        name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
-    """
-    files_are_present = input_data['genetic']['file'] is not None or input_data['climatic']['file'] is not None
+#     returns:
+#         className : class of the popup if the inputs are valid
+#         column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
+#         name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
+#     """
+#     files_are_present = input_data['genetic']['file'] is not None or input_data['climatic']['file'] is not None
 
-    if open is None or open < 1 or not files_are_present:
-        raise PreventUpdate
+#     if open is None or open < 1 or not files_are_present:
+#         raise PreventUpdate
 
-    ctx = dash.callback_context
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+#     ctx = dash.callback_context
+#     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "close_popup":
-        return 'popup hidden', '', ''
+#     if trigger_id == "close_popup":
+#         return 'popup hidden', '', ''
 
-    result_name_is_valid = result_name is not None or result_name
-    params_climatic_is_complete = params_climatic['names'] is not None and len(params_climatic['names']) >= 2
+#     result_name_is_valid = result_name is not None or result_name
+#     params_climatic_is_complete = params_climatic['names'] is not None and len(params_climatic['names']) >= 2
 
-    if not params_climatic_is_complete and result_name_is_valid:
-        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), ''
-    if params_climatic_is_complete and not result_name_is_valid:
-        return 'popup hidden', '', dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
-    if not params_climatic_is_complete and not result_name_is_valid:
-        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
+#     if not params_climatic_is_complete and result_name_is_valid:
+#         return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), ''
+#     if params_climatic_is_complete and not result_name_is_valid:
+#         return 'popup hidden', '', dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
+#     if not params_climatic_is_complete and not result_name_is_valid:
+#         return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
 
-    if trigger_id != "submit-dataset":
-        return '', '', ''
+#     if trigger_id != "submit-dataset":
+#         return '', '', ''
 
-    climatic_file = input_data['climatic']['file']
-    genetic_file = input_data['genetic']['file']
+#     climatic_file = input_data['climatic']['file']
+#     genetic_file = input_data['genetic']['file']
 
-    result_type = []
-    files_ids = {}
-    if climatic_file is not None:
-        result_type.append('climatic')
-        climatic_file_id = utils.save_files(climatic_file)
-        files_ids['climatic_files_id'] = climatic_file_id
+#     result_type = []
+#     files_ids = {}
+#     if climatic_file is not None:
+#         result_type.append('climatic')
+#         climatic_file_id = utils.save_files(climatic_file)
+#         files_ids['climatic_files_id'] = climatic_file_id
 
-    if genetic_file is not None:
-        result_type.append('genetic')
-        genetic_file_id = utils.save_files(genetic_file)
-        files_ids['genetic_files_id'] = genetic_file_id
+#     if genetic_file is not None:
+#         result_type.append('genetic')
+#         genetic_file_id = utils.save_files(genetic_file)
+#         files_ids['genetic_files_id'] = genetic_file_id
 
-    try:
-        # create a new result in the database
-        result_id = utils.create_result(files_ids, result_type, params_climatic, params_genetic, result_name)
-        if ENV_CONFIG['HOST'] != 'local':
-            add_result_to_cookie(result_id)
+#     try:
+#         # create a new result in the database
+#         result_id = utils.create_result(files_ids, result_type, params_climatic, params_genetic, result_name)
+#         if ENV_CONFIG['HOST'] != 'local':
+#             add_result_to_cookie(result_id)
 
-        climatic_status = 'climatic_trees' if 'genetic' in result_type else 'complete'
+#         climatic_status = 'climatic_trees' if 'genetic' in result_type else 'complete'
 
-        # add climatic
-        climatic_trees = utils.create_climatic_trees(result_id, climatic_file['df'], params_climatic, climatic_status)
+#         # add climatic
+#         climatic_trees = utils.create_climatic_trees(result_id, climatic_file['df'], params_climatic, climatic_status)
 
-        if 'genetic' not in result_type:
-            return 'popup', '', ''
+#         if 'genetic' not in result_type:
+#             return 'popup', '', ''
 
-        genetic_filename = input_data['genetic']['name']
+#         genetic_filename = input_data['genetic']['name']
 
-        process = multiprocessing.Process(target=utils.run_genetic_pipeline,
-                                          args=(result_id, climatic_file['df'], genetic_file['file'],
-                                                params_genetic, genetic_filename, climatic_trees))
-        process.start()
-        return 'popup', '', ''
-    except Exception as e:
-        # TODO: print error message popup
-        print('[Error]:', e)
-        return 'popup', '', ''
+#         process = multiprocessing.Process(target=utils.run_genetic_pipeline,
+#                                           args=(result_id, climatic_file['df'], genetic_file['file'],
+#                                                 params_genetic, genetic_filename, climatic_trees))
+#         process.start()
+#         return 'popup', '', ''
+#     except Exception as e:
+#         # TODO: print error message popup
+#         print('[Error]:', e)
+#         return 'popup', '', ''
 
 
 def add_result_to_cookie(result_id):
@@ -678,23 +690,29 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
         parsed_genetic_file = parse_uploaded_files(CONTENT_GENETIC, 'seq very small.fasta')
         current_data['genetic']['file'] = parsed_genetic_file['dataframe'] #dict key=  value= fasta strings
         current_data['genetic']['layout'] = paramsGenetic.get_layout(parsed_genetic_file['dataframe'])
-        current_data['genetic']['name'] = 'seq very small.fasta'
+        current_data['genetic']['file_name'] = 'seq very small.fasta'
+        current_data['genetic']['last_modified_date'] = 1680370585.9890237
         genetic_data_to_show = True
         # Change aligned genetic data and genetic tree to None
         current_data['aligned_genetic']['file'] = None
-        current_data['aligned_genetic']['name'] = None
+        current_data['aligned_genetic']['file_name'] = None
+        current_data['aligned_genetic']['last_modified_date'] = None
+        current_data['aligned_genetic']['file_name'] = None
         current_data['genetic_tree']['file'] = None
-        current_data['genetic_tree']['name'] = None
+        current_data['genetic_tree']['file_name'] = None
+        current_data['genetic_tree']['last_modified_date'] = None
         # Show graph for climatic data
         # Show graphs, table and columns to choose 
         parsed_climatic_file = parse_uploaded_files(CONTENT_CLIMATIC, 'geo.csv')
         current_data['climatic']['file'] = parsed_climatic_file['dataframe'].to_json() #json of a pandas dataframe
         current_data['climatic']['layout'] = paramsClimatic.create_table(parsed_climatic_file['dataframe'])
-        current_data['climatic']['name'] = 'geo.csv'
+        current_data['climatic']['file_name'] = 'geo.csv'
+        current_data['climatic']['last_modified_date'] = 1680370585.9880235
         climatic_data_to_show = True
         # Change climatic tree to None
         current_data['climatic_tree']['file'] = None
-        current_data['climatic_tree']['name'] = None
+        current_data['climatic_tree']['file_name'] = None
+        current_data['climatic_tree']['last_modified_date'] = None
     
     elif button_clicked == 'next-button':
         if genetic_data_is_present:
@@ -702,52 +720,65 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
             parsed_genetic_file = parse_uploaded_files(genetic_data_contents, genetic_data_filename)
             current_data['genetic']['file'] = parsed_genetic_file['dataframe'] #dict key=  value= fasta strings
             current_data['genetic']['layout'] = paramsGenetic.get_layout(parsed_genetic_file['dataframe'])
-            current_data['genetic']['name'] = genetic_data_filename
+            current_data['genetic']['file_name'] = genetic_data_filename
+            current_data['genetic']['last_modified_date'] = genetic_data_last_modified
             genetic_data_to_show = True
             # Change aligned genetic data and genetic tree to None
             current_data['aligned_genetic']['file'] = None
-            current_data['aligned_genetic']['name'] = None
+            current_data['aligned_genetic']['file_name'] = None
+            current_data['aligned_genetic']['last_modified_date'] = None
             current_data['genetic_tree']['file'] = None
-            current_data['genetic_tree']['name'] = None
+            current_data['genetic_tree']['file_name'] = None
+            current_data['genetic_tree']['last_modified_date'] = None
         elif aligned_genetic_data_is_present:
             # Won't show any graphs
-            current_data['aligned_genetic']['file'] = aligned_genetic_data_contents #json object of aligned genetic data
-            current_data['aligned_genetic']['name'] = aligned_genetic_data_filename
+            current_data['aligned_genetic']['file'] = None #TODO json object of aligned genetic data
+            current_data['aligned_genetic']['file_name'] = aligned_genetic_data_filename
+            current_data['aligned_genetic']['last_modified_date'] = aligned_genetic_data_last_modified
             # Change genetic data and genetic tree to None
             current_data['genetic']['file'] = None
             current_data['genetic']['layout'] = None
-            current_data['genetic']['name'] = None
+            current_data['genetic']['file_name'] = None
+            current_data['genetic']['last_modified_date'] = None
             current_data['genetic_tree']['file'] = None
-            current_data['genetic_tree']['name'] = None
+            current_data['genetic_tree']['file_name'] = None
+            current_data['genetic_tree']['last_modified_date'] = None
         elif genetic_tree_is_present:
             # Won't show any graphs
-            current_data['genetic_tree']['file'] = genetic_tree_contents #string in newick format
-            current_data['genetic_tree']['name'] = genetic_tree_filename
+            current_data['genetic_tree']['file'] = None #TODO string in newick format
+            current_data['genetic_tree']['file_name'] = genetic_tree_filename
+            current_data['genetic_tree']['last_modified_date'] = genetic_tree_last_modified
             # Change aligned genetic data and genetic data to None
             current_data['genetic']['file'] = None
             current_data['genetic']['layout'] = None
-            current_data['genetic']['name'] = None
+            current_data['genetic']['file_name'] = None
+            current_data['genetic']['last_modified_date'] = None
             current_data['aligned_genetic']['file'] = None
-            current_data['aligned_genetic']['name'] = None
+            current_data['aligned_genetic']['file_name'] = None
+            current_data['aligned_genetic']['last_modified_date'] = None
         
         if climatic_data_is_present:
             # Show graphs, table and columns to choose 
             parsed_climatic_file = parse_uploaded_files(climatic_data_contents, climatic_data_filename)
             current_data['climatic']['file'] = parsed_climatic_file['dataframe'].to_json() #json of a pandas dataframe
             current_data['climatic']['layout'] = paramsClimatic.create_table(parsed_climatic_file['dataframe'])
-            current_data['climatic']['name'] = climatic_data_filename
+            current_data['climatic']['file_name'] = climatic_data_filename
+            current_data['climatic']['last_modified_date'] = climatic_data_last_modified
             climatic_data_to_show = True
             # Change climatic tree to None
             current_data['climatic_tree']['file'] = None
-            current_data['climatic_tree']['name'] = None
+            current_data['climatic_tree']['file_name'] = None
+            current_data['climatic_tree']['last_modified_date'] = None
         elif climatic_tree_is_present:
             # Won't show table and graph
-            current_data['climatic_tree']['file'] = climatic_tree_contents #string in newick format
-            current_data['climatic_tree']['name'] = climatic_tree_filename
+            current_data['climatic_tree']['file'] = None #TODO #string in newick format
+            current_data['climatic_tree']['file_name'] = climatic_tree_filename
+            current_data['climatic_tree']['last_modified_date'] = climatic_tree_last_modified
             # Change climatic data to None
             current_data['climatic']['file'] = None
             current_data['climatic']['layout'] = None
             current_data['climatic']['name'] = None
+            current_data['climatic']['last_modified_date'] = None
 
     
     if climatic_data_to_show and genetic_data_to_show:
@@ -801,3 +832,139 @@ def parse_uploaded_files(content, file_name):
         
     except Exception as e:
         print(e)
+
+@callback(
+    Output('popup', 'className'),
+    Output('column-error-message', 'children'),
+    Output('name-error-message', 'children'),
+    [Input('submit-dataset', 'n_clicks'),
+        Input("close_popup", "n_clicks"),
+        Input('input-dataset', 'value')],
+    State('input-data', 'data'),
+    State('params-climatic', 'data'),
+    State('params-genetic', 'data'),
+    prevent_initial_call=True
+)
+def submit_button(open, close, result_name, input_data, params_climatic, params_genetic):
+    """
+    When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
+    the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
+    are valid, a popup appears to notice the user to not close his window.
+    Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
+
+    args:
+        open : counter of the submit button
+        close : counter of the close button - not used but necessary
+        result_name : name of the results that will be generated
+        input_data : json file containing the data from the uploaded files
+        params_climatic : parameters for the climatic data
+        params_genetic : parameters for the genetic data
+
+    returns:
+        className : class of the popup if the inputs are valid
+        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
+        name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
+    """
+    # Add climatic column names to Params
+    if params_climatic['names'] is not None:
+        names = ['id'] + params_climatic['names']
+        params_climatic['names'] = names
+        # Params().update(params_climatic)
+
+    # Assure there is at least one genetic file and one climatic file uploaded
+    files_are_present = ((input_data['genetic']['file'] is not None or
+                          input_data['aligned_genetic']['file'] is not None or
+                          input_data['genetic_tree']['file'] is not None)
+                          and
+                          (input_data['climatic']['file'] is not None or
+                           input_data['climatic_tree']['file'] is not None))
+    
+    climatic_data_is_present = input_data['climatic']['file'] is not None
+
+    if open is None or open < 1 or not files_are_present:
+        raise PreventUpdate
+
+    trigger_id = ctx.triggered_id
+
+    if trigger_id == "close_popup":
+        return 'popup hidden', '', ''
+
+    # Assure there is a dataset name given by the user
+    result_name_is_valid = result_name is not None or result_name
+    params_climatic_is_complete = params_climatic['names'] is not None and len(params_climatic['names']) >= 2
+
+    # Assure that at least two columns from the climatic data are selected
+    if climatic_data_is_present and not params_climatic_is_complete and result_name_is_valid:
+        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), ''
+    elif climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid:
+        return 'popup hidden', '', dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
+    elif climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid:
+        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
+
+    if trigger_id != "submit-dataset":
+        return '', '', ''
+    
+
+    climatic_file = input_data['climatic']['file']
+    climatic_tree = input_data['climatic_tree']['file']
+
+    genetic_file = input_data['genetic']['file']
+    aligned_genetic_file = input_data['aligned_genetic']['file']
+    genetic_tree = input_data['genetic_tree']['file']
+    
+    result_type = []
+    files_ids = {}
+    if climatic_file is not None:
+        result_type.append('climatic')
+        climatic_file_id = utils.save_files(input_data['climatic'])
+        files_ids['climatic_files_id'] = climatic_file_id
+
+    if climatic_tree is not None:
+        result_type.append('climatic_trees')
+        climatic_tree_file_id = utils.save_files(input_data['climatic_tree'])
+        files_ids['climatic_tree_files_id'] = climatic_tree_file_id
+
+    if genetic_file is not None:
+        result_type.append('genetic')
+        genetic_file_id = utils.save_files(input_data['genetic'])
+        files_ids['genetic_files_id'] = genetic_file_id
+
+    if aligned_genetic_file is not None:
+        result_type.append('aligned_genetic')
+        aligned_genetic_file_id = utils.save_files(input_data['aligned_genetic'])
+        files_ids['aligned_genetic_files_id'] = aligned_genetic_file_id
+
+    if genetic_tree is not None:
+        result_type.append('genetic_trees')
+        genetic_tree_file_id = utils.save_files(input_data['genetic_tree'])
+        files_ids['genetic_tree_files_id'] = genetic_tree_file_id
+        
+
+    try:
+        # create a new result in the database
+        result_id = utils.create_result(files_ids, result_type, params_climatic, params_genetic, result_name)
+        if ENV_CONFIG['HOST'] != 'local':
+            add_result_to_cookie(result_id)
+        
+        # climatic_status = 'climatic_trees' if 'genetic' in result_type else 'complete'
+        climatic_trees = None
+
+        # Prepare climatic trees
+        if climatic_file is not None:
+            climatic_trees = utils.create_climatic_trees(result_id, climatic_file)
+        elif climatic_tree is not None:
+            None # TODO Run pipeline when we already have the climatic trees
+        
+        # Prepare genetic trees
+        if genetic_file is not None:
+            utils.run_genetic_pipeline(result_id, climatic_file, genetic_file, climatic_trees)
+        elif aligned_genetic_file is not None:
+           None # TODO Run pipeline when we already have aligned genetic file (aligned sequence)
+        elif genetic_tree is not None:
+            None # TODO Run pipeline when we already have genetic trees.
+
+        return 'popup', '', ''
+    except Exception as e:
+        # TODO: print error message popup
+        print('[Error]:', e)
+        return 'popup', '', ''
