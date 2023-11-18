@@ -1,3 +1,4 @@
+import re
 from dotenv import dotenv_values
 from dash import html, dash_table, callback, Output, Input, State, dcc, clientside_callback, ClientsideFunction
 import dash
@@ -362,9 +363,15 @@ def create_result_graphic(results_data):
     returns:
         dash_table.DataTable: the table containing the results
     """
+    #regex pattern to find the distance method column
+    pattern = re.compile(r'.*[dD]istance')
     results_data['starting_position'] = [int(x.split("_")[0]) for x in results_data['Position in ASM']]
 
-    results_data = results_data[['starting_position', 'Bootstrap mean', 'Least-Square Distance']]
+    # Get the name of the columns that containts Distance method information
+    results_column_headers = list(results_data.columns.values)
+    distance_method = list(filter(lambda x: pattern.match(x), results_column_headers))[0]
+    
+    results_data = results_data[['starting_position', 'Bootstrap mean', distance_method]]
     results_data = results_data.groupby('starting_position').mean().reset_index()
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -380,13 +387,13 @@ def create_result_graphic(results_data):
     fig.add_trace(
         go.Scatter(
             x=results_data["starting_position"],
-            y=results_data["Least-Square Distance"],
-            name="LS distance",
+            y=results_data[distance_method],
+            name=distance_method,
             line=dict(color="#00faad")
         ),
         secondary_y=True,
     )
-    fig.update_layout(title_text="Bootstrap mean and LS distance", paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
+    fig.update_layout(title_text=str("Bootstrap mean and " + distance_method), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
     fig.update_xaxes(
         title_text="Position in ASM",
         gridcolor='rgba(255,255,255,0.2)'
@@ -397,7 +404,7 @@ def create_result_graphic(results_data):
         gridcolor='rgba(255,255,255,0.2)'
     )
     fig.update_yaxes(
-        title_text="<b>LS distance</b>",
+        title_text=str("<b>" + distance_method + "</b>"),
         secondary_y=True,
         gridcolor='rgba(255,255,255,0.2)'
     )
@@ -406,8 +413,8 @@ def create_result_graphic(results_data):
     max_bootstrap = results_data['Bootstrap mean'].max()
     bootstrap_ticks = np.linspace(min_bootstrap, max_bootstrap, 6)
 
-    min_ls = results_data['Least-Square Distance'].min()
-    max_ls = results_data['Least-Square Distance'].max()
+    min_ls = results_data[distance_method].min()
+    max_ls = results_data[distance_method].max()
     ls_ticks = np.linspace(min_ls, max_ls, 6)
 
     fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
