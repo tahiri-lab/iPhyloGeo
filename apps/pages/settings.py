@@ -305,7 +305,7 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
         with open('genetic_settings_file.json', 'w') as f:
             json.dump(default_values, f)
 
-        Params.update(default_values)
+        Params.update_from_dict(default_values)
 
         return default_values
 
@@ -328,7 +328,7 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
         with open('genetic_settings_file.json', 'w') as f:
             json.dump(genetic_settings_json, f)
 
-        Params().update(genetic_settings_json)
+        Params.update_from_dict(genetic_settings_json)
 
         return genetic_settings_json
 
