@@ -19,8 +19,6 @@ WINDOW_SIZE_MIN = 1
 WINDOW_SIZE_MAX = 1000
 STEP_SIZE_MIN = 1
 STEP_SIZE_MAX = 500
-STARTING_POSITION_MIN = 1
-STARTING_POSITION_MAX = 999
 RATE_SIMILARITY_MIN = 0
 RATE_SIMILARITY_MAX = 100
 
@@ -30,7 +28,6 @@ DISTANCE_THRESHOLD_DEFAULT = 50
 BOOTSTRAP_AMOUNT_DEFAULT = 100
 WINDOW_SIZE_DEFAULT = 200
 STEP_SIZE_DEFAULT = 100
-STARTING_POSITION_DEFAULT = 1
 ALIGNMENT_METHOD_DEFAULT = "1"
 DISTANCE_METHOD_DEFAULT = "1"
 FIT_METHOD_DEFAULT = "1"
@@ -85,14 +82,6 @@ layout = html.Div([
                               min=BOOTSTRAP_AMOUNT_MIN, max=BOOTSTRAP_AMOUNT_MAX,
                               value=genetic_settings_file['bootstrap_amount'], className="input-field"),
                     html.Div(id='bootstrap-amount-container'),
-                ], className="manual-input"),
-                html.Div([
-                    # ----- Starting position -----
-                    html.Div("Starting position"),
-                    dcc.Input(id="input-starting-position", type="number",
-                              min=STARTING_POSITION_MIN, max=STARTING_POSITION_MAX,
-                              value=genetic_settings_file['starting_position'], className="input-field"),
-                    html.Div(id='starting-position-container'),
                 ], className="manual-input"),
                 html.Div([
                     # ----- rate similarity  -----
@@ -237,7 +226,6 @@ layout = html.Div([
     Output('input-window-size', 'value'),
     Output('input-step-size', 'value'),
     Output('bootstrap-amount', 'value'),
-    Output('input-starting-position', 'value'),
     Output('alignment-method', 'value'),
     Output('distance-method', 'value'),
     Output('fit-method', 'value'),
@@ -252,7 +240,6 @@ def update_settings(settings):
             settings['window_size'],
             settings['step_size'],
             settings['bootstrap_amount'],
-            settings['starting_position'],
             settings['alignment_method'],
             settings['distance_method'],
             settings['fit_method'],
@@ -271,7 +258,6 @@ def update_settings(settings):
     State('input-window-size', 'value'),
     State('input-step-size', 'value'),
     State('bootstrap-amount', 'value'),
-    State('input-starting-position', 'value'),
     State('alignment-method', 'value'),
     State('distance-method', 'value'),
     State('fit-method', 'value'),
@@ -280,9 +266,9 @@ def update_settings(settings):
     State('method-similarity', 'value'),
     prevent_initial_call=True
 )
-def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, starting_position, alignment_method, distance_method, fit_method, tree_type, rate_similarity, method_similarity):
+def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstrap_threshold, distance_threshold, window_size, step_size, bootstrap_amount, alignment_method, distance_method, fit_method, tree_type, rate_similarity, method_similarity):
 
-    settings_out_of_bound = (bootstrap_threshold is None or distance_threshold is None or window_size is None or step_size is None or bootstrap_amount is None or starting_position is None)
+    settings_out_of_bound = (bootstrap_threshold is None or distance_threshold is None or window_size is None or step_size is None or bootstrap_amount is None)
 
     button_clicked = ctx.triggered_id
 
@@ -293,7 +279,6 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             "window_size": WINDOW_SIZE_DEFAULT,
             "step_size": STEP_SIZE_DEFAULT,
             "bootstrap_amount": BOOTSTRAP_AMOUNT_DEFAULT,
-            "starting_position": STARTING_POSITION_DEFAULT,
             "alignment_method": ALIGNMENT_METHOD_DEFAULT,
             "distance_method": DISTANCE_METHOD_DEFAULT,
             "fit_method": FIT_METHOD_DEFAULT,
@@ -316,7 +301,6 @@ def update_parameters(reset_button_clicks, save_settings_button_clicks, bootstra
             'window_size': window_size,
             'step_size': step_size,
             'bootstrap_amount': bootstrap_amount,
-            'starting_position': starting_position,
             'alignment_method': alignment_method,
             'distance_method': distance_method,
             'fit_method': fit_method,

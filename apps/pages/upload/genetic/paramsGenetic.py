@@ -8,7 +8,7 @@ def get_layout(file):
 
     # Load saved settings from YAML file "genetic_settings_file" to populate the form
     genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
-
+    STARTING_POSITION_DEFAULT = 1
     max_sequence_length = get_max_sequence_length(file)
     # first_quartile = int(0.25 * max_sequence_length)
     # second_quartile = int(0.5 * max_sequence_length)
@@ -17,7 +17,7 @@ def get_layout(file):
     return html.Div(
         children=[
             html.Div([
-                dcc.Store(id="sync", data={"starting_position": genetic_setting_file['starting_position'], "window_size": genetic_setting_file['window_size']}),
+                dcc.Store(id="sync", data={"starting_position": STARTING_POSITION_DEFAULT, "window_size": genetic_setting_file['window_size']}),
                 html.Div([
                     dcc.Store(id='stored-genetic-data', data=file),
                     # html.Div('Genetic parameters', className="title"),
