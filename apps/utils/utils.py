@@ -344,7 +344,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
 
     """
     try:
-        output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, climatic_df)
+        output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, climatic_df, create_file=False)
         results_ctrl.update_result({
             '_id': result_id,
             'output': output,
