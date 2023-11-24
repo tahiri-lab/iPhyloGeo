@@ -5,7 +5,6 @@ import dash
 from dash.exceptions import PreventUpdate
 from dotenv import dotenv_values
 from flask import request
-import multiprocessing
 import dash_bootstrap_components as dbc
 import pages.upload.dropFileSection as dropFileSection
 import utils.utils as utils
@@ -38,7 +37,6 @@ NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 CSV_REGEX = re.compile(r'.*\.csv') # ends with .csv
 EXCEL_REGEX = re.compile(r'.*\.xls[x]?$') # ends with .xls or .xlsx
 FASTA_REGEX = re.compile(r'.*\.fasta$') # ends with .fasta
-NEWICK_REGEX = re.compile(r'.*\.newick') # ends with .newick
 JSON_REGEX = re.compile(r'.*\.json') # ends with .json
 
 # Load genetic settings from genetic settings file (YAML)
@@ -64,10 +62,6 @@ layout = html.Div([
                                                       'file_name': None,
                                                       'last_modified_date': None,
                                                       'type': None},
-                                     'climatic_tree': {'file': None,
-                                                       'file_name': None,
-                                                       'last_modified_date': None,
-                                                       'type': None},
                                      'submit button': False}),
     dcc.Store(id='params-climatic', data={'names': None}),
     dcc.Store(id='params-genetic', data={'window_size': genetic_setting_file['window_size'],
@@ -320,102 +314,38 @@ def add_result_to_cookie(result_id):
 # Callback to show uploaded climatic data files
 @callback (
     Output('upload-climatic-data', 'contents'),
-    Output('upload-climatic-tree', 'contents'),
     Output('upload-climatic-data', 'filename'),
-    Output('upload-climatic-tree', 'filename'),
     Output('upload-climatic-data', 'children'),
-    Output('upload-climatic-tree', 'children'),
     Input('upload-climatic-data', 'contents'),
-    Input('upload-climatic-tree', 'contents'),
     State('upload-climatic-data', 'filename'),
-    State('upload-climatic-tree', 'filename'),
     prevent_initial_call= True
 )
-def uploaded_climatic_data(climatic_data_contents, climatic_tree_contents, climatic_data_filename, climatic_tree_filename):
+def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
     '''
     This function is called when the user upload climatic data files.
-    It displays the name of the file in the upload box and clear files 
-    from any subsequent upload that are from the same type.
+    It displays the name of the file in the upload box.
 
-    (Ex. If a climatic data file is uploaded and the user upload a climatic tree,
-    the climatic data file with be nulled, and vice versa.)
 
     Args:
         climatic_data_contents: uploaded climatic data file content in a base64 formatted string.
-        climatic_tree_contents: uploaded climatic tree file content in a base64 formatted string.
         climatic_data_filename: name of the uploaded climatic data file
-        climatic_tree_filename: name of the uploaded climatic tree file
     '''
+    # Validate file extension
+    if CSV_REGEX.fullmatch(climatic_data_filename) or EXCEL_REGEX.fullmatch(climatic_data_filename):
+        return (climatic_data_contents, 
+                climatic_data_filename,
+                # Output in climatic data upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div(climatic_data_filename, className='text')]))
+    else:
+        return (None, 
+                None,
+                # Output in climatic data upload box
+                html.Div(className='loaded-file', children=[
+                    html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
+                    html.Div('File must be .csv or Excel', className='text')]))
     
-    upload_box = dash.callback_context.triggered_id
-
-    if upload_box == 'upload-climatic-data':
-        # Validate file extension
-        if CSV_REGEX.fullmatch(climatic_data_filename) or EXCEL_REGEX.fullmatch(climatic_data_filename):
-            return (climatic_data_contents, 
-                    None,
-                    climatic_data_filename,
-                    None,
-                    # Output in climatic data upload box
-                    html.Div(className='loaded-file', children=[
-                        html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
-                        html.Div(climatic_data_filename, className='text')]),
-                    # Output in climatic tree box
-                    html.Div([
-                        html.A([
-                            html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload climatic tree (.newick)', className="text"),
-                        ], className="drop-content"),
-                    ], className="drop-container", id="drop-container"))
-        else:
-            return (None, 
-                    None,
-                    None,
-                    None,
-                    # Output in climatic data upload box
-                    html.Div(className='loaded-file', children=[
-                        html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
-                        html.Div('File must be .csv or Excel', className='text')]),
-                    # Output in climatic tree box
-                    html.Div([
-                        html.A([
-                            html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload climatic tree (.newick)', className="text"),
-                        ], className="drop-content"),
-                    ], className="drop-container", id="drop-container"))
-    elif upload_box == 'upload-climatic-tree':
-        if NEWICK_REGEX.fullmatch(climatic_tree_filename):
-            return (None,
-                    climatic_tree_contents,
-                    None,
-                    climatic_tree_filename,
-                    # Output in climatic data upload box
-                    html.Div([
-                        html.A([
-                            html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload climatic data (.csv)', className="text"),
-                        ], className="drop-content"),
-                    ], className="drop-container", id="drop-container"),
-                    # Output in climatic tree upload box
-                    html.Div(className='loaded-file', children=[
-                        html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
-                        html.Div(climatic_tree_filename, className='text')]))
-        else:
-            return (None,
-                    None,
-                    None,
-                    None,
-                    # Output in climatic data upload box
-                    html.Div([
-                        html.A([
-                            html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload climatic data (.csv)', className="text"),
-                        ], className="drop-content"),
-                    ], className="drop-container", id="drop-container"),
-                    # Output in climatic tree upload box
-                    html.Div(className='loaded-file', children=[
-                        html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
-                        html.Div("File must be .newick", className='text')]))
 
 # Callback to show uploaded genetic data files
 @callback (
@@ -479,7 +409,7 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div([
                         html.A([
                             html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload genetic tree (.newick)', className="text"),
+                            html.Div('Upload genetic tree (.json)', className="text"),
                         ], className="drop-content"),
                     ], className="drop-container", id="drop-container"))
         else:
@@ -504,7 +434,7 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div([
                         html.A([
                             html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload genetic tree (.newick)', className="text"),
+                            html.Div('Upload genetic tree (.json)', className="text"),
                         ], className="drop-content"),
                     ], className="drop-container", id="drop-container"))
     elif upload_box == 'upload-aligned-genetic-data':
@@ -530,7 +460,7 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div([
                         html.A([
                             html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload genetic tree (.newick)', className="text"),
+                            html.Div('Upload genetic tree (.json)', className="text"),
                         ], className="drop-content"),
                     ], className="drop-container", id="drop-container"))
         else:
@@ -555,11 +485,11 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div([
                         html.A([
                             html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload genetic tree (.newick)', className="text"),
+                            html.Div('Upload genetic tree (.json)', className="text"),
                         ], className="drop-content"),
                     ], className="drop-container", id="drop-container"))
     elif upload_box == 'upload-genetic-tree':
-        if NEWICK_REGEX.fullmatch(genetic_tree_filename):
+        if JSON_REGEX.fullmatch(genetic_tree_filename):
             return (None,
                     None,
                     genetic_tree_contents,
@@ -577,7 +507,7 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div([
                         html.A([
                             html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload aligned genetic data (.fasta)', className="text"),
+                            html.Div('Upload aligned genetic data (.json)', className="text"),
                         ], className="drop-content"),
                     ], className="drop-container", id="drop-container"),
                     # Output in genetic tree upload box
@@ -602,13 +532,13 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
                     html.Div([
                         html.A([
                             html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                            html.Div('Upload aligned genetic data (.fasta)', className="text"),
+                            html.Div('Upload aligned genetic data (.json)', className="text"),
                         ], className="drop-content"),
                     ], className="drop-container", id="drop-container"),
                     # Output in genetic tree upload box
                     html.Div(className='loaded-file', children=[
                         html.Img(src='../../assets/icons/folder-drop.svg', className='icon'),
-                        html.Div('File must be .newick', className='text')]))
+                        html.Div('File must be .json', className='text')]))
         
 @callback(
     Output('genetic-params-layout', 'children'),
@@ -629,14 +559,11 @@ def uploaded_genetic_data(genetic_data_contents, aligned_genetic_data_contents, 
     State('upload-climatic-data', 'contents'),
     State('upload-climatic-data', 'filename'),
     State('upload-climatic-data', 'last_modified'),
-    State('upload-climatic-tree', 'contents'),
-    State('upload-climatic-tree', 'filename'),
-    State('upload-climatic-tree', 'last_modified'),
     State('input-data', 'data'),
     prevent_initial_call=True,
     log=True     
 )
-def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_data_filename, genetic_data_last_modified, aligned_genetic_data_contents, aligned_genetic_data_filename, aligned_genetic_data_last_modified, genetic_tree_contents, genetic_tree_filename, genetic_tree_last_modified, climatic_data_contents, climatic_data_filename, climatic_data_last_modified, climatic_tree_contents, climatic_tree_filename, climatic_tree_last_modified, current_data):
+def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_data_filename, genetic_data_last_modified, aligned_genetic_data_contents, aligned_genetic_data_filename, aligned_genetic_data_last_modified, genetic_tree_contents, genetic_tree_filename, genetic_tree_last_modified, climatic_data_contents, climatic_data_filename, climatic_data_last_modified, current_data):
     """
     This function is called when the "Next" button is clicked. For genetic data and climatic data,
     it shows the graph sections and it upload the contents of the upload boxes in the 'input-data' store element.
@@ -655,9 +582,6 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
         climatic_data_contents: the climatic data in the base64 string format from Dash Upload
         climatic_data_filename: climatic data file name
         climatic_data_last_modified: climatic data 'last modified' timestamp
-        climatic_tree_contents: the climatic tree in the base64 string format from Dash Upload
-        climatic_tree_filename: climatic tree file name
-        climatic_tree_last_modified: climatic tree 'last modified' timestamp
         current_data: content from the Dash Store element called 'input-data'
 
     Returns:
@@ -668,10 +592,9 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
     aligned_genetic_data_is_present = aligned_genetic_data_contents is not None and aligned_genetic_data_contents != ''
     genetic_tree_is_present = genetic_tree_contents is not None and genetic_tree_contents != ''
     climatic_data_is_present = climatic_data_contents is not None and climatic_data_contents != ''
-    climatic_tree_is_present = climatic_tree_contents is not None and climatic_tree_contents != ''
     climatic_data_to_show = False
     genetic_data_to_show = False
-    climatic_data_is_missing = not climatic_data_is_present and not climatic_tree_is_present
+    climatic_data_is_missing = not climatic_data_is_present
     genetic_data_is_missing = not genetic_data_is_present and not aligned_genetic_data_is_present and  not genetic_tree_is_present
 
     button_clicked = ctx.triggered_id
@@ -709,10 +632,6 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
         current_data['climatic']['file_name'] = 'geo.csv'
         current_data['climatic']['last_modified_date'] = 1680370585.9880235
         climatic_data_to_show = True
-        # Change climatic tree to None
-        current_data['climatic_tree']['file'] = None
-        current_data['climatic_tree']['file_name'] = None
-        current_data['climatic_tree']['last_modified_date'] = None
     
     elif button_clicked == 'next-button':
         if genetic_data_is_present:
@@ -732,9 +651,11 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
             current_data['genetic_tree']['last_modified_date'] = None
         elif aligned_genetic_data_is_present:
             # Won't show any graphs
-            current_data['aligned_genetic']['file'] = None #TODO json object of aligned genetic data
+            parsed_aligned_genetic_file = parse_uploaded_files(aligned_genetic_data_contents, aligned_genetic_data_filename)
+            current_data['aligned_genetic']['file'] = parsed_aligned_genetic_file['dataframe'] # json object 
             current_data['aligned_genetic']['file_name'] = aligned_genetic_data_filename
             current_data['aligned_genetic']['last_modified_date'] = aligned_genetic_data_last_modified
+            genetic_data_to_show: False
             # Change genetic data and genetic tree to None
             current_data['genetic']['file'] = None
             current_data['genetic']['layout'] = None
@@ -745,9 +666,11 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
             current_data['genetic_tree']['last_modified_date'] = None
         elif genetic_tree_is_present:
             # Won't show any graphs
-            current_data['genetic_tree']['file'] = None #TODO string in newick format
+            parsed_genetic_tree_file = parse_uploaded_files(genetic_tree_contents, genetic_tree_filename)
+            current_data['genetic_tree']['file'] = parsed_genetic_tree_file['dataframe'] #json object
             current_data['genetic_tree']['file_name'] = genetic_tree_filename
             current_data['genetic_tree']['last_modified_date'] = genetic_tree_last_modified
+            genetic_data_to_show: False
             # Change aligned genetic data and genetic data to None
             current_data['genetic']['file'] = None
             current_data['genetic']['layout'] = None
@@ -765,20 +688,6 @@ def upload_data(next_n_clicks, test_n_clicks, genetic_data_contents, genetic_dat
             current_data['climatic']['file_name'] = climatic_data_filename
             current_data['climatic']['last_modified_date'] = climatic_data_last_modified
             climatic_data_to_show = True
-            # Change climatic tree to None
-            current_data['climatic_tree']['file'] = None
-            current_data['climatic_tree']['file_name'] = None
-            current_data['climatic_tree']['last_modified_date'] = None
-        elif climatic_tree_is_present:
-            # Won't show table and graph
-            current_data['climatic_tree']['file'] = None #TODO #string in newick format
-            current_data['climatic_tree']['file_name'] = climatic_tree_filename
-            current_data['climatic_tree']['last_modified_date'] = climatic_tree_last_modified
-            # Change climatic data to None
-            current_data['climatic']['file'] = None
-            current_data['climatic']['layout'] = None
-            current_data['climatic']['name'] = None
-            current_data['climatic']['last_modified_date'] = None
 
     
     if climatic_data_to_show and genetic_data_to_show:
@@ -815,16 +724,16 @@ def parse_uploaded_files(content, file_name):
             results['dataframe'] = pd.read_excel(io.BytesIO(decoded_content))
         elif FASTA_REGEX.fullmatch(file_name):
             # Assume that the user uploaded a fasta file (genetic data)
+            fasta_file_string = decoded_content.decode('utf-8')
             results['type'] = 'fasta'
-            results['dataframe'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta'))
-        elif content_type == 'application/json':
+            results['dataframe'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(fasta_file_string), 'fasta'))
+            # Save the fasta file (needed for aPhyloGeo Alignment)
+            with open('./result/genetic_data.fasta', 'w') as f:
+                f.write(fasta_file_string.replace("\r\n", '\n'))
+        elif content_type == 'data:application/json;base64':
             # Assume  that the user uploaded a JSON file (aligned genetic data)
             results['type'] = 'json'
             results['dataframe'] = json.loads(decoded_content.decode('utf-8'))
-        elif NEWICK_REGEX.fullmatch(file_name):
-            # Assume the user uploaded a newick file (tree)
-            results['type'] = 'tree'
-            results['dataframe'] = decoded_content.decode('utf-8') #String of all trees in newick format
         
         results['base64'] = content_string
 
@@ -869,15 +778,14 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
     if params_climatic['names'] is not None:
         names = ['id'] + params_climatic['names']
         params_climatic['names'] = names
-        # Params().update(params_climatic)
+        Params.names = names
 
     # Assure there is at least one genetic file and one climatic file uploaded
     files_are_present = ((input_data['genetic']['file'] is not None or
                           input_data['aligned_genetic']['file'] is not None or
                           input_data['genetic_tree']['file'] is not None)
                           and
-                          (input_data['climatic']['file'] is not None or
-                           input_data['climatic_tree']['file'] is not None))
+                          (input_data['climatic']['file'] is not None))
     
     climatic_data_is_present = input_data['climatic']['file'] is not None
 
@@ -906,11 +814,10 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
     
 
     climatic_file = input_data['climatic']['file']
-    climatic_tree = input_data['climatic_tree']['file']
 
     genetic_file = input_data['genetic']['file']
     aligned_genetic_file = input_data['aligned_genetic']['file']
-    genetic_tree = input_data['genetic_tree']['file']
+    genetic_tree_file = input_data['genetic_tree']['file']
     
     result_type = []
     files_ids = {}
@@ -918,11 +825,6 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         result_type.append('climatic')
         climatic_file_id = utils.save_files(input_data['climatic'])
         files_ids['climatic_files_id'] = climatic_file_id
-
-    if climatic_tree is not None:
-        result_type.append('climatic_trees')
-        climatic_tree_file_id = utils.save_files(input_data['climatic_tree'])
-        files_ids['climatic_tree_files_id'] = climatic_tree_file_id
 
     if genetic_file is not None:
         result_type.append('genetic')
@@ -934,7 +836,7 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         aligned_genetic_file_id = utils.save_files(input_data['aligned_genetic'])
         files_ids['aligned_genetic_files_id'] = aligned_genetic_file_id
 
-    if genetic_tree is not None:
+    if genetic_tree_file is not None:
         result_type.append('genetic_trees')
         genetic_tree_file_id = utils.save_files(input_data['genetic_tree'])
         files_ids['genetic_tree_files_id'] = genetic_tree_file_id
@@ -947,21 +849,21 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
             add_result_to_cookie(result_id)
         
         # climatic_status = 'climatic_trees' if 'genetic' in result_type else 'complete'
-        climatic_trees = None
-
+        
         # Prepare climatic trees
-        if climatic_file is not None:
-            climatic_trees = utils.create_climatic_trees(result_id, climatic_file)
-        elif climatic_tree is not None:
-            None # TODO Run pipeline when we already have the climatic trees
+        climatic_trees = utils.create_climatic_trees(result_id, climatic_file)
+        
+        genetic_trees = None
         
         # Prepare genetic trees
         if genetic_file is not None:
+            Params.reference_gene_filepath = "./result/genetic_data.fasta"
             utils.run_genetic_pipeline(result_id, climatic_file, genetic_file, climatic_trees) 
         elif aligned_genetic_file is not None:
-           None # TODO Run pipeline when we already have aligned genetic file (aligned sequence)
-        elif genetic_tree is not None:
-            None # TODO Run pipeline when we already have genetic trees.
+            genetic_trees = utils.create_genetic_trees(result_id, aligned_genetic_file)
+            utils.create_output(result_id, climatic_trees, genetic_trees, pd.read_json(io.StringIO(climatic_file)))
+        elif genetic_tree_file is not None:
+            utils.create_output(result_id, climatic_trees, genetic_tree_file, pd.read_json(io.StringIO(climatic_file)))
 
         return 'popup', '', ''
     except Exception as e:

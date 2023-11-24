@@ -20,6 +20,9 @@ layout = html.Div([
                                         html.Div('Upload climatic data (.csv)', className="text"),
                                     ], className="drop-content"),
                                 ], className="drop-container", id="drop-container")),
+        ]),
+        html.Hr(),
+        html.Div(className="upload-row", children=[
         # Upload section for genetic data
         dcc.Upload(id='upload-genetic-data',
                    className="upload-drag-drop",
@@ -28,36 +31,25 @@ layout = html.Div([
                                         html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
                                         html.Div('Upload genetic data (.fasta)', className="text"),
                                     ], className="drop-content"),
-                                ], className="drop-container", id="drop-container"))
-        ]),
-        html.Div(className="upload-row", children=[
+                                ], className="drop-container", id="drop-container")),
         # Upload section for aligned genetic data
         dcc.Upload(id='upload-aligned-genetic-data',
                    className="upload-drag-drop",
                    children=html.Div([
                                     html.A([
                                         html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                                        html.Div('Upload aligned genetic data (.fasta)', className="text"),
+                                        html.Div('Upload aligned genetic data (.json)', className="text"),
                                     ], className="drop-content"),
                                 ], className="drop-container", id="drop-container"))
         ]),
         html.Div(className="upload-row", children=[
-        # Upload section for climatic tree
-        dcc.Upload(id='upload-climatic-tree',
-                   className="upload-drag-drop",
-                   children=html.Div([
-                                    html.A([
-                                        html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                                        html.Div('Upload climatic tree (.newick)', className="text"),
-                                    ], className="drop-content"),
-                                ], className="drop-container", id="drop-container")),
         # Upload section for genetic tree
         dcc.Upload(id='upload-genetic-tree',
                    className="upload-drag-drop",
                    children=html.Div([
                                     html.A([
                                         html.Img(src='../../assets/icons/folder-drop.svg', className="icon"),
-                                        html.Div('Upload genetic tree (.newick)', className="text"),
+                                        html.Div('Upload genetic tree (.json)', className="text"),
                                     ], className="drop-content"),
                                 ], className="drop-container", id="drop-container"))]),
         # Show uploaded files
