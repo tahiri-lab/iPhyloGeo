@@ -12,13 +12,16 @@ import pages.upload.climatic.paramsClimatic as paramsClimatic
 import pages.upload.genetic.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
+import pages.utils.popupDone as popupDone
 import json
 import pandas as pd
 import base64
 import io
 from Bio import SeqIO, Phylo
 import db.controllers.files as files_ctrl
+import db.controllers.results as results_ctrl
 from aphylogeo.params import Params
+from aphylogeo.alignement import Alignment, AlignSequences
 
 # this is a shortcut. It's the base64 content of the test files (geo.csv and genetic.csv)
 # TODO: find a way to load the files from the server and use them instead
@@ -31,6 +34,8 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
+logger = logging.getLogger('logger')
+
 NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
@@ -41,6 +46,9 @@ JSON_REGEX = re.compile(r'.*\.json') # ends with .json
 
 # Load genetic settings from genetic settings file (YAML)
 genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
+
+#Update Params for aPhyloGeo
+Params.update_from_dict(genetic_setting_file)
 
 layout = html.Div([
     dcc.Store(id='input-data', data={'genetic': {'file': None,
@@ -80,6 +88,7 @@ layout = html.Div([
         className="get-started",
         children=[
             html.Div(children=[popup.layout]),
+            html.Div(children=[popupDone.layout]),
             html.Div(children=[dropFileSection.layout]),
             html.Div([
                 html.Div(id="climatic-params-layout"),
@@ -728,13 +737,13 @@ def parse_uploaded_files(content, file_name):
             results['type'] = 'fasta'
             results['dataframe'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(fasta_file_string), 'fasta'))
             # Save the fasta file (needed for aPhyloGeo Alignment)
-            with open('./result/genetic_data.fasta', 'w') as f:
+            with open('./temp/genetic_data.fasta', 'w') as f:
                 f.write(fasta_file_string.replace("\r\n", '\n'))
         elif content_type == 'data:application/json;base64':
             # Assume  that the user uploaded a JSON file (aligned genetic data)
             results['type'] = 'json'
-            results['dataframe'] = json.loads(decoded_content.decode('utf-8'))
-        
+            results['dataframe'] = decoded_content.decode('utf-8')
+
         results['base64'] = content_string
 
         return results
@@ -743,7 +752,7 @@ def parse_uploaded_files(content, file_name):
         print(e)
 
 @callback(
-    Output('popup', 'className'),
+    Output('popupDone', 'className'),
     Output('column-error-message', 'children'),
     Output('name-error-message', 'children'),
     [Input('submit-dataset', 'n_clicks'),
@@ -832,15 +841,15 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         files_ids['genetic_files_id'] = genetic_file_id
 
     if aligned_genetic_file is not None:
-        result_type.append('aligned_genetic')
+        result_type.append('genetic')
         aligned_genetic_file_id = utils.save_files(input_data['aligned_genetic'])
         files_ids['aligned_genetic_files_id'] = aligned_genetic_file_id
 
     if genetic_tree_file is not None:
-        result_type.append('genetic_trees')
+        result_type.append('genetic')
         genetic_tree_file_id = utils.save_files(input_data['genetic_tree'])
         files_ids['genetic_tree_files_id'] = genetic_tree_file_id
-        
+
 
     try:
         # create a new result in the database
@@ -854,16 +863,31 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
         climatic_trees = utils.create_climatic_trees(result_id, climatic_file)
         
         genetic_trees = None
-        
+
         # Prepare genetic trees
         if genetic_file is not None:
-            Params.reference_gene_filepath = "./result/genetic_data.fasta"
+            reference_gene_file = {
+                "reference_gene_dir": "./temp",
+                "reference_gene_file": "genetic_data.fasta"
+            }
+            Params.update_from_dict(reference_gene_file)
+            logger.info(Params.reference_gene_filepath)
             utils.run_genetic_pipeline(result_id, climatic_file, genetic_file, climatic_trees) 
         elif aligned_genetic_file is not None:
-            genetic_trees = utils.create_genetic_trees(result_id, aligned_genetic_file)
+            
+            loaded_seq_aligbnement = Alignment.from_json_string(aligned_genetic_file)
+            msaSet = loaded_seq_aligbnement.msa
+
+            results_ctrl.update_result({
+            '_id': result_id,
+            'uploaded_msaSet': msaSet,
+            'status': 'alignment'})
+            genetic_trees = utils.create_genetic_trees(result_id, msaSet)
             utils.create_output(result_id, climatic_trees, genetic_trees, pd.read_json(io.StringIO(climatic_file)))
         elif genetic_tree_file is not None:
-            utils.create_output(result_id, climatic_trees, genetic_tree_file, pd.read_json(io.StringIO(climatic_file)))
+            None # TODO
+            # genetic_trees = GeneticTrees.load_trees_from_json(genetic_tree_file)
+            # utils.create_output(result_id, climatic_trees, genetic_trees, pd.read_json(io.StringIO(climatic_file)))
 
         return 'popup', '', ''
     except Exception as e:

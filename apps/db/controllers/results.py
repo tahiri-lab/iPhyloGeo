@@ -125,6 +125,8 @@ def parse_result(result):
         for key, value in result['msaSet'].items():
             msaSet[key] = [seq.format("fasta") for seq in value]
         document['msaSet'] = msaSet
+    if 'uploaded_msaSet' in result:
+        document['msaSet'] = result['uploaded_msaSet']
     if 'status' in result:
         document['status'] = result['status']
     if 'output' in result:

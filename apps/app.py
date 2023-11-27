@@ -1,3 +1,4 @@
+import time
 from dotenv import load_dotenv, dotenv_values
 import dash
 import dash_bootstrap_components as dbc
@@ -5,6 +6,8 @@ from flask import Flask
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc, html
+import logging
+from aphylogeo.params import Params
 
 load_dotenv()
 
@@ -151,11 +154,19 @@ if __name__ == '__main__':
     if 'http://' in host:
         host = host.replace('http://', '')
 
+    logging.basicConfig(
+    filename='iphylogeo.log',
+    level=logging.DEBUG, 
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger('logger')
+
     print('Starting server... on ', host + ':' + port)
+
 
     app_dev = ENV_CONFIG['APP_ENV']
 
-    app.run_server(
+    app.run(
         debug=False if app_dev == 'prod' else True,
         port=port,
         host=host,
