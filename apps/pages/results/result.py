@@ -61,7 +61,7 @@ layout = html.Div([
             ], className="tree", id="genetic-tree-container"),
         ], className='treeContainer'),
     ], className="result")
-], className="resultContainer")
+], className="resultContainer", id="all-results")
 
 # E-mail at the end of the page
 bottom_email_div = html.Div([
@@ -96,7 +96,7 @@ clientside_callback(
 
 @callback(
     Output('results-name', 'children'),
-    Input('url', 'pathname'),
+    State('url', 'pathname'),
     Input('submit-button', 'n_clicks'),
     State('user-input', 'value')
 )
@@ -150,9 +150,10 @@ def show_result_name(path):
     Output('results-table-title', 'children'),
     Output('output-results', 'children'),
     Output('output-results-graph', 'children'),
-    Input('url', 'pathname'),
+    State('url', 'pathname'),
+    Input('all-results', 'children')
 )
-def show_complete_results(path):
+def show_complete_results(path, generated_page):
     """
     args:
         path (str): the path of the page
@@ -208,7 +209,7 @@ def create_climatic_trees(path, generated_results_header):
 
 @callback(
     Output("download-link-results", "data"),
-    Input('url', 'pathname'),
+    State('url', 'pathname'),
     Input('climatic-tree', 'children'),
     Input('genetic-tree', 'children'),
     Input("download-button-genetic", "n_clicks"),

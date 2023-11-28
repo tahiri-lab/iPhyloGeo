@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import html, callback, dcc
 import dash
 from flask import request
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import utils.utils as utils
 load_dotenv()
 
