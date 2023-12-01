@@ -53,6 +53,7 @@ genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
 Params.update_from_dict(genetic_setting_file)
 
 layout = html.Div([
+    dcc.Store(id="ready-for-pipeline", data=False),
     dcc.Store(id='input-data', data={'genetic': {'file': None,
                                                  'layout': None,
                                                  'file_name': None,
@@ -564,37 +565,18 @@ def parse_uploaded_files(content, file_name):
         print(e)
 
 @callback(
-    Output('popupDone', 'className'),
+    Output('popup', 'className'),
     Output('column-error-message', 'children'),
     Output('name-error-message', 'children'),
+    Output('ready-for-pipeline', 'data'),
     [Input('submit-dataset', 'n_clicks'),
-        Input("close_popup", "n_clicks"),
-        Input('input-dataset', 'value')],
+    # Input("close_popup", "n_clicks"),
+    Input('input-dataset', 'value')],
     State('input-data', 'data'),
     State('params-climatic', 'data'),
-    State('params-genetic', 'data'),
     prevent_initial_call=True
 )
-def submit_button(open, close, result_name, input_data, params_climatic, params_genetic):
-    """
-    When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
-    the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
-    are valid, a popup appears to notice the user to not close his window.
-    Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
-
-    args:
-        open : counter of the submit button
-        close : counter of the close button - not used but necessary
-        result_name : name of the results that will be generated
-        input_data : json file containing the data from the uploaded files
-        params_climatic : parameters for the climatic data
-        params_genetic : parameters for the genetic data
-
-    returns:
-        className : class of the popup if the inputs are valid
-        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
-        name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
-    """
+def ready_for_pipeline(open, result_name, input_data, params_climatic):
     # Add climatic column names to Params
     if params_climatic['names'] is not None:
         names = ['id'] + params_climatic['names']
@@ -615,24 +597,58 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
 
     trigger_id = ctx.triggered_id
 
-    if trigger_id == "close_popup":
-        return 'popup hidden', '', ''
+    # if trigger_id == "close_popup":
+    #     return 'popup hidden', '', '', False
 
     # Assure there is a dataset name given by the user
-    result_name_is_valid = result_name is not None or result_name
+    result_name_is_valid = result_name is not None and result_name != ''
     params_climatic_is_complete = params_climatic['names'] is not None and len(params_climatic['names']) >= 2
 
     # Assure that at least two columns from the climatic data are selected
     if climatic_data_is_present and not params_climatic_is_complete and result_name_is_valid:
-        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), ''
+        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), '', False
     elif climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid:
-        return 'popup hidden', '', dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
+        return 'popup hidden', '', dbc.Alert(NAME_ERROR_MESSAGE, color="danger"), False
     elif climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid:
-        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), dbc.Alert(NAME_ERROR_MESSAGE, color="danger")
+        return 'popup hidden', dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"), dbc.Alert(NAME_ERROR_MESSAGE, color="danger"), False
 
     if trigger_id != "submit-dataset":
-        return '', '', ''
+        return '', '', '', False
     
+    return 'popup', '', '', True
+
+@callback(
+    Output('popupDone', 'className'),
+    Input('ready-for-pipeline', 'data'),
+    State('input-data', 'data'),
+    State('params-climatic', 'data'),
+    State('params-genetic', 'data'),
+    State('input-dataset', 'value'),
+    prevent_initial_call=True
+)
+def submit_button(ready_for_pipeline, input_data, params_climatic, params_genetic, result_name):
+    """
+    When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
+    the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
+    are valid, a popup appears to notice the user to not close his window.
+    Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
+
+    args:
+        open : counter of the submit button
+        close : counter of the close button - not used but necessary
+        result_name : name of the results that will be generated
+        input_data : json file containing the data from the uploaded files
+        params_climatic : parameters for the climatic data
+        params_genetic : parameters for the genetic data
+
+    returns:
+        className : class of the popup if the inputs are valid
+        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
+        name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
+    """
+
+    if ready_for_pipeline is False:
+        return 'popup hidden'
 
     climatic_file = input_data['climatic']['file']
 
@@ -710,8 +726,8 @@ def submit_button(open, close, result_name, input_data, params_climatic, params_
 
             utils.create_output(result_id, climatic_trees, genetic_trees, pd.read_json(io.StringIO(climatic_file)))
 
-        return 'popup', '', ''
+        return 'popup'
     except Exception as e:
         # TODO: print error message popup
         print('[Error]:', e)
-        return 'popup', '', ''
+        return 'popup'
