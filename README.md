@@ -36,19 +36,18 @@ diffrent. Fof a linux based system, you can use the following commands:
 
 1. git clone https://github.com/tahiri-lab/aPhylogeo
 2. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
-3. Create a new virtual environment (venv) in your terminal using `python3 -m venv aPhyloGeo_env`.
-4. Still in the terminal, enter the new venv using `source aPhyloGeo_env/bin/activate`.
-5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip install -e .`.
+3. Create a new virtual environment (venv) in your terminal using `python3 -m venv venv`.
+4. Still in the terminal, enter the new venv using `source venv/bin/activate`.
 
 For a windows based system, you can use the following commands:
 1. git clone https://github.com/tahiri-lab/aPhylogeo
 2. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
-3. Create a new virtual environment (venv) in your terminal using `python3 -m venv aPhyloGeo_env`.
-4. Still in the terminal, activate the new venv using `aPhyloGeo_env/Scripts/activate .`.
-5. Make sure your are in the aPhyloGeo directory, and install the aPhyloGeo package using `pip install -e .`.
+3. Create a new virtual environment (venv) in your terminal using `python3 -m venv venv`.
+4. Still in the terminal, activate the new venv using `venv/Scripts/activate`.
 
+N.B. You'll need Microsoft C++ Build Tools to build some of the requirements, you can find it here: https://visualstudio.microsoft.com/visual-cpp-build-tools/ . Make sure to include the C++ build tools.
 
-Then you can install the other requirements. Make sure you are using the same venv as above. Make sure youa re in the iPhyloGeo directory.
+Then you can install the other requirements. Make sure you are using the same venv as above. Make sure you are in the iPhyloGeo directory.
 Then run the following commands :
 ```
 pip install -r requirements.txt
@@ -62,7 +61,7 @@ Finally, if want to run the programm with a database, you need to install docker
 
 
 ### Setting up the programm
-- To set up the programm, you need to chahge the .env file with your own data.
+- To set up the programm, you need to change the .env file with your own data.
 Here is an example of the .env file if you want to run the programm locally :
 ```
 APP_ENV='dev'
