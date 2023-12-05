@@ -37,17 +37,17 @@ Tout d'abord, vous devez installer le package aPhyloGeo. Selon votre système d'
 
 1. git clone https://github.com/tahiri-lab/aPhylogeo
 2. Si vous n'avez pas `virtualenv` installé, exécutez `python3 -m pip install --user virtualenv`
-3. Créez un nouvel environnement virtuel (venv) dans votre terminal en utilisant `python3 -m venv aPhyloGeo_env`.
-4. Toujours dans le terminal, entrez dans le nouvel environnement virtuel en utilisant `source aPhyloGeo_env/bin/activate`.
-5. Assurez-vous que vous êtes dans le répertoire aPhyloGeo, et installez le package aPhyloGeo en utilisant `pip install -e .`.
+3. Créez un nouvel environnement virtuel (venv) dans votre terminal en utilisant `python3 -m venv venv`.
+4. Toujours dans le terminal, entrez dans le nouvel environnement virtuel en utilisant `source venv/bin/activate`.
 
 Si vous utilisez un système basé sur Windows, vous pouvez utiliser les commandes suivantes :
 
 1. git clone https://github.com/tahiri-lab/aPhylogeo
-2. Si vous n'avez pas virtualenv installé, exécutez `py -m pip install --user virtualenv`
-3. Créez un nouvel environnement virtuel (venv) dans votre terminal en utilisant `py -m venv aPhyloGeo_env`.
-4. Toujours dans le terminal, activez le nouveau venv en utilisant `aPhyloGeo_env/bin/activate`.
-5. Assurez-vous d'être dans le répertoire aPhyloGeo, et installez le package aPhyloGeo en utilisant `pip install -e .`.
+2. Si vous n'avez pas virtualenv installé, exécutez `python -m pip install --user virtualenv`
+3. Créez un nouvel environnement virtuel (venv) dans votre terminal en utilisant `python -m venv venv`.
+4. Toujours dans le terminal, activez le nouveau venv en utilisant `venv/bin/activate`.
+
+N.B. Vous aurez besoin de Microsoft C++ Build Tools pour installer toutes les dépendances vous pouvez le trouver ici: https://visualstudio.microsoft.com/visual-cpp-build-tools/ . Assurez-vous d'inclure C++ build tools dans votre installation.
 
 Ensuite, vous pouvez installer les autres exigences. Assurez-vous d'utiliser le même venv que ci-dessus. Assurez-vous d'être dans le répertoire iPhyloGeo.
 ```
