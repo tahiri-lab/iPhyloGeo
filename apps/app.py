@@ -6,7 +6,6 @@ from flask import Flask
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc, html
-import logging
 from aphylogeo.params import Params
 
 load_dotenv()
@@ -153,13 +152,6 @@ if __name__ == '__main__':
     port = ENV_CONFIG['PORT']
     if 'http://' in host:
         host = host.replace('http://', '')
-
-    logging.basicConfig(
-    filename='iphylogeo.log',
-    level=logging.DEBUG, 
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger('logger')
 
     print('Starting server... on ', host + ':' + port)
 

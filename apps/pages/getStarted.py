@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 from dash import dcc, html, State, Input, Output, callback, ctx
@@ -35,8 +34,6 @@ dash.register_page(__name__, path='/getStarted')
 ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
-
-logger = logging.getLogger('logger')
 
 NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
