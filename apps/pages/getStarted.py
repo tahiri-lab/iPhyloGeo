@@ -577,6 +577,24 @@ def parse_uploaded_files(content, file_name):
     prevent_initial_call=True
 )
 def ready_for_pipeline(open, result_name, input_data, params_climatic):
+    """
+    Verify the following prerequisites needed for aPhyloGeo pipeline to start:
+     - At least two columns are selected from the climatic data file.
+     - The dataset has a name.
+     - Verify the presence of uploaded climatic and genetic data.
+
+    Args:
+        open : counter of the submit button
+        result_name : name of the results that will be generated
+        input_data: input_data : json file containing the data from the uploaded files
+        params_climatic: parameters for the climatic data
+
+    Returns:
+        className : class of the popup if the inputs are valid
+        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
+        name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
+        ready-for-pipeline: True if all prerequisites are met for aPhyloGeo pipeline to start, else False
+    """
     # Add climatic column names to Params
     if params_climatic['names'] is not None:
         names = ['id'] + params_climatic['names']
@@ -629,22 +647,16 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
 def submit_button(ready_for_pipeline, input_data, params_climatic, params_genetic, result_name):
     """
     When the submit button is clicked, the data is passed to the aPhyloGeo pipeline. The results are stored in the database or
-    the file system depending on the configuration. If the inputs are not valid, an error message is displayed. If the inputs
-    are valid, a popup appears to notice the user to not close his window.
-    Because the pipeline is a long process, it is executed in a separate process (multiprocessing).
+    the file system depending on the configuration. If the inputs are not valid, an error message is displayed. 
 
     args:
-        open : counter of the submit button
-        close : counter of the close button - not used but necessary
-        result_name : name of the results that will be generated
+        ready-for-pipeline: boolean that represent if all prerequisites are met for aPhyloGeo pipeline to start
         input_data : json file containing the data from the uploaded files
         params_climatic : parameters for the climatic data
         params_genetic : parameters for the genetic data
 
     returns:
-        className : class of the popup if the inputs are valid
-        column-error-message : NUMBER_OF_COLUMNS_ERROR_MESSAGE if the number of columns is not valid
-        name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
+        className : class of the popupDone when results are done and ready after aPhyloGeo pipeline.
     """
 
     if ready_for_pipeline is False:
