@@ -22,8 +22,6 @@
         color: var(--reverse-black-white-color);
         font-weight: bold;
         text-align: center;
-        margin-top: 10px;
-        margin-bottom: 20px;
     }
     
     .help-subtitle {
@@ -40,5 +38,14 @@
     .help-text {
         color: var(--text-color);
         font-size: 14px;
+    }
+}
+
+.help-sections {
+    margin-top: 50px;
+
+    hr {
+        margin-top: 5px;
+        margin-bottom: 20px;
     }
 }

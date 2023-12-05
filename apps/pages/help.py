@@ -12,6 +12,7 @@ layout = html.Div(className="help-page-container", children=[
         # Section Upload data
         html.Div(children=[
             html.H2("Upload data", className='help-subtitle'),
+            html.Hr(),
             html.Div(children=[
                 html.H3("Climatic Parameters and Graph section"),
                 dcc.Markdown('''In this section, you have the option to select the data you want to analyze on the x-axis and y-axis. This allows you to determine how to analyze your data effectively. You can also visualize the selected data on the map to highlight specific information of interest.''', className='help-text'),
@@ -22,23 +23,25 @@ layout = html.Div(className="help-page-container", children=[
                         By combining these approaches, you can gain a better understanding of relationships between your data, which may influence your decisions when constructing phylogenetic trees. This will empower you to have a more comprehensive grasp of your data and make well-informed choices during your analyses.
                             ''', className='help-text')
             ]),
-        ]), 
+        ], className="help-sections"), 
 
         # Section Check results
         html.Div(children=[
             html.H2("Check results", className='help-subtitle'),
+            html.Hr(),
             dcc.Markdown('''
             Expliquez ici comment accéder et interpréter les résultats de l'analyse.
             ''', className='help-text'),
-        ]),
+        ], className="help-sections"),
 
         # Section Settings
         html.Div(children=[
             html.H2("Settings", className='help-subtitle'),
+            html.Hr(),
             dcc.Markdown('''
             Expliquez ici comment utiliser la page des paramètres pour configurer l'application.
             ''', className='help-text'),
-        ]),
+        ], className="help-sections"),
 
         # Ajout d'images
         # html.Div(children=[
