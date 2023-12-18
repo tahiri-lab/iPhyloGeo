@@ -133,7 +133,7 @@ layout = html.Div([
                                     "value": "2",
                                 },
                                 {
-                                    "label": html.Div(['Euclidean (Dendropy)'], style={'padding': 5, 'font-size': 14}),
+                                    "label": html.Div(['Bipartition (Dendropy)'], style={'padding': 5, 'font-size': 14}),
                                     "value": "3",
                                 },
                             ], value=DISTANCE_METHOD_DEFAULT, id='distance-method')
