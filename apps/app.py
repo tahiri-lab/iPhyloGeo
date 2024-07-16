@@ -68,39 +68,38 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB],  # https:/
                 server=server, use_pages=True)
 
 
+def NavbarComponent(children):
+    return html.Div(children=children, className="nav-bar-container", id="nav-bar")
+
+
 app.layout = html.Div([
     html.Div([
         dash.page_container,
-        html.Div([
-            html.Div(
-                className="nav-bar-container",
-                id="nav-bar",
-                children=[
-                    html.Div([
-                        html.Div([
-                            html.Div(id='dummy-output'),
-                            html.Img(src='/assets/logo/LabLogo.png', id="lab-logo", className="logo"),
-                            html.Div('Tahiri Lab', id="lab-name", className="lab-name"),
-                            daq.BooleanSwitch(id='theme-switch', className="theme-switcher", persistence=True, on=True),
-                            html.Div(id='theme-switch-output')
-                        ], id="lab-container", className="lab-container"),
-                    ], className="nav-bar"),
-                    html.Div([
-                        html.Div([
-                            dcc.Link([
-                                html.Img(src=path_params[page['name']]['img'], className="icon"),
-                                html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
-                            ], href=page["relative_path"], className="nav-link")
-                            for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
-                        ])
-                    ], id="nav-link", className="nav-link-container"),
-                    html.Div([
-                        html.A([
-                            html.Img(src='/assets/icons/github.svg', className="icon"),
-                            html.Div("Visit our GitHub", className="text"),
-                        ], target='_blank', href="https://github.com/tahiri-lab", className="gitHub"),
-                    ], id="gitHub-container", className="gitHub-container"),
-                ]),
+        NavbarComponent([
+            html.Div([
+                html.Div([
+                    html.Div(id='dummy-output'),
+                    html.Img(src='/assets/logo/LabLogo.png', id="lab-logo", className="logo"),
+                    html.Div('Tahiri Lab', id="lab-name", className="lab-name"),
+                    daq.BooleanSwitch(id='theme-switch', className="theme-switcher", persistence=True, on=True),
+                    html.Div(id='theme-switch-output')
+                ], id="lab-container", className="lab-container"),
+            ], className="nav-bar"),
+            html.Div([
+                html.Div([
+                    dcc.Link([
+                        html.Img(src=path_params[page['name']]['img'], className="icon"),
+                        html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
+                    ], href=page["relative_path"], className="nav-link")
+                    for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
+                ])
+            ], id="nav-link", className="nav-link-container"),
+            html.Div([
+                html.A([
+                    html.Img(src='/assets/icons/github.svg', className="icon"),
+                    html.Div("Visit our GitHub", className="text"),
+                ], target='_blank', href="https://github.com/tahiri-lab", className="gitHub"),
+            ], id="gitHub-container", className="gitHub-container"),
         ]),
     ], id='themer'),
 ])
@@ -115,22 +114,19 @@ app.clientside_callback(
     prevent_initial_call=True,
 )
 
-
 @app.callback(
     Output('theme-switch-output', 'children'),
     Input('theme-switch', 'on'),
 )
 def change_theme(on):
     """
-
-    args:
+    Args:
         on: boolean, True if dark theme is selected, False if light theme is selected.
             Button to trigger callback (need at least one parameter, but we dont use n_clicks)
-    returns:
-        theme-switch-output: value of the buttone on (true or false). Hidden div to trigger callback
+    Returns:
+        theme-switch-output: value of the button on (true or false). Hidden div to trigger callback
     """
     return on
-
 
 @app.callback(
     Output("themer", "style"),
@@ -138,14 +134,13 @@ def change_theme(on):
 )
 def update_color(children):
     """
-    args:
+    Args:
         children: boolean, True if dark theme is selected, False if light theme is selected.
             Button to trigger callback (need at least one parameter, but we dont use n_clicks)
-    returns:
+    Returns:
         themer: dict, css style for the theme
     """
     return LIGHT_THEME if not children else DARK_THEME
-
 
 if __name__ == '__main__':
     host = ENV_CONFIG['URL']
@@ -154,7 +149,6 @@ if __name__ == '__main__':
         host = host.replace('http://', '')
 
     print('Starting server... on ', host + ':' + port)
-
 
     app_dev = ENV_CONFIG['APP_ENV']
 

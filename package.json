@@ -12,14 +12,15 @@
   "license": "ISC",
   "dependencies": {
     "concurrently": "^7.6.0",
+    "cytoscape-panzoom": "^2.5.3",
     "dash": "3.23.2",
     "grunt-contrib-watch": "^1.1.0",
     "node-sass": "^8.0.0"
   },
   "devDependencies": {
+    "dotenv": "^16.0.3",
     "electron": "^22.0.3",
     "grunt": "^1.6.1",
-    "grunt-sass": "^3.1.0",
-    "dotenv": "^16.0.3"
+    "grunt-sass": "^3.1.0"
   }
 }

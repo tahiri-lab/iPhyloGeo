@@ -1,30 +1,36 @@
 #setting-buttons {
     display: flex;
+    align-items: center;
     justify-content: center;
-    color: var(--reverse-white-black-color);
-    background-color: var(--reverse-black-white-color);
-    padding: 15px;
-    border-radius: 5px;
-    margin: auto;
-    width: auto;
-
-    #save-settings-button, #reset-button {
-        margin: 10px;
-        padding: 5px 10px 5px 10px;
-        border-radius: 5px;
-        border: solid 2px black;
-
-        &:hover {
-            box-shadow: 3px 3px 5px var(--reverse-white-black-color);
-        }
-
-        &:active {
-            box-shadow: none;
-        }
-    }
+    justify-content: center;
+    padding: 0.7rem 2rem;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    backface-visibility: hidden;
+    border: 0.3rem solid transparent;
+    border-radius: 3rem;
 }
+.bn36 {
+    border-color: #fff;
+    transition: transform 0.2s cubic-bezier(0.235, 0, 0.05, 0.95);
+  }
+  
+  .bn36:hover {
+    transform: perspective(1px) scale3d(1.044, 1.044, 1) translateZ(0) !important;
+  }
 
-.alignment-method-container, .distance-method-container, .fit-method-container, .tree-type-container, .method-similarity-container {
+  .form-control {
+    text-align: center; }
+
+.alignment-method-container,
+.distance-method-container,
+.fit-method-container,
+.tree-type-container,
+.method-similarity-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -35,12 +41,13 @@
     width: auto;
     margin: auto;
 
-    label {
-        text-align: center;
-        padding: 5px;
-        font-size: 14px;
-    }
-    
+
+.tree-type-container label {
+    text-align: center;
+    padding: 5px;
+    font-size: 14px;
+}
+
     #alignment-method-title, #distance-method-title, #fit-method-title, #tree-type-title, #method-similarity-title {
         display: flex; 
         margin: auto;

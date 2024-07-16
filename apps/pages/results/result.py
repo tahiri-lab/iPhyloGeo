@@ -6,6 +6,7 @@ import json
 import dash_cytoscape as cyto
 import math
 import numpy as np
+import pandas as pd
 from Bio import Phylo
 from io import StringIO
 from flask import request
@@ -17,6 +18,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+
 
 ENV_CONFIG = {}
 for key, value in dotenv_values().items():
@@ -67,16 +69,16 @@ layout = html.Div([
 bottom_email_div = html.Div([
     html.Div([
         html.H2("If you would like to receive the URL by email, you can enter your address below.",
-                style={'text-align': 'center', 'color': '#AD00FA', 'font-size': '14px'}),
+                style={'textAlign': 'center', 'color': '#AD00FA', 'fontSize': '14px'}),
         html.Div([
             dcc.Input(id='user-input', type='email', placeholder='Write your mail here...'),
-            html.Button([html.Span('Submit', style={'font-size': '18px'})], id='submit-button',
+            html.Button([html.Span('Submit', style={'fontSize': '18px'})], id='submit-button',
                         n_clicks=0,
-                        style={'font-family': 'Calibri', 'color': 'white',
-                               'background-color': '#AD00FA',
-                               'border-radius': '10px'}),
-        ], className='input-container', style={'display': 'flex', 'justify-content': 'center'}),
-    ], className='center-container', style={'text-align': 'center'}),
+                        style={'fontFamily': 'Calibri', 'color': 'white',
+                               'backgroundColor': '#AD00FA',
+                               'borderRadius': '10px'}),
+        ], className='input-container', style={'display': 'flex', 'justifyContent': 'center'}),
+    ], className='center-container', style={'textAlign': 'center'}),
 ], className="result")
 
 layout.children.append(bottom_email_div)
@@ -109,7 +111,7 @@ def handle_submit_click(pathname, n_clicks, user_email):
         content = f"Votre processus Aphylogeo situé à l'URL suivante : http://localhost:8050{url}"
         # Call send_alarm_email function with URL
         send_alarm_email(subject, content, user_email)
-    return None
+    return "" if not n_clicks or not user_email else None
 
 
 def send_alarm_email(subject, content, user_email):
@@ -147,30 +149,52 @@ def show_result_name(path):
 
 
 @callback(
-    Output('results-table-title', 'children'),
-    Output('output-results', 'children'),
-    Output('output-results-graph', 'children'),
-    State('url', 'pathname'),
-    Input('all-results', 'children')
+    Output("results-table-title", "children"),
+    Output("output-results", "children"),
+    Output("output-results-graph", "children"),
+    State("url", "pathname"),
+    Input("all-results", "children"),
 )
 def show_complete_results(path, generated_page):
     """
-    args:
-        path (str): the path of the page
-    returns:
-        html.Div: the div containing the header (title & download button) of the results
-        html.Div: the div containing the results tabke
-        html.Div: the div containing the results graph
+    This function creates the header (title & download button) of the results,
+    the results table, and the results graph.
+
+    Args:
+        path (str): The path of the page.
+        generated_page: (Not used in this function, but required for the callback trigger)
+
+    Returns:
+        html.Div: The div containing the header of the results table.
+        html.Div: The div containing the results table.
+        Union[dcc.Graph, None]: The results graph if data is available and valid, else None.
     """
-    result_id = path.split('/')[-1]
+    result_id = path.split("/")[-1]
     result = utils.get_result(result_id)
 
-    if 'genetic' not in result['result_type'] or 'output' not in result:
+    if "genetic" not in result["result_type"] or "output" not in result:
         return None, None, None
-    results_data = str_csv_to_df(result['output'])
 
-    return create_result_table_header(), create_result_table(results_data), create_result_graphic(results_data)
+    results_data = str_csv_to_df(result["output"])
 
+    # Check if results_data is a valid DataFrame and has required columns
+    if not isinstance(results_data, pd.DataFrame) or not all(
+        col in results_data.columns for col in ["Position in ASM", "Bootstrap mean"]
+    ):
+        return (
+            create_result_table_header(),  # Still return the header
+            create_result_table(results_data),  # Display the table (might be empty)
+            None,  # No graph to display
+        )
+
+    # Now it's safe to call create_result_graphic
+    graph_output = create_result_graphic(results_data)
+
+    return (
+        create_result_table_header(),
+        create_result_table(results_data),
+        graph_output,
+    )   
 
 @callback(
     Output('climatic-tree-title', 'children'),
@@ -371,56 +395,57 @@ def create_result_graphic(results_data):
     # Get the name of the columns that containts Distance method information
     results_column_headers = list(results_data.columns.values)
     distance_method = list(filter(lambda x: pattern.match(x), results_column_headers))[0]
-    
+
     results_data = results_data[['starting_position', 'Bootstrap mean', distance_method]]
     results_data = results_data.groupby('starting_position').mean().reset_index()
 
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace(
-        go.Scatter(
-            x=results_data["starting_position"],
-            y=results_data["Bootstrap mean"],
-            name="bootstrap mean",
-            line=dict(color="#AD00FA")
-        ),
-        secondary_y=False,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=results_data["starting_position"],
-            y=results_data[distance_method],
-            name=distance_method,
-            line=dict(color="#00faad")
-        ),
-        secondary_y=True,
-    )
-    fig.update_layout(title_text=str("Bootstrap mean and " + distance_method), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
-    fig.update_xaxes(
-        title_text="Position in ASM",
-        gridcolor='rgba(255,255,255,0.2)'
-    )
-    fig.update_yaxes(
-        title_text="<b>Bootstrap mean</b>",
-        secondary_y=False,
-        gridcolor='rgba(255,255,255,0.2)'
-    )
-    fig.update_yaxes(
-        title_text=str("<b>" + distance_method + "</b>"),
-        secondary_y=True,
-        gridcolor='rgba(255,255,255,0.2)'
-    )
+    if len(results_data) > 0: # Verify that the data exists
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.add_trace(
+            go.Scatter(
+                x=results_data["starting_position"],
+                y=results_data["Bootstrap mean"],
+                name="bootstrap mean",
+                line=dict(color="#AD00FA")
+            ),
+            secondary_y=False,
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=results_data["starting_position"],
+                y=results_data[distance_method],
+                name=distance_method,
+                line=dict(color="#00faad")
+            ),
+            secondary_y=True,
+        )
+        fig.update_layout(title_text=str("Bootstrap mean and " + distance_method), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color='white'))
+        fig.update_xaxes(
+            title_text="Position in ASM",
+            gridcolor='rgba(255,255,255,0.2)'
+        )
+        fig.update_yaxes(
+            title_text="<b>Bootstrap mean</b>",
+            secondary_y=False,
+            gridcolor='rgba(255,255,255,0.2)'
+        )
+        fig.update_yaxes(
+            title_text=str("<b>" + distance_method + "</b>"),
+            secondary_y=True,
+            gridcolor='rgba(255,255,255,0.2)'
+        )
 
-    min_bootstrap = results_data['Bootstrap mean'].min()
-    max_bootstrap = results_data['Bootstrap mean'].max()
-    bootstrap_ticks = np.linspace(min_bootstrap, max_bootstrap, 6)
+        min_bootstrap = results_data['Bootstrap mean'].min()
+        max_bootstrap = results_data['Bootstrap mean'].max()
+        bootstrap_ticks = np.linspace(min_bootstrap, max_bootstrap, 6)
 
-    min_ls = results_data[distance_method].min()
-    max_ls = results_data[distance_method].max()
-    ls_ticks = np.linspace(min_ls, max_ls, 6)
+        min_ls = results_data[distance_method].min()
+        max_ls = results_data[distance_method].max()
+        ls_ticks = np.linspace(min_ls, max_ls, 6)
 
-    fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
+        fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
 
-    return dcc.Graph(figure=fig)
+
 
 
 def create_climatic_trees_header():
@@ -458,17 +483,18 @@ def create_genetic_trees_header():
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name):
     return html.Div([
-        html.H3(name, className="treeTitle"),  # title
+        html.H3(name, className="treeTitle"),
         cyto.Cytoscape(
             elements=elem,
             stylesheet=stylesheet,
-            layout={'name': 'preset'},
+            layout={'name': 'preset'},  # or any other non-preset layout
             style={
-                'height': '350px',
+                'height': '550px',
                 'width': '100%'
-            },
+            },userZoomingEnabled=False
         )
     ], id=name, className="tree-container")
+
 
 
 def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
@@ -574,7 +600,7 @@ def generate_elements(tree, xlen=30, ylen=30, grabbable=False):
 clientside_callback(
     ClientsideFunction(
         namespace='clientside',
-        function_name='collapse_result_section_function'
+        function_name='collapse_result_section_function'    
     ),
     Output("dummy-climatic-collapse", "children"),  # needed for the callback to trigger
     [Input("results-climatic-collapse-button", "n_clicks"),
@@ -614,7 +640,7 @@ stylesheet = [
     {
         'selector': '.nonterminal',
         'style': {
-            'label': 'data(confidence)',
+            'label': 'data(confidence) ? data(confidence) : "" ', 
             'background-opacity': 0,
             "text-halign": "left",
             "text-valign": "top",
@@ -642,7 +668,7 @@ stylesheet = [
             'height': 10,
             "text-valign": "center",
             "text-halign": "right",
-            'background-color': "#00faad"
+            'backgroundColor': "#00faad"
         }
     }
 ]

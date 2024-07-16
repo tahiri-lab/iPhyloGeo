@@ -17,3 +17,4 @@ openpyxl==3.1.1
 python-dotenv==1.0.0
 Flask-PyMongo==2.3.0
 aphylogeo==1.0.0
+cytoscape-panzoom== 2.5.3
