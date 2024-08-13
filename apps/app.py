@@ -1,4 +1,3 @@
-import time
 from dotenv import load_dotenv, dotenv_values
 import dash
 import dash_bootstrap_components as dbc
@@ -6,7 +5,6 @@ from flask import Flask
 import dash_daq as daq
 from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc, html
-from aphylogeo.params import Params
 
 load_dotenv()
 
@@ -118,6 +116,7 @@ app.clientside_callback(
     Output('theme-switch-output', 'children'),
     Input('theme-switch', 'on'),
 )
+
 def change_theme(on):
     """
     Args:
