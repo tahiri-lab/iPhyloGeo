@@ -1,9 +1,9 @@
 # iPhyloGeo
-
+## 🌳 Web application for analyzing phylogenetic trees with climatic parameters 🌳
 - Link for the french version : [french version](README.fr.md)
 
-## Description:
-### Data Visualization Interfaces in Python With Dash
+## 📝 Description:
+### 🔎 Data Visualization Interfaces in Python With Dash
 
 The purpose of this application is to visualize the pipeline of Phylotree and to simplify its use.
 
@@ -16,9 +16,9 @@ The project can be used in two ways:
 
 The first option is the default option. If you want to use the database, you need to change the .env file. See the section "Setting up the program" for more details.
 
-## Getting started
+## ⚒️ Getting started
 
-### Installing:
+### 💻 Installing:
 
 * First the programm need to be downloaded with Github(git clone command).
 ```
@@ -28,8 +28,8 @@ git clone https://github.com/tahiri-lab/iPhylogeo
 To download the project simply type one of the command above in a terminal.
 * You can also download the zip file with the Github link above.
 
-## How to use?
-### Prerequisites,library etc.
+## 📊 How to use?
+### 📚 Prerequisites,library etc.
 Before using this program make sure that you have installed all the necessary libraries for it to work properly.
 First, you need to install the aPhyloGeo package. Depending on your OS, the specific commands will be slightly
 diffrent. Fof a linux based system, you can use the following commands:
@@ -60,7 +60,7 @@ Finally, if want to run the programm with a database, you need to install docker
 - Folder assets: images utilised in template and css file
 
 
-### Setting up the programm
+### 🧾 Setting up the programm
 - To set up the programm, you need to change the .env file with your own data.
 Here is an example of the .env file if you want to run the programm locally :
 ```
@@ -82,11 +82,12 @@ PORT='8050'
 ```
 -If you wish for the email address function to operate correctly, you need to generate a `"password.env"` file within the directory path `"iPhyloGeo\apps\pages\results\password.env"` with the following format: 
 ```
-GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com here or the e-mail you want to use).
+GMAIL_PASSWORD=(insert application password of aphylogeo@gmail.com here or the e-mail you want to use).
 ```
+The current email setup is functioning correctly. However, if you wish to send emails from a different address, you can modify the credentials accordingly.
 
 
-### Running
+### ▶️ Running
 - To run the programm locally, you can use the following command :
 ```
 npm start
@@ -97,7 +98,7 @@ docker compose up
 npm start
 ```
 
-### Using the cronJob
+### 🕐 Using the cronJob
 
 If the database is deployed on a linux server, we've included a script to delete the files that are older than 14 days. To do so, you need to create a cronjob.
 To create a cron job, you can use the `cronjob` as a template.
@@ -123,8 +124,8 @@ If you want to see the list of cronjobs, you can use the following command:
 crontab -l
 ```
 
-## How to generate CSS file?
-### Understanding the structure of the project
+## 🔰 How to generate CSS file?
+### 📰 Understanding the structure of the project
 
 * The project use SCSS files witch need to be created in the styles folder.
 ```
