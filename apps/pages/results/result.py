@@ -26,7 +26,11 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-with open(os.getcwd() + "\\apps\\pages\\results\\password.env") as f:
+# Construct the file path using os.path.join for cross-platform compatibility
+file_path = os.path.join(os.getcwd(), "apps", "pages", "results", "password.env")
+
+# Open the file and read the password
+with open(file_path, 'r') as f:
     password = f.read().split('=')[1]
 
 dash.register_page(__name__, path_template='/result/<result_id>')
