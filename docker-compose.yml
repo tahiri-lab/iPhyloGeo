@@ -1,13 +1,29 @@
 version: '3.9'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/usr/src/app/iPhyloGeo
+      - ./apps/pages/results/password.env:/usr/src/app/apps/pages/results/password.env
+    ports:
+      - "8050:8050"
+    environment:
+      - APP_ENV
+      - HOST
+      - MONGO_URI
+      - DB_NAME
+      - URL
+      - PORT
+    depends_on:
+      - mongo
+
   mongo:
     image: mongo:4.4.18
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - ./db/data:/data/db
       # - ./db/backup.agz:/database_backup/backup.agz # eventually restore from backup
-
-
-

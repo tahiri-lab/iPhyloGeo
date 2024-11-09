@@ -1,0 +1,124 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "iPhyloGeo",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    // "dockerComposeFile": "../Dockerfile.dev",
+    // "service": "app",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	"build":{
+		"dockerfile": "../Dockerfile.dev"
+		// "context": ".."
+	},
+	// Configure tool-specific properties.
+	"customizations": {
+		"settings": {
+			"terminal.integrated.shell.linux": "/bin/sh",
+			"terminal.integrated.shellArgs.linux": ["-l"],
+			"editor.formatOnPaste": true,
+			"git.autofetch": true,
+			"[markdown]": {
+				"editor.wordWrap": "on"
+			},
+			"[json]": {
+				"editor.defaultFormatter": "esbenp.prettier-vscode"
+			},
+			"[jsonc]": {
+				"editor.defaultFormatter": "vscode.json-language-features"
+			},
+			"[html]": {
+				"editor.defaultFormatter": "esbenp.prettier-vscode"
+			},
+			"[javascript]": {
+				"editor.defaultFormatter": "esbenp.prettier-vscode"
+			},
+			"[typescript]": {
+				"editor.defaultFormatter": "esbenp.prettier-vscode"
+			},
+			"workbench.iconTheme": "material-icon-theme",
+			"workbench.colorTheme": "GitHub Dark Default",
+			"files.autoSave": "afterDelay"
+		},
+
+		"mounts": [
+			"source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached",
+			"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+		],
+
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {
+				"workbench.colorTheme": "GitHub Dark Default",
+				"workbench.iconTheme": "material-icon-theme",
+				"files.trimTrailingWhitespace": true,
+				"files.insertFinalNewline": true,
+				"files.trimFinalNewlines": true,
+				"editor.formatOnSave": true,
+				"files.autoSave": "afterDelay",
+				"files.autoSaveDelay": 1000
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.black-formatter",
+				"ms-python.autopep8",
+				"ms-python.flake8",
+				"ms-python.isort",
+				"ms-python.pylint",
+				"ms-python.vscode-pylance",
+				"ms-toolsai.jupyter",
+				"ms-vscode-remote.remote-containers",
+				"ms-vscode-remote.remote-ssh",
+				"ms-vscode-remote.remote-ssh-edit",
+				"ms-vscode-remote.remote-wsl",
+				"ms-vscode-remote.vscode-remote-extensionpack",
+				"eamodio.gitlens",
+				"github.codespaces",
+				"github.copilot",
+				"github.github-vscode-theme",
+				"github.vscode-github-actions",
+				"davidanson.vscode-markdownlint",
+				"bierner.markdown-checkbox",
+				"bierner.markdown-preview-github-styles",
+				"bierner.markdown-emoji",
+				"bierner.markdown-footnotes",
+				"bierner.markdown-mermaid",
+				"bierner.markdown-yaml-preamble",
+				"mhutchie.git-graph",
+				"njpwerner.autodocstring"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		8050,
+		27017
+	],
+
+	// Use 'portsAttributes' to set default properties for specific forwarded ports.
+	// More info: https://containers.dev/implementors/json_reference/#port-attributes
+	"portsAttributes": {
+		"8050": {
+			"label": "Application port"
+		},
+		"27017": {
+			"label": "Database port"
+		}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "apt-get update && apt-get install -y git && git config --global --add safe.directory /workspaces/iPhyloGeo && git config --global core.autocrlf input && pip install --default-timeout=100 --retries=10 -r requirements.txt && npm install && cp /usr/src/app/iPhyloGeo/start.sh . && chmod +x start.sh && ./start.sh",
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "root",
+	"runArgs": [
+		"--env",
+		"DISPLAY=172.18.96.1:0.0",
+		"--volume",
+		"/tmp/.X11-unix:/tmp/.X11-unix",
+		"--env",
+		"QT_X11_NO_MITSHM=1"
+	],
+}

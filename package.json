@@ -15,6 +15,7 @@
     "cytoscape-panzoom": "^2.5.3",
     "dash": "3.23.2",
     "grunt-contrib-watch": "^1.1.0",
+    "iphylogeo": "file:",
     "node-sass": "^8.0.0"
   },
   "devDependencies": {

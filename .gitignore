@@ -24,3 +24,5 @@ genetic_settings_file.yaml
 debug/
 iphylogeo.log
 temp/*
+
+start.sh

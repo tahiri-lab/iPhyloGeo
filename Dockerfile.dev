@@ -1,0 +1,67 @@
+FROM mcr.microsoft.com/devcontainers/python:3.10
+WORKDIR /usr/src/app/iPhyloGeo
+
+COPY . .
+
+COPY apps/pages/results/password.env apps/pages/results/password.env
+
+# Ensure pip is up-to-date
+RUN pip install --upgrade pip
+
+# Installer les dépendances nécessaires pour Electron et D-Bus
+RUN apt-get update && apt-get install -y \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    libgbm-dev \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxi6 \
+    libxtst6 \
+    libnss3 \
+    libxrandr2 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libatk-bridge2.0-0 \
+    libxss1 \
+    libxkbfile1 \
+    libsecret-1-0 \
+    xvfb \
+    dbus \
+    xauth \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# RUN python3 -m pip install --user virtualenv && \
+#     python3 -m venv venv && \
+#     python3 -m pip install --user virtualenv
+
+# RUN source venv/Scripts/activate
+
+# Install python dependencies
+RUN pip install --default-timeout=100 --retries=10 -r requirements.txt
+
+# Install npm and concurently
+RUN apt-get update && apt-get install -y npm
+RUN npm install -g concurrently
+
+# Install nodejs dependencies including Electron and Grunt globally
+RUN npm install -g electron@^22.0.3 grunt@^1.6.1
+
+# Install nodejs dependencies
+RUN npm install
+
+# Install D-Bus and start the service
+RUN apt-get update && apt-get install -y dbus
+RUN mkdir -p /run/dbus && ln -sf /run/dbus /var/run/dbus
+
+# Create a script to start D-Bus and run the application
+RUN echo '#!/bin/bash\n\nservice dbus start\n\nconcurrently --kill-others "python apps/app.py" "xvfb-run --auto-servernum --server-args=\"-screen 0 1024x768x24\" electron main.js --no-sandbox --disable-gpu" "grunt"' > /usr/src/app/iPhyloGeo/start.sh
+
+RUN chmod +x /usr/src/app/iPhyloGeo/start.sh
+
+EXPOSE 8050
+
+CMD ["/usr/src/app/iPhyloGeo/start.sh"]
