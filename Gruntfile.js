@@ -1,9 +1,10 @@
 module.exports = function (grunt) {
     grunt.initConfig({
-        'dart-sass': {
+        sass: {
             options: {
+                implementation: require('sass'),
                 sourceMap: true,
-                implementation: require('sass')
+                api: 'modern'
             },
             dist: {
                 files: {
@@ -47,8 +48,8 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-dart-sass');
+    grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('build-css', ['dart-sass']);
+    grunt.registerTask('build-css', ['sass']);
     grunt.registerTask('default', ['build-css','watch']);
 };
