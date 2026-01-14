@@ -26,8 +26,6 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-with open(os.getcwd() + "\\apps\\pages\\results\\password.env") as f:
-    password = f.read().split('=')[1]
 
 dash.register_page(__name__, path_template='/result/<result_id>')
 
@@ -189,7 +187,13 @@ def handle_submit_click(pathname, n_clicks, user_email):
 </html>
 """
         # Call send_alarm_email function with URL
-        send_alarm_email(subject, content, user_email, "iphylogeo@gmail.com", "rogo lqhi fldu mwml")
+        send_alarm_email(
+            subject,
+            content,
+            user_email,
+            ENV_CONFIG.get("EMAIL_USER", "iphylogeo@gmail.com"),
+            password
+        )
         return None, "Email sent successfully!"
     return None, ""
 

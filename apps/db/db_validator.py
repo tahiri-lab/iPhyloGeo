@@ -33,8 +33,11 @@ def db_schema_validator(db):
 
 HOST_TYPE = ENV_CONFIG['HOST']
 
-mongo_client = connect_db() if HOST_TYPE != 'local' else None
-db_name = os.environ.get('DB_NAME') if HOST_TYPE != 'local' else None
+# Skip MongoDB connection for local development
+is_local = HOST_TYPE in ['local', 'localhost']
 
-files_db = mongo_client[db_name].Files if HOST_TYPE != 'local' else None
-results_db = mongo_client[db_name].Results if HOST_TYPE != 'local' else None
+mongo_client = connect_db() if not is_local else None
+db_name = os.environ.get('DB_NAME') if not is_local else None
+
+files_db = mongo_client[db_name].Files if not is_local else None
+results_db = mongo_client[db_name].Results if not is_local else None
