@@ -16,6 +16,8 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
+# Only use local file storage when HOST is exactly 'local', not 'localhost'
+# 'localhost' means use MongoDB via docker-compose
 if ENV_CONFIG["HOST"] == "local":
     if not os.path.exists("files"):
         os.makedirs("files")

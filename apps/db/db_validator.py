@@ -25,7 +25,7 @@ def connect_db():
 def db_schema_validator(db):
     if "Files" not in db.list_collection_names():
         db.create_collection("Files")
-    elif "Results" not in db.list_collection_names():
+    if "Results" not in db.list_collection_names():
         db.create_collection("Results")
 
     db.command("collMod", "Files", validator=schema_files)
@@ -34,11 +34,8 @@ def db_schema_validator(db):
 
 HOST_TYPE = ENV_CONFIG["HOST"]
 
-# Skip MongoDB connection for local development
-is_local = HOST_TYPE in ["local", "localhost"]
+mongo_client = connect_db() if HOST_TYPE != "local" else None
+db_name = os.environ.get("DB_NAME") if HOST_TYPE != "local" else None
 
-mongo_client = connect_db() if not is_local else None
-db_name = os.environ.get("DB_NAME") if not is_local else None
-
-files_db = mongo_client[db_name].Files if not is_local else None
-results_db = mongo_client[db_name].Results if not is_local else None
+files_db = mongo_client[db_name].Files if HOST_TYPE != "local" else None
+results_db = mongo_client[db_name].Results if HOST_TYPE != "local" else None
