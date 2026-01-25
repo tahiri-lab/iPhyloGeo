@@ -1,10 +1,10 @@
-from dotenv import load_dotenv, dotenv_values
 import dash
 import dash_bootstrap_components as dbc
-from flask import Flask
 import dash_daq as daq
-from dash.dependencies import Input, Output, ClientsideFunction
 from dash import dcc, html
+from dash.dependencies import ClientsideFunction, Input, Output
+from dotenv import dotenv_values, load_dotenv
+from flask import Flask
 
 load_dotenv()
 
@@ -27,7 +27,7 @@ LIGHT_THEME = {
     "--glass-overlay-style": "rgba(28, 28, 32, 0.5)",
     "--result-row-color": "#E7E7E7",
     "--black-and-white": "white",
-    "--table-bg-color": "white"
+    "--table-bg-color": "white",
 }
 
 DARK_THEME = {
@@ -45,78 +45,142 @@ DARK_THEME = {
     "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
     "--result-row-color": "#444444",
     "--black-and-white": "#111111",
-    "--table-bg-color": "#282b32"
+    "--table-bg-color": "#282b32",
 }
 
 path_params = {
-    'Results': {'img': ' /assets/icons/dashboard.svg', 'name': 'Check results'},
-    'Homepage': {'img': '/assets/icons/house-solid.svg', 'name': 'Home'},
-    'Getstarted': {'img': '/assets/icons/folder-upload.svg', 'name': 'Upload data'},
-    'Settings': {'img': '/assets/icons/gear.svg', 'name': 'Settings'},
-    'Help': {'img': '/assets/icons/question-circle.svg', 'name': 'Help'},
+    "Results": {"img": " /assets/icons/dashboard.svg", "name": "Check results"},
+    "Homepage": {"img": "/assets/icons/house-solid.svg", "name": "Home"},
+    "Getstarted": {"img": "/assets/icons/folder-upload.svg", "name": "Upload data"},
+    "Settings": {"img": "/assets/icons/gear.svg", "name": "Settings"},
+    "Help": {"img": "/assets/icons/question-circle.svg", "name": "Help"},
 }
 
 server = Flask(__name__)
 
 # meta_tags are required for the app layout to be mobile responsive
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACELAB],  # https://bootswatch.com/default/
-                suppress_callback_exceptions=True,
-                meta_tags=[{'name': 'viewport',
-                            'content': 'width=device-width, initial-scale=1.0'}],
-                server=server, use_pages=True)
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.SPACELAB],  # https://bootswatch.com/default/
+    suppress_callback_exceptions=True,
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
+    ],
+    server=server,
+    use_pages=True,
+)
 
 
 def NavbarComponent(children):
     return html.Div(children=children, className="nav-bar-container", id="nav-bar")
 
 
-app.layout = html.Div([
-    html.Div([
-        dash.page_container,
-        NavbarComponent([
-            html.Div([
-                html.Div([
-                    html.Div(id='dummy-output'),
-                    html.Img(src='/assets/logo/LabLogo.png', id="lab-logo", className="logo"),
-                    html.Div('Tahiri Lab', id="lab-name", className="lab-name"),
-                    daq.BooleanSwitch(id='theme-switch', className="theme-switcher", persistence=True, on=True),
-                    html.Div(id='theme-switch-output')
-                ], id="lab-container", className="lab-container"),
-            ], className="nav-bar"),
-            html.Div([
-                html.Div([
-                    dcc.Link([
-                        html.Img(src=path_params[page['name']]['img'], className="icon"),
-                        html.A(f"{path_params[page['name']]['name']}", href=page["relative_path"], className="text")
-                    ], href=page["relative_path"], className="nav-link")
-                    for page in [page for page in dash.page_registry.values() if page['name'] != "Result"]
-                ])
-            ], id="nav-link", className="nav-link-container"),
-            html.Div([
-                html.A([
-                    html.Img(src='/assets/icons/github.svg', className="icon"),
-                    html.Div("Visit our GitHub", className="text"),
-                ], target='_blank', href="https://github.com/tahiri-lab", className="gitHub"),
-            ], id="gitHub-container", className="gitHub-container"),
-        ]),
-    ], id='themer'),
-])
+app.layout = html.Div(
+    [
+        html.Div(
+            [
+                dash.page_container,
+                NavbarComponent(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.Div(id="dummy-output"),
+                                        html.Img(
+                                            src="/assets/logo/LabLogo.png",
+                                            id="lab-logo",
+                                            className="logo",
+                                        ),
+                                        html.Div(
+                                            "Tahiri Lab",
+                                            id="lab-name",
+                                            className="lab-name",
+                                        ),
+                                        daq.BooleanSwitch(
+                                            id="theme-switch",
+                                            className="theme-switcher",
+                                            persistence=True,
+                                            on=True,
+                                        ),
+                                        html.Div(id="theme-switch-output"),
+                                    ],
+                                    id="lab-container",
+                                    className="lab-container",
+                                ),
+                            ],
+                            className="nav-bar",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        dcc.Link(
+                                            [
+                                                html.Img(
+                                                    src=path_params[page["name"]][
+                                                        "img"
+                                                    ],
+                                                    className="icon",
+                                                ),
+                                                html.A(
+                                                    f"{path_params[page['name']]['name']}",
+                                                    href=page["relative_path"],
+                                                    className="text",
+                                                ),
+                                            ],
+                                            href=page["relative_path"],
+                                            className="nav-link",
+                                        )
+                                        for page in [
+                                            page
+                                            for page in dash.page_registry.values()
+                                            if page["name"] != "Result"
+                                        ]
+                                    ]
+                                )
+                            ],
+                            id="nav-link",
+                            className="nav-link-container",
+                        ),
+                        html.Div(
+                            [
+                                html.A(
+                                    [
+                                        html.Img(
+                                            src="/assets/icons/github.svg",
+                                            className="icon",
+                                        ),
+                                        html.Div("Visit our GitHub", className="text"),
+                                    ],
+                                    target="_blank",
+                                    href="https://github.com/tahiri-lab",
+                                    className="gitHub",
+                                ),
+                            ],
+                            id="gitHub-container",
+                            className="gitHub-container",
+                        ),
+                    ]
+                ),
+            ],
+            id="themer",
+        ),
+    ]
+)
 
 app.clientside_callback(
-    ClientsideFunction(
-        namespace='clientside',
-        function_name='navbar_function'
-    ),
+    ClientsideFunction(namespace="clientside", function_name="navbar_function"),
     Output("dummy-output", "children"),  # needed for the callback to trigger
     Input("lab-logo", "n_clicks"),
     prevent_initial_call=True,
 )
 
-@app.callback(
-    Output('theme-switch-output', 'children'),
-    Input('theme-switch', 'on'),
-)
 
+@app.callback(
+    Output("theme-switch-output", "children"),
+    Input("theme-switch", "on"),
+)
 def change_theme(on):
     """
     Args:
@@ -127,10 +191,8 @@ def change_theme(on):
     """
     return on
 
-@app.callback(
-    Output("themer", "style"),
-    Input("theme-switch-output", "children")
-)
+
+@app.callback(Output("themer", "style"), Input("theme-switch-output", "children"))
 def update_color(children):
     """
     Args:
@@ -141,18 +203,19 @@ def update_color(children):
     """
     return LIGHT_THEME if not children else DARK_THEME
 
-if __name__ == '__main__':
-    host = ENV_CONFIG['URL']
-    port = ENV_CONFIG['PORT']
-    if 'http://' in host:
-        host = host.replace('http://', '')
 
-    print('Starting server... on ', host + ':' + port)
+if __name__ == "__main__":
+    host = ENV_CONFIG["URL"]
+    port = ENV_CONFIG["PORT"]
+    if "http://" in host:
+        host = host.replace("http://", "")
 
-    app_dev = ENV_CONFIG['APP_ENV']
+    print("Starting server... on ", host + ":" + port)
+
+    app_dev = ENV_CONFIG["APP_ENV"]
 
     app.run(
-        debug=False if app_dev == 'prod' else True,
+        debug=False if app_dev == "prod" else True,
         port=port,
         host=host,
     )

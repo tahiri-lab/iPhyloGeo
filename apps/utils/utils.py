@@ -1,17 +1,17 @@
-import pandas as pd
 import base64
 import io
 import os
+
+import aphylogeo.utils as aPhyloGeo
+import db.controllers.files as files_ctrl
+import db.controllers.results as results_ctrl
+import pandas as pd
+from aphylogeo.alignement import AlignSequences
 from Bio import SeqIO
 from dash import dcc, html
 
-import db.controllers.files as files_ctrl
-import db.controllers.results as results_ctrl
-from aphylogeo.alignement import AlignSequences
-import aphylogeo.utils as aPhyloGeo
-
-FILES_PATH = 'files/'
-COOKIE_NAME = 'AUTH'
+FILES_PATH = "files/"
+COOKIE_NAME = "AUTH"
 COOKIE_MAX_AGE = 8640000  # 100 days
 
 
@@ -76,18 +76,18 @@ def save_files(results):
 
 def get_file(id, options={}):
     """
-        Get the file with the given id.
-        If the app is running in local mode, the file is read from the local file system.
-        Otherwise, the file is read from database.
+    Get the file with the given id.
+    If the app is running in local mode, the file is read from the local file system.
+    Otherwise, the file is read from database.
     """
-    if 'mongo' in options and options['mongo']:
+    if "mongo" in options and options["mongo"]:
         return get_file_from_db(id)
 
     return read_local_file(FILES_PATH + id, options)
 
 
 def read_local_file(path, options={}):
-    """ Read the file from the local file system.
+    """Read the file from the local file system.
 
     Args:
         path (string): The path of the file.
@@ -96,12 +96,12 @@ def read_local_file(path, options={}):
     if not os.path.isfile(path):
         return None
     # read the file
-    if 'pd' in options:
+    if "pd" in options:
         return pd.read_csv(path)
 
 
 def get_file_from_db(id):
-    """ Get the file from the database.
+    """Get the file from the database.
 
     Args:
         id (string): The id of the file.
@@ -122,57 +122,63 @@ def get_files_from_base64(list_of_contents, list_of_names, last_modifieds):
         list: List of parsed files.
     """
     results = []
-    for content, file_name, date in zip(list_of_contents, list_of_names, last_modifieds):
+    for content, file_name, date in zip(
+        list_of_contents, list_of_names, last_modifieds
+    ):
         results.append(parse_contents(content, file_name, date))
 
     return results
 
 
-def download_file_from_db(id, root_path='./'):
-    """ Download the file from the database.
+def download_file_from_db(id, root_path="./"):
+    """Download the file from the database.
 
     Args:
         id (string): The id of the file.
     """
     res = get_file(id, {"mongo": True})
 
-    with open(root_path + res['file_name'], 'wb') as f:
-        if res['file_name'].endswith('.xlsx'):
-            res['df'].to_excel(f, index=False, header=True)
-        elif res['file_name'].endswith('.csv'):
-            res['df'].to_csv(f, index=False, header=True)
-        elif res['file_name'].endswith('.fasta'):
-            res['file'] = SeqIO.to_dict(res['file'])
-            fasta_str = ''
-            for key, seq in res['file'].items():
-                fasta_str += f'>{key}\n{str(seq.seq)}\n'
-            f.write(fasta_str.encode('utf-8'))
+    with open(root_path + res["file_name"], "wb") as f:
+        if res["file_name"].endswith(".xlsx"):
+            res["df"].to_excel(f, index=False, header=True)
+        elif res["file_name"].endswith(".csv"):
+            res["df"].to_csv(f, index=False, header=True)
+        elif res["file_name"].endswith(".fasta"):
+            res["file"] = SeqIO.to_dict(res["file"])
+            fasta_str = ""
+            for key, seq in res["file"].items():
+                fasta_str += f">{key}\n{str(seq.seq)}\n"
+            f.write(fasta_str.encode("utf-8"))
 
 
 def parse_contents(content, file_name, date):
     res = {
-        'file_name': file_name,
-        'last_modified_date': date,
+        "file_name": file_name,
+        "last_modified_date": date,
     }
 
     try:
-        content_type, content_string = content.split(',')
+        content_type, content_string = content.split(",")
         decoded_content = base64.b64decode(content_string)
 
-        if content_type == 'data:text/csv;base64' or content_type == 'data:application/vnd.ms-excel;base64':
+        if (
+            content_type == "data:text/csv;base64" or content_type == "data:application/vnd.ms-excel;base64"
+        ):
             # Assume that the user uploaded a CSV file
-            res['df'] = pd.read_csv(io.StringIO(decoded_content.decode('utf-8')))
-            res['type'] = 'climatic'
-        elif 'xls' in file_name:
+            res["df"] = pd.read_csv(io.StringIO(decoded_content.decode("utf-8")))
+            res["type"] = "climatic"
+        elif "xls" in file_name:
             # Assume that the user uploaded an excel file
-            res['df'] = pd.read_excel(io.BytesIO(decoded_content))
-            res['type'] = 'climatic'
-        elif 'fasta' in file_name:
+            res["df"] = pd.read_excel(io.BytesIO(decoded_content))
+            res["type"] = "climatic"
+        elif "fasta" in file_name:
             # res['file'] = SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta')
-            res['file'] = files_ctrl.fasta_to_str(SeqIO.parse(io.StringIO(decoded_content.decode('utf-8')), 'fasta'))
-            res['type'] = 'genetic'
+            res["file"] = files_ctrl.fasta_to_str(
+                SeqIO.parse(io.StringIO(decoded_content.decode("utf-8")), "fasta")
+            )
+            res["type"] = "genetic"
         else:
-            res['error'] = True
+            res["error"] = True
 
         return res
     except Exception as e:
@@ -180,19 +186,30 @@ def parse_contents(content, file_name, date):
 
 
 def create_seq_html(file):
-    file_name = file['file_name']
+    file_name = file["file_name"]
 
-    if 'error' in file and file['error']:
-        return html.Div([
-            dcc.Markdown('Please upload a **fasta file**.'),
-        ])
+    if "error" in file and file["error"]:
+        return html.Div(
+            [
+                dcc.Markdown("Please upload a **fasta file**."),
+            ]
+        )
 
-    return html.Div([
-        dcc.Markdown('You have uploades file(s):  **{}**'.format(file_name)),
-    ])
+    return html.Div(
+        [
+            dcc.Markdown("You have uploaded file(s):  **{}**".format(file_name)),
+        ]
+    )
 
 
-def create_result(files_ids, result_type, climatic_params=None, genetic_params=None, name='result', status='pending'):
+def create_result(
+    files_ids,
+    result_type,
+    climatic_params=None,
+    genetic_params=None,
+    name="result",
+    status="pending",
+):
     """
     Creates a result in the database.
 
@@ -208,36 +225,32 @@ def create_result(files_ids, result_type, climatic_params=None, genetic_params=N
         The id of the created result.
     """
     try:
-        result = {
-            'name': name,
-            'status': status,
-            'result_type': result_type
-        }
+        result = {"name": name, "status": status, "result_type": result_type}
 
-        if 'climatic_files_id' in files_ids:
-            result['climatic_files_id'] = files_ids['climatic_files_id']
-        if 'climatic_tree_files_id' in files_ids:
-            result['climatic_tree_files_id'] = files_ids['climatic_tree_files_id']
-        if 'genetic_files_id' in files_ids:
-            result['genetic_files_id'] = files_ids['genetic_files_id']
-        if 'aligned_genetic_files_id' in files_ids:
-            result['aligned_genetic_files_id'] = files_ids['aligned_genetic_files_id']
-        if 'genetic_tree_files_id' in files_ids:
-            result['genetic_tree_files_id'] = files_ids['genetic_tree_files_id']
-        if genetic_params and 'genetic' in result_type:
-            result['genetic_params'] = genetic_params
-        if climatic_params and 'climatic' in result_type:
-            result['climatic_params'] = climatic_params
+        if "climatic_files_id" in files_ids:
+            result["climatic_files_id"] = files_ids["climatic_files_id"]
+        if "climatic_tree_files_id" in files_ids:
+            result["climatic_tree_files_id"] = files_ids["climatic_tree_files_id"]
+        if "genetic_files_id" in files_ids:
+            result["genetic_files_id"] = files_ids["genetic_files_id"]
+        if "aligned_genetic_files_id" in files_ids:
+            result["aligned_genetic_files_id"] = files_ids["aligned_genetic_files_id"]
+        if "genetic_tree_files_id" in files_ids:
+            result["genetic_tree_files_id"] = files_ids["genetic_tree_files_id"]
+        if genetic_params and "genetic" in result_type:
+            result["genetic_params"] = genetic_params
+        if climatic_params and "climatic" in result_type:
+            result["climatic_params"] = climatic_params
 
         return results_ctrl.create_result(result)
 
     except Exception as e:
-        print('[Error]:', e)
-        raise Exception('Error creating the result')
+        print("[Error]:", e)
+        raise Exception("Error creating the result")
 
 
-def create_climatic_trees(result_id, climatic_data, status='climatic_trees'):
-    """ Creates a climatic result.
+def create_climatic_trees(result_id, climatic_data, status="climatic_trees"):
+    """Creates a climatic result.
 
     Args:
         climatic_data: json object with the climatic data
@@ -251,22 +264,26 @@ def create_climatic_trees(result_id, climatic_data, status='climatic_trees'):
     try:
         df = pd.read_json(io.StringIO(climatic_data))
         climatic_trees = aPhyloGeo.climaticPipeline(df)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'climatic_trees': climatic_trees,
-            'status': status,
-        })
+        results_ctrl.update_result(
+            {
+                "_id": result_id,
+                "climatic_trees": climatic_trees,
+                "status": status,
+            }
+        )
         return climatic_trees
     except Exception as e:
-        print('[Error]:', e)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'status': 'error',
-        })
-        raise Exception('Error creating the climatic trees')
+        print("[Error]:", e)
+        results_ctrl.update_result(
+            {
+                "_id": result_id,
+                "status": "error",
+            }
+        )
+        raise Exception("Error creating the climatic trees")
 
 
-def create_alignement(result_id, genetic_data, status='alignement'):
+def create_alignement(result_id, genetic_data, status="alignement"):
     """
     Creates the alignement of the genetic data.
 
@@ -286,23 +303,23 @@ def create_alignement(result_id, genetic_data, status='alignement'):
         alignmentObject = AlignSequences(genetic_data).align()
         msaSet = alignmentObject.msa
 
-        results_ctrl.update_result({
-            '_id': result_id,
-            'msaSet': msaSet,
-            'status': status
-        })
+        results_ctrl.update_result(
+            {"_id": result_id, "msaSet": msaSet, "status": status}
+        )
 
         return msaSet
     except Exception as e:
-        print('[Error]:', e)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'status': 'error',
-        })
-        raise Exception('Error creating the alignement')
+        print("[Error]:", e)
+        results_ctrl.update_result(
+            {
+                "_id": result_id,
+                "status": "error",
+            }
+        )
+        raise Exception("Error creating the alignement")
 
 
-def create_genetic_trees(result_id, msaSet, status='genetic_trees'):
+def create_genetic_trees(result_id, msaSet, status="genetic_trees"):
     """
 
     Args:
@@ -315,19 +332,19 @@ def create_genetic_trees(result_id, msaSet, status='genetic_trees'):
     """
     try:
         genetic_trees = aPhyloGeo.geneticPipeline(msaSet)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'genetic_trees': genetic_trees,
-            'status': status
-        })
+        results_ctrl.update_result(
+            {"_id": result_id, "genetic_trees": genetic_trees, "status": status}
+        )
         return genetic_trees
     except Exception as e:
-        print('[Error]:', e)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'status': 'error',
-        })
-        raise Exception('Error creating the genetic trees')
+        print("[Error]:", e)
+        results_ctrl.update_result(
+            {
+                "_id": result_id,
+                "status": "error",
+            }
+        )
+        raise Exception("Error creating the genetic trees")
 
 
 def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
@@ -344,19 +361,21 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
 
     """
     try:
-        output = aPhyloGeo.filterResults(climatic_trees, genetic_trees, climatic_df, create_file=False)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'output': output,
-            'status': 'complete'
-        })
+        output = aPhyloGeo.filterResults(
+            climatic_trees, genetic_trees, climatic_df, create_file=False
+        )
+        results_ctrl.update_result(
+            {"_id": result_id, "output": output, "status": "complete"}
+        )
     except Exception as e:
-        print('[Error]:', e)
-        results_ctrl.update_result({
-            '_id': result_id,
-            'status': 'error',
-        })
-        raise Exception('Error creating the output')
+        print("[Error]:", e)
+        results_ctrl.update_result(
+            {
+                "_id": result_id,
+                "status": "error",
+            }
+        )
+        raise Exception("Error creating the output")
 
 
 def run_genetic_pipeline(result_id, climatic_data, genetic_data, climatic_trees):
@@ -378,12 +397,19 @@ def run_genetic_pipeline(result_id, climatic_data, genetic_data, climatic_trees)
 
     genetic_trees = create_genetic_trees(result_id, msaSet)
 
-    create_output(result_id, climatic_trees, genetic_trees, pd.read_json(io.StringIO(climatic_data)))
+    create_output(
+        result_id,
+        climatic_trees,
+        genetic_trees,
+        pd.read_json(io.StringIO(climatic_data)),
+    )
 
     return result_id
 
 
-def make_cookie(result_id, auth_cookie, response, name=COOKIE_NAME, max_age=COOKIE_MAX_AGE):
+def make_cookie(
+    result_id, auth_cookie, response, name=COOKIE_NAME, max_age=COOKIE_MAX_AGE
+):
     """
     Create a cookie with the result id
 
@@ -396,10 +422,10 @@ def make_cookie(result_id, auth_cookie, response, name=COOKIE_NAME, max_age=COOK
 
     """
     # If the "Auth" cookie exists, split the value into a list of IDs
-    auth_ids = [] if not auth_cookie else auth_cookie.split('.')
-    if result_id not in auth_ids and result_id != '':
+    auth_ids = [] if not auth_cookie else auth_cookie.split(".")
+    if result_id not in auth_ids and result_id != "":
         auth_ids.append(result_id)
 
     # Create the string format for the cookie
-    auth_cookie_value = '.'.join(auth_ids)
+    auth_cookie_value = ".".join(auth_ids)
     response.set_cookie(name, auth_cookie_value, max_age=max_age)

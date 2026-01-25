@@ -1,10 +1,10 @@
-from dotenv import load_dotenv, dotenv_values
-import dash_bootstrap_components as dbc
-from dash import html, callback, dcc
 import dash
-from flask import request
-from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 import utils.utils as utils
+from dash import callback, dcc, html
+from dash.dependencies import Input, Output
+from dotenv import dotenv_values, load_dotenv
+from flask import request
 
 load_dotenv()
 
@@ -12,33 +12,63 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
-dash.register_page(__name__, path_template='/results')
+dash.register_page(__name__, path_template="/results")
 
-NO_RESULTS_HTML = html.Div([
-    html.Div([
-        html.Div('You have no results yet. You can start a new job by going to the "Upload data" page', className="text"),
-        html.Div(className="img bg1"),
-    ], className="notification"),
-], className="empty-results")
+NO_RESULTS_HTML = html.Div(
+    [
+        html.Div(
+            [
+                html.Div(
+                    'You have no results yet. You can start a new job by going to the "Upload data" page',
+                    className="text",
+                ),
+                html.Div(className="img bg1"),
+            ],
+            className="notification",
+        ),
+    ],
+    className="empty-results",
+)
 
-PROGRESS = {'pending': 0, 'climatic_trees': 10, 'alignement': 66, 'genetic_trees': 90, 'complete': 100, 'error': 100}
+PROGRESS = {
+    "pending": 0,
+    "climatic_trees": 10,
+    "alignement": 66,
+    "genetic_trees": 90,
+    "complete": 100,
+    "error": 100,
+}
+
 
 def get_layout():
-    return html.Div([
-        dcc.Location(id="url"),  # This component is needed for URL change detection
-        html.Div([
-            html.Div(children=[
-                html.Div([
-                    html.Div('Results', className="title"),
-                    html.Div(id='results-list', className="results-row"),
-                ], className="results-container"),
-            ], className="results"),
-        ])
-    ])
+    return html.Div(
+        [
+            dcc.Location(id="url"),  # This component is needed for URL change detection
+            html.Div(
+                [
+                    html.Div(
+                        children=[
+                            html.Div(
+                                [
+                                    html.Div("Results", className="title"),
+                                    html.Div(
+                                        id="results-list", className="results-row"
+                                    ),
+                                ],
+                                className="results-container",
+                            ),
+                        ],
+                        className="results",
+                    ),
+                ]
+            ),
+        ]
+    )
+
 
 @callback(
-    Output('results-list', 'children'),
-    Input('url', 'pathname'),
+    Output("results-list", "children"),
+    Input("url", "pathname"),
 )
 def generate_result_list(path):
     """
@@ -48,7 +78,7 @@ def generate_result_list(path):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
-    if ENV_CONFIG['HOST'] == 'local':
+    if ENV_CONFIG["HOST"] == "local":
         results = utils.get_all_results()
         if not results:
             return NO_RESULTS_HTML
@@ -63,19 +93,22 @@ def generate_result_list(path):
     if not cookie:
         return NO_RESULTS_HTML
 
-    results_ids = cookie.split('.')
+    results_ids = cookie.split(".")
     results = utils.get_results(results_ids)
 
     if not results:
         return NO_RESULTS_HTML
 
     # Update the cookie with the new list of result IDs, if needed
-    new_cookie_ids = [str(result['_id']) for result in results]
+    new_cookie_ids = [str(result["_id"]) for result in results]
     response = dash.callback_context.response
     if response:
-        response.set_cookie(utils.COOKIE_NAME, '.'.join(new_cookie_ids), max_age=utils.COOKIE_MAX_AGE)
+        response.set_cookie(
+            utils.COOKIE_NAME, ".".join(new_cookie_ids), max_age=utils.COOKIE_MAX_AGE
+        )
 
     return [create_layout(result) for result in results]
+
 
 def create_layout(result):
     """
@@ -85,38 +118,72 @@ def create_layout(result):
     returns :
         layout : layout containing the result
     """
-    common_layout = html.Div([
-        html.Div([
-            html.Div('Name', className="label"),
-            html.Div(result['name'], className="data"),
-        ], className="nameContainer"),
-        html.Div([
-            html.Div('Progress', className="label"),
-            html.Div([
-                dbc.Progress(value=PROGRESS[result['status']], label='Error' if result['status'] == 'error' else None, color="danger" if result['status'] == 'error' else ""),
-            ], className='progressBar'),
-        ], className="progressContainer"),
-        html.Div([
-            html.A(
-                html.Img(src='/assets/icons/arrow-circle-right.svg', className="icon"),
-                href=f'/result/{result["_id"]}',
+    common_layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Div("Name", className="label"),
+                    html.Div(result["name"], className="data"),
+                ],
+                className="nameContainer",
             ),
-        ], className="arrowContainer"),
-    ], className="row")
+            html.Div(
+                [
+                    html.Div("Progress", className="label"),
+                    html.Div(
+                        [
+                            dbc.Progress(
+                                value=PROGRESS[result["status"]],
+                                label="Error" if result["status"] == "error" else None,
+                                color="danger" if result["status"] == "error" else "",
+                            ),
+                        ],
+                        className="progressBar",
+                    ),
+                ],
+                className="progressContainer",
+            ),
+            html.Div(
+                [
+                    html.A(
+                        html.Img(
+                            src="/assets/icons/arrow-circle-right.svg", className="icon"
+                        ),
+                        href=f'/result/{result["_id"]}',
+                    ),
+                ],
+                className="arrowContainer",
+            ),
+        ],
+        className="row",
+    )
 
-    if ENV_CONFIG['HOST'] == 'local':
+    if ENV_CONFIG["HOST"] == "local":
         return common_layout
     else:
-        return html.Div([
-            common_layout,
-            html.Div([
-                html.Div('Creation date', className="label"),
-                html.Div(result['created_at'].strftime("%Y/%m/%d"), className="data"),
-            ], className="creationDateContainer"),
-            html.Div([
-                html.Div('Expiration date', className="label"),
-                html.Div(result['expired_at'].strftime("%Y/%m/%d"), className="data"),
-            ], className="expirationDateContainer"),
-        ])
+        return html.Div(
+            [
+                common_layout,
+                html.Div(
+                    [
+                        html.Div("Creation date", className="label"),
+                        html.Div(
+                            result["created_at"].strftime("%Y/%m/%d"), className="data"
+                        ),
+                    ],
+                    className="creationDateContainer",
+                ),
+                html.Div(
+                    [
+                        html.Div("Expiration date", className="label"),
+                        html.Div(
+                            result["expired_at"].strftime("%Y/%m/%d"), className="data"
+                        ),
+                    ],
+                    className="expirationDateContainer",
+                ),
+            ]
+        )
+
 
 layout = get_layout()
