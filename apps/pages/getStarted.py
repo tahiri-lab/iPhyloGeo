@@ -95,7 +95,6 @@ layout = html.Div(
             data={
                 "window_size": genetic_setting_file["window_size"],
                 "step_size": genetic_setting_file["step_size"],
-                "bootstrap_amount": genetic_setting_file["bootstrap_amount"],
                 "bootstrap_threshold": genetic_setting_file["bootstrap_threshold"],
                 "dist_threshold": genetic_setting_file["dist_threshold"],
                 "alignment_method": genetic_setting_file["alignment_method"],
@@ -1074,8 +1073,9 @@ def submit_button(
         if ENV_CONFIG["HOST"] != "local":
             add_result_to_cookie(result_id)
 
-        # Prepare climatic trees
-        climatic_trees = utils.create_climatic_trees(result_id, climatic_file)
+        # Prepare climatic trees (pass selected column names to filter)
+        selected_columns = params_climatic.get("names") if params_climatic else None
+        climatic_trees = utils.create_climatic_trees(result_id, climatic_file, selected_columns)
 
         genetic_trees = None
 

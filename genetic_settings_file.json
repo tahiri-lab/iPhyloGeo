@@ -3,7 +3,6 @@
     "dist_threshold": 50,
     "window_size": 200,
     "step_size": 100,
-    "bootstrap_amount": 100,
     "alignment_method": "1",
     "distance_method": "1",
     "fit_method": "1",

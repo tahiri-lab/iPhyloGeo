@@ -249,12 +249,12 @@ def create_result(
         raise Exception("Error creating the result")
 
 
-def create_climatic_trees(result_id, climatic_data, status="climatic_trees"):
+def create_climatic_trees(result_id, climatic_data, selected_columns=None, status="climatic_trees"):
     """Creates a climatic result.
 
     Args:
         climatic_data: json object with the climatic data
-        climatic_params: json object with the climatic parameters
+        selected_columns: list of column names to analyze (optional, if None all columns are used)
         status (str, optional): The status of the result. Defaults to 'climatic_trees'.
 
     Returns:
@@ -263,6 +263,13 @@ def create_climatic_trees(result_id, climatic_data, status="climatic_trees"):
     """
     try:
         df = pd.read_json(io.StringIO(climatic_data))
+        
+        # Filter DataFrame to only include selected columns
+        if selected_columns is not None and len(selected_columns) > 0:
+            # Ensure the first column (specimen ID) is always included
+            columns_to_keep = [df.columns[0]] + [c for c in selected_columns if c in df.columns and c != df.columns[0]]
+            df = df[columns_to_keep]
+        
         climatic_trees = aPhyloGeo.climaticPipeline(df)
         results_ctrl.update_result(
             {
@@ -273,7 +280,7 @@ def create_climatic_trees(result_id, climatic_data, status="climatic_trees"):
         )
         return climatic_trees
     except Exception as e:
-        print("[Error]:", e)
+        print("[Error in create_climatic_trees]:", e)
         results_ctrl.update_result(
             {
                 "_id": result_id,
@@ -309,7 +316,7 @@ def create_alignement(result_id, genetic_data, status="alignement"):
 
         return msaSet
     except Exception as e:
-        print("[Error]:", e)
+        print("[Error in create_alignement]:", e)
         results_ctrl.update_result(
             {
                 "_id": result_id,
@@ -337,7 +344,7 @@ def create_genetic_trees(result_id, msaSet, status="genetic_trees"):
         )
         return genetic_trees
     except Exception as e:
-        print("[Error]:", e)
+        print("[Error in create_genetic_trees]:", e)
         results_ctrl.update_result(
             {
                 "_id": result_id,
@@ -361,14 +368,16 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
 
     """
     try:
-        output = aPhyloGeo.filterResults(
+        output_list = aPhyloGeo.filterResults(
             climatic_trees, genetic_trees, climatic_df, create_file=False
         )
+        # Convert list to dictionary format for MongoDB (expects object, not array)
+        output = aPhyloGeo.format_to_csv(output_list)
         results_ctrl.update_result(
             {"_id": result_id, "output": output, "status": "complete"}
         )
     except Exception as e:
-        print("[Error]:", e)
+        print("[Error in create_output]:", e)
         results_ctrl.update_result(
             {
                 "_id": result_id,
