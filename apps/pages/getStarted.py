@@ -118,17 +118,6 @@ layout = html.Div(
                         html.Div(id="climatic-params-layout"),
                         html.Div(id="genetic-params-layout"),
                         html.Div(id="submit-button"),
-                        html.Div(
-                            [
-                                dcc.Input(
-                                    id="email-input",
-                                    type="email",
-                                    placeholder="Enter your email...",
-                                ),
-                                html.Button("Send Email", id="send-email-button"),
-                            ],
-                            className="email-container",
-                        ),
                     ],
                     id="params-sections",
                 ),
@@ -145,7 +134,7 @@ layout = html.Div(
     prevent_initial_call=True,
 )
 def send_email_callback(n_clicks, email):
-    if n_clicks > 0 and email:
+    if n_clicks is not None and email:
         subject = "Your results are on the way!"
         content = "Your results are ready. Please check the attachment or follow the link to view them."
         from_email = "iphylogeo@gmail.com"
