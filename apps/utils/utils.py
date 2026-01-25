@@ -197,7 +197,7 @@ def create_seq_html(file):
 
     return html.Div(
         [
-            dcc.Markdown("You have uploades file(s):  **{}**".format(file_name)),
+            dcc.Markdown("You have uploaded file(s):  **{}**".format(file_name)),
         ]
     )
 
