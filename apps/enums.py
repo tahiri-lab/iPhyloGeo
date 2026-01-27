@@ -87,7 +87,7 @@ class TreeType(BaseEnum):
         """Return list of choices for Dash dropdown with descriptive labels."""
         labels = {
             "BioPython": "BioPython consensus tree",
-            "FastTree": "FastTree application",
+            "Fast Tree": "FastTree application",
         }
         return [{"label": labels.get(e.value, e.value), "value": e.value} for e in cls]
 
@@ -125,7 +125,7 @@ def convert_settings_to_codes(settings: dict) -> dict:
     Convert readable enum values to numeric codes for aphylogeo.
 
     Args:
-        settings: Dict with readable values like {"alignment_method": "PairwiseAligner"}
+        settings: Dict with readable values like {"alignment_method": "PairwiseAlign"}
 
     Returns:
         Dict with numeric codes like {"alignment_method": "1"}

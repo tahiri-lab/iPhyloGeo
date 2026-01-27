@@ -3,7 +3,7 @@
     "dist_threshold": 50,
     "window_size": 200,
     "step_size": 100,
-    "alignment_method": "PairwiseAligner",
+    "alignment_method": "PairwiseAlign",
     "distance_method": "LeastSquare",
     "fit_method": "WiderFit",
     "tree_type": "BioPython",
