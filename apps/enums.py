@@ -34,7 +34,7 @@ class AlignmentMethod(BaseEnum):
     """Methods available for sequence alignment."""
 
     NO_ALIGNMENT = ("NoAlignment", "0")
-    PAIRWISE_ALIGNER = ("PairwiseAligner", "1")
+    PAIRWISE_ALIGN = ("PairwiseAlign", "1")
     MUSCLE = ("MUSCLE", "2")
     CLUSTALW = ("CLUSTALW", "3")
     MAFFT = ("MAFFT", "4")
@@ -80,7 +80,7 @@ class TreeType(BaseEnum):
     """Types of phylogenetic tree construction."""
 
     BIOPYTHON = ("BioPython", "1")
-    FASTTREE = ("FastTree", "2")
+    FASTTREE = ("Fast Tree", "2")
 
     @classmethod
     def choices(cls):

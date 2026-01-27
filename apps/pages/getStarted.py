@@ -49,10 +49,6 @@ EXCEL_REGEX = re.compile(r".*\.xls[x]?$")
 FASTA_REGEX = re.compile(r".*\.fasta$")
 JSON_REGEX = re.compile(r".*\.json")
 
-# Load genetic settings from genetic settings file (YAML)
-genetic_setting_file = json.load(open("genetic_settings_file.json", "r"))
-Params.update_from_dict(convert_settings_to_codes(genetic_setting_file))
-
 layout = html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
@@ -1113,6 +1109,7 @@ def submit_button(
 
 
 @callback(
+    Output("action", "children"),
     Input("current-result-id", "data"),
     Input("email-store", "data"),
     prevent_initial_call=True,
@@ -1122,6 +1119,6 @@ def send_results_email_final(result_id, email):
     Send email when both result_id (pipeline finished) and email (user input) are available.
     """
     if result_id and email:
-        print(f"[DEBUG] Sending results email to {email} for result {result_id}")
         results_url = f"/result/{result_id}"
         mail.send_results_ready_email(email, results_url)
+    return dash.no_update
