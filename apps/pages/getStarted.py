@@ -3,12 +3,12 @@ import io
 import json
 import os
 import re
-import utils.mail as mail
 
 import dash
 import dash_bootstrap_components as dbc
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
+from enums import convert_settings_to_codes
 import pages.upload.climatic.paramsClimatic as paramsClimatic
 import pages.upload.dropFileSection as dropFileSection
 import pages.upload.genetic.paramsGenetic as paramsGenetic
@@ -16,6 +16,7 @@ import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
 import pages.utils.popupDone as popupDone
 import pandas as pd
+import utils.mail as mail
 import utils.utils as utils
 from aphylogeo.alignement import Alignment
 from aphylogeo.genetic_trees import GeneticTrees
@@ -29,8 +30,6 @@ from flask import request
 # Load genetic settings from genetic settings file (YAML)
 genetic_setting_file = json.load(open("genetic_settings_file.json", "r"))
 
-# Import enum converter to convert readable names to numeric codes for aphylogeo
-from enums import convert_settings_to_codes
 
 # Update Params for aPhyloGeo (convert readable names to codes)
 Params.update_from_dict(convert_settings_to_codes(genetic_setting_file))
@@ -129,8 +128,6 @@ layout = html.Div(
         ),
     ]
 )
-
-
 
 
 # Callback to save email address when user clicks "Send Email" in popup
@@ -873,9 +870,10 @@ def parse_uploaded_files(content, file_name):
         content_type, content_string = content.split(",")
         decoded_content = base64.b64decode(content_string)
 
-        if (
-            content_type == "data:text/csv;base64" or content_type == "data:application/vnd.ms-excel;base64"
-        ):
+        if content_type in [
+            "data:text/csv;base64",
+            "data:application/vnd.ms-excel;base64",
+        ]:
             # Assume that the user uploaded a CSV file (climatic data)
             results["type"] = "csv"
             results["dataframe"] = pd.read_csv(
@@ -1000,9 +998,6 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
     return "popup", "", "", True
 
 
-
-
-
 @callback(
     Output("popupDone", "className"),
     Output("current-result-id", "data"),
@@ -1057,7 +1052,9 @@ def submit_button(
 
         # Prepare climatic trees (pass selected column names to filter)
         selected_columns = params_climatic.get("names") if params_climatic else None
-        climatic_trees = utils.create_climatic_trees(result_id, climatic_file, selected_columns)
+        climatic_trees = utils.create_climatic_trees(
+            result_id, climatic_file, selected_columns
+        )
 
         genetic_trees = None
 
@@ -1113,6 +1110,8 @@ def submit_button(
     except Exception as e:
         print("[Error]:", e)
         return "popup", None
+
+
 @callback(
     Input("current-result-id", "data"),
     Input("email-store", "data"),

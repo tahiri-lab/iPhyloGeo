@@ -1,7 +1,6 @@
 import json
 import math
 import re
-import utils.mail as mail
 from io import StringIO
 
 import dash
@@ -9,20 +8,15 @@ import dash_cytoscape as cyto
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import utils.mail as mail
 import utils.utils as utils
 from Bio import Phylo
-from dash import (ClientsideFunction, callback,
-                  clientside_callback, dash_table, dcc, html)
+from dash import (ClientsideFunction, callback, clientside_callback,
+                  dash_table, dcc, html)
 from dash.dependencies import Input, Output, State
 from db.controllers.files import str_csv_to_df
-from dotenv import dotenv_values
 from flask import request
 from plotly.subplots import make_subplots
-
-
-
-
-
 
 dash.register_page(__name__, path_template="/result/<result_id>")
 
@@ -168,9 +162,6 @@ def handle_submit_click(pathname, n_clicks, user_email):
         else:
             return None, "Error sending email."
     return None, ""
-
-
-
 
 
 # The rest of your callback functions and definitions follow

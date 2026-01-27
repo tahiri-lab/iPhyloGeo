@@ -5,14 +5,8 @@ import dash_bootstrap_components as dbc
 from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
-
-from enums import (
-    AlignmentMethod,
-    DistanceMethod,
-    FitMethod,
-    TreeType,
-    SimilarityMethod,
-)
+from enums import (AlignmentMethod, DistanceMethod, FitMethod,
+                   SimilarityMethod, TreeType)
 
 dash.register_page(__name__, path="/settings")
 
@@ -152,7 +146,6 @@ layout = html.Div(
                                     ),
                                     width=4,
                                 ),
-
                                 dbc.Col(
                                     dbc.Form(
                                         [
@@ -299,7 +292,6 @@ def get_default_settings():
         "dist_threshold": DISTANCE_THRESHOLD_DEFAULT,
         "window_size": WINDOW_SIZE_DEFAULT,
         "step_size": STEP_SIZE_DEFAULT,
-
         "alignment_method": ALIGNMENT_METHOD_DEFAULT,
         "distance_method": DISTANCE_METHOD_DEFAULT,
         "fit_method": FIT_METHOD_DEFAULT,
@@ -315,7 +307,6 @@ def get_default_settings():
     Output("distance-threshold", "value"),
     Output("input-window-size", "value"),
     Output("input-step-size", "value"),
-
     Output("alignment-method", "value"),
     Output("distance-method", "value"),
     Output("fit-method", "value"),
@@ -330,7 +321,6 @@ def update_settings(settings):
         settings["dist_threshold"],
         settings["window_size"],
         settings["step_size"],
-
         settings["alignment_method"],
         settings["distance_method"],
         settings["fit_method"],
@@ -349,7 +339,6 @@ def update_settings(settings):
     State("distance-threshold", "value"),
     State("input-window-size", "value"),
     State("input-step-size", "value"),
-
     State("alignment-method", "value"),
     State("distance-method", "value"),
     State("fit-method", "value"),
@@ -364,7 +353,6 @@ def update_parameters(
     dist_threshold,
     window_size,
     step_size,
-
     alignment_method,
     distance_method,
     fit_method,
@@ -388,7 +376,6 @@ def update_parameters(
             "dist_threshold": dist_threshold,
             "window_size": window_size,
             "step_size": step_size,
-
             "alignment_method": alignment_method,
             "distance_method": distance_method,
             "fit_method": fit_method,

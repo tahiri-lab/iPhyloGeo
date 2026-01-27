@@ -2,11 +2,13 @@
 Email utility to send notifications to users.
 Shared component used by getStarted.py (pipeline start) and result.py (results view).
 """
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from dotenv import dotenv_values
+
 from assets.logo_base64 import LOGO_BASE64
+from dotenv import dotenv_values
 
 # Load environment configuration
 ENV_CONFIG = dotenv_values()
@@ -17,7 +19,7 @@ EMAIL_PASSWORD = ENV_CONFIG.get("EMAIL_PASSWORD", "rogo lqhi fldu mwml")
 def send_email(subject, content, user_email):
     """
     Send an email using Gmail SMTP.
-    
+
     Args:
         subject (str): Email subject
         content (str): Email content (HTML)
@@ -50,7 +52,7 @@ def send_email(subject, content, user_email):
 def get_results_email_template(results_url):
     """
     Generate the HTML content for the results email.
-    
+
     Args:
         results_url (str): The URL path to the results (e.g., "/result/123")
     """
@@ -140,7 +142,7 @@ def get_results_email_template(results_url):
 def send_results_ready_email(user_email, results_url):
     """
     Send the standard 'Results Ready' email to the user.
-    
+
     Args:
         user_email (str): Recipient email
         results_url (str): URL to the results page

@@ -3,23 +3,24 @@ Enums for genetic pipeline settings.
 These are used in settings.py, getStarted.py, and stored in the database.
 Each enum has a 'value' (readable name for DB) and 'code' (numeric code for aphylogeo).
 """
+
 from enum import Enum
 
 
 class BaseEnum(str, Enum):
     """Base class for enums with code support."""
-    
+
     def __new__(cls, value: str, code: str):
         obj = str.__new__(cls, value)
         obj._value_ = value
         obj.code = code
         return obj
-    
+
     @classmethod
     def choices(cls):
         """Return list of choices for Dash dropdown."""
         return [{"label": e.value, "value": e.value} for e in cls]
-    
+
     @classmethod
     def get_code(cls, value: str) -> str:
         """Get the numeric code for a given value."""
@@ -31,6 +32,7 @@ class BaseEnum(str, Enum):
 
 class AlignmentMethod(BaseEnum):
     """Methods available for sequence alignment."""
+
     NO_ALIGNMENT = ("NoAlignment", "0")
     PAIRWISE_ALIGNER = ("PairwiseAligner", "1")
     MUSCLE = ("MUSCLE", "2")
@@ -40,6 +42,7 @@ class AlignmentMethod(BaseEnum):
 
 class DistanceMethod(BaseEnum):
     """Methods available for tree distance calculation."""
+
     ALL = ("All", "0")
     LEAST_SQUARE = ("LeastSquare", "1")
     ROBINSON_FOULDS = ("RobinsonFoulds", "2")
@@ -59,6 +62,7 @@ class DistanceMethod(BaseEnum):
 
 class FitMethod(BaseEnum):
     """Methods available for alignment fitting."""
+
     WIDER_FIT = ("WiderFit", "1")
     NARROW_FIT = ("NarrowFit", "2")
 
@@ -74,6 +78,7 @@ class FitMethod(BaseEnum):
 
 class TreeType(BaseEnum):
     """Types of phylogenetic tree construction."""
+
     BIOPYTHON = ("BioPython", "1")
     FASTTREE = ("FastTree", "2")
 
@@ -89,6 +94,7 @@ class TreeType(BaseEnum):
 
 class SimilarityMethod(BaseEnum):
     """Methods available for sequence similarity calculation."""
+
     HAMMING = ("Hamming", "1")
     LEVENSHTEIN = ("Levenshtein", "2")
     DAMERAU_LEVENSHTEIN = ("DamerauLevenshtein", "3")
@@ -117,10 +123,10 @@ class SimilarityMethod(BaseEnum):
 def convert_settings_to_codes(settings: dict) -> dict:
     """
     Convert readable enum values to numeric codes for aphylogeo.
-    
+
     Args:
         settings: Dict with readable values like {"alignment_method": "PairwiseAligner"}
-    
+
     Returns:
         Dict with numeric codes like {"alignment_method": "1"}
     """
@@ -131,10 +137,10 @@ def convert_settings_to_codes(settings: dict) -> dict:
         "tree_type": TreeType,
         "method_similarity": SimilarityMethod,
     }
-    
+
     result = settings.copy()
     for key, enum_class in mapping.items():
         if key in result:
             result[key] = enum_class.get_code(result[key])
-    
+
     return result

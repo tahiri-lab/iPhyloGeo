@@ -249,7 +249,9 @@ def create_result(
         raise Exception("Error creating the result")
 
 
-def create_climatic_trees(result_id, climatic_data, selected_columns=None, status="climatic_trees"):
+def create_climatic_trees(
+    result_id, climatic_data, selected_columns=None, status="climatic_trees"
+):
     """Creates a climatic result.
 
     Args:
@@ -263,13 +265,15 @@ def create_climatic_trees(result_id, climatic_data, selected_columns=None, statu
     """
     try:
         df = pd.read_json(io.StringIO(climatic_data))
-        
+
         # Filter DataFrame to only include selected columns
         if selected_columns is not None and len(selected_columns) > 0:
             # Ensure the first column (specimen ID) is always included
-            columns_to_keep = [df.columns[0]] + [c for c in selected_columns if c in df.columns and c != df.columns[0]]
+            columns_to_keep = [df.columns[0]] + [
+                c for c in selected_columns if c in df.columns and c != df.columns[0]
+            ]
             df = df[columns_to_keep]
-        
+
         climatic_trees = aPhyloGeo.climaticPipeline(df)
         results_ctrl.update_result(
             {
