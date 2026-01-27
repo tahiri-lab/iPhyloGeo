@@ -49,6 +49,7 @@ EXCEL_REGEX = re.compile(r".*\.xls[x]?$")
 FASTA_REGEX = re.compile(r".*\.fasta$")
 JSON_REGEX = re.compile(r".*\.json")
 
+
 layout = html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
