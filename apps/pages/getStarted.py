@@ -3,9 +3,7 @@ import io
 import json
 import os
 import re
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import utils.mail as mail
 
 import dash
 import dash_bootstrap_components as dbc
@@ -108,6 +106,10 @@ layout = html.Div(
                 "method_similarity": genetic_setting_file["method_similarity"],
             },
         ),
+        # Store to save email address entered in popup
+        dcc.Store(id="email-store", storage_type="session", data=None),
+        # Store to save current result id
+        dcc.Store(id="current-result-id", storage_type="session", data=None),
         html.Div(id="action"),
         html.Div(
             className="get-started",
@@ -129,21 +131,21 @@ layout = html.Div(
 )
 
 
+
+
+# Callback to save email address when user clicks "Send Email" in popup
 @callback(
-    Output("send-email-button", "n_clicks"),
+    Output("email-store", "data"),
     Input("send-email-button", "n_clicks"),
     State("email-input", "value"),
     prevent_initial_call=True,
 )
-def send_email_callback(n_clicks, email):
-    if n_clicks is not None and n_clicks > 0 and email:
-        subject = "Your results are on the way!"
-        content = "Your results are ready. Please check the attachment or follow the link to view them."
-        from_email = "iphylogeo@gmail.com"
-        from_password = "rogo lqhi fldu mwml"
-        send_email(subject, content, email, from_email, from_password)
-        return 0  # Reset the button click count to prevent multiple sends
-    return n_clicks
+def save_email_to_store(n_clicks, email):
+    """Save email address to store when user clicks Send Email button."""
+    if n_clicks and n_clicks > 0 and email:
+        print(f"[DEBUG] Email saved to store: {email}")
+        return email
+    return None
 
 
 @callback(
@@ -998,47 +1000,24 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
     return "popup", "", "", True
 
 
-def send_email(subject, content, user_email, from_email, from_password):
-    try:
-        # Crear el mensaje
-        message = MIMEMultipart("alternative")
-        message["From"] = from_email
-        message["To"] = user_email
-        message["Subject"] = subject
 
-        # Cuerpo del mensaje en HTML
-        html_content = MIMEText(content, "html", "UTF-8")
-        message.attach(html_content)
-
-        my_message = message.as_string()
-
-        # Establecer conexión con el servidor SMTP
-        email_session = smtplib.SMTP("smtp.gmail.com", 587)
-        email_session.starttls()
-        email_session.login(from_email, from_password)
-        email_session.sendmail(from_email, user_email, my_message)
-        email_session.quit()
-        print("Email was sent successfully.")
-    except Exception as e:
-        print(f"Error: {e}")
-        print("Unable to send email")
 
 
 @callback(
     Output("popupDone", "className"),
+    Output("current-result-id", "data"),
     Input("ready-for-pipeline", "data"),
     State("input-data", "data"),
     State("params-climatic", "data"),
     State("params-genetic", "data"),
     State("input-dataset", "value"),
-    State("email-input", "value"),
     prevent_initial_call=True,
 )
 def submit_button(
-    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name, email
+    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name
 ):
     if ready_for_pipeline is False:
-        return "popup hidden"
+        return "popup hidden", None
 
     climatic_file = input_data["climatic"]["file"]
 
@@ -1093,6 +1072,7 @@ def submit_button(
             utils.run_genetic_pipeline(
                 result_id, climatic_file, genetic_file, climatic_trees
             )
+            print("[DEBUG] run_genetic_pipeline completed")
         elif aligned_genetic_file is not None:
 
             loaded_seq_alignment = Alignment.from_json_string(aligned_genetic_file)
@@ -1129,17 +1109,20 @@ def submit_button(
                 pd.read_json(io.StringIO(climatic_file)),
             )
 
-        # Enviar el correo cuando los resultados estén listos
-        if email:
-            subject = "Your results are ready"
-            content = (
-                "Your results are now ready. You can view them at the following link: "
-            )
-            send_email(
-                subject, content, email, "iphylogeo@gmail.com", "rogo lqhi fldu mwml"
-            )
-
-        return "popup"
+        return "popup", result_id
     except Exception as e:
         print("[Error]:", e)
-        return "popup"
+        return "popup", None
+@callback(
+    Input("current-result-id", "data"),
+    Input("email-store", "data"),
+    prevent_initial_call=True,
+)
+def send_results_email_final(result_id, email):
+    """
+    Send email when both result_id (pipeline finished) and email (user input) are available.
+    """
+    if result_id and email:
+        print(f"[DEBUG] Sending results email to {email} for result {result_id}")
+        results_url = f"/result/{result_id}"
+        mail.send_results_ready_email(email, results_url)
