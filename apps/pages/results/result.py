@@ -1,9 +1,6 @@
 import json
 import math
 import re
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from io import StringIO
 
 import dash
@@ -11,20 +8,15 @@ import dash_cytoscape as cyto
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import utils.mail as mail
 import utils.utils as utils
 from Bio import Phylo
-from dash import (ClientsideFunction, callback,
-                  clientside_callback, dash_table, dcc, html)
+from dash import (ClientsideFunction, callback, clientside_callback,
+                  dash_table, dcc, html)
 from dash.dependencies import Input, Output, State
 from db.controllers.files import str_csv_to_df
-from dotenv import dotenv_values
 from flask import request
 from plotly.subplots import make_subplots
-
-ENV_CONFIG = {}
-for key, value in dotenv_values().items():
-    ENV_CONFIG[key] = value
-
 
 dash.register_page(__name__, path_template="/result/<result_id>")
 
@@ -161,134 +153,12 @@ layout.children.append(bottom_email_div)
 )
 def handle_submit_click(pathname, n_clicks, user_email):
     if n_clicks and n_clicks > 0 and user_email:
-        # Collect URL
-        url = pathname
         # Send URL in email message
-        subject = "Process finished"
-        # dummy password for now since we are not actually using it
-        password = "dummy password"
-        content = f"""
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #e3e3e3;
-        }}
-        .container {{
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-        }}
-        .header {{
-            text-align: center;
-            background-color: #f8f8f8;
-            padding: 10px;
-        }}
-        .header img {{
-            width: 250px;
-            height: auto;
-        }}
-        .title {{
-            text-align: center;
-            font-size: 24px;
-            margin: 20px 0;
-        }}
-        .content {{
-            text-align: center;
-            font-size: 16px;
-            line-height: 1.5;
-            color: #333333;
-        }}
-        .button-container {{
-            text-align: center;
-            margin: 20px 0;
-        }}
-        .button {{
-            display: inline-block;
-            background-color: #007c58;
-            color: #ffffff !important;
-            padding: 15px 30px;
-            text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }}
-        .button:hover {{
-            background-color: #27BF93;
-        }}
-        .selection {{
-            text-align: center;
-            margin: 20px 0;
-        }}
-        .selection img {{
-            width: 100px;
-            margin: 10px;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img src="https://drive.google.com/uc?export=view&id=1AId3aHKe72XF7GQy7xtDebE8CERUH0-t" alt="Logo">
-        </div>
-        <div class="title">
-            Process finished
-        </div>
-        <div class="content">
-            <p>Results are ready! </p>
-            <p>Follow the link below to access the results of your computation (the data will be available for 7 days from now): </p>
-        </div>
-        <div class="button-container">
-            <a href="http://localhost:8050{url}" class="button">RESULTS</a>
-        </div>
-        <div class="selection">
-    </div>
-</body>
-</html>
-"""
-        # Call send_alarm_email function with URL
-        send_alarm_email(
-            subject,
-            content,
-            user_email,
-            ENV_CONFIG.get("EMAIL_USER", "iphylogeo@gmail.com"),
-            password,
-        )
-        return None, "Email sent successfully!"
+        if mail.send_results_ready_email(user_email, pathname):
+            return None, "Email sent successfully!"
+        else:
+            return None, "Error sending email."
     return None, ""
-
-
-def send_alarm_email(subject, content, user_email, from_email, from_password):
-    try:
-        # Crear el mensaje
-        message = MIMEMultipart("alternative")
-        message["From"] = from_email
-        message["To"] = user_email
-        message["Subject"] = subject
-
-        # Cuerpo del mensaje en HTML
-        html_content = MIMEText(content, "html", "UTF-8")
-        message.attach(html_content)
-
-        my_message = message.as_string()
-
-        # Establecer conexión con el servidor SMTP
-        email_session = smtplib.SMTP("smtp.gmail.com", 587)
-        email_session.starttls()
-        email_session.login(from_email, from_password)
-        email_session.sendmail(from_email, user_email, my_message)
-        email_session.quit()
-    except Exception as e:
-        print(f"Error: {e}")
-        print("Unable to send email")
 
 
 # The rest of your callback functions and definitions follow

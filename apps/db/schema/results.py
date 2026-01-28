@@ -55,25 +55,37 @@ schema_results = {
             },
             "genetic_params": {
                 "bsonType": "object",
-                "required": ["bootstrap_amount"],
+                "additionalProperties": True,
                 "properties": {
-                    "bootstrap_amount": {
-                        "bsonType": ["int", "double"],
-                    },
                     "bootstrap_threshold": {
                         "bsonType": ["int", "double"],
                     },
-                    "input_step_size_container": {
+                    "dist_threshold": {
                         "bsonType": ["int", "double"],
                     },
-                    "ls_threshold": {
+                    "window_size": {
                         "bsonType": ["int", "double"],
                     },
                     "step_size": {
                         "bsonType": ["int", "double"],
                     },
-                    "window_size": {
+                    "alignment_method": {
+                        "bsonType": "string",
+                    },
+                    "distance_method": {
+                        "bsonType": "string",
+                    },
+                    "fit_method": {
+                        "bsonType": "string",
+                    },
+                    "tree_type": {
+                        "bsonType": "string",
+                    },
+                    "rate_similarity": {
                         "bsonType": ["int", "double"],
+                    },
+                    "method_similarity": {
+                        "bsonType": "string",
                     },
                 },
             },

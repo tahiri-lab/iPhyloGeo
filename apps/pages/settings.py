@@ -5,6 +5,8 @@ import dash_bootstrap_components as dbc
 from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
+from enums import (AlignmentMethod, DistanceMethod, FitMethod,
+                   SimilarityMethod, TreeType)
 
 dash.register_page(__name__, path="/settings")
 
@@ -13,8 +15,7 @@ BOOTSTRAP_THRESHOLD_MIN = 0
 BOOTSTRAP_THRESHOLD_MAX = 100
 DISTANCE_THRESHOLD_MIN = 0
 DISTANCE_THRESHOLD_MAX = 100
-BOOTSTRAP_AMOUNT_MIN = 0
-BOOTSTRAP_AMOUNT_MAX = 100
+
 WINDOW_SIZE_MIN = 1
 WINDOW_SIZE_MAX = 1000
 STEP_SIZE_MIN = 1
@@ -25,15 +26,15 @@ RATE_SIMILARITY_MAX = 100
 # Default values for settings
 BOOTSTRAP_THRESHOLD_DEFAULT = 10
 DISTANCE_THRESHOLD_DEFAULT = 50
-BOOTSTRAP_AMOUNT_DEFAULT = 100
+
 WINDOW_SIZE_DEFAULT = 200
 STEP_SIZE_DEFAULT = 100
-ALIGNMENT_METHOD_DEFAULT = "1"
-DISTANCE_METHOD_DEFAULT = "1"
-FIT_METHOD_DEFAULT = "1"
-TREE_TYPE_DEFAULT = "1"
+ALIGNMENT_METHOD_DEFAULT = AlignmentMethod.PAIRWISE_ALIGN.value
+DISTANCE_METHOD_DEFAULT = DistanceMethod.LEAST_SQUARE.value
+FIT_METHOD_DEFAULT = FitMethod.WIDER_FIT.value
+TREE_TYPE_DEFAULT = TreeType.BIOPYTHON.value
 RATE_SIMILARITY_DEFAULT = 90
-METHOD_SIMILARITY_DEFAULT = "1"
+METHOD_SIMILARITY_DEFAULT = SimilarityMethod.HAMMING.value
 
 # Load the genetic settings file
 with open("genetic_settings_file.json", "r") as file:
@@ -148,24 +149,6 @@ layout = html.Div(
                                 dbc.Col(
                                     dbc.Form(
                                         [
-                                            dbc.Label("Bootstrap amount"),
-                                            dcc.Input(
-                                                id="bootstrap-amount",
-                                                type="number",
-                                                min=BOOTSTRAP_AMOUNT_MIN,
-                                                max=BOOTSTRAP_AMOUNT_MAX,
-                                                value=genetic_settings_file[
-                                                    "bootstrap_amount"
-                                                ],
-                                                className="form-control",
-                                            ),
-                                        ]
-                                    ),
-                                    width=4,
-                                ),
-                                dbc.Col(
-                                    dbc.Form(
-                                        [
                                             dbc.Label("Similarity rate"),
                                             dcc.Input(
                                                 id="rate-similarity",
@@ -198,15 +181,7 @@ layout = html.Div(
                                             dbc.Label("Alignment method"),
                                             dcc.Dropdown(
                                                 id="alignment-method",
-                                                options=[
-                                                    {
-                                                        "label": "PairwiseAlign",
-                                                        "value": "1",
-                                                    },
-                                                    {"label": "MUSCLE", "value": "2"},
-                                                    {"label": "ClustalW", "value": "3"},
-                                                    {"label": "MAFFT", "value": "4"},
-                                                ],
+                                                options=AlignmentMethod.choices(),
                                                 value=ALIGNMENT_METHOD_DEFAULT,
                                                 className="form-control",
                                             ),
@@ -220,24 +195,7 @@ layout = html.Div(
                                             dbc.Label("Distance method"),
                                             dcc.Dropdown(
                                                 id="distance-method",
-                                                options=[
-                                                    {
-                                                        "label": "All distance method",
-                                                        "value": "0",
-                                                    },
-                                                    {
-                                                        "label": "Least Square",
-                                                        "value": "1",
-                                                    },
-                                                    {
-                                                        "label": "Robinson-Foulds (RF)",
-                                                        "value": "2",
-                                                    },
-                                                    {
-                                                        "label": "Bipartition (Dendropy)",
-                                                        "value": "3",
-                                                    },
-                                                ],
+                                                options=DistanceMethod.choices(),
                                                 value=DISTANCE_METHOD_DEFAULT,
                                                 className="form-control",
                                             ),
@@ -251,16 +209,7 @@ layout = html.Div(
                                             dbc.Label("Fit method"),
                                             dcc.Dropdown(
                                                 id="fit-method",
-                                                options=[
-                                                    {
-                                                        "label": "Wider Fit by elongating with Gap (starAlignment)",
-                                                        "value": "1",
-                                                    },
-                                                    {
-                                                        "label": "Narrow-fit prevent elongation with gap when possible",
-                                                        "value": "2",
-                                                    },
-                                                ],
+                                                options=FitMethod.choices(),
                                                 value=FIT_METHOD_DEFAULT,
                                                 className="form-control",
                                             ),
@@ -285,16 +234,7 @@ layout = html.Div(
                                             dbc.Label("Tree type"),
                                             dcc.Dropdown(
                                                 id="tree-type",
-                                                options=[
-                                                    {
-                                                        "label": "Biopython consensus tree",
-                                                        "value": "1",
-                                                    },
-                                                    {
-                                                        "label": "Fast Tree Application",
-                                                        "value": "2",
-                                                    },
-                                                ],
+                                                options=TreeType.choices(),
                                                 value=TREE_TYPE_DEFAULT,
                                                 className="form-control",
                                             ),
@@ -308,40 +248,7 @@ layout = html.Div(
                                             dbc.Label("Similarity method"),
                                             dcc.Dropdown(
                                                 id="method-similarity",
-                                                options=[
-                                                    {
-                                                        "label": "Hamming distance",
-                                                        "value": "1",
-                                                    },
-                                                    {
-                                                        "label": "Levenshtein distance",
-                                                        "value": "2",
-                                                    },
-                                                    {
-                                                        "label": "Damerau-Levenshtein distance",
-                                                        "value": "3",
-                                                    },
-                                                    {
-                                                        "label": "Jaro similarity",
-                                                        "value": "4",
-                                                    },
-                                                    {
-                                                        "label": "Jaro-Winkler similarity",
-                                                        "value": "5",
-                                                    },
-                                                    {
-                                                        "label": "Smith-Waterman similarity",
-                                                        "value": "6",
-                                                    },
-                                                    {
-                                                        "label": "Jaccard similarity",
-                                                        "value": "7",
-                                                    },
-                                                    {
-                                                        "label": "Sørensen-Dice similarity",
-                                                        "value": "8",
-                                                    },
-                                                ],
+                                                options=SimilarityMethod.choices(),
                                                 value=METHOD_SIMILARITY_DEFAULT,
                                                 className="form-control",
                                             ),
@@ -385,7 +292,6 @@ def get_default_settings():
         "dist_threshold": DISTANCE_THRESHOLD_DEFAULT,
         "window_size": WINDOW_SIZE_DEFAULT,
         "step_size": STEP_SIZE_DEFAULT,
-        "bootstrap_amount": BOOTSTRAP_AMOUNT_DEFAULT,
         "alignment_method": ALIGNMENT_METHOD_DEFAULT,
         "distance_method": DISTANCE_METHOD_DEFAULT,
         "fit_method": FIT_METHOD_DEFAULT,
@@ -401,7 +307,6 @@ def get_default_settings():
     Output("distance-threshold", "value"),
     Output("input-window-size", "value"),
     Output("input-step-size", "value"),
-    Output("bootstrap-amount", "value"),
     Output("alignment-method", "value"),
     Output("distance-method", "value"),
     Output("fit-method", "value"),
@@ -416,7 +321,6 @@ def update_settings(settings):
         settings["dist_threshold"],
         settings["window_size"],
         settings["step_size"],
-        settings["bootstrap_amount"],
         settings["alignment_method"],
         settings["distance_method"],
         settings["fit_method"],
@@ -435,7 +339,6 @@ def update_settings(settings):
     State("distance-threshold", "value"),
     State("input-window-size", "value"),
     State("input-step-size", "value"),
-    State("bootstrap-amount", "value"),
     State("alignment-method", "value"),
     State("distance-method", "value"),
     State("fit-method", "value"),
@@ -450,7 +353,6 @@ def update_parameters(
     dist_threshold,
     window_size,
     step_size,
-    bootstrap_amount,
     alignment_method,
     distance_method,
     fit_method,
@@ -474,7 +376,6 @@ def update_parameters(
             "dist_threshold": dist_threshold,
             "window_size": window_size,
             "step_size": step_size,
-            "bootstrap_amount": bootstrap_amount,
             "alignment_method": alignment_method,
             "distance_method": distance_method,
             "fit_method": fit_method,

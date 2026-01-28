@@ -23,7 +23,7 @@ layout = html.Div(
                                 "This may take a few minutes.", className="description"
                             ),
                             html.Div(
-                                "Another popup will show when results are done.",
+                                "Enter your email to receive a notification once your results are ready.",
                                 className="description",
                             ),
                             # Input para el correo y botón de envío
