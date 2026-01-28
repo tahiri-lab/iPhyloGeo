@@ -137,7 +137,6 @@ layout = html.Div(
 def save_email_to_store(n_clicks, email):
     """Save email address to store when user clicks Send Email button."""
     if n_clicks and n_clicks > 0 and email:
-        print(f"[DEBUG] Email saved to store: {email}")
         return email
     return None
 
@@ -1066,7 +1065,6 @@ def submit_button(
             utils.run_genetic_pipeline(
                 result_id, climatic_file, genetic_file, climatic_trees
             )
-            print("[DEBUG] run_genetic_pipeline completed")
         elif aligned_genetic_file is not None:
 
             loaded_seq_alignment = Alignment.from_json_string(aligned_genetic_file)

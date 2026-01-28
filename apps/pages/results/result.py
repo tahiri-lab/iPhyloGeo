@@ -27,10 +27,6 @@ layout = html.Div(
         html.Div(id="dummy-table-collapse", style={"display": "none"}),
         html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
         html.Div(id="dummy-genetic-collapse", style={"display": "none"}),
-        # Hidden placeholders for dynamically created download buttons (prevents Dash callback validation errors)
-        html.Button(id="download-button-aligned", style={"display": "none"}),
-        html.Button(id="download-button-complete", style={"display": "none"}),
-        html.Button(id="download-button-genetic", style={"display": "none"}),
         html.Div(
             [
                 html.Div(
