@@ -11,8 +11,20 @@ import plotly.graph_objects as go
 import utils.mail as mail
 import utils.utils as utils
 from Bio import Phylo
-from dash import (ClientsideFunction, callback, clientside_callback,
-                  dash_table, dcc, html)
+from components.email_input import (
+    ERROR_INPUT_STYLE,
+    NORMAL_INPUT_STYLE,
+    create_email_input,
+    validate_email,
+)
+from dash import (
+    ClientsideFunction,
+    callback,
+    clientside_callback,
+    dash_table,
+    dcc,
+    html,
+)
 from dash.dependencies import Input, Output, State
 from db.controllers.files import str_csv_to_df
 from flask import request
@@ -111,27 +123,11 @@ bottom_email_div = html.Div(
                         "fontSize": "14px",
                     },
                 ),
-                html.Div(
-                    [
-                        dcc.Input(
-                            id="user-input",
-                            type="email",
-                            placeholder="Write your mail here...",
-                        ),
-                        html.Button(
-                            [html.Span("Submit", style={"fontSize": "18px"})],
-                            id="submit-button",
-                            n_clicks=0,
-                            style={
-                                "fontFamily": "Calibri",
-                                "color": "white",
-                                "backgroundColor": "#AD00FA",
-                                "borderRadius": "10px",
-                            },
-                        ),
-                    ],
-                    className="input-container",
-                    style={"display": "flex", "justifyContent": "center"},
+                create_email_input(
+                    input_id="user-input",
+                    button_id="result-email-submit-button",
+                    error_id="email-validation-error",
+                    placeholder="Write your mail here...",
                 ),
             ],
             className="center-container",
@@ -145,20 +141,26 @@ layout.children.append(bottom_email_div)
 
 
 @callback(
-    Output("results-name", "children"),
-    Output("email-status-message", "children"),
+    Output("email-validation-error", "children"),
+    Output("user-input", "style"),
+    Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
-    Input("submit-button", "n_clicks"),
+    Input("result-email-submit-button", "n_clicks"),
     State("user-input", "value"),
+    prevent_initial_call=True,
 )
 def handle_submit_click(pathname, n_clicks, user_email):
-    if n_clicks and n_clicks > 0 and user_email:
+    if n_clicks and n_clicks > 0:
+        if not validate_email(user_email):
+            return "Invalid email", ERROR_INPUT_STYLE, None
         # Send URL in email message
         if mail.send_results_ready_email(user_email, pathname):
-            return None, "Email sent successfully!"
+            toast_data = {"message": "Email sent successfully!", "type": "success"}
+            return "", NORMAL_INPUT_STYLE, toast_data
         else:
-            return None, "Error sending email."
-    return None, ""
+            toast_data = {"message": "Error sending email", "type": "error"}
+            return "", NORMAL_INPUT_STYLE, toast_data
+    return "", NORMAL_INPUT_STYLE, None
 
 
 # The rest of your callback functions and definitions follow

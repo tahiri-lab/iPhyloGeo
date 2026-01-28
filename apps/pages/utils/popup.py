@@ -1,4 +1,5 @@
-from dash import dcc, html
+from components.email_input import create_email_input
+from dash import html
 
 layout = html.Div(
     [
@@ -26,19 +27,11 @@ layout = html.Div(
                                 "Enter your email to receive a notification once your results are ready.",
                                 className="description",
                             ),
-                            # Input para el correo y botón de envío
-                            html.Div(
-                                [
-                                    dcc.Input(
-                                        id="email-input",
-                                        type="email",
-                                        placeholder="Enter your email...",
-                                    ),
-                                    html.Button(
-                                        "Send Email", id="send-email-button", n_clicks=0
-                                    ),
-                                ],
-                                className="email-container",
+                            create_email_input(
+                                input_id="email-input",
+                                button_id="send-email-button",
+                                error_id="email-error-message",
+                                placeholder="Enter your email...",
                             ),
                         ],
                         className="content",
