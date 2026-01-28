@@ -1,7 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 from components.toast import create_toast_container
-from dash import dcc, html
+from dash import ctx, dcc, html
 from dash.dependencies import ClientsideFunction, Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
@@ -209,6 +209,7 @@ def update_color(children):
     """
     return LIGHT_THEME if not children else DARK_THEME
 
+
 @app.callback(
     Output("toast-container", "children"),
     Output("toast-interval", "disabled"),
@@ -218,12 +219,11 @@ def update_color(children):
 )
 def display_toast(toast_data, n_intervals):
     """Display toast notification when toast-store is updated."""
-    
     triggered_id = ctx.triggered_id
-    
+
     if triggered_id == "toast-interval":
         return [], True
-    
+
     if toast_data and isinstance(toast_data, dict):
         message = toast_data.get("message", "")
         toast_type = toast_data.get("type", "info")
@@ -233,6 +233,7 @@ def display_toast(toast_data, n_intervals):
         ], className=f"toast-message {toast_type}")
         return [toast_element], False
     return [], True
+
 
 if __name__ == "__main__":
     host = ENV_CONFIG["URL"]

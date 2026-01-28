@@ -186,7 +186,7 @@ def make_alignment_chart(sync_data, file):
     genetic_values = ""
     for key, value in file.items():
         genetic_values += ">" + key + "\n"
-        genetic_values += str(value[int(starting_position) : int(end_window)]) + "\n"
+        genetic_values += str(value[int(starting_position):int(end_window)]) + "\n"
     return html.Div(
         [
             dashbio.AlignmentChart(
