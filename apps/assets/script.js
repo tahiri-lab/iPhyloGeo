@@ -1,9 +1,4 @@
-// Scroll detection to minimize navBar
-    let open = false;
-    window.onscroll = ()  => {
-      open = true;
-      responsiveNavbar()
-    };
+    let open = true;
 
     function responsiveNavbar() {
       if (open) {
@@ -32,8 +27,21 @@
     window.dash_clientside = Object.assign({}, window.dash_clientside, {
       clientside: {
           navbar_function: function() {
-            responsiveNavbar()
-            return ''
+            responsiveNavbar();
+            
+            // Wait for CSS transition to complete before resizing charts (avoid lags)
+            const navbar = document.getElementById('nav-bar');
+            function handleTransitionEnd(e) {
+                if (e.propertyName === 'width') {
+                    navbar.removeEventListener('transitionend', handleTransitionEnd);
+                    requestAnimationFrame(function() {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                }
+            }
+            navbar.addEventListener('transitionend', handleTransitionEnd);
+            
+            return '';
           },
 
           share_result_function: function() {

@@ -31,10 +31,53 @@ def create_table(df):
                                         page_current=0,
                                         page_size=15,
                                         filter_query="",
+                                        style_table={
+                                            'overflowX': 'auto',
+                                            'borderRadius': '8px',
+                                        },
+                                        style_header={                           
+                                            'fontWeight': '600',
+                                            'textTransform': 'uppercase',
+                                            'fontSize': '13px',
+                                            'textAlign': 'center',
+                                            'color': '#ffffff',
+                                            'border': 'none',
+                                        },
                                         style_data={
                                             "color": "var(--reverse-black-white-color)",
                                             "backgroundColor": "var(--table-bg-color)",
+                                            'fontSize': '13px',
                                         },
+                                        style_filter={
+                                            'backgroundColor': 'var(--table-alt-row-color, #f8f9fa)',
+                                            'padding': '8px',
+                                        },
+                                        style_data_conditional=[
+                                            {
+                                                'if': {'row_index': 'odd'},
+                                                'backgroundColor': 'var(--table-alt-row-color)',
+                                            },
+                                            {
+                                                'if': {'state': 'active'},
+                                                'backgroundColor': 'rgba(102, 126, 234, 0.15)',
+                                                'border': 'none',
+                                            },
+                                        ],
+                                        style_cell={
+                                            'textAlign': 'left',
+                                            'padding': '12px',
+                                            'fontFamily': 'Inter, sans-serif',
+                                        },
+                                        css=[
+                                            {
+                                                'selector': 'tr:hover',
+                                                'rule': 'background-color: transparent !important;'
+                                            },
+                                            {
+                                                'selector': 'td:hover, th:hover',
+                                                'rule': 'background-color: transparent !important;'
+                                            },
+                                        ],
                                     ),
                                     dcc.Store(
                                         id="stored-data", data=df.to_dict("records")
