@@ -35,7 +35,7 @@ def create_table(df):
                                             'overflowX': 'auto',
                                             'borderRadius': '8px',
                                         },
-                                        style_header={                           
+                                        style_header={
                                             'fontWeight': '600',
                                             'textTransform': 'uppercase',
                                             'fontSize': '13px',
