@@ -16,9 +16,10 @@ html body {
 
 .page-content {
     flex: 1;
+    min-width: 0;
     position: relative;
     min-height: 100vh;
-    overflow: visible;
+    overflow-x: hidden;
 
 }
 

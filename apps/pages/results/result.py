@@ -448,19 +448,17 @@ def create_result_table(data):
                 id="datatable-interactivity",
                 data=data.to_dict("records"),
                 columns=[{"name": i, "id": i} for i in data.columns],
-                filter_action="native",  # allow filtering of data by user ('native') or not ('none')
-                sort_action="native",  # enables data to be sorted per-column by user or not ('none')
-                sort_mode="single",  # sort across 'multi' or 'single' columns
-                page_current=0,  # page number that user is on
-                page_size=15,  # number of rows visible per page
-                filter_query="",  # query that determines which rows to keep in table
-                row_selectable="multi",  # allow user to select 'multi' or 'single' rows
-                style_data={
-                    "color": "var(--reverse-black-white-color)",
-                    "backgroundColor": "var(--table-bg-color",
-                },
+                filter_action="native",
+                sort_action="native",
+                sort_mode="single",
+                page_current=0,
+                page_size=15,
+                filter_query="",
+                row_selectable="multi",
+                **utils.get_table_styles(),
             )
-        ]
+        ],
+        className="result-table",
     )
 
 
