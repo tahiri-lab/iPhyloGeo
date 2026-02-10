@@ -1,0 +1,32 @@
+.email-container {
+    .email-input-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .email-send-button {
+        font-family: Calibri;
+        color: white;
+        background-color: #AD00FA;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        margin-left: 10px;
+        box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
+
+        &:hover {
+            cursor: pointer;
+            background-color: #8B00D1;
+            transition: ease-in-out 0.3s;
+            box-shadow: none;
+        }
+    }
+
+    .email-error {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+        text-align: center;
+    }
+}

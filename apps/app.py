@@ -1,10 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
-import dash_daq as daq
-from dash import dcc, html
+from components.toast import create_toast_container
+from dash import ctx, dcc, html
 from dash.dependencies import ClientsideFunction, Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
+
+toast_container = create_toast_container()
 
 load_dotenv()
 
@@ -97,11 +99,12 @@ app.layout = html.Div(
                                             id="lab-name",
                                             className="lab-name",
                                         ),
-                                        daq.BooleanSwitch(
+                                        dbc.Switch(
                                             id="theme-switch",
+                                            value=True,
                                             className="theme-switcher",
                                             persistence=True,
-                                            on=True,
+                                            persistence_type="local",
                                         ),
                                         html.Div(id="theme-switch-output"),
                                     ],
@@ -166,6 +169,7 @@ app.layout = html.Div(
             ],
             id="themer",
         ),
+        toast_container,
     ]
 )
 
@@ -179,17 +183,17 @@ app.clientside_callback(
 
 @app.callback(
     Output("theme-switch-output", "children"),
-    Input("theme-switch", "on"),
+    Input("theme-switch", "value"),
 )
-def change_theme(on):
+def change_theme(value):
     """
     Args:
-        on: boolean, True if dark theme is selected, False if light theme is selected.
+        value: boolean, True if dark theme is selected, False if light theme is selected.
             Button to trigger callback (need at least one parameter, but we dont use n_clicks)
     Returns:
-        theme-switch-output: value of the button on (true or false). Hidden div to trigger callback
+        theme-switch-output: value of the button (true or false). Hidden div to trigger callback
     """
-    return on
+    return value
 
 
 @app.callback(Output("themer", "style"), Input("theme-switch-output", "children"))
@@ -202,6 +206,31 @@ def update_color(children):
         themer: dict, css style for the theme
     """
     return LIGHT_THEME if not children else DARK_THEME
+
+
+@app.callback(
+    Output("toast-container", "children"),
+    Output("toast-interval", "disabled"),
+    Input("toast-store", "data"),
+    Input("toast-interval", "n_intervals"),
+    prevent_initial_call=True,
+)
+def display_toast(toast_data, n_intervals):
+    """Display toast notification when toast-store is updated."""
+    triggered_id = ctx.triggered_id
+
+    if triggered_id == "toast-interval":
+        return [], True
+
+    if toast_data and isinstance(toast_data, dict):
+        message = toast_data.get("message", "")
+        toast_type = toast_data.get("type", "info")
+        toast_element = html.Div([
+            message,
+            html.Div(className="toast-progress")
+        ], className=f"toast-message {toast_type}")
+        return [toast_element], False
+    return [], True
 
 
 if __name__ == "__main__":
