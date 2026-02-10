@@ -152,6 +152,7 @@ def handle_submit_click(pathname, n_clicks, user_email):
     msg = "Email sent successfully!" if success else "Error sending email"
     return {"message": msg, "type": "success" if success else "error"}
 
+
 @callback(
     Output("results-name", "children"),
     Input("url", "pathname"),
