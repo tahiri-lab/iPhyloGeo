@@ -45,14 +45,11 @@
 .toast-message {
     position: relative;
     padding: 15px 25px;
-    padding-bottom: 20px;
-    border-radius: 10px;
+    border-radius: 10px 10px 0px 0px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     font-size: 14px;
     font-weight: 500;
     animation: slideIn 0.3s ease-out;
-    max-width: 350px;
-    overflow: hidden;
     background-color: var(--black-and-white);
     color: var(--text-color);
     border: 1px solid var(--glass-style);
@@ -66,7 +63,6 @@
         bottom: 0;
         left: 0;
         height: 4px;
-        border-radius: 0 0 10px 10px;
         animation: progressShrink 4s linear forwards;
     }
 

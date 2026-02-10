@@ -29,18 +29,21 @@ def create_toast_container():
     )
 
 
-def create_toast_message(message, toast_type="info"):
+def create_toast_message(message, toast_type="success"):
     """
     Create a toast message component.
 
     Args:
         message: The message to display
-        toast_type: Type of toast - 'info', 'success', 'warning', 'error'
+        toast_type: Type of toast: 'success', 'warning', 'error'
 
     Returns:
         html.Div: Toast message component
     """
     return html.Div(
-        message,
+        [
+            message,
+            html.Div(className="toast-progress"),
+        ],
         className=f"toast-message {toast_type}",
     )

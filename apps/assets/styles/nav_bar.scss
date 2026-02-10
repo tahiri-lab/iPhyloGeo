@@ -25,21 +25,16 @@
   .theme-switcher {
     margin-left: 15px;
 
-    .form-check {
-      padding-left: 0;
-      margin-bottom: 0;
-    }
-
     .form-check-input {
       width: 50px;
       height: 26px;
       cursor: pointer;
-      border: var(--switch-toggle-border) !important;
-      background-color: var(--switch-toggle-background) !important;
+      border: var(--switch-toggle-border);
+      background-color: var(--switch-toggle-background);
       transition: all 0.3s ease-in-out;
       position: relative;
 
-      background-image: none !important;
+      background-image: none;
 
       &::before {
         content: "";
@@ -63,13 +58,9 @@
 
       &:focus {
         box-shadow: none;
-        border: var(--switch-toggle-border) !important;
+        border: var(--switch-toggle-border);
         outline: none;
       }
-    }
-
-    &.minimized {
-      display: none;
     }
   }
 

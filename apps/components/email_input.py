@@ -20,16 +20,23 @@ def validate_email(email):
     return bool(EMAIL_PATTERN.match(email))
 
 
-def create_email_input(
-    input_id, button_id, error_id, placeholder="Enter your email..."
-):
+def get_button_id(input_id):
+    """Return the auto-derived button ID for a given input ID."""
+    return f"{input_id}-button"
+
+
+def get_error_id(input_id):
+    """Return the auto-derived error ID for a given input ID."""
+    return f"{input_id}-error"
+
+
+def create_email_input(input_id, placeholder="Enter your email..."):
     """
-    Create an email input component with button and error message.
+    Create an email input component with built-in button and error message.
 
     Args:
-        input_id: ID for the email input field
-        button_id: ID for the submit button
-        error_id: ID for the error message div
+        input_id: ID for the email input field. The button and error IDs
+                  are auto-derived as '{input_id}-button' and '{input_id}-error'.
         placeholder: Placeholder text for the input
 
     Returns:
@@ -41,13 +48,13 @@ def create_email_input(
                 [
                     dcc.Input(
                         id=input_id,
-                        type="text",
+                        type="email",
                         placeholder=placeholder,
                         style=NORMAL_INPUT_STYLE,
                     ),
                     html.Button(
                         "Send Email",
-                        id=button_id,
+                        id=get_button_id(input_id),
                         n_clicks=0,
                         style={
                             "fontFamily": "Calibri",
@@ -68,7 +75,7 @@ def create_email_input(
                 },
             ),
             html.Div(
-                id=error_id,
+                id=get_error_id(input_id),
                 style={
                     "color": "red",
                     "fontSize": "12px",

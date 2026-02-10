@@ -12,9 +12,8 @@ import utils.mail as mail
 import utils.utils as utils
 from Bio import Phylo
 from components.email_input import (
-    ERROR_INPUT_STYLE,
-    NORMAL_INPUT_STYLE,
     create_email_input,
+    get_button_id,
     validate_email,
 )
 from dash import (
@@ -125,9 +124,6 @@ bottom_email_div = html.Div(
                 ),
                 create_email_input(
                     input_id="user-input",
-                    button_id="result-email-submit-button",
-                    error_id="email-validation-error",
-                    placeholder="Write your mail here...",
                 ),
             ],
             className="center-container",
@@ -141,31 +137,25 @@ layout.children.append(bottom_email_div)
 
 
 @callback(
-    Output("email-validation-error", "children"),
-    Output("user-input", "style"),
     Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
-    Input("result-email-submit-button", "n_clicks"),
+    Input(get_button_id("user-input"), "n_clicks"),
     State("user-input", "value"),
     prevent_initial_call=True,
 )
 def handle_submit_click(pathname, n_clicks, user_email):
-    if n_clicks and n_clicks > 0:
-        if not validate_email(user_email):
-            return "Invalid email", ERROR_INPUT_STYLE, None
-        # Send URL in email message
-        if mail.send_results_ready_email(user_email, pathname):
-            toast_data = {"message": "Email sent successfully!", "type": "success"}
-            return "", NORMAL_INPUT_STYLE, toast_data
-        else:
-            toast_data = {"message": "Error sending email", "type": "error"}
-            return "", NORMAL_INPUT_STYLE, toast_data
-    return "", NORMAL_INPUT_STYLE, None
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    if not validate_email(user_email):
+        return {"message": "Invalid email address", "type": "error"}
+    success = mail.send_results_ready_email(user_email, pathname)
+    msg = "Email sent successfully!" if success else "Error sending email"
+    return {"message": msg, "type": "success" if success else "error"}
 
-
-# The rest of your callback functions and definitions follow
-
-
+@callback(
+    Output("results-name", "children"),
+    Input("url", "pathname"),
+)
 def show_result_name(path):
     """
     args:

@@ -29,9 +29,6 @@ layout = html.Div(
                             ),
                             create_email_input(
                                 input_id="email-input",
-                                button_id="send-email-button",
-                                error_id="email-error-message",
-                                placeholder="Enter your email...",
                             ),
                         ],
                         className="content",
