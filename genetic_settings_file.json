@@ -8,5 +8,13 @@
     "fit_method": "WiderFit",
     "tree_type": "BioPython",
     "rate_similarity": 90,
-    "method_similarity": "Hamming"
+    "method_similarity": "Hamming",
+    "preprocessing_genetic": "Enabled",
+    "preprocessing_climatic": "Enabled",
+    "preprocessing_threshold_genetic": 0.62,
+    "preprocessing_threshold_climatic": 0.84,
+    "permutations_mantel_test": 999,
+    "permutations_protest": 999,
+    "mantel_test_method": "Pearson",
+    "statistical_test": "Both"
 }

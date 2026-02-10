@@ -360,23 +360,72 @@ def create_genetic_trees(result_id, msaSet, status="genetic_trees"):
 
 def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
     """
+    Creates the final output with comparison data and statistical test results.
+
+    The output is a rectangular CSV where every row includes the global
+    Mantel/Procrustes results in dedicated columns (Mantel_r, Mantel_p,
+    Procrustes_M2, PROTEST_p).
 
     Args:
         result_id (str): the id of the result
         climatic_trees: a dictionary with the climatic trees
         genetic_trees: a dictionary with the genetic trees
-        # bootstrap_threshold: the bootstrap threshold
-        # ls_threshold: the ls threshold
         climatic_df: the climatic dataframe
-        # genetic_file_name: the name of the genetic file
-
     """
+    from aphylogeo.params import Params
+    from scipy.spatial.distance import pdist, squareform
+
     try:
         output_list = aPhyloGeo.filterResults(
             climatic_trees, genetic_trees, climatic_df, create_file=False
         )
-        # Convert list to dictionary format for MongoDB (expects object, not array)
         output = aPhyloGeo.format_to_csv(output_list)
+        df_output = pd.DataFrame(output)
+
+        # Clean Gene column: truncate file paths to basename
+        if "Gene" in df_output.columns:
+            df_output["Gene"] = df_output["Gene"].apply(
+                lambda x: os.path.basename(str(x)) if pd.notna(x) else x
+            )
+
+        # Initialize the 4 dedicated statistical test columns
+        df_output["Mantel_r"] = None
+        df_output["Mantel_p"] = None
+        df_output["Procrustes_M2"] = None
+        df_output["PROTEST_p"] = None
+
+        # Run statistical tests and populate every row
+        try:
+            climatic_matrix = climatic_df.drop(columns=[climatic_df.columns[0]])
+            climatic_dist = squareform(pdist(climatic_matrix, metric="euclidean"))
+            genetic_dist = aPhyloGeo.get_patristic_distance_matrix(genetic_trees)
+            genetic_matrix = pd.DataFrame(genetic_dist)
+
+            if Params.statistical_test == '0' or Params.statistical_test == '1':
+                r, p, n = aPhyloGeo.run_mantel_test(
+                    genetic_dist, climatic_dist,
+                    Params.permutations_mantel_test,
+                    Params.mantel_test_method
+                )
+                df_output["Mantel_r"] = r
+                df_output["Mantel_p"] = p
+
+            if Params.statistical_test == '0' or Params.statistical_test == '2':
+                from aphylogeo.utils import run_procrustes_analysis, run_protest_test
+                m2, _, _ = run_procrustes_analysis(genetic_matrix, climatic_matrix)
+                _, protest_p = run_protest_test(
+                    climatic_matrix, genetic_matrix,
+                    n_permutations=Params.permutations_protest
+                )
+                df_output["Procrustes_M2"] = m2
+                df_output["PROTEST_p"] = protest_p
+
+        except Exception as e:
+            print(f"[Warning] Could not compute statistical tests: {e}")
+
+        # Convert back to dict format for storage
+        output = df_output.to_dict(orient="list")
+
         results_ctrl.update_result(
             {"_id": result_id, "output": output, "status": "complete"}
         )
