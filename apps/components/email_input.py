@@ -8,10 +8,6 @@ from dash import dcc, html
 
 EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 
-# Style constants for callbacks to use
-NORMAL_INPUT_STYLE = {"border": "1px solid #ccc"}
-ERROR_INPUT_STYLE = {"border": "1px solid red"}
-
 
 def validate_email(email):
     """Validate email format. Returns True if valid, False otherwise."""
@@ -50,39 +46,21 @@ def create_email_input(input_id, placeholder="Enter your email..."):
                         id=input_id,
                         type="email",
                         placeholder=placeholder,
-                        style=NORMAL_INPUT_STYLE,
                     ),
                     html.Button(
                         "Send Email",
                         id=get_button_id(input_id),
                         n_clicks=0,
-                        style={
-                            "fontFamily": "Calibri",
-                            "color": "white",
-                            "backgroundColor": "#AD00FA",
-                            "border": "none",
-                            "borderRadius": "10px",
-                            "fontSize": "18px",
-                            "marginLeft": "10px",
-                            "boxShadow": "rgba(0, 0, 0, 0.35) 0 5px 15px",
-                        },
+                        className="email-send-button",
                     ),
                 ],
-                style={
-                    "display": "flex",
-                    "justifyContent": "center",
-                    "alignItems": "center",
-                },
+                className="email-input-row",
             ),
             html.Div(
                 id=get_error_id(input_id),
-                style={
-                    "color": "red",
-                    "fontSize": "12px",
-                    "marginTop": "5px",
-                    "textAlign": "center",
-                },
+                className="email-error",
             ),
         ],
         className="email-container",
     )
+

@@ -165,6 +165,8 @@ def show_result_name(path):
         html.Div: the div containing the name of the result
     """
     result_id = path.split("/")[-1]
+    if not result_id:
+        raise dash.exceptions.PreventUpdate
     title = utils.get_result(result_id)["name"]
     return html.Div(title, className="title")
 
