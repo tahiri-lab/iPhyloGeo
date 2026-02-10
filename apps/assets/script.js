@@ -31,15 +31,26 @@
             
             // Wait for CSS transition to complete before resizing charts (avoid lags)
             const navbar = document.getElementById('nav-bar');
-            function handleTransitionEnd(e) {
-                if (e.propertyName === 'width') {
-                    navbar.removeEventListener('transitionend', handleTransitionEnd);
-                    requestAnimationFrame(function() {
-                        window.dispatchEvent(new Event('resize'));
-                    });
+            if (navbar) {
+                let handled = false;
+                function handleTransitionEnd(e) {
+                    if (e.propertyName === 'width' && !handled) {
+                        handled = true;
+                        navbar.removeEventListener('transitionend', handleTransitionEnd);
+                        requestAnimationFrame(function() {
+                            window.dispatchEvent(new Event('resize'));
+                        });
+                    }
                 }
+                navbar.addEventListener('transitionend', handleTransitionEnd);
+                setTimeout(function() {
+                    if (!handled) {
+                        handled = true;
+                        navbar.removeEventListener('transitionend', handleTransitionEnd);
+                        window.dispatchEvent(new Event('resize'));
+                    }
+                }, 500);
             }
-            navbar.addEventListener('transitionend', handleTransitionEnd);
             
             return '';
           },

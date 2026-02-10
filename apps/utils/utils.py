@@ -491,11 +491,11 @@ def get_table_styles():
         },
         "css": [
             {
-                "selector": "tr:hover",
+                "selector": ".dash-spreadsheet tr:hover",
                 "rule": "background-color: transparent !important;",
             },
             {
-                "selector": "td:hover, th:hover",
+                "selector": ".dash-spreadsheet td:hover, .dash-spreadsheet th:hover",
                 "rule": "background-color: transparent !important;",
             },
             {
