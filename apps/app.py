@@ -6,7 +6,6 @@ from dash.dependencies import ClientsideFunction, Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 
-# Create toast container instance
 toast_container = create_toast_container()
 
 load_dotenv()
@@ -170,7 +169,6 @@ app.layout = html.Div(
             ],
             id="themer",
         ),
-        # Toast notification container
         toast_container,
     ]
 )
