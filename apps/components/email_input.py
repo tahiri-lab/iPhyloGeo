@@ -63,4 +63,3 @@ def create_email_input(input_id, placeholder="Enter your email..."):
         ],
         className="email-container",
     )
-
