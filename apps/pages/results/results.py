@@ -134,7 +134,7 @@ def create_layout(result):
                         [
                             dbc.Progress(
                                 value=PROGRESS[result["status"]],
-                                label="Error" if result["status"] == "error" else None,
+                                label="Error" if result["status"] == "error" else "",
                                 color="danger" if result["status"] == "error" else "",
                             ),
                         ],

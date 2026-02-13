@@ -63,14 +63,14 @@ def update_background_video(theme):
     """
     Update the background video according to the theme.
     Args:
-        theme: the theme indicator
+        theme: the theme indicator (string "True" or "False")
     Returns:
         The background video element.
     """
     if theme is None:
         return []
 
-    if not theme:
+    if theme == "False":
         return html.Video(
             src="../assets/videos/indexPhylogeo_light.mp4",
             autoPlay=True,
@@ -88,3 +88,4 @@ def update_background_video(theme):
         controls=False,
         className="home-page__video",
     )
+

@@ -197,7 +197,7 @@ def show_complete_results(path, generated_page):
     result = utils.get_result(result_id)
 
     if "genetic" not in result["result_type"] or "output" not in result:
-        return None, None, None
+        return "", "", ""
 
     results_data = str_csv_to_df(result["output"])
 
@@ -208,7 +208,7 @@ def show_complete_results(path, generated_page):
         return (
             create_result_table_header(),  # Still return the header
             create_result_table(results_data),  # Display the table (might be empty)
-            None,  # No graph to display
+            "",  # No graph to display
         )
 
     # Now it's safe to call create_result_graphic
@@ -244,7 +244,7 @@ def create_climatic_trees(path, generated_results_header):
 
     result = utils.get_result(result_id)
     if "climatic" not in result["result_type"]:
-        return None, None
+        return "", ""
 
     climatic_trees = result["climatic_trees"]
     tree_names = list(climatic_trees.keys())
@@ -346,7 +346,7 @@ def create_genetic_trees(path, generated_results_header):
     result_id = path.split("/")[-1]
     result = utils.get_result(result_id)
     if "genetic" not in result["result_type"] or "genetic_trees" not in result:
-        return None, None
+        return "", ""
 
     genetic_trees = result["genetic_trees"]
     tree_names = list(genetic_trees.keys())
@@ -569,33 +569,31 @@ def create_genetic_trees_header():
     """
     This function creates the header for the genetic trees
     """
-    return (
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Div("Genetic Trees", className="title"),
-                        html.Img(
-                            src="../../assets/icons/angle-down.svg",
-                            id="results-genetic-collapse-button",
-                            className="icon collapse-icon",
-                        ),
-                    ],
-                    className="sub-section",
-                ),
-                html.Div(
-                    [
-                        html.Div("Genetic Trees", className="text"),
-                        html.Img(
-                            src="../../assets/icons/download.svg", className="icon"
-                        ),
-                    ],
-                    className="individual-tree-download-container button download",
-                    id="download-button-genetic",
-                ),
-            ],
-            className="section",
-        ),
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Div("Genetic Trees", className="title"),
+                    html.Img(
+                        src="../../assets/icons/angle-down.svg",
+                        id="results-genetic-collapse-button",
+                        className="icon collapse-icon",
+                    ),
+                ],
+                className="sub-section",
+            ),
+            html.Div(
+                [
+                    html.Div("Genetic Trees", className="text"),
+                    html.Img(
+                        src="../../assets/icons/download.svg", className="icon"
+                    ),
+                ],
+                className="individual-tree-download-container button download",
+                id="download-button-genetic",
+            ),
+        ],
+        className="section",
     )
 
 
