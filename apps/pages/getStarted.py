@@ -106,11 +106,10 @@ layout = html.Div(
                 "method_similarity": genetic_setting_file["method_similarity"],
             },
         ),
-        # Store to save email address entered in popup
-        dcc.Store(id="email-store", storage_type="session", data=None),
-        # Store to save current result id
-        dcc.Store(id="current-result-id", storage_type="session", data=None),
-        html.Div(id="action"),
+        # Store to save email address entered in popup (memory = resets on page reload)
+        dcc.Store(id="email-store", storage_type="memory", data=None),
+        # Store to save current result id (memory = resets on page reload)
+        dcc.Store(id="current-result-id", storage_type="memory", data=None),
         html.Div(
             className="get-started",
             children=[
@@ -131,7 +130,7 @@ layout = html.Div(
 )
 
 
-# Callback to save email address when user clicks "Send Email" in popup
+# Callback to save email when user clicks "Send Email" in popup
 @callback(
     Output("email-store", "data"),
     Output("toast-store", "data", allow_duplicate=True),
@@ -139,14 +138,31 @@ layout = html.Div(
     State("email-input", "value"),
     prevent_initial_call=True,
 )
-def save_email_to_store(n_clicks, email):
-    """Save email address to store when user clicks Send Email button."""
+def save_email_on_click(n_clicks, email):
+    """Save email when user clicks Send Email button. Email will be sent when results are ready."""
     if not n_clicks:
         raise PreventUpdate
     if not validate_email(email):
         return None, {"message": "Invalid email address", "type": "error"}
     toast_data = {"message": "An email will be sent when results are ready", "type": "success"}
     return email, toast_data
+
+
+# Callback to send email when results are ready (result_id is set)
+@callback(
+    Output("email-store", "data", allow_duplicate=True),
+    Input("current-result-id", "data"),
+    State("email-store", "data"),
+    prevent_initial_call=True,
+)
+def send_email_when_results_ready(result_id, email):
+    """Send email when pipeline finishes and result_id is available."""
+    if result_id and email:
+        results_url = f"/result/{result_id}"
+        mail.send_results_ready_email(email, results_url)
+        # Clear email after sending to prevent re-sending
+        return None
+    raise PreventUpdate
 
 
 @callback(
@@ -1115,17 +1131,3 @@ def submit_button(
         return "popup", None
 
 
-@callback(
-    Output("action", "children"),
-    Input("current-result-id", "data"),
-    Input("email-store", "data"),
-    prevent_initial_call=True,
-)
-def send_results_email_final(result_id, email):
-    """
-    Send email when both result_id (pipeline finished) and email (user input) are available.
-    """
-    if result_id and email:
-        results_url = f"/result/{result_id}"
-        mail.send_results_ready_email(email, results_url)
-    return dash.no_update
