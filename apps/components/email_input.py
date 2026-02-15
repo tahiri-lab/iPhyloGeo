@@ -44,7 +44,7 @@ def create_email_input(input_id, placeholder="Enter your email..."):
                 [
                     dcc.Input(
                         id=input_id,
-                        type="email",
+                        type="text",
                         placeholder=placeholder,
                         value="",
                     ),
