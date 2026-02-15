@@ -444,6 +444,7 @@ def make_cookie(
     auth_cookie_value = ".".join(auth_ids)
     response.set_cookie(name, auth_cookie_value, max_age=max_age)
 
+
 def get_table_styles():
     """
     Returns the common styles for the dash tables.
