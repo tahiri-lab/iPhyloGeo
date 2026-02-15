@@ -557,6 +557,7 @@ def update_settings(settings):
 # To reset or save the settings in the JSON file
 @callback(
     Output("genetic-settings", "data"),
+    Output("toast-store", "data", allow_duplicate=True),
     Input("reset-button", "n_clicks"),
     Input("save-settings-button", "n_clicks"),
     State("bootstrap-threshold", "value"),
@@ -577,6 +578,7 @@ def update_settings(settings):
     State("permutations-protest", "value"),
     State("mantel-test-method", "value"),
     State("statistical-test", "value"),
+    prevent_initial_call=True,
 )
 def update_parameters(
     n_clicks_reset,
@@ -600,14 +602,18 @@ def update_parameters(
     mantel_test_method,
     statistical_test,
 ):
+    # Prevent callback from running if no button was actually clicked
+    if not n_clicks_reset and not n_clicks_save:
+        raise PreventUpdate
+
     # Load default parameters if reset button is clicked
     if ctx.triggered_id == "reset-button":
         default_params = Params()
         # Assuming Params class has a method called `to_dict` or similar to get default settings
         if hasattr(default_params, "to_dict"):
-            return default_params.to_dict()
+            return default_params.to_dict(), {"message": "Settings reset to default", "type": "success"}
         else:
-            return get_default_settings()
+            return get_default_settings(), {"message": "Settings reset to default", "type": "success"}
 
     # Save the settings to the JSON file if save button is clicked
     elif ctx.triggered_id == "save-settings-button":
@@ -635,7 +641,7 @@ def update_parameters(
             json.dump(updated_settings, file, indent=4)
 
         # Update the settings store
-        return updated_settings
+        return updated_settings, {"message": "Settings saved successfully", "type": "success"}
 
     else:
         raise PreventUpdate
