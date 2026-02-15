@@ -88,4 +88,3 @@ def update_background_video(theme):
         controls=False,
         className="home-page__video",
     )
-
