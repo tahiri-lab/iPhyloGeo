@@ -1,5 +1,4 @@
-from dash import (ClientsideFunction, Input, Output, clientside_callback, dcc,
-                  html)
+from dash import ClientsideFunction, Input, Output, clientside_callback, dcc, html
 
 # this is a shortcut. It's the base64 content of the test files (geo.csv and genetic.csv)
 # TODO: find a way to load the files from the server and use them instead

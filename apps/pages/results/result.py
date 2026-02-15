@@ -11,8 +11,19 @@ import plotly.graph_objects as go
 import utils.mail as mail
 import utils.utils as utils
 from Bio import Phylo
-from dash import (ClientsideFunction, callback, clientside_callback,
-                  dash_table, dcc, html)
+from components.email_input import (
+    create_email_input,
+    get_button_id,
+    validate_email,
+)
+from dash import (
+    ClientsideFunction,
+    callback,
+    clientside_callback,
+    dash_table,
+    dcc,
+    html,
+)
 from dash.dependencies import Input, Output, State
 from db.controllers.files import str_csv_to_df
 from flask import request
@@ -111,27 +122,8 @@ bottom_email_div = html.Div(
                         "fontSize": "14px",
                     },
                 ),
-                html.Div(
-                    [
-                        dcc.Input(
-                            id="user-input",
-                            type="email",
-                            placeholder="Write your mail here...",
-                        ),
-                        html.Button(
-                            [html.Span("Submit", style={"fontSize": "18px"})],
-                            id="submit-button",
-                            n_clicks=0,
-                            style={
-                                "fontFamily": "Calibri",
-                                "color": "white",
-                                "backgroundColor": "#AD00FA",
-                                "borderRadius": "10px",
-                            },
-                        ),
-                    ],
-                    className="input-container",
-                    style={"display": "flex", "justifyContent": "center"},
+                create_email_input(
+                    input_id="user-input",
                 ),
             ],
             className="center-container",
@@ -145,25 +137,26 @@ layout.children.append(bottom_email_div)
 
 
 @callback(
-    Output("results-name", "children"),
-    Output("email-status-message", "children"),
+    Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
-    Input("submit-button", "n_clicks"),
+    Input(get_button_id("user-input"), "n_clicks"),
     State("user-input", "value"),
+    prevent_initial_call=True,
 )
 def handle_submit_click(pathname, n_clicks, user_email):
-    if n_clicks and n_clicks > 0 and user_email:
-        # Send URL in email message
-        if mail.send_results_ready_email(user_email, pathname):
-            return None, "Email sent successfully!"
-        else:
-            return None, "Error sending email."
-    return None, ""
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    if not validate_email(user_email):
+        return {"message": "Invalid email address", "type": "error"}
+    success = mail.send_results_ready_email(user_email, pathname)
+    msg = "Email sent successfully!" if success else "Error sending email"
+    return {"message": msg, "type": "success" if success else "error"}
 
 
-# The rest of your callback functions and definitions follow
-
-
+@callback(
+    Output("results-name", "children"),
+    Input("url", "pathname"),
+)
 def show_result_name(path):
     """
     args:
@@ -172,6 +165,8 @@ def show_result_name(path):
         html.Div: the div containing the name of the result
     """
     result_id = path.split("/")[-1]
+    if not result_id:
+        raise dash.exceptions.PreventUpdate
     title = utils.get_result(result_id)["name"]
     return html.Div(title, className="title")
 
@@ -451,19 +446,17 @@ def create_result_table(data):
                 id="datatable-interactivity",
                 data=data.to_dict("records"),
                 columns=[{"name": i, "id": i} for i in data.columns],
-                filter_action="native",  # allow filtering of data by user ('native') or not ('none')
-                sort_action="native",  # enables data to be sorted per-column by user or not ('none')
-                sort_mode="single",  # sort across 'multi' or 'single' columns
-                page_current=0,  # page number that user is on
-                page_size=15,  # number of rows visible per page
-                filter_query="",  # query that determines which rows to keep in table
-                row_selectable="multi",  # allow user to select 'multi' or 'single' rows
-                style_data={
-                    "color": "var(--reverse-black-white-color)",
-                    "backgroundColor": "var(--table-bg-color",
-                },
+                filter_action="native",
+                sort_action="native",
+                sort_mode="single",
+                page_current=0,
+                page_size=15,
+                filter_query="",
+                row_selectable="multi",
+                **utils.get_table_styles(),
             )
-        ]
+        ],
+        className="result-table",
     )
 
 

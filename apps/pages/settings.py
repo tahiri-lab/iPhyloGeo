@@ -200,6 +200,7 @@ layout = html.Div(
                                                 options=AlignmentMethod.choices(),
                                                 value=ALIGNMENT_METHOD_DEFAULT,
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -214,6 +215,7 @@ layout = html.Div(
                                                 options=DistanceMethod.choices(),
                                                 value=DISTANCE_METHOD_DEFAULT,
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -228,6 +230,8 @@ layout = html.Div(
                                                 options=FitMethod.choices(),
                                                 value=FIT_METHOD_DEFAULT,
                                                 className="form-control",
+                                                optionHeight=50,
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -253,6 +257,7 @@ layout = html.Div(
                                                 options=TreeType.choices(),
                                                 value=TREE_TYPE_DEFAULT,
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -267,6 +272,7 @@ layout = html.Div(
                                                 options=SimilarityMethod.choices(),
                                                 value=METHOD_SIMILARITY_DEFAULT,
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),

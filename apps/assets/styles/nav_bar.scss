@@ -1,14 +1,16 @@
 .nav-bar-container {
-  position: fixed;
+  position: sticky;
   top: 10px;
-  left: 15px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin: 10px;
   border-radius: 10px;
   z-index: 100;
   width: 250px;
   background-color: var(--glass-style);
   box-shadow: rgba(100, 100, 111, 0.2) 0 7px 29px 0;
-  backdrop-filter: blur( 16.5px );
-  -webkit-backdrop-filter: blur( 16.5px );
+  backdrop-filter: blur(16.5px);
+  -webkit-backdrop-filter: blur(16.5px);
   border: 1px solid rgba(69, 69, 69, 0.18);
 
   height: calc(100vh - 21px);
@@ -16,29 +18,51 @@
 
   &.minimized {
     width: 75px !important;
+
+    #theme-switch {
+      display: none;
+    }
   }
 
   .theme-switcher {
     margin-left: 15px;
 
-    div {
-      div {
-        div {
-          border: var(--switch-toggle-border) !important;
-          background: var(--switch-toggle-background) !important;
-        }
+    .form-check-input {
+      width: 50px;
+      height: 26px;
+      cursor: pointer;
+      border: var(--switch-toggle-border);
+      background-color: var(--switch-toggle-background);
+      transition: all 0.3s ease-in-out;
+      position: relative;
+
+      background-image: none;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: white;
+        background-image: var(--theme-icon);
+        background-repeat: no-repeat;
+        background-size: 12px;
+        background-position: center;
+        transition: all 0.3s ease-in-out;
       }
-    }
 
-    button {
-      background-image: var(--theme-icon);
-      background-repeat: no-repeat;
-      background-size: 15px;
-      background-position: center;
-    }
+      &:checked::before {
+        left: calc(100% - 22px);
+      }
 
-    &.minimized {
-      display: none;
+      &:focus {
+        box-shadow: none;
+        border: var(--switch-toggle-border);
+        outline: none;
+      }
     }
   }
 
@@ -98,8 +122,8 @@
       margin-top: 20px;
       color: var(--text-color);
       background: var(--glass-overlay-style);
-      backdrop-filter: blur( 10px );
-      -webkit-backdrop-filter: blur( 10px );
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       text-decoration: none;
       font-size: 1.2rem;
       padding: 10px;
@@ -238,7 +262,7 @@
           //transition-timing-function: ease-in-out;
           //transition-duration: 3s;
         }
-       }
+      }
     }
   }
 }

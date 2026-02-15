@@ -2,14 +2,30 @@
   background-color: var(--background-color);
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
   padding: 0 300px;
   transition: all 0.3s ease-in-out;
+  position: relative;
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--background-color);
+    z-index: -1;
+    transition: all 0.3s ease-in-out;
+  }
 
   .results-container {
     max-width: 1200px;
-    margin: 50px auto auto;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .empty-results {
@@ -18,7 +34,7 @@
     align-items: center;
     text-align: center;
     justify-content: center;
-    height: 100%;
+    flex: 1;
     color: var(--reverse-black-white-color);
     font-size: 30px;
     font-weight: bold;
@@ -75,6 +91,7 @@
     min-width: 600px;
     margin-top: 20px;
     padding: 10px;
+    flex: 1;
 
     .row {
       color: var(--reverse-black-white-color);

@@ -14,17 +14,19 @@
     border: 0.3rem solid transparent;
     border-radius: 3rem;
 }
+
 .bn36 {
     border-color: #fff;
     transition: transform 0.2s cubic-bezier(0.235, 0, 0.05, 0.95);
-  }
-  
-  .bn36:hover {
-    transform: perspective(1px) scale3d(1.044, 1.044, 1) translateZ(0) !important;
-  }
+}
 
-  .form-control {
-    text-align: center; }
+.bn36:hover {
+    transform: perspective(1px) scale3d(1.044, 1.044, 1) translateZ(0) !important;
+}
+
+.form-control {
+    text-align: center;
+}
 
 .alignment-method-container,
 .distance-method-container,
@@ -41,6 +43,7 @@
     width: auto;
     margin: auto;
 
+}
 
 .tree-type-container label {
     text-align: center;
@@ -48,15 +51,27 @@
     font-size: 14px;
 }
 
-    #alignment-method-title, #distance-method-title, #fit-method-title, #tree-type-title, #method-similarity-title {
-        display: flex; 
-        margin: auto;
-        margin-bottom: 15px;
-    }
+#alignment-method-title,
+#distance-method-title,
+#fit-method-title,
+#tree-type-title,
+#method-similarity-title {
+    display: flex;
+    margin: auto;
+    margin-bottom: 15px;
+}
 
-    #alignment-method, #distance-method, #fit-method, #tree-type, #method-similarity {
-        display: flex;
-        margin: auto;
-        width: auto;
-    }
+#alignment-method,
+#distance-method,
+#fit-method,
+#tree-type,
+#method-similarity {
+    display: flex;
+    margin: auto;
+    width: auto;
+}
+
+.Select-menu-outer {
+    left: 0;
+    margin-top: 1px;
 }
