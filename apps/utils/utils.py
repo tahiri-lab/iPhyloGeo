@@ -7,8 +7,10 @@ import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
 import pandas as pd
 from aphylogeo.alignement import AlignSequences
+from aphylogeo.params import Params
 from Bio import SeqIO
 from dash import dcc, html
+from scipy.spatial.distance import pdist, squareform
 
 FILES_PATH = "files/"
 COOKIE_NAME = "AUTH"
@@ -363,9 +365,11 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
     """
     Creates the final output with comparison data and statistical test results.
 
-    The output is a rectangular CSV where every row includes the global
-    Mantel/Procrustes results in dedicated columns (Mantel_r, Mantel_p,
-    Procrustes_M2, PROTEST_p).
+    The output starts with the comparison data rows. The global Mantel and
+    Procrustes statistical test results are appended at the end of the
+    DataFrame as separate rows (an empty separator row, followed by a header
+    row with columns 'Mantel_r', 'Mantel_p', 'Procrustes_M2', 'PROTEST_p',
+    and finally a row containing the corresponding values).
 
     Args:
         result_id (str): the id of the result
@@ -373,8 +377,6 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
         genetic_trees: a dictionary with the genetic trees
         climatic_df: the climatic dataframe
     """
-    from aphylogeo.params import Params
-    from scipy.spatial.distance import pdist, squareform
 
     try:
         output_list = aPhyloGeo.filterResults(
@@ -419,30 +421,31 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 )
                 procrustes_m2 = m2
 
-            # Append empty row
-            empty_row = pd.DataFrame([{col: "" for col in df_output.columns}])
-            df_output = pd.concat([df_output, empty_row], ignore_index=True)
+            if Params.statistical_test != '3':
+                # Append empty row
+                empty_row = pd.DataFrame([{col: "" for col in df_output.columns}])
+                df_output = pd.concat([df_output, empty_row], ignore_index=True)
 
-            # Define stats data
-            headers = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
-            values = [mantel_r, mantel_p, procrustes_m2, protest_p]
+                # Define stats data
+                headers = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
+                values = [mantel_r, mantel_p, procrustes_m2, protest_p]
 
-            # Append stats header row
-            header_row_data = {col: "" for col in df_output.columns}
-            for i, header in enumerate(headers):
-                if i < len(df_output.columns):
-                    header_row_data[df_output.columns[i]] = header
-            
-            # Using specific column names for dictionary keys prevents misalignment
-            df_output = pd.concat([df_output, pd.DataFrame([header_row_data])], ignore_index=True)
+                # Append stats header row
+                header_row_data = {col: "" for col in df_output.columns}
+                for i, header in enumerate(headers):
+                    if i < len(df_output.columns):
+                        header_row_data[df_output.columns[i]] = header
 
-            # Append stats value row
-            value_row_data = {col: "" for col in df_output.columns}
-            for i, val in enumerate(values):
-                if i < len(df_output.columns):
-                    value_row_data[df_output.columns[i]] = val
-            
-            df_output = pd.concat([df_output, pd.DataFrame([value_row_data])], ignore_index=True)
+                # Using specific column names for dictionary keys prevents misalignment
+                df_output = pd.concat([df_output, pd.DataFrame([header_row_data])], ignore_index=True)
+
+                # Append stats value row
+                value_row_data = {col: "" for col in df_output.columns}
+                for i, val in enumerate(values):
+                    if i < len(df_output.columns):
+                        value_row_data[df_output.columns[i]] = val
+
+                df_output = pd.concat([df_output, pd.DataFrame([value_row_data])], ignore_index=True)
 
         except Exception as e:
             print(f"[Warning] Could not compute statistical tests: {e}")
