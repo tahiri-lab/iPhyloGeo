@@ -1,14 +1,25 @@
 .get-started {
   background-color: var(--background-color);
-  overflow: hidden;
-  padding: 0 80px;
   transition: all 0.3s ease-in-out;
+  position: relative;
+  box-sizing: border-box;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--background-color);
+    z-index: -1;
+    transition: all 0.3s ease-in-out;
+  }
 
   .submit-button {
     display: flex;
     justify-content: center;
     margin-top: 15px;
-    margin-bottom: 30px;
   }
 
   .container {
@@ -25,15 +36,17 @@
   }
 
   .ChoiceSection {
-    position: relative;
-    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
     text-align: center;
 
     .choiceSectionInside {
-      position: relative;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .button {
@@ -56,9 +69,6 @@
       &:hover {
         transition: all 0.3s ease-in-out;
         box-shadow: none;
-        //box-shadow: var(--switch-toggle-background) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-        //background-color: var(--background-color);
-        //color: var(--reverse-black-white-color);
       }
 
       &.selected {
@@ -96,16 +106,19 @@
   }
 
   .drop-file-section {
-    top: 25%;
-    position: relative;
-    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
     text-align: center;
 
     .drop-file-section-inside {
-      position: relative;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
     }
 
     .icon {
@@ -126,6 +139,7 @@
     .drop-zone {
       user-select: none;
       width: 80%;
+      margin: 0 auto;
       height: 150px;
       line-height: 60px;
       border: 2px dashed var(--reverse-black-white-color);
@@ -195,20 +209,30 @@
 
   .parameters-section {
     text-align: center;
+    width: 100%;
 
     &.hidden {
       display: none;
     }
   }
 
+  .parameters-section-inside {
+    width: 100%;
+  }
+}
+
+#params-sections {
+  width: 100%;
+
   .dataset-input-container {
     display: flex;
     flex-direction: column;
-    //gap: 30px;
-    width: 75%;
+    width: fit-content;
     margin: 10px auto auto auto;
+    padding: 20px 40px;
     border-radius: 15px;
     background-color: var(--black-and-white);
+    box-sizing: border-box;
     transition: all 0.3s ease-in-out;
 
     .name-error-message {
@@ -228,7 +252,6 @@
   display: flex;
   flex-direction: column;
   margin: auto;
-  width: 750px;
   margin-top: 20px;
 
   #upload-title {

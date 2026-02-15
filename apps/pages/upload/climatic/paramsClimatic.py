@@ -1,6 +1,7 @@
 import dash
 import pandas as pd
 import plotly.express as px
+import utils.utils as utils
 from dash import Input, Output, State, callback, dash_table, dcc, html
 
 app = dash.Dash(__name__)
@@ -31,10 +32,7 @@ def create_table(df):
                                         page_current=0,
                                         page_size=15,
                                         filter_query="",
-                                        style_data={
-                                            "color": "var(--reverse-black-white-color)",
-                                            "backgroundColor": "var(--table-bg-color)",
-                                        },
+                                        **utils.get_table_styles(),
                                     ),
                                     dcc.Store(
                                         id="stored-data", data=df.to_dict("records")
