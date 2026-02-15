@@ -443,7 +443,6 @@ def make_cookie(
     auth_cookie_value = ".".join(auth_ids)
     response.set_cookie(name, auth_cookie_value, max_age=max_age)
 
-
 def get_table_styles():
     """
     Returns the common styles for the dash tables.
@@ -495,20 +494,16 @@ def get_table_styles():
                 "rule": "background-color: transparent !important;",
             },
             {
-                "selector": ".dash-spreadsheet td:hover, .dash-spreadsheet th:hover",
-                "rule": "background-color: transparent !important;",
+                "selector": ".dash-spreadsheet tr:first-child th",
+                "rule": "background-color: #AD00FA !important;",
+            },
+            {
+                "selector": ".dash-spreadsheet tr:nth-child(2) th:hover",
+                "rule": "background-color: var(--table-alt-row-color, #f8f9fa) !important;",
             },
             {
                 "selector": "tr:first-child .dash-select-header",
                 "rule": "background-color: #AD00FA !important; border: none !important;",
-            },
-            {
-                "selector": "tr:nth-child(2) .dash-select-header",
-                "rule": "background-color: var(--table-alt-row-color, #f8f9fa) !important; border-bottom: 1px solid var(--table-border-color, rgba(0,0,0,0.1)) !important; border-right: 1px solid var(--table-border-color, rgba(0,0,0,0.1)) !important; border-left: none !important; border-top: none !important;",
-            },
-            {
-                "selector": ".dash-select-cell",
-                "rule": "border-bottom: 1px solid var(--table-border-color, rgba(0,0,0,0.1)) !important; border-right: 1px solid var(--table-border-color, rgba(0,0,0,0.1)) !important; border-left: none !important; border-top: none !important;",
             },
         ],
     }

@@ -20,7 +20,6 @@ html body {
     position: relative;
     min-height: 100vh;
     overflow-x: hidden;
-
 }
 
 .full-viewport-background {
@@ -37,9 +36,11 @@ html body {
     height: 50px;
     margin-top: -7px;
 }
+
 .hidden {
     display: none;
 }
+
 .center {
     text-align: center;
     display:flex;

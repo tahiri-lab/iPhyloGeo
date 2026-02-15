@@ -1,6 +1,5 @@
 .get-started {
   background-color: var(--background-color);
-  overflow: visible;
   transition: all 0.3s ease-in-out;
   position: relative;
   box-sizing: border-box;
@@ -70,9 +69,6 @@
       &:hover {
         transition: all 0.3s ease-in-out;
         box-shadow: none;
-        //box-shadow: var(--switch-toggle-background) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-        //background-color: var(--background-color);
-        //color: var(--reverse-black-white-color);
       }
 
       &.selected {
@@ -142,8 +138,7 @@
 
     .drop-zone {
       user-select: none;
-      max-width: 80%;
-      width: 100%;
+      width: 80%;
       margin: 0 auto;
       height: 150px;
       line-height: 60px;
@@ -231,7 +226,6 @@
   .dataset-input-container {
     display: flex;
     flex-direction: column;
-    //gap: 30px;
     width: fit-content;
     margin: 10px auto auto auto;
     padding: 20px 40px;

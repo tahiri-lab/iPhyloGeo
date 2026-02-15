@@ -8,7 +8,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
   .dash-spreadsheet-container {
-    border-radius: 0 !important;
+    border-radius: 0;
   }
 
   table {
@@ -17,8 +17,6 @@
   }
 
   .dash-header {
-    background: #AD00FA !important;
-
     th {
       &:first-child {
         border-top-left-radius: 8px;
@@ -31,8 +29,7 @@
   }
 
   tr:first-child .dash-select-header {
-    background: #AD00FA !important;
-    border: none !important;
+    border: none;
   }
 
   tr:nth-child(2) .dash-select-header {
@@ -56,20 +53,19 @@
 
   th.dash-filter {
     background-color: var(--table-alt-row-color, rgba(0, 0, 0, 0.02)) !important;
-    border-color: var(--glass-style, rgba(0, 0, 0, 0.1)) !important;
-    border-left: none !important;
+    border-color: var(--glass-style, rgba(0, 0, 0, 0.1));
 
     div {
       input[type="text"] {
-        color: var(--reverse-black-white-color, #1a1c1e) !important;
-        opacity: 1 !important;
-        -webkit-text-fill-color: var(--reverse-black-white-color, #1a1c1e) !important;
-        background-color: var(--table-alt-row-color, rgba(0, 0, 0, 0.02)) !important;
-        border-color: var(--glass-style, #ddd) !important;
+        color: var(--reverse-black-white-color, #1a1c1e);
+        opacity: 1;
+        -webkit-text-fill-color: var(--reverse-black-white-color, #1a1c1e);
+        background-color: var(--table-alt-row-color, rgba(0, 0, 0, 0.02));
+        border-color: var(--glass-style, #ddd);
 
         &::placeholder {
-          color: var(--text-color, #999) !important;
-          opacity: 0.7 !important;
+          color: var(--text-color, #999);
+          opacity: 0.7;
           font-style: italic;
         }
       }

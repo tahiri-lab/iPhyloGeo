@@ -40,6 +40,7 @@ module.exports = function (grunt) {
                     'apps/assets/styles/utils/button.scss',
                     'apps/assets/styles/utils/popup.scss',
                     'apps/assets/styles/utils/tooltip.scss',
+                    'apps/assets/styles/utils/table.scss',
                     'apps/assets/styles/settings.scss',
                     'apps/assets/styles/help.scss'
                 ],
