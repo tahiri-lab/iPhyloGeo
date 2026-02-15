@@ -1129,5 +1129,3 @@ def submit_button(
     except Exception as e:
         print("[Error]:", e)
         return "popup", None
-
-
