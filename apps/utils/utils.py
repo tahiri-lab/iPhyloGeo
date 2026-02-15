@@ -443,3 +443,69 @@ def make_cookie(
     # Create the string format for the cookie
     auth_cookie_value = ".".join(auth_ids)
     response.set_cookie(name, auth_cookie_value, max_age=max_age)
+
+
+def get_table_styles():
+    """
+    Returns the common styles for the dash tables.
+    """
+    return {
+        "style_table": {
+            "overflowX": "auto",
+        },
+        "style_header": {
+            "fontWeight": "600",
+            "textTransform": "uppercase",
+            "fontSize": "13px",
+            "textAlign": "center",
+            "color": "#ffffff",
+            "border": "none",
+        },
+        "style_data": {
+            "color": "var(--reverse-black-white-color)",
+            "backgroundColor": "var(--table-bg-color)",
+            "fontSize": "13px",
+        },
+        "style_filter": {
+            "backgroundColor": "var(--table-alt-row-color, #f8f9fa)",
+            "padding": "8px",
+            "borderBottom": "1px solid var(--table-border-color, rgba(0,0,0,0.1))",
+            "borderRight": "1px solid var(--table-border-color, rgba(0,0,0,0.1))",
+            "borderLeft": "none",
+            "borderTop": "none",
+        },
+        "style_data_conditional": [
+            {
+                "if": {"row_index": "odd"},
+                "backgroundColor": "var(--table-alt-row-color)",
+            },
+            {
+                "if": {"state": "active"},
+                "backgroundColor": "rgba(102, 126, 234, 0.15)",
+                "border": "none",
+            },
+        ],
+        "style_cell": {
+            "textAlign": "left",
+            "padding": "12px",
+            "fontFamily": "Inter, sans-serif",
+        },
+        "css": [
+            {
+                "selector": ".dash-spreadsheet tr:hover",
+                "rule": "background-color: transparent !important;",
+            },
+            {
+                "selector": ".dash-spreadsheet tr:first-child th",
+                "rule": "background-color: #AD00FA !important;",
+            },
+            {
+                "selector": ".dash-spreadsheet tr:nth-child(2) th:hover",
+                "rule": "background-color: var(--table-alt-row-color, #f8f9fa) !important;",
+            },
+            {
+                "selector": "tr:first-child .dash-select-header",
+                "rule": "background-color: #AD00FA !important; border: none !important;",
+            },
+        ],
+    }

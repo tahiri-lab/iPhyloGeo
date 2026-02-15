@@ -30,6 +30,7 @@ LIGHT_THEME = {
     "--result-row-color": "#E7E7E7",
     "--black-and-white": "white",
     "--table-bg-color": "white",
+    "--table-alt-row-color": "#F8F9FA",
 }
 
 DARK_THEME = {
@@ -48,6 +49,7 @@ DARK_THEME = {
     "--result-row-color": "#444444",
     "--black-and-white": "#111111",
     "--table-bg-color": "#282b32",
+    "--table-alt-row-color": "#3a3f4a",
 }
 
 path_params = {
@@ -81,7 +83,6 @@ app.layout = html.Div(
     [
         html.Div(
             [
-                dash.page_container,
                 NavbarComponent(
                     [
                         html.Div(
@@ -165,8 +166,13 @@ app.layout = html.Div(
                         ),
                     ]
                 ),
+                html.Div(
+                    dash.page_container,
+                    className="page-content",
+                ),
             ],
             id="themer",
+            className="app-layout",
         ),
         toast_container,
     ]

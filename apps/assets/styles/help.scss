@@ -10,6 +10,21 @@
     margin-bottom: 20px;
     margin-left: auto;
     margin-right: auto;
+    min-height: 100vh;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--background-color);
+        z-index: -1;
+        transition: all 0.3s ease-in-out;
+    }
 
     .help-page-section {
         display: flex;
