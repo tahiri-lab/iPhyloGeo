@@ -8,6 +8,10 @@ import dash
 import dash_bootstrap_components as dbc
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
+from components.email_input import (
+    get_button_id,
+    validate_email,
+)
 from enums import convert_settings_to_codes
 import pages.upload.climatic.paramsClimatic as paramsClimatic
 import pages.upload.dropFileSection as dropFileSection
@@ -130,15 +134,19 @@ layout = html.Div(
 # Callback to save email address when user clicks "Send Email" in popup
 @callback(
     Output("email-store", "data"),
-    Input("send-email-button", "n_clicks"),
+    Output("toast-store", "data", allow_duplicate=True),
+    Input(get_button_id("email-input"), "n_clicks"),
     State("email-input", "value"),
     prevent_initial_call=True,
 )
 def save_email_to_store(n_clicks, email):
     """Save email address to store when user clicks Send Email button."""
-    if n_clicks and n_clicks > 0 and email:
-        return email
-    return None
+    if not n_clicks:
+        raise PreventUpdate
+    if not validate_email(email):
+        return None, {"message": "Invalid email address", "type": "error"}
+    toast_data = {"message": "An email will be sent when results are ready", "type": "success"}
+    return email, toast_data
 
 
 @callback(

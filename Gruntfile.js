@@ -21,7 +21,9 @@ module.exports = function (grunt) {
                     'apps/assets/popup.css': 'apps/assets/styles/utils/popup.scss',
                     'apps/assets/tooltip.css': 'apps/assets/styles/utils/tooltip.scss',
                     'apps/assets/settings.css': 'apps/assets/styles/settings.scss',
-                    'apps/assets/help.css': 'apps/assets/styles/help.scss'
+                    'apps/assets/help.css': 'apps/assets/styles/help.scss',
+                    'apps/assets/toast.css': 'apps/assets/styles/utils/toast.scss',
+                    'apps/assets/email_input.css': 'apps/assets/styles/utils/email_input.scss'
                 }
             }
         },
@@ -42,7 +44,9 @@ module.exports = function (grunt) {
                     'apps/assets/styles/utils/tooltip.scss',
                     'apps/assets/styles/utils/table.scss',
                     'apps/assets/styles/settings.scss',
-                    'apps/assets/styles/help.scss'
+                    'apps/assets/styles/help.scss',
+                    'apps/assets/styles/utils/toast.scss',
+                    'apps/assets/styles/utils/email_input.scss'
                 ],
                 tasks: ['build-css']
             }
@@ -52,5 +56,5 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.registerTask('build-css', ['sass']);
-    grunt.registerTask('default', ['build-css','watch']);
+    grunt.registerTask('default', ['build-css', 'watch']);
 };
