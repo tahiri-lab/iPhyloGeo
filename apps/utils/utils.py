@@ -388,18 +388,17 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 lambda x: os.path.basename(str(x)) if pd.notna(x) else x
             )
 
-        # Initialize the 4 dedicated statistical test columns
-        df_output["Mantel_r"] = None
-        df_output["Mantel_p"] = None
-        df_output["Procrustes_M2"] = None
-        df_output["PROTEST_p"] = None
-
-        # Run statistical tests and populate every row
+        # Run statistical tests
         try:
             climatic_matrix = climatic_df.drop(columns=[climatic_df.columns[0]])
             climatic_dist = squareform(pdist(climatic_matrix, metric="euclidean"))
             genetic_dist = aPhyloGeo.get_patristic_distance_matrix(genetic_trees)
             genetic_matrix = pd.DataFrame(genetic_dist)
+
+            mantel_r = None
+            mantel_p = None
+            procrustes_m2 = None
+            protest_p = None
 
             if Params.statistical_test == '0' or Params.statistical_test == '1':
                 r, p, n = aPhyloGeo.run_mantel_test(
@@ -407,8 +406,8 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                     Params.permutations_mantel_test,
                     Params.mantel_test_method
                 )
-                df_output["Mantel_r"] = r
-                df_output["Mantel_p"] = p
+                mantel_r = r
+                mantel_p = p
 
             if Params.statistical_test == '0' or Params.statistical_test == '2':
                 from aphylogeo.utils import run_procrustes_analysis, run_protest_test
@@ -417,13 +416,39 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                     climatic_matrix, genetic_matrix,
                     n_permutations=Params.permutations_protest
                 )
-                df_output["Procrustes_M2"] = m2
-                df_output["PROTEST_p"] = protest_p
+                procrustes_m2 = m2
+
+            # Append empty row
+            empty_row = pd.DataFrame([{col: "" for col in df_output.columns}])
+            df_output = pd.concat([df_output, empty_row], ignore_index=True)
+
+            # Define stats data
+            headers = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
+            values = [mantel_r, mantel_p, procrustes_m2, protest_p]
+
+            # Append stats header row
+            header_row_data = {col: "" for col in df_output.columns}
+            for i, header in enumerate(headers):
+                if i < len(df_output.columns):
+                    header_row_data[df_output.columns[i]] = header
+            
+            # Using specific column names for dictionary keys prevents misalignment
+            df_output = pd.concat([df_output, pd.DataFrame([header_row_data])], ignore_index=True)
+
+            # Append stats value row
+            value_row_data = {col: "" for col in df_output.columns}
+            for i, val in enumerate(values):
+                if i < len(df_output.columns):
+                    value_row_data[df_output.columns[i]] = val
+            
+            df_output = pd.concat([df_output, pd.DataFrame([value_row_data])], ignore_index=True)
 
         except Exception as e:
             print(f"[Warning] Could not compute statistical tests: {e}")
 
         # Convert back to dict format for storage
+        # Replace NaN with None (or empty string) because MongoDB can be picky or frontend might expect it
+        df_output = df_output.where(pd.notnull(df_output), None)
         output = df_output.to_dict(orient="list")
 
         results_ctrl.update_result(
