@@ -1075,6 +1075,15 @@ def submit_button(
         files_ids["genetic_tree_files_id"] = genetic_tree_file_id
 
     try:
+        # Re-read latest settings from JSON and apply to Params so that the
+        # pipeline uses the current user choices (e.g. statistical_test).
+        with open("genetic_settings_file.json", "r") as _sf:
+            _latest_settings = json.load(_sf)
+        _latest_codes = convert_settings_to_codes(_latest_settings)
+        Params.update_from_dict(
+            {k: v for k, v in _latest_codes.items() if k in Params.PARAMETER_KEYS}
+        )
+
         # create a new result in the database
         result_id = utils.create_result(
             files_ids, result_type, params_climatic, params_genetic, result_name

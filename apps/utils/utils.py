@@ -487,8 +487,9 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 lambda x: os.path.basename(str(x)) if pd.notna(x) else x
             )
 
-        # Run statistical tests
-        try:
+        # Run statistical tests (skip entirely when "None" is selected)
+        if Params.statistical_test != '3':
+          try:
             climatic_matrix = climatic_df.drop(columns=[climatic_df.columns[0]])
             climatic_dist = squareform(pdist(climatic_matrix, metric="euclidean"))
             genetic_dist = aPhyloGeo.get_patristic_distance_matrix(genetic_trees)
@@ -545,7 +546,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                         value_row_data[df_output.columns[i]] = val
                 df_output = pd.concat([df_output, pd.DataFrame([value_row_data])], ignore_index=True)
 
-        except Exception as e:
+          except Exception as e:
             print(f"[Warning] Could not compute statistical tests: {e}")
 
         # Convert back to dict format for storage
