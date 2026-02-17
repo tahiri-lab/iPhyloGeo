@@ -303,33 +303,34 @@ def create_climatic_trees(
             print(f"Climatic preprocessing: kept {len(cols_to_keep)}/{len(feature_cols)} "
                   f"columns (variance >= {threshold})")
 
-            # Remove highly correlated columns (Spearman)
+            # Remove highly correlated columns (Spearman) — only if enabled
             # correlation_threshold_climatic is an iPhyloGeo-specific setting, not in aphylogeo's Params
             _settings = json.load(open("genetic_settings_file.json", "r"))
-            max_corr_threshold = float(_settings.get("correlation_threshold_climatic", 0.9))
-            feature_cols = list(df.columns[1:])
-            while True:
-                corr_matrix = df[feature_cols].corr(method="spearman").abs()
-                upper_tri = corr_matrix.where(
-                    np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
-                )
-                max_corr = upper_tri.max().max()
-                if max_corr < max_corr_threshold:
-                    break
-                # Find the column with the highest mean correlation above threshold
-                col_scores = {}
-                for col in upper_tri.columns:
-                    high = upper_tri[col][upper_tri[col] >= max_corr_threshold]
-                    if not high.empty:
-                        col_scores[col] = high.mean()
-                if col_scores:
-                    drop_col = max(col_scores, key=col_scores.get)
-                    feature_cols.remove(drop_col)
-                else:
-                    break
-            df = df[[id_col] + feature_cols]
-            print(f"Correlation filtering: kept {len(feature_cols)} columns "
-                  f"(max Spearman correlation < {max_corr_threshold})")
+            if int(_settings.get("correlation_climatic_enabled", "0") == "Enabled"):
+                max_corr_threshold = float(_settings.get("correlation_threshold_climatic", 0.9))
+                feature_cols = list(df.columns[1:])
+                while True:
+                    corr_matrix = df[feature_cols].corr(method="spearman").abs()
+                    upper_tri = corr_matrix.where(
+                        np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
+                    )
+                    max_corr = upper_tri.max().max()
+                    if max_corr < max_corr_threshold:
+                        break
+                    # Find the column with the highest mean correlation above threshold
+                    col_scores = {}
+                    for col in upper_tri.columns:
+                        high = upper_tri[col][upper_tri[col] >= max_corr_threshold]
+                        if not high.empty:
+                            col_scores[col] = high.mean()
+                    if col_scores:
+                        drop_col = max(col_scores, key=col_scores.get)
+                        feature_cols.remove(drop_col)
+                    else:
+                        break
+                df = df[[id_col] + feature_cols]
+                print(f"Correlation filtering: kept {len(feature_cols)} columns "
+                      f"(max Spearman correlation < {max_corr_threshold})")
 
         climatic_trees = aPhyloGeo.climaticPipeline(df)
         results_ctrl.update_result(

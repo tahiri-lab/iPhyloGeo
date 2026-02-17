@@ -49,6 +49,7 @@ PREPROCESSING_GENETIC_DEFAULT = PreprocessingToggle.DISABLED.value
 PREPROCESSING_CLIMATIC_DEFAULT = PreprocessingToggle.DISABLED.value
 PREPROCESSING_THRESHOLD_GENETIC_DEFAULT = 0
 PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT = 0
+CORRELATION_CLIMATIC_ENABLED_DEFAULT = PreprocessingToggle.DISABLED.value
 CORRELATION_THRESHOLD_CLIMATIC_DEFAULT = 0.9
 PERMUTATIONS_MANTEL_TEST_DEFAULT = 999
 PERMUTATIONS_PROTEST_DEFAULT = 999
@@ -312,13 +313,16 @@ layout = html.Div(
                                 dbc.Col(
                                     dbc.Form(
                                         [
-                                            dbc.Label("Climatic preprocessing"),
-                                            dcc.Dropdown(
-                                                id="preprocessing-climatic",
-                                                options=PreprocessingToggle.choices(),
+                                            dbc.Label("Genetic preprocessing threshold"),
+                                            dcc.Input(
+                                                id="preprocessing-threshold-genetic",
+                                                type="number",
+                                                min=PREPROCESSING_THRESHOLD_GENETIC_MIN,
+                                                max=PREPROCESSING_THRESHOLD_GENETIC_MAX,
+                                                step=0.01,
                                                 value=genetic_settings_file.get(
-                                                    "preprocessing_climatic",
-                                                    PREPROCESSING_CLIMATIC_DEFAULT,
+                                                    "preprocessing_threshold_genetic",
+                                                    PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
                                                 ),
                                                 className="form-control",
                                             ),
@@ -334,16 +338,13 @@ layout = html.Div(
                                 dbc.Col(
                                     dbc.Form(
                                         [
-                                            dbc.Label("Genetic preprocessing threshold"),
-                                            dcc.Input(
-                                                id="preprocessing-threshold-genetic",
-                                                type="number",
-                                                min=PREPROCESSING_THRESHOLD_GENETIC_MIN,
-                                                max=PREPROCESSING_THRESHOLD_GENETIC_MAX,
-                                                step=0.01,
+                                            dbc.Label("Climatic preprocessing"),
+                                            dcc.Dropdown(
+                                                id="preprocessing-climatic",
+                                                options=PreprocessingToggle.choices(),
                                                 value=genetic_settings_file.get(
-                                                    "preprocessing_threshold_genetic",
-                                                    PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
+                                                    "preprocessing_climatic",
+                                                    PREPROCESSING_CLIMATIC_DEFAULT,
                                                 ),
                                                 className="form-control",
                                             ),
@@ -376,6 +377,23 @@ layout = html.Div(
                         html.Br(),
                         dbc.Row(
                             [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Correlation filtering (climatic)"),
+                                            dcc.Dropdown(
+                                                id="correlation-climatic-enabled",
+                                                options=PreprocessingToggle.choices(),
+                                                value=genetic_settings_file.get(
+                                                    "correlation_climatic_enabled",
+                                                    CORRELATION_CLIMATIC_ENABLED_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
                                 dbc.Col(
                                     dbc.Form(
                                         [
@@ -530,6 +548,7 @@ def get_default_settings():
         "preprocessing_climatic": PREPROCESSING_CLIMATIC_DEFAULT,
         "preprocessing_threshold_genetic": PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
         "preprocessing_threshold_climatic": PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
+        "correlation_climatic_enabled": CORRELATION_CLIMATIC_ENABLED_DEFAULT,
         "correlation_threshold_climatic": CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
         "permutations_mantel_test": PERMUTATIONS_MANTEL_TEST_DEFAULT,
         "permutations_protest": PERMUTATIONS_PROTEST_DEFAULT,
@@ -554,6 +573,7 @@ def get_default_settings():
     Output("preprocessing-climatic", "value"),
     Output("preprocessing-threshold-genetic", "value"),
     Output("preprocessing-threshold-climatic", "value"),
+    Output("correlation-climatic-enabled", "value"),
     Output("max-correlation-climatic", "value"),
     Output("permutations-mantel-test", "value"),
     Output("permutations-protest", "value"),
@@ -577,6 +597,7 @@ def update_settings(settings):
         settings.get("preprocessing_climatic", PREPROCESSING_CLIMATIC_DEFAULT),
         settings.get("preprocessing_threshold_genetic", PREPROCESSING_THRESHOLD_GENETIC_DEFAULT),
         settings.get("preprocessing_threshold_climatic", PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT),
+        settings.get("correlation_climatic_enabled", CORRELATION_CLIMATIC_ENABLED_DEFAULT),
         settings.get("correlation_threshold_climatic", CORRELATION_THRESHOLD_CLIMATIC_DEFAULT),
         settings.get("permutations_mantel_test", PERMUTATIONS_MANTEL_TEST_DEFAULT),
         settings.get("permutations_protest", PERMUTATIONS_PROTEST_DEFAULT),
@@ -605,6 +626,7 @@ def update_settings(settings):
     State("preprocessing-climatic", "value"),
     State("preprocessing-threshold-genetic", "value"),
     State("preprocessing-threshold-climatic", "value"),
+    State("correlation-climatic-enabled", "value"),
     State("max-correlation-climatic", "value"),
     State("permutations-mantel-test", "value"),
     State("permutations-protest", "value"),
@@ -629,6 +651,7 @@ def update_parameters(
     preprocessing_climatic,
     preprocessing_threshold_genetic,
     preprocessing_threshold_climatic,
+    correlation_climatic_enabled,
     correlation_threshold_climatic,
     permutations_mantel_test,
     permutations_protest,
@@ -665,6 +688,7 @@ def update_parameters(
             "preprocessing_climatic": preprocessing_climatic,
             "preprocessing_threshold_genetic": preprocessing_threshold_genetic,
             "preprocessing_threshold_climatic": preprocessing_threshold_climatic,
+            "correlation_climatic_enabled": correlation_climatic_enabled,
             "correlation_threshold_climatic": correlation_threshold_climatic,
             "permutations_mantel_test": permutations_mantel_test,
             "permutations_protest": permutations_protest,
