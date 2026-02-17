@@ -1,5 +1,6 @@
 import base64
 import io
+import json
 import os
 
 import numpy as np
@@ -303,7 +304,9 @@ def create_climatic_trees(
                   f"columns (variance >= {threshold})")
 
             # Remove highly correlated columns (Spearman)
-            max_corr_threshold = float(Params.correlation_threshold_climatic)
+            # correlation_threshold_climatic is an iPhyloGeo-specific setting, not in aphylogeo's Params
+            _settings = json.load(open("genetic_settings_file.json", "r"))
+            max_corr_threshold = float(_settings.get("correlation_threshold_climatic", 0.9))
             feature_cols = list(df.columns[1:])
             while True:
                 corr_matrix = df[feature_cols].corr(method="spearman").abs()
