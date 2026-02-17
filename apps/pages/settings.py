@@ -28,6 +28,8 @@ PREPROCESSING_THRESHOLD_GENETIC_MIN = 0
 PREPROCESSING_THRESHOLD_GENETIC_MAX = 1
 PREPROCESSING_THRESHOLD_CLIMATIC_MIN = 0
 PREPROCESSING_THRESHOLD_CLIMATIC_MAX = 1
+CORRELATION_THRESHOLD_CLIMATIC_MIN = 0
+CORRELATION_THRESHOLD_CLIMATIC_MAX = 1
 PERMUTATIONS_MIN = 1
 PERMUTATIONS_MAX = 99999
 
@@ -47,6 +49,7 @@ PREPROCESSING_GENETIC_DEFAULT = PreprocessingToggle.DISABLED.value
 PREPROCESSING_CLIMATIC_DEFAULT = PreprocessingToggle.DISABLED.value
 PREPROCESSING_THRESHOLD_GENETIC_DEFAULT = 0
 PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT = 0
+CORRELATION_THRESHOLD_CLIMATIC_DEFAULT = 0.9
 PERMUTATIONS_MANTEL_TEST_DEFAULT = 999
 PERMUTATIONS_PROTEST_DEFAULT = 999
 MANTEL_TEST_METHOD_DEFAULT = MantelTestMethod.PEARSON.value
@@ -371,6 +374,31 @@ layout = html.Div(
                             ]
                         ),
                         html.Br(),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Max correlation (climatic)"),
+                                            dcc.Input(
+                                                id="max-correlation-climatic",
+                                                type="number",
+                                                min=CORRELATION_THRESHOLD_CLIMATIC_MIN,
+                                                max=CORRELATION_THRESHOLD_CLIMATIC_MAX,
+                                                step=0.01,
+                                                value=genetic_settings_file.get(
+                                                    "correlation_threshold_climatic",
+                                                    CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                            ]
+                        ),
+                        html.Br(),
                         # --- Statistical Tests Section ---
                         html.H5(
                             "Statistical Tests",
@@ -502,6 +530,7 @@ def get_default_settings():
         "preprocessing_climatic": PREPROCESSING_CLIMATIC_DEFAULT,
         "preprocessing_threshold_genetic": PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
         "preprocessing_threshold_climatic": PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
+        "correlation_threshold_climatic": CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
         "permutations_mantel_test": PERMUTATIONS_MANTEL_TEST_DEFAULT,
         "permutations_protest": PERMUTATIONS_PROTEST_DEFAULT,
         "mantel_test_method": MANTEL_TEST_METHOD_DEFAULT,
@@ -525,6 +554,7 @@ def get_default_settings():
     Output("preprocessing-climatic", "value"),
     Output("preprocessing-threshold-genetic", "value"),
     Output("preprocessing-threshold-climatic", "value"),
+    Output("max-correlation-climatic", "value"),
     Output("permutations-mantel-test", "value"),
     Output("permutations-protest", "value"),
     Output("mantel-test-method", "value"),
@@ -547,6 +577,7 @@ def update_settings(settings):
         settings.get("preprocessing_climatic", PREPROCESSING_CLIMATIC_DEFAULT),
         settings.get("preprocessing_threshold_genetic", PREPROCESSING_THRESHOLD_GENETIC_DEFAULT),
         settings.get("preprocessing_threshold_climatic", PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT),
+        settings.get("correlation_threshold_climatic", CORRELATION_THRESHOLD_CLIMATIC_DEFAULT),
         settings.get("permutations_mantel_test", PERMUTATIONS_MANTEL_TEST_DEFAULT),
         settings.get("permutations_protest", PERMUTATIONS_PROTEST_DEFAULT),
         settings.get("mantel_test_method", MANTEL_TEST_METHOD_DEFAULT),
@@ -574,6 +605,7 @@ def update_settings(settings):
     State("preprocessing-climatic", "value"),
     State("preprocessing-threshold-genetic", "value"),
     State("preprocessing-threshold-climatic", "value"),
+    State("max-correlation-climatic", "value"),
     State("permutations-mantel-test", "value"),
     State("permutations-protest", "value"),
     State("mantel-test-method", "value"),
@@ -597,6 +629,7 @@ def update_parameters(
     preprocessing_climatic,
     preprocessing_threshold_genetic,
     preprocessing_threshold_climatic,
+    correlation_threshold_climatic,
     permutations_mantel_test,
     permutations_protest,
     mantel_test_method,
@@ -632,6 +665,7 @@ def update_parameters(
             "preprocessing_climatic": preprocessing_climatic,
             "preprocessing_threshold_genetic": preprocessing_threshold_genetic,
             "preprocessing_threshold_climatic": preprocessing_threshold_climatic,
+            "correlation_threshold_climatic": correlation_threshold_climatic,
             "permutations_mantel_test": permutations_mantel_test,
             "permutations_protest": permutations_protest,
             "mantel_test_method": mantel_test_method,
