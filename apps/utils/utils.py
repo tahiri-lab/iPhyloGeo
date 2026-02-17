@@ -394,7 +394,7 @@ def create_alignement(result_id, genetic_data, status="alignement"):
         msaSet = alignmentObject.msa
 
         # Genetic preprocessing: remove gap-heavy columns from each window
-        if Params.preprocessing_genetic:
+        if int(Params.preprocessing_genetic):
             threshold = float(Params.preprocessing_threshold_genetic)
             filtered_msa = {}
             for window, alignment in msaSet.items():
