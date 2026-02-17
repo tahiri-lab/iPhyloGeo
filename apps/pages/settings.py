@@ -305,6 +305,7 @@ layout = html.Div(
                                                     PREPROCESSING_GENETIC_DEFAULT,
                                                 ),
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -325,6 +326,7 @@ layout = html.Div(
                                                     PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
                                                 ),
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -347,6 +349,7 @@ layout = html.Div(
                                                     PREPROCESSING_CLIMATIC_DEFAULT,
                                                 ),
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -367,6 +370,7 @@ layout = html.Div(
                                                     PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
                                                 ),
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -389,6 +393,7 @@ layout = html.Div(
                                                     CORRELATION_CLIMATIC_ENABLED_DEFAULT,
                                                 ),
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),
@@ -409,6 +414,7 @@ layout = html.Div(
                                                     CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
                                                 ),
                                                 className="form-control",
+                                                clearable=False,
                                             ),
                                         ]
                                     ),

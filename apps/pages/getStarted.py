@@ -110,6 +110,8 @@ layout = html.Div(
                 "preprocessing_climatic": genetic_setting_file.get("preprocessing_climatic", "Disabled"),
                 "preprocessing_threshold_genetic": genetic_setting_file.get("preprocessing_threshold_genetic", 0),
                 "preprocessing_threshold_climatic": genetic_setting_file.get("preprocessing_threshold_climatic", 0),
+                "correlation_climatic_enabled": genetic_setting_file.get("correlation_climatic_enabled", "Disabled"),
+                "correlation_threshold_climatic": genetic_setting_file.get("correlation_threshold_climatic", 1),
                 "permutations_mantel_test": genetic_setting_file.get("permutations_mantel_test", 999),
                 "permutations_protest": genetic_setting_file.get("permutations_protest", 999),
                 "mantel_test_method": genetic_setting_file.get("mantel_test_method", "Pearson"),

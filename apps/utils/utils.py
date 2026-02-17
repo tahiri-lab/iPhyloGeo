@@ -306,7 +306,7 @@ def create_climatic_trees(
             # Remove highly correlated columns (Spearman) — only if enabled
             # correlation_threshold_climatic is an iPhyloGeo-specific setting, not in aphylogeo's Params
             _settings = json.load(open("genetic_settings_file.json", "r"))
-            if int(_settings.get("correlation_climatic_enabled", "0") == "Enabled"):
+            if _settings.get("correlation_climatic_enabled", "0") == "Enabled":
                 max_corr_threshold = float(_settings.get("correlation_threshold_climatic", 0.9))
                 feature_cols = list(df.columns[1:])
                 while True:
