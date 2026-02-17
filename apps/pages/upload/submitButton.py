@@ -17,6 +17,7 @@ layout = html.Div(
                             type="text",
                             placeholder="Enter dataset Name",
                             className="data-set-input",
+                            value=""
                         ),
                         #  html.Div("A popup will appear when results are completed.", className="info-popup"),
                     ],

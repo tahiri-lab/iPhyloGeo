@@ -107,7 +107,7 @@ app.layout = html.Div(
                                             persistence=True,
                                             persistence_type="local",
                                         ),
-                                        html.Div(id="theme-switch-output"),
+                                        html.Div(id="theme-switch-output", style={"display": "none"}),
                                     ],
                                     id="lab-container",
                                     className="lab-container",
@@ -127,9 +127,8 @@ app.layout = html.Div(
                                                     ],
                                                     className="icon",
                                                 ),
-                                                html.A(
+                                                html.Div(
                                                     f"{path_params[page['name']]['name']}",
-                                                    href=page["relative_path"],
                                                     className="text",
                                                 ),
                                             ],
@@ -199,19 +198,19 @@ def change_theme(value):
     Returns:
         theme-switch-output: value of the button (true or false). Hidden div to trigger callback
     """
-    return value
+    return str(value)
 
 
 @app.callback(Output("themer", "style"), Input("theme-switch-output", "children"))
 def update_color(children):
     """
     Args:
-        children: boolean, True if dark theme is selected, False if light theme is selected.
+        children: string, "True" if dark theme is selected, "False" if light theme is selected.
             Button to trigger callback (need at least one parameter, but we dont use n_clicks)
     Returns:
         themer: dict, css style for the theme
     """
-    return LIGHT_THEME if not children else DARK_THEME
+    return LIGHT_THEME if children == "False" else DARK_THEME
 
 
 @app.callback(
