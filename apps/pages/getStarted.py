@@ -751,7 +751,7 @@ def upload_data(
     ):
         raise PreventUpdate
 
-    submit_button = None
+    submit_button = ""
     if not current_data["submit button"]:
         current_data["submit button"] = True
         submit_button = submitButton.layout

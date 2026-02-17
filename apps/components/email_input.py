@@ -46,6 +46,7 @@ def create_email_input(input_id, placeholder="Enter your email..."):
                         id=input_id,
                         type="email",
                         placeholder=placeholder,
+                        value="",
                     ),
                     html.Button(
                         "Send Email",

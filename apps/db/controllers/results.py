@@ -24,7 +24,7 @@ def get_results(ids):
         results = []
         for id in ids:
             with open(Path("result") / (str(id) + ".json")) as f:
-                results.append(f.read())
+                results.append(json.load(f))
         return results
 
     res = results_db.find({"_id": {"$in": [ObjectId(id) for id in ids]}})

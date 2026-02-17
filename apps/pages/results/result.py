@@ -4,6 +4,7 @@ import re
 from io import StringIO
 
 import dash
+from bson import ObjectId
 import dash_cytoscape as cyto
 import numpy as np
 import pandas as pd
@@ -165,7 +166,7 @@ def show_result_name(path):
         html.Div: the div containing the name of the result
     """
     result_id = path.split("/")[-1]
-    if not result_id:
+    if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
     title = utils.get_result(result_id)["name"]
     return html.Div(title, className="title")
@@ -194,10 +195,12 @@ def show_complete_results(path, generated_page):
         Union[dcc.Graph, None]: The results graph if data is available and valid, else None.
     """
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
 
     if "genetic" not in result["result_type"] or "output" not in result:
-        return None, None, None
+        return "", "", ""
 
     results_data = str_csv_to_df(result["output"])
 
@@ -208,7 +211,7 @@ def show_complete_results(path, generated_page):
         return (
             create_result_table_header(),  # Still return the header
             create_result_table(results_data),  # Display the table (might be empty)
-            None,  # No graph to display
+            "",  # No graph to display
         )
 
     # Filter out statistical test summary rows (NaN in core columns) for the graphic
@@ -245,11 +248,13 @@ def create_climatic_trees(path, generated_results_header):
         html.Div: the div containing the climatic trees
     """
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     add_to_cookie(result_id)
 
     result = utils.get_result(result_id)
     if "climatic" not in result["result_type"]:
-        return None, None
+        return "", ""
 
     climatic_trees = result["climatic_trees"]
     tree_names = list(climatic_trees.keys())
@@ -303,6 +308,8 @@ def download_results(
     """
 
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
 
     ctx = dash.callback_context
@@ -349,9 +356,11 @@ def create_genetic_trees(path, generated_results_header):
         html.Div: the div containing the genetic trees
     """
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
     if "genetic" not in result["result_type"] or "genetic_trees" not in result:
-        return None, None
+        return "", ""
 
     genetic_trees = result["genetic_trees"]
     tree_names = list(genetic_trees.keys())
@@ -572,33 +581,31 @@ def create_genetic_trees_header():
     """
     This function creates the header for the genetic trees
     """
-    return (
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Div("Genetic Trees", className="title"),
-                        html.Img(
-                            src="../../assets/icons/angle-down.svg",
-                            id="results-genetic-collapse-button",
-                            className="icon collapse-icon",
-                        ),
-                    ],
-                    className="sub-section",
-                ),
-                html.Div(
-                    [
-                        html.Div("Genetic Trees", className="text"),
-                        html.Img(
-                            src="../../assets/icons/download.svg", className="icon"
-                        ),
-                    ],
-                    className="individual-tree-download-container button download",
-                    id="download-button-genetic",
-                ),
-            ],
-            className="section",
-        ),
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Div("Genetic Trees", className="title"),
+                    html.Img(
+                        src="../../assets/icons/angle-down.svg",
+                        id="results-genetic-collapse-button",
+                        className="icon collapse-icon",
+                    ),
+                ],
+                className="sub-section",
+            ),
+            html.Div(
+                [
+                    html.Div("Genetic Trees", className="text"),
+                    html.Img(
+                        src="../../assets/icons/download.svg", className="icon"
+                    ),
+                ],
+                className="individual-tree-download-container button download",
+                id="download-button-genetic",
+            ),
+        ],
+        className="section",
     )
 
 

@@ -70,16 +70,16 @@ layout = html.Div(
             style={
                 "margin": "20px",
                 "width": "80%",
-                "max-width": "800px",
-                "margin-left": "auto",
-                "margin-right": "auto",
-                "background-color": "#1A1C1E",  # Set background to black
+                "maxWidth": "800px",
+                "marginLeft": "auto",
+                "marginRight": "auto",
+                "backgroundColor": "#1A1C1E",  # Set background to black
                 "color": "white",  # Set text color to white
             },
             children=[
                 dbc.CardHeader(
                     "GENETIC PARAMETERS",
-                    style={"font-size": "1.25rem", "text-align": "center"},
+                    style={"fontSize": "1.25rem", "textAlign": "center"},
                 ),
                 dbc.CardBody(
                     [
@@ -90,7 +90,7 @@ layout = html.Div(
                                         [
                                             dbc.Label(
                                                 "Bootstrap threshold",
-                                                style={"text-align": "center"},
+                                                style={"textAlign": "center"},
                                             ),
                                             dcc.Input(
                                                 id="bootstrap-threshold",
@@ -191,7 +191,7 @@ layout = html.Div(
                         html.H5(
                             "Alignment Method",
                             className="card-title",
-                            style={"margin-top": "20px"},
+                            style={"marginTop": "20px"},
                         ),
                         dbc.Row(
                             [
@@ -248,7 +248,7 @@ layout = html.Div(
                         html.H5(
                             "Tree Type",
                             className="card-title",
-                            style={"margin-top": "20px"},
+                            style={"marginTop": "20px"},
                         ),
                         dbc.Row(
                             [
@@ -509,7 +509,7 @@ layout = html.Div(
                         ),
                         html.Div(
                             id="setting-buttons",
-                            style={"margin-top": "30px"},
+                            style={"marginTop": "30px"},
                             children=[
                                 dbc.Button(
                                     "Reset to default",
