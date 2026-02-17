@@ -489,65 +489,65 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
 
         # Run statistical tests (skip entirely when "None" is selected)
         if Params.statistical_test != '3':
-          try:
-            climatic_matrix = climatic_df.drop(columns=[climatic_df.columns[0]])
-            climatic_dist = squareform(pdist(climatic_matrix, metric="euclidean"))
-            genetic_dist = aPhyloGeo.get_patristic_distance_matrix(genetic_trees)
-            genetic_matrix = pd.DataFrame(genetic_dist)
+            try:
+                climatic_matrix = climatic_df.drop(columns=[climatic_df.columns[0]])
+                climatic_dist = squareform(pdist(climatic_matrix, metric="euclidean"))
+                genetic_dist = aPhyloGeo.get_patristic_distance_matrix(genetic_trees)
+                genetic_matrix = pd.DataFrame(genetic_dist)
 
-            mantel_r = None
-            mantel_p = None
-            procrustes_m2 = None
-            protest_p = None
+                mantel_r = None
+                mantel_p = None
+                procrustes_m2 = None
+                protest_p = None
 
-            if Params.statistical_test == '0' or Params.statistical_test == '1':
-                r, p, n = aPhyloGeo.run_mantel_test(
-                    genetic_dist, climatic_dist,
-                    Params.permutations_mantel_test,
-                    Params.mantel_test_method
-                )
-                mantel_r = r
-                mantel_p = p
+                if Params.statistical_test == '0' or Params.statistical_test == '1':
+                    r, p, n = aPhyloGeo.run_mantel_test(
+                        genetic_dist, climatic_dist,
+                        Params.permutations_mantel_test,
+                        Params.mantel_test_method
+                    )
+                    mantel_r = r
+                    mantel_p = p
 
-            if Params.statistical_test == '0' or Params.statistical_test == '2':
-                m2, _, _ = run_procrustes_analysis(genetic_matrix, climatic_matrix)
-                _, protest_p = run_protest_test(
-                    climatic_matrix, genetic_matrix,
-                    n_permutations=Params.permutations_protest
-                )
-                procrustes_m2 = m2
+                if Params.statistical_test == '0' or Params.statistical_test == '2':
+                    m2, _, _ = run_procrustes_analysis(genetic_matrix, climatic_matrix)
+                    _, protest_p = run_protest_test(
+                        climatic_matrix, genetic_matrix,
+                        n_permutations=Params.permutations_protest
+                    )
+                    procrustes_m2 = m2
 
-            # Build headers/values only for the tests that were actually run
-            headers = []
-            values = []
-            if Params.statistical_test in ('0', '1'):
-                headers += ["Mantel_r", "Mantel_p"]
-                values += [mantel_r, mantel_p]
-            if Params.statistical_test in ('0', '2'):
-                headers += ["Procrustes_M2", "PROTEST_p"]
-                values += [procrustes_m2, protest_p]
+                # Build headers/values only for the tests that were actually run
+                headers = []
+                values = []
+                if Params.statistical_test in ('0', '1'):
+                    headers += ["Mantel_r", "Mantel_p"]
+                    values += [mantel_r, mantel_p]
+                if Params.statistical_test in ('0', '2'):
+                    headers += ["Procrustes_M2", "PROTEST_p"]
+                    values += [procrustes_m2, protest_p]
 
-            if headers:
-                # Append empty separator row
-                empty_row = pd.DataFrame([{col: "" for col in df_output.columns}])
-                df_output = pd.concat([df_output, empty_row], ignore_index=True)
+                if headers:
+                    # Append empty separator row
+                    empty_row = pd.DataFrame([{col: "" for col in df_output.columns}])
+                    df_output = pd.concat([df_output, empty_row], ignore_index=True)
 
-                # Append stats header row
-                header_row_data = {col: "" for col in df_output.columns}
-                for i, header in enumerate(headers):
-                    if i < len(df_output.columns):
-                        header_row_data[df_output.columns[i]] = header
-                df_output = pd.concat([df_output, pd.DataFrame([header_row_data])], ignore_index=True)
+                    # Append stats header row
+                    header_row_data = {col: "" for col in df_output.columns}
+                    for i, header in enumerate(headers):
+                        if i < len(df_output.columns):
+                            header_row_data[df_output.columns[i]] = header
+                    df_output = pd.concat([df_output, pd.DataFrame([header_row_data])], ignore_index=True)
 
-                # Append stats value row
-                value_row_data = {col: "" for col in df_output.columns}
-                for i, val in enumerate(values):
-                    if i < len(df_output.columns):
-                        value_row_data[df_output.columns[i]] = val
-                df_output = pd.concat([df_output, pd.DataFrame([value_row_data])], ignore_index=True)
+                    # Append stats value row
+                    value_row_data = {col: "" for col in df_output.columns}
+                    for i, val in enumerate(values):
+                        if i < len(df_output.columns):
+                            value_row_data[df_output.columns[i]] = val
+                    df_output = pd.concat([df_output, pd.DataFrame([value_row_data])], ignore_index=True)
 
-          except Exception as e:
-            print(f"[Warning] Could not compute statistical tests: {e}")
+            except Exception as e:
+                print(f"[Warning] Could not compute statistical tests: {e}")
 
         # Convert back to dict format for storage
         # Replace NaN with None (or empty string) because MongoDB can be picky or frontend might expect it
