@@ -50,7 +50,7 @@ N.B. You'll need Microsoft C++ Build Tools to build some of the requirements, yo
 Then you can install the other requirements. Make sure you are using the same venv as above. Make sure you are in the iPhyloGeo directory.
 Then run the following commands :
 ```
-
+pip install -r requirements.txt
 npm install
 ```
 
