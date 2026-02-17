@@ -398,7 +398,6 @@ def create_alignement(result_id, genetic_data, status="alignement"):
             threshold = float(Params.preprocessing_threshold_genetic)
             filtered_msa = {}
             for window, alignment in msaSet.items():
-                original_len = alignment.get_alignment_length()
                 filtered = _filter_alignment_gaps(alignment, threshold)
                 filtered_msa[window] = filtered
             msaSet = filtered_msa
