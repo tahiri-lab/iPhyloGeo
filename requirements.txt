@@ -1,4 +1,4 @@
-bio==1.7.1
+bio>=1.6.0
 biopython==1.84
 dash==2.18.2
 dash_bio>=1.0.2

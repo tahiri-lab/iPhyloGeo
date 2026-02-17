@@ -120,6 +120,60 @@ class SimilarityMethod(BaseEnum):
         return [{"label": labels.get(e.value, e.value), "value": e.value} for e in cls]
 
 
+class PreprocessingToggle(BaseEnum):
+    """Toggle for enabling/disabling preprocessing."""
+
+    DISABLED = ("Disabled", "0")
+    ENABLED = ("Enabled", "1")
+
+    @classmethod
+    def choices(cls):
+        """Return list of choices for Dash dropdown with descriptive labels."""
+        labels = {
+            "Disabled": "Disabled",
+            "Enabled": "Enabled",
+        }
+        return [{"label": labels.get(e.value, e.value), "value": e.value} for e in cls]
+
+
+class StatisticalTest(BaseEnum):
+    """Statistical tests to perform for global correlation."""
+
+    BOTH = ("Both", "0")
+    MANTEL_TEST = ("MantelTest", "1")
+    PROCRUSTES = ("Procrustes", "2")
+    NONE = ("None", "3")
+
+    @classmethod
+    def choices(cls):
+        """Return list of choices for Dash dropdown with descriptive labels."""
+        labels = {
+            "Both": "Both (Mantel + Procrustes)",
+            "MantelTest": "Mantel test only",
+            "Procrustes": "Procrustes (PROTEST) only",
+            "None": "None (skip statistical tests)",
+        }
+        return [{"label": labels.get(e.value, e.value), "value": e.value} for e in cls]
+
+
+class MantelTestMethod(BaseEnum):
+    """Correlation methods for the Mantel test."""
+
+    PEARSON = ("Pearson", "pearson")
+    SPEARMAN = ("Spearman", "spearman")
+    KENDALL_TAU = ("KendallTau", "kendalltau")
+
+    @classmethod
+    def choices(cls):
+        """Return list of choices for Dash dropdown with descriptive labels."""
+        labels = {
+            "Pearson": "Pearson correlation",
+            "Spearman": "Spearman correlation",
+            "KendallTau": "Kendall Tau correlation",
+        }
+        return [{"label": labels.get(e.value, e.value), "value": e.value} for e in cls]
+
+
 def convert_settings_to_codes(settings: dict) -> dict:
     """
     Convert readable enum values to numeric codes for aphylogeo.
@@ -136,6 +190,10 @@ def convert_settings_to_codes(settings: dict) -> dict:
         "fit_method": FitMethod,
         "tree_type": TreeType,
         "method_similarity": SimilarityMethod,
+        "preprocessing_genetic": PreprocessingToggle,
+        "preprocessing_climatic": PreprocessingToggle,
+        "statistical_test": StatisticalTest,
+        "mantel_test_method": MantelTestMethod,
     }
 
     result = settings.copy()

@@ -5,7 +5,9 @@ import dash_bootstrap_components as dbc
 from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
-from enums import AlignmentMethod, DistanceMethod, FitMethod, SimilarityMethod, TreeType
+from enums import (AlignmentMethod, DistanceMethod, FitMethod,
+                   MantelTestMethod, PreprocessingToggle, SimilarityMethod,
+                   StatisticalTest, TreeType)
 
 dash.register_page(__name__, path="/settings")
 
@@ -22,6 +24,15 @@ STEP_SIZE_MAX = 500
 RATE_SIMILARITY_MIN = 0
 RATE_SIMILARITY_MAX = 100
 
+PREPROCESSING_THRESHOLD_GENETIC_MIN = 0
+PREPROCESSING_THRESHOLD_GENETIC_MAX = 1
+PREPROCESSING_THRESHOLD_CLIMATIC_MIN = 0
+PREPROCESSING_THRESHOLD_CLIMATIC_MAX = 1
+CORRELATION_THRESHOLD_CLIMATIC_MIN = 0
+CORRELATION_THRESHOLD_CLIMATIC_MAX = 1
+PERMUTATIONS_MIN = 1
+PERMUTATIONS_MAX = 99999
+
 # Default values for settings
 BOOTSTRAP_THRESHOLD_DEFAULT = 10
 DISTANCE_THRESHOLD_DEFAULT = 50
@@ -34,6 +45,16 @@ FIT_METHOD_DEFAULT = FitMethod.WIDER_FIT.value
 TREE_TYPE_DEFAULT = TreeType.BIOPYTHON.value
 RATE_SIMILARITY_DEFAULT = 90
 METHOD_SIMILARITY_DEFAULT = SimilarityMethod.HAMMING.value
+PREPROCESSING_GENETIC_DEFAULT = PreprocessingToggle.DISABLED.value
+PREPROCESSING_CLIMATIC_DEFAULT = PreprocessingToggle.DISABLED.value
+PREPROCESSING_THRESHOLD_GENETIC_DEFAULT = 0
+PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT = 0
+CORRELATION_CLIMATIC_ENABLED_DEFAULT = PreprocessingToggle.DISABLED.value
+CORRELATION_THRESHOLD_CLIMATIC_DEFAULT = 0.9
+PERMUTATIONS_MANTEL_TEST_DEFAULT = 999
+PERMUTATIONS_PROTEST_DEFAULT = 999
+MANTEL_TEST_METHOD_DEFAULT = MantelTestMethod.PEARSON.value
+STATISTICAL_TEST_DEFAULT = StatisticalTest.BOTH.value
 
 # Load the genetic settings file
 with open("genetic_settings_file.json", "r") as file:
@@ -263,6 +284,229 @@ layout = html.Div(
                                 ),
                             ]
                         ),
+                        html.Br(),
+                        # --- Preprocessing Section ---
+                        html.H5(
+                            "Preprocessing",
+                            className="card-title",
+                            style={"marginTop": "20px"},
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Genetic preprocessing"),
+                                            dcc.Dropdown(
+                                                id="preprocessing-genetic",
+                                                options=PreprocessingToggle.choices(),
+                                                value=genetic_settings_file.get(
+                                                    "preprocessing_genetic",
+                                                    PREPROCESSING_GENETIC_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                                clearable=False,
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Genetic preprocessing threshold"),
+                                            dcc.Input(
+                                                id="preprocessing-threshold-genetic",
+                                                type="number",
+                                                min=PREPROCESSING_THRESHOLD_GENETIC_MIN,
+                                                max=PREPROCESSING_THRESHOLD_GENETIC_MAX,
+                                                step=0.01,
+                                                value=genetic_settings_file.get(
+                                                    "preprocessing_threshold_genetic",
+                                                    PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                            ]
+                        ),
+                        html.Br(),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Climatic preprocessing"),
+                                            dcc.Dropdown(
+                                                id="preprocessing-climatic",
+                                                options=PreprocessingToggle.choices(),
+                                                value=genetic_settings_file.get(
+                                                    "preprocessing_climatic",
+                                                    PREPROCESSING_CLIMATIC_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                                clearable=False,
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Climatic preprocessing threshold"),
+                                            dcc.Input(
+                                                id="preprocessing-threshold-climatic",
+                                                type="number",
+                                                min=PREPROCESSING_THRESHOLD_CLIMATIC_MIN,
+                                                max=PREPROCESSING_THRESHOLD_CLIMATIC_MAX,
+                                                step=0.01,
+                                                value=genetic_settings_file.get(
+                                                    "preprocessing_threshold_climatic",
+                                                    PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                            ]
+                        ),
+                        html.Br(),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Correlation filtering (climatic)"),
+                                            dcc.Dropdown(
+                                                id="correlation-climatic-enabled",
+                                                options=PreprocessingToggle.choices(),
+                                                value=genetic_settings_file.get(
+                                                    "correlation_climatic_enabled",
+                                                    CORRELATION_CLIMATIC_ENABLED_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                                clearable=False,
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Max correlation (climatic)"),
+                                            dcc.Input(
+                                                id="max-correlation-climatic",
+                                                type="number",
+                                                min=CORRELATION_THRESHOLD_CLIMATIC_MIN,
+                                                max=CORRELATION_THRESHOLD_CLIMATIC_MAX,
+                                                step=0.01,
+                                                value=genetic_settings_file.get(
+                                                    "correlation_threshold_climatic",
+                                                    CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                            ]
+                        ),
+                        html.Br(),
+                        # --- Statistical Tests Section ---
+                        html.H5(
+                            "Statistical Tests",
+                            className="card-title",
+                            style={"marginTop": "20px"},
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Statistical test"),
+                                            dcc.Dropdown(
+                                                id="statistical-test",
+                                                options=StatisticalTest.choices(),
+                                                value=genetic_settings_file.get(
+                                                    "statistical_test",
+                                                    STATISTICAL_TEST_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Mantel test method"),
+                                            dcc.Dropdown(
+                                                id="mantel-test-method",
+                                                options=MantelTestMethod.choices(),
+                                                value=genetic_settings_file.get(
+                                                    "mantel_test_method",
+                                                    MANTEL_TEST_METHOD_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                            ]
+                        ),
+                        html.Br(),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("Mantel test permutations"),
+                                            dcc.Input(
+                                                id="permutations-mantel-test",
+                                                type="number",
+                                                min=PERMUTATIONS_MIN,
+                                                max=PERMUTATIONS_MAX,
+                                                value=genetic_settings_file.get(
+                                                    "permutations_mantel_test",
+                                                    PERMUTATIONS_MANTEL_TEST_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                                dbc.Col(
+                                    dbc.Form(
+                                        [
+                                            dbc.Label("PROTEST permutations"),
+                                            dcc.Input(
+                                                id="permutations-protest",
+                                                type="number",
+                                                min=PERMUTATIONS_MIN,
+                                                max=PERMUTATIONS_MAX,
+                                                value=genetic_settings_file.get(
+                                                    "permutations_protest",
+                                                    PERMUTATIONS_PROTEST_DEFAULT,
+                                                ),
+                                                className="form-control",
+                                            ),
+                                        ]
+                                    ),
+                                    width=6,
+                                ),
+                            ]
+                        ),
                         html.Div(
                             id="setting-buttons",
                             style={"marginTop": "30px"},
@@ -303,6 +547,16 @@ def get_default_settings():
         "tree_type": TREE_TYPE_DEFAULT,
         "rate_similarity": RATE_SIMILARITY_DEFAULT,
         "method_similarity": METHOD_SIMILARITY_DEFAULT,
+        "preprocessing_genetic": PREPROCESSING_GENETIC_DEFAULT,
+        "preprocessing_climatic": PREPROCESSING_CLIMATIC_DEFAULT,
+        "preprocessing_threshold_genetic": PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
+        "preprocessing_threshold_climatic": PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
+        "correlation_climatic_enabled": CORRELATION_CLIMATIC_ENABLED_DEFAULT,
+        "correlation_threshold_climatic": CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
+        "permutations_mantel_test": PERMUTATIONS_MANTEL_TEST_DEFAULT,
+        "permutations_protest": PERMUTATIONS_PROTEST_DEFAULT,
+        "mantel_test_method": MANTEL_TEST_METHOD_DEFAULT,
+        "statistical_test": STATISTICAL_TEST_DEFAULT,
     }
 
 
@@ -318,6 +572,16 @@ def get_default_settings():
     Output("tree-type", "value"),
     Output("rate-similarity", "value"),
     Output("method-similarity", "value"),
+    Output("preprocessing-genetic", "value"),
+    Output("preprocessing-climatic", "value"),
+    Output("preprocessing-threshold-genetic", "value"),
+    Output("preprocessing-threshold-climatic", "value"),
+    Output("correlation-climatic-enabled", "value"),
+    Output("max-correlation-climatic", "value"),
+    Output("permutations-mantel-test", "value"),
+    Output("permutations-protest", "value"),
+    Output("mantel-test-method", "value"),
+    Output("statistical-test", "value"),
     Input("genetic-settings", "data"),
 )
 def update_settings(settings):
@@ -332,12 +596,23 @@ def update_settings(settings):
         settings["tree_type"],
         settings["rate_similarity"],
         settings["method_similarity"],
+        settings.get("preprocessing_genetic", PREPROCESSING_GENETIC_DEFAULT),
+        settings.get("preprocessing_climatic", PREPROCESSING_CLIMATIC_DEFAULT),
+        settings.get("preprocessing_threshold_genetic", PREPROCESSING_THRESHOLD_GENETIC_DEFAULT),
+        settings.get("preprocessing_threshold_climatic", PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT),
+        settings.get("correlation_climatic_enabled", CORRELATION_CLIMATIC_ENABLED_DEFAULT),
+        settings.get("correlation_threshold_climatic", CORRELATION_THRESHOLD_CLIMATIC_DEFAULT),
+        settings.get("permutations_mantel_test", PERMUTATIONS_MANTEL_TEST_DEFAULT),
+        settings.get("permutations_protest", PERMUTATIONS_PROTEST_DEFAULT),
+        settings.get("mantel_test_method", MANTEL_TEST_METHOD_DEFAULT),
+        settings.get("statistical_test", STATISTICAL_TEST_DEFAULT),
     )
 
 
 # To reset or save the settings in the JSON file
 @callback(
     Output("genetic-settings", "data"),
+    Output("toast-store", "data", allow_duplicate=True),
     Input("reset-button", "n_clicks"),
     Input("save-settings-button", "n_clicks"),
     State("bootstrap-threshold", "value"),
@@ -350,6 +625,17 @@ def update_settings(settings):
     State("tree-type", "value"),
     State("rate-similarity", "value"),
     State("method-similarity", "value"),
+    State("preprocessing-genetic", "value"),
+    State("preprocessing-climatic", "value"),
+    State("preprocessing-threshold-genetic", "value"),
+    State("preprocessing-threshold-climatic", "value"),
+    State("correlation-climatic-enabled", "value"),
+    State("max-correlation-climatic", "value"),
+    State("permutations-mantel-test", "value"),
+    State("permutations-protest", "value"),
+    State("mantel-test-method", "value"),
+    State("statistical-test", "value"),
+    prevent_initial_call=True,
 )
 def update_parameters(
     n_clicks_reset,
@@ -364,15 +650,29 @@ def update_parameters(
     tree_type,
     rate_similarity,
     method_similarity,
+    preprocessing_genetic,
+    preprocessing_climatic,
+    preprocessing_threshold_genetic,
+    preprocessing_threshold_climatic,
+    correlation_climatic_enabled,
+    correlation_threshold_climatic,
+    permutations_mantel_test,
+    permutations_protest,
+    mantel_test_method,
+    statistical_test,
 ):
+    # Prevent callback from running if no button was actually clicked
+    if not n_clicks_reset and not n_clicks_save:
+        raise PreventUpdate
+
     # Load default parameters if reset button is clicked
     if ctx.triggered_id == "reset-button":
         default_params = Params()
         # Assuming Params class has a method called `to_dict` or similar to get default settings
         if hasattr(default_params, "to_dict"):
-            return default_params.to_dict()
+            return default_params.to_dict(), {"message": "Settings reset to default", "type": "success"}
         else:
-            return get_default_settings()
+            return get_default_settings(), {"message": "Settings reset to default", "type": "success"}
 
     # Save the settings to the JSON file if save button is clicked
     elif ctx.triggered_id == "save-settings-button":
@@ -387,12 +687,22 @@ def update_parameters(
             "tree_type": tree_type,
             "rate_similarity": rate_similarity,
             "method_similarity": method_similarity,
+            "preprocessing_genetic": preprocessing_genetic,
+            "preprocessing_climatic": preprocessing_climatic,
+            "preprocessing_threshold_genetic": preprocessing_threshold_genetic,
+            "preprocessing_threshold_climatic": preprocessing_threshold_climatic,
+            "correlation_climatic_enabled": correlation_climatic_enabled,
+            "correlation_threshold_climatic": correlation_threshold_climatic,
+            "permutations_mantel_test": permutations_mantel_test,
+            "permutations_protest": permutations_protest,
+            "mantel_test_method": mantel_test_method,
+            "statistical_test": statistical_test,
         }
         with open("genetic_settings_file.json", "w") as file:
             json.dump(updated_settings, file, indent=4)
 
         # Update the settings store
-        return updated_settings
+        return updated_settings, {"message": "Settings saved successfully", "type": "success"}
 
     else:
         raise PreventUpdate

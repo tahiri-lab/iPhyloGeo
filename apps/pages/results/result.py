@@ -214,8 +214,13 @@ def show_complete_results(path, generated_page):
             "",  # No graph to display
         )
 
+    # Filter out statistical test summary rows (NaN in core columns) for the graphic
+    core_cols = ["Position in ASM", "Bootstrap mean"]
+    results_data[core_cols] = results_data[core_cols].replace(r'^\s*$', np.nan, regex=True)
+    graphic_data = results_data.dropna(subset=core_cols)
+
     # Now it's safe to call create_result_graphic
-    graph_output = create_result_graphic(results_data)
+    graph_output = create_result_graphic(graphic_data) if len(graphic_data) > 0 else None
 
     return (
         create_result_table_header(),
