@@ -300,8 +300,6 @@ def create_climatic_trees(
             variances = df[feature_cols].var()
             cols_to_keep = variances[variances >= threshold].index.tolist()
             df = df[[id_col] + cols_to_keep]
-            print(f"Climatic preprocessing: kept {len(cols_to_keep)}/{len(feature_cols)} "
-                  f"columns (variance >= {threshold})")
 
             # Remove highly correlated columns (Spearman) — only if enabled
             # correlation_threshold_climatic is an iPhyloGeo-specific setting, not in aphylogeo's Params
@@ -329,8 +327,6 @@ def create_climatic_trees(
                     else:
                         break
                 df = df[[id_col] + feature_cols]
-                print(f"Correlation filtering: kept {len(feature_cols)} columns "
-                      f"(max Spearman correlation < {max_corr_threshold})")
 
         climatic_trees = aPhyloGeo.climaticPipeline(df)
         results_ctrl.update_result(
@@ -398,16 +394,13 @@ def create_alignement(result_id, genetic_data, status="alignement"):
         msaSet = alignmentObject.msa
 
         # Genetic preprocessing: remove gap-heavy columns from each window
-        if int(Params.preprocessing_genetic):
+        if Params.preprocessing_genetic:
             threshold = float(Params.preprocessing_threshold_genetic)
             filtered_msa = {}
             for window, alignment in msaSet.items():
                 original_len = alignment.get_alignment_length()
                 filtered = _filter_alignment_gaps(alignment, threshold)
                 filtered_msa[window] = filtered
-                print(f"Genetic preprocessing [{window}]: kept "
-                      f"{filtered.get_alignment_length()}/{original_len} columns "
-                      f"(gap threshold <= {threshold})")
             msaSet = filtered_msa
 
         results_ctrl.update_result(
