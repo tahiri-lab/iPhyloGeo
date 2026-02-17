@@ -4,6 +4,7 @@ import re
 from io import StringIO
 
 import dash
+from bson import ObjectId
 import dash_cytoscape as cyto
 import numpy as np
 import pandas as pd
@@ -165,7 +166,7 @@ def show_result_name(path):
         html.Div: the div containing the name of the result
     """
     result_id = path.split("/")[-1]
-    if not result_id:
+    if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
     title = utils.get_result(result_id)["name"]
     return html.Div(title, className="title")
@@ -194,6 +195,8 @@ def show_complete_results(path, generated_page):
         Union[dcc.Graph, None]: The results graph if data is available and valid, else None.
     """
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
 
     if "genetic" not in result["result_type"] or "output" not in result:
@@ -240,6 +243,8 @@ def create_climatic_trees(path, generated_results_header):
         html.Div: the div containing the climatic trees
     """
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     add_to_cookie(result_id)
 
     result = utils.get_result(result_id)
@@ -298,6 +303,8 @@ def download_results(
     """
 
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
 
     ctx = dash.callback_context
@@ -344,6 +351,8 @@ def create_genetic_trees(path, generated_results_header):
         html.Div: the div containing the genetic trees
     """
     result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
     if "genetic" not in result["result_type"] or "genetic_trees" not in result:
         return "", ""
