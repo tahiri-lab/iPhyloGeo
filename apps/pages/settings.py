@@ -289,7 +289,7 @@ layout = html.Div(
                         html.H5(
                             "Preprocessing",
                             className="card-title",
-                            style={"margin-top": "20px"},
+                            style={"marginTop": "20px"},
                         ),
                         dbc.Row(
                             [
@@ -424,7 +424,7 @@ layout = html.Div(
                         html.H5(
                             "Statistical Tests",
                             className="card-title",
-                            style={"margin-top": "20px"},
+                            style={"marginTop": "20px"},
                         ),
                         dbc.Row(
                             [
