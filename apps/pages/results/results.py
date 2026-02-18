@@ -1,6 +1,7 @@
 import dash
 import dash_bootstrap_components as dbc
 import utils.utils as utils
+from components.result_card import create_result_card
 from dash import callback, dcc, html
 from dash.dependencies import Input, Output
 from dotenv import dotenv_values, load_dotenv
@@ -118,72 +119,21 @@ def create_layout(result):
     returns :
         layout : layout containing the result
     """
-    common_layout = html.Div(
-        [
-            html.Div(
-                [
-                    html.Div("Name", className="label"),
-                    html.Div(result["name"], className="data"),
-                ],
-                className="nameContainer",
-            ),
-            html.Div(
-                [
-                    html.Div("Progress", className="label"),
-                    html.Div(
-                        [
-                            dbc.Progress(
-                                value=PROGRESS[result["status"]],
-                                label="Error" if result["status"] == "error" else "",
-                                color="danger" if result["status"] == "error" else "",
-                            ),
-                        ],
-                        className="progressBar",
-                    ),
-                ],
-                className="progressContainer",
-            ),
-            html.Div(
-                [
-                    html.A(
-                        html.Img(
-                            src="/assets/icons/arrow-circle-right.svg", className="icon"
-                        ),
-                        href=f'/result/{result["_id"]}',
-                    ),
-                ],
-                className="arrowContainer",
-            ),
-        ],
-        className="row",
-    )
+    # Determine dates based on environment
+    created_at = None
+    expired_at = None
 
-    if ENV_CONFIG["HOST"] == "local":
-        return common_layout
-    else:
-        return html.Div(
-            [
-                common_layout,
-                html.Div(
-                    [
-                        html.Div("Creation date", className="label"),
-                        html.Div(
-                            result["created_at"].strftime("%Y/%m/%d"), className="data"
-                        ),
-                    ],
-                    className="creationDateContainer",
-                ),
-                html.Div(
-                    [
-                        html.Div("Expiration date", className="label"),
-                        html.Div(
-                            result["expired_at"].strftime("%Y/%m/%d"), className="data"
-                        ),
-                    ],
-                    className="expirationDateContainer",
-                ),
-            ]
-        )
+    if ENV_CONFIG["HOST"] != "local":
+        created_at = result["created_at"].strftime("%d/%m/%Y")
+        expired_at = result["expired_at"].strftime("%d/%m/%Y")
+
+    return create_result_card(
+        name=result["name"],
+        status=result["status"],
+        created_at=created_at,
+        expired_at=expired_at,
+        result_id=str(result["_id"]),
+    )
 
 
 layout = get_layout()
