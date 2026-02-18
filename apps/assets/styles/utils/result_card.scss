@@ -1,0 +1,124 @@
+.result-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--primary, #FFFFFF);
+    border-radius: 12px;
+    padding: 20px 24px;
+    padding-left: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    transition: all 0.2s ease-in-out;
+    margin-bottom: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background-color: var(--result-card-status-color, var(--success, #2DD4BF));
+    }
+
+
+    &--success::before {
+        background-color: var(--success, #2DD4BF);
+    }
+
+    &--error::before {
+        background-color: var(--error, #FF6262);
+    }
+
+    &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+        transform: translateY(-2px);
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    &__title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text, #000000);
+    }
+
+    &__badge {
+        padding: 2px 20px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+
+        &--success {
+            background-color: var(--success, #2DD4BF);
+            color: var(--text, #000000);
+        }
+
+        &--error {
+            background-color: var(--error, #FF6262);
+            color: var(--text, #000000);
+        }
+    }
+
+    &__dates {
+        display: flex;
+        gap: 24px;
+    }
+
+    &__date {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-secondary, #828282);
+    }
+
+    &__date-icon-calendar {
+        width: 20px;
+        height: 20px;
+    }
+
+    &__date-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    &__access {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--text, #000000);
+        font-size: 16px;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 8px;
+    }
+
+    &__access-text {
+        font-size: 16px;
+    }
+
+    &__access-arrow {
+        font-size: 32px;
+        font-weight: 300;
+        padding-left: 8px;
+        margin-top: -4px;
+    }
+}
+

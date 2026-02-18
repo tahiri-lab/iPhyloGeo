@@ -34,6 +34,7 @@ LIGHT_THEME = {
     "--primary": "#FFFFFF",
     "--secondary": "#DBDBDB",
     "--text": "#000000",
+    "--text-secondary": "#828282",
     "--background": "#EBECF0",
     "--action": "#B593DD",
     "--success": "#2DD4BF",

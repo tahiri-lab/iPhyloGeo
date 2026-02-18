@@ -48,7 +48,7 @@ def create_result_card(
         date_info.append(
             html.Div(
                 [
-                    html.Span("📅", className="result-card__date-icon"),
+                    html.Img(src="/assets/icons/calendar.svg", className="result-card__date-icon-calendar"),
                     html.Span(f"Created {created_at}"),
                 ],
                 className="result-card__date",
@@ -58,14 +58,14 @@ def create_result_card(
         date_info.append(
             html.Div(
                 [
-                    html.Span("⏱", className="result-card__date-icon"),
+                    html.Img(src="/assets/icons/clock.svg", className="result-card__date-icon"),
                     html.Span(f"Expired {expired_at}"),
                 ],
                 className="result-card__date",
             )
         )
 
-    return html.Div(
+    return html.A(
         [
             # Left section with title, badge and dates
             html.Div(
@@ -90,15 +90,15 @@ def create_result_card(
                 className="result-card__content",
             ),
             # Right section with access button
-            html.A(
+            html.Div(
                 [
                     html.Span("Access", className="result-card__access-text"),
                     html.Span("›", className="result-card__access-arrow"),
                 ],
-                href=f"/result/{result_id}" if result_id else "#",
                 className="result-card__access",
             ),
         ],
-        className="result-card",
+        href=f"/result/{result_id}" if result_id else "#",
+        className=f"result-card result-card--{status_class}",
     )
 
