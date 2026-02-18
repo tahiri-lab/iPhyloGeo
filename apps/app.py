@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from components.toast import create_toast_container
 from dash import ctx, dcc, html
-from dash.dependencies import ClientsideFunction, Input, Output
+from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 
@@ -58,10 +58,11 @@ DARK_THEME = {
     "--black-and-white": "#111111",
     "--table-bg-color": "#282b32",
     "--table-alt-row-color": "#3a3f4a",
-    "--primary": "#FFFFFF",
-    "--secondary": "#DBDBDB",
-    "--text": "#000000",
-    "--background": "#EBECF0",
+    "--primary": "#1A1C1E",
+    "--secondary": "#3a3f4a",
+    "--text": "#FFFFFF",
+    "--text-secondary": "#A0A0A0",
+    "--background": "#1A1C1E",
     "--action": "#B593DD",
     "--success": "#2DD4BF",
     "--error": "#FF6262",
@@ -96,6 +97,7 @@ def NavbarComponent(children):
 
 app.layout = html.Div(
     [
+        dcc.Location(id="url", refresh=False),
         html.Div(
             [
                 NavbarComponent(
@@ -106,7 +108,7 @@ app.layout = html.Div(
                                     [
                                         html.Div(id="dummy-output"),
                                         html.Img(
-                                            src="/assets/logo/LabLogo.png",
+                                            src="/assets/icons/bars.svg",
                                             id="lab-logo",
                                             className="logo",
                                         ),
@@ -115,14 +117,6 @@ app.layout = html.Div(
                                             id="lab-name",
                                             className="lab-name",
                                         ),
-                                        dbc.Switch(
-                                            id="theme-switch",
-                                            value=True,
-                                            className="theme-switcher",
-                                            persistence=True,
-                                            persistence_type="local",
-                                        ),
-                                        html.Div(id="theme-switch-output", style={"display": "none"}),
                                     ],
                                     id="lab-container",
                                     className="lab-container",
@@ -133,29 +127,8 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [
-                                        dcc.Link(
-                                            [
-                                                html.Img(
-                                                    src=path_params[page["name"]][
-                                                        "img"
-                                                    ],
-                                                    className="icon",
-                                                ),
-                                                html.Div(
-                                                    f"{path_params[page['name']]['name']}",
-                                                    className="text",
-                                                ),
-                                            ],
-                                            href=page["relative_path"],
-                                            className="nav-link",
-                                        )
-                                        for page in [
-                                            page
-                                            for page in dash.page_registry.values()
-                                            if page["name"] != "Result"
-                                        ]
-                                    ]
+                                    id="nav-links-wrapper",
+                                    children=[]
                                 )
                             ],
                             id="nav-link",
@@ -163,21 +136,70 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/moon.svg",
+                                                className="icon",
+                                                id="theme-icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Night mode", className="text"),
+                                    ],
+                                    id="theme-switch",
+                                    className="bottom-nav-item theme-toggle-btn",
+                                ),
+                                dcc.Store(id="theme-store", storage_type="local", data=True),
+                                html.Div(id="theme-switch-output", style={"display": "none"}),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/gear.svg",
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Settings", className="text"),
+                                    ],
+                                    href="/settings",
+                                    id="nav-link-settings",
+                                    className="bottom-nav-item",
+                                ),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/question-circle.svg",
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Help", className="text"),
+                                    ],
+                                    href="/help",
+                                    id="nav-link-help",
+                                    className="bottom-nav-item",
+                                ),
                                 html.A(
                                     [
-                                        html.Img(
-                                            src="/assets/icons/github.svg",
-                                            className="icon",
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/github.svg",
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
                                         ),
                                         html.Div("Visit our GitHub", className="text"),
                                     ],
                                     target="_blank",
                                     href="https://github.com/tahiri-lab",
-                                    className="gitHub",
+                                    className="bottom-nav-item",
                                 ),
                             ],
-                            id="gitHub-container",
-                            className="gitHub-container",
+                            className="bottom-section",
                         ),
                     ]
                 ),
@@ -202,30 +224,102 @@ app.clientside_callback(
 
 
 @app.callback(
-    Output("theme-switch-output", "children"),
-    Input("theme-switch", "value"),
+    Output("nav-links-wrapper", "children"),
+    Output("nav-link-settings", "className"),
+    Output("nav-link-help", "className"),
+    Input("url", "pathname"),
 )
-def change_theme(value):
+def update_nav_selected(pathname):
     """
+    Update nav-links to show selected state based on current URL.
+    """
+    # Define URL to page name mapping
+    url_to_page = {
+        "/": "Homepage",
+        "/getStarted": "Getstarted",
+        "/results": "Results",
+        "/settings": "Settings",
+        "/help": "Help",
+    }
+
+    current_page = url_to_page.get(pathname, "")
+
+    # Generate main nav-links with selected class
+    nav_links = []
+    pages_to_show = [
+        {"name": "Homepage", "path": "/"},
+        {"name": "Getstarted", "path": "/getStarted"},
+        {"name": "Results", "path": "/results"},
+    ]
+
+    for page in pages_to_show:
+        is_selected = page["name"] == current_page
+        class_name = "nav-link selected" if is_selected else "nav-link"
+        nav_links.append(
+            dcc.Link(
+                [
+                    html.Div(
+                        html.Img(
+                            src=path_params[page["name"]]["img"],
+                            className="icon",
+                        ),
+                        className="icon-wrapper",
+                    ),
+                    html.Div(
+                        f"{path_params[page['name']]['name']}",
+                        className="text",
+                    ),
+                ],
+                href=page["path"],
+                className=class_name,
+            )
+        )
+
+    # Update bottom section links
+    settings_class = "bottom-nav-item selected" if current_page == "Settings" else "bottom-nav-item"
+    help_class = "bottom-nav-item selected" if current_page == "Help" else "bottom-nav-item"
+
+    return nav_links, settings_class, help_class
+
+
+@app.callback(
+    Output("theme-store", "data"),
+    Output("theme-switch-output", "children"),
+    Input("theme-switch", "n_clicks"),
+    State("theme-store", "data"),
+    prevent_initial_call=True,
+)
+def toggle_theme(n_clicks, current_theme):
+    """
+    Toggle theme when night mode button is clicked.
     Args:
-        value: boolean, True if dark theme is selected, False if light theme is selected.
-            Button to trigger callback (need at least one parameter, but we dont use n_clicks)
+        n_clicks: number of clicks on the theme button
+        current_theme: current theme state (True = dark, False = light)
     Returns:
-        theme-switch-output: value of the button (true or false). Hidden div to trigger callback
+        theme-store: new theme state
+        theme-switch-output: string representation of new theme state
     """
-    return str(value)
+    new_theme = not current_theme if current_theme is not None else False
+    return new_theme, str(new_theme)
 
 
-@app.callback(Output("themer", "style"), Input("theme-switch-output", "children"))
-def update_color(children):
+@app.callback(
+    Output("themer", "style"),
+    Output("theme-icon", "src"),
+    Input("theme-store", "data"),
+)
+def update_color(is_dark):
     """
     Args:
-        children: string, "True" if dark theme is selected, "False" if light theme is selected.
-            Button to trigger callback (need at least one parameter, but we dont use n_clicks)
+        is_dark: boolean, True if dark theme is selected, False if light theme is selected.
     Returns:
         themer: dict, css style for the theme
+        theme-icon: src path for the theme icon
     """
-    return LIGHT_THEME if children == "False" else DARK_THEME
+    if is_dark:
+        return DARK_THEME, "/assets/icons/sun.svg"
+    else:
+        return LIGHT_THEME, "/assets/icons/moon.svg"
 
 
 @app.callback(

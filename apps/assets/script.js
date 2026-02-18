@@ -1,24 +1,31 @@
     let open = true;
 
     function responsiveNavbar() {
+      const labContainer = document.getElementById('lab-container');
+      const navBar = document.getElementById('nav-bar');
+      const labName = document.getElementById('lab-name');
+      const themeSwitch = document.getElementById('theme-switch');
+      const navLink = document.getElementById('nav-link');
+      const gitHubContainer = document.getElementById('gitHub-container');
+
       if (open) {
-          document.getElementById('lab-container').classList.add("minimized");
-          document.getElementById('nav-bar').classList.add("minimized");
-          document.getElementById('lab-name').classList.add("minimized");
-          document.getElementById('theme-switch').classList.add("minimized");
-          document.getElementById('nav-link').classList.add("minimized");
-          document.getElementById('gitHub-container').classList.add("minimized");
+          if (labContainer) labContainer.classList.add("minimized");
+          if (navBar) navBar.classList.add("minimized");
+          if (labName) labName.classList.add("minimized");
+          if (themeSwitch) themeSwitch.classList.add("minimized");
+          if (navLink) navLink.classList.add("minimized");
+          if (gitHubContainer) gitHubContainer.classList.add("minimized");
 
           open = false;
         }
 
         else {
-          document.getElementById('lab-container').classList.remove("minimized");
-          document.getElementById('nav-bar').classList.remove("minimized");
-          document.getElementById('lab-name').classList.remove("minimized");
-          document.getElementById('theme-switch').classList.remove("minimized");
-          document.getElementById('nav-link').classList.remove("minimized");
-          document.getElementById('gitHub-container').classList.remove("minimized");
+          if (labContainer) labContainer.classList.remove("minimized");
+          if (navBar) navBar.classList.remove("minimized");
+          if (labName) labName.classList.remove("minimized");
+          if (themeSwitch) themeSwitch.classList.remove("minimized");
+          if (navLink) navLink.classList.remove("minimized");
+          if (gitHubContainer) gitHubContainer.classList.remove("minimized");
 
           open = true
         }
