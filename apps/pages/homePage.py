@@ -57,20 +57,20 @@ layout = html.Div(
 
 
 @callback(
-    Output("background-video", "children"), Input("theme-switch-output", "children")
+    Output("background-video", "children"), Input("theme-store", "data")
 )
-def update_background_video(theme):
+def update_background_video(is_dark):
     """
     Update the background video according to the theme.
     Args:
-        theme: the theme indicator (string "True" or "False")
+        is_dark: boolean, True if dark theme is selected, False if light theme is selected.
     Returns:
         The background video element.
     """
-    if theme is None:
+    if is_dark is None:
         return []
 
-    if theme == "False":
+    if not is_dark:
         return html.Video(
             src="../assets/videos/indexPhylogeo_light.mp4",
             autoPlay=True,

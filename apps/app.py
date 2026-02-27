@@ -126,10 +126,51 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
-                                html.Div(
-                                    id="nav-links-wrapper",
-                                    children=[]
-                                )
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src=path_params["Homepage"]["img"],
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Home", className="text"),
+                                    ],
+                                    href="/",
+                                    id="nav-link-home",
+                                    className="nav-link selected",
+                                ),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src=path_params["Getstarted"]["img"],
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Upload data", className="text"),
+                                    ],
+                                    href="/getStarted",
+                                    id="nav-link-getstarted",
+                                    className="nav-link",
+                                ),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src=path_params["Results"]["img"],
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Check results", className="text"),
+                                    ],
+                                    href="/results",
+                                    id="nav-link-results",
+                                    className="nav-link",
+                                ),
                             ],
                             id="nav-link",
                             className="nav-link-container",
@@ -221,65 +262,6 @@ app.clientside_callback(
     Input("lab-logo", "n_clicks"),
     prevent_initial_call=True,
 )
-
-
-@app.callback(
-    Output("nav-links-wrapper", "children"),
-    Output("nav-link-settings", "className"),
-    Output("nav-link-help", "className"),
-    Input("url", "pathname"),
-)
-def update_nav_selected(pathname):
-    """
-    Update nav-links to show selected state based on current URL.
-    """
-    # Define URL to page name mapping
-    url_to_page = {
-        "/": "Homepage",
-        "/getStarted": "Getstarted",
-        "/results": "Results",
-        "/settings": "Settings",
-        "/help": "Help",
-    }
-
-    current_page = url_to_page.get(pathname, "")
-
-    # Generate main nav-links with selected class
-    nav_links = []
-    pages_to_show = [
-        {"name": "Homepage", "path": "/"},
-        {"name": "Getstarted", "path": "/getStarted"},
-        {"name": "Results", "path": "/results"},
-    ]
-
-    for page in pages_to_show:
-        is_selected = page["name"] == current_page
-        class_name = "nav-link selected" if is_selected else "nav-link"
-        nav_links.append(
-            dcc.Link(
-                [
-                    html.Div(
-                        html.Img(
-                            src=path_params[page["name"]]["img"],
-                            className="icon",
-                        ),
-                        className="icon-wrapper",
-                    ),
-                    html.Div(
-                        f"{path_params[page['name']]['name']}",
-                        className="text",
-                    ),
-                ],
-                href=page["path"],
-                className=class_name,
-            )
-        )
-
-    # Update bottom section links
-    settings_class = "bottom-nav-item selected" if current_page == "Settings" else "bottom-nav-item"
-    help_class = "bottom-nav-item selected" if current_page == "Help" else "bottom-nav-item"
-
-    return nav_links, settings_class, help_class
 
 
 @app.callback(

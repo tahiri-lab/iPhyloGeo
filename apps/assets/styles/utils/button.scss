@@ -26,13 +26,14 @@
   }
 
   &.primary {
-    background-color: #AD00FA;
+    background-color: var(--primary, #FFFFFF);
     font-size: 15px;
     font-weight: bold;
-    color: white;
+    color: var(--text, #000000);
+    border: 2px solid var(--secondary, #DBDBDB);
 
     &:hover {
-      background-color: #8B00D1;
+      background-color: var(--secondary, #DBDBDB);
     }
   }
 
@@ -45,6 +46,14 @@
     &:hover {
       background-color: #8B00D1;
     }
+  }
+
+  &.theme-action {
+    background-color: var(--action, #B593DD);
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    color: black;
   }
 
   &.download {

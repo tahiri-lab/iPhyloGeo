@@ -27,7 +27,7 @@
     }
 
     .nav-link-container {
-      padding: 20px 15.5px;
+      padding: 15px 15.5px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -201,42 +201,37 @@
     .nav-link {
       display: flex;
       align-items: center;
-      margin-top: 8px;
+      margin-top: 4px;
       color: var(--text, #000000);
       text-decoration: none;
       font-size: 14px;
       font-weight: 700;
       border-radius: 12px;
       transition: all 0.2s ease-in-out;
-      padding: 4px;
+      padding: 2px;
       position: relative;
-      height: 44px;
       box-sizing: border-box;
 
       &:first-child {
         margin-top: 0;
       }
 
-      // Expanding border effect
+      // Full border around item
       &::after {
         content: "";
         position: absolute;
         top: 0;
         left: 0;
-        width: 44px;
+        width: 100%;
         height: 100%;
-        border: 2px solid var(--text, #000000);
+        border: 2px solid #D3D3D3;
         border-radius: 12px;
-        transition: width 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
         pointer-events: none;
       }
 
       &:hover::after {
-        width: 100%;
-      }
-
-      &:hover .icon-wrapper {
-        border-color: transparent;
+        border-color: #B0B0B0;
       }
 
       .icon-wrapper {
@@ -274,14 +269,14 @@
 
       &.selected {
         &::after {
-          border-color: var(--text, #000000);
+          border-color: var(--action, #B593DD);
           background-color: var(--action, #B593DD);
         }
       }
 
       &.selected:hover::after {
         background-color: var(--action, #B593DD);
-        border-color: var(--text, #000000);
+        border-color: var(--action, #B593DD);
       }
     }
   }
@@ -293,39 +288,35 @@
     .bottom-nav-item {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
       text-decoration: none;
       color: var(--text, #000000);
-      padding: 4px;
+      padding: 0px;
       position: relative;
 
       &:last-child {
         margin-bottom: 0;
       }
 
-      // Expanding border effect
+      // Full border around item
       &::after {
         content: "";
         position: absolute;
         top: 0;
         left: 0;
-        width: 44px;
+        width: 100%;
         height: 100%;
-        border: 2px solid var(--text, #000000);
+        border: 2px solid #D3D3D3;
         border-radius: 12px;
-        transition: width 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
         pointer-events: none;
       }
 
       &:hover::after {
-        width: 100%;
-      }
-
-      &:hover .icon-wrapper {
-        border-color: transparent;
+        border-color: #B0B0B0;
       }
 
       .icon-wrapper {
@@ -365,14 +356,14 @@
 
       &.selected {
         &::after {
-          border-color: var(--text, #000000);
+          border-color: var(--action, #B593DD);
           background-color: var(--action, #B593DD);
         }
       }
 
       &.selected:hover::after {
         background-color: var(--action, #B593DD);
-        border-color: var(--text, #000000);
+        border-color: var(--action, #B593DD);
       }
     }
   }

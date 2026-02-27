@@ -1,0 +1,189 @@
+// Reusable settings section styles
+// Used by settings_section.py component
+
+.settings-page {
+    width: calc(100% - 32px);
+    margin: 12px auto;
+    padding: 30px 24px;
+    background-color: var(--primary, #FFFFFF);
+    border-radius: 16px;
+    box-sizing: border-box;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 5vw;
+
+    .title {
+        color: var(--reverse-black-white-color);
+        padding-top: 30px;
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+}
+
+.settings-section {
+    padding: 24px;
+    margin: 0 -24px;
+
+    &+.settings-section {
+        border-top: 1px solid var(--secondary, #DBDBDB);
+    }
+}
+
+.settings-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.settings-section-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+
+    background-color: var(--action, #B593DD);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+
+    &.placeholder {
+        background-color: var(--secondary, #DBDBDB);
+        border-radius: 6px;
+        mask-image: none !important;
+        -webkit-mask-image: none !important;
+    }
+}
+
+.settings-section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text, #000000);
+    margin: 0;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.settings-field-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text, #000000);
+}
+
+.settings-field input[type="number"],
+.settings-field input[type="text"],
+.settings-field .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--secondary, #DBDBDB);
+    border-radius: 10px;
+    background-color: var(--primary, #FFFFFF);
+    color: var(--text, #000000);
+    font-size: 14px;
+    font-weight: 600;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+        border-color: var(--action, #B593DD);
+    }
+}
+
+// Dash dropdown overrides
+.settings-field .Select {
+    .Select-control {
+        border: 2px solid var(--secondary, #DBDBDB) !important;
+        border-radius: 10px !important;
+        background-color: var(--primary, #FFFFFF) !important;
+        height: 42px;
+        box-shadow: none !important;
+    }
+
+    .Select-value,
+    .Select-placeholder,
+    .Select-input {
+        line-height: 38px !important;
+        padding-left: 14px !important;
+    }
+
+    .Select-value-label,
+    .Select-placeholder {
+        color: var(--text, #000000) !important;
+        font-size: 14px;
+        font-weight: 600;
+        vertical-align: middle;
+    }
+
+    .Select-arrow-zone {
+        color: var(--text-secondary, #828282);
+    }
+
+    .Select-menu-outer {
+        border: 2px solid var(--secondary, #DBDBDB);
+        border-radius: 10px;
+        background-color: var(--primary, #FFFFFF);
+        margin-top: 4px;
+        overflow: hidden;
+    }
+
+    .Select-option {
+        color: var(--text, #000000);
+        background-color: var(--primary, #FFFFFF);
+        font-size: 14px;
+        padding: 8px 14px;
+
+        &.is-focused {
+            background-color: var(--secondary, #DBDBDB);
+        }
+
+        &.is-selected {
+            background-color: var(--action, #B593DD);
+            color: white;
+        }
+    }
+}
+
+// Dash dropdown (newer version) overrides
+.settings-field .dash-dropdown {
+    .Select-control {
+        border: 2px solid var(--secondary, #DBDBDB) !important;
+        border-radius: 10px !important;
+        background-color: var(--primary, #FFFFFF) !important;
+        box-shadow: none !important;
+    }
+}
+
+.settings-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}

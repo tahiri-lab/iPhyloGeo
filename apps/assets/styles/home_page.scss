@@ -1,3 +1,7 @@
+.page-content:has(.home-page) {
+  background-color: transparent !important;
+}
+
 .home-page {
   width: 100%;
   height: 100vh;
@@ -7,8 +11,8 @@
   align-items: center;
 
   .home-page__video {
-    animation: video-transition linear 1.5s ;
-    filter: blur(0) brightness(50%);
+    animation: video-transition linear 1.5s;
+    filter: blur(0) brightness(70%);
     width: 100vw;
     height: 100vh;
     object-fit: cover;
@@ -20,11 +24,10 @@
 
   @keyframes video-transition {
     from {
-      filter: brightness(50%);
       background-color: black;
     }
+
     to {
-      filter: brightness(50%);
       background-color: black;
     }
   }
@@ -44,7 +47,7 @@
       font-weight: bold;
       font-size: 20px;
       z-index: 3;
-      color: #B3B3B3;
+      color: #fff;
 
       .url {
         color: #318DD1;

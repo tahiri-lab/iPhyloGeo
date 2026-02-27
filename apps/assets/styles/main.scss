@@ -1,6 +1,5 @@
-
 html body {
-    background-color: #1A1C1E;
+    background-color: var(--background-color, #EBECF0);
     font-family: Inter, sans-serif;
     transition: all 0.3s ease-in-out;
     box-sizing: border-box;
@@ -20,6 +19,7 @@ html body {
     position: relative;
     min-height: 100vh;
     overflow-x: hidden;
+    background-color: var(--background-color, #EBECF0);
 }
 
 .full-viewport-background {
@@ -43,6 +43,6 @@ html body {
 
 .center {
     text-align: center;
-    display:flex;
+    display: flex;
     justify-content: center;
 }

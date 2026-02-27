@@ -24,7 +24,8 @@ module.exports = function (grunt) {
                     'apps/assets/help.css': 'apps/assets/styles/help.scss',
                     'apps/assets/toast.css': 'apps/assets/styles/utils/toast.scss',
                     'apps/assets/email_input.css': 'apps/assets/styles/utils/email_input.scss',
-                    'apps/assets/result_card.css': 'apps/assets/styles/utils/result_card.scss'
+                    'apps/assets/result_card.css': 'apps/assets/styles/utils/result_card.scss',
+                    'apps/assets/settings_section.css': 'apps/assets/styles/utils/settings_section.scss'
                 }
             }
         },
@@ -48,7 +49,8 @@ module.exports = function (grunt) {
                     'apps/assets/styles/help.scss',
                     'apps/assets/styles/utils/toast.scss',
                     'apps/assets/styles/utils/email_input.scss',
-                    'apps/assets/styles/utils/result_card.scss'
+                    'apps/assets/styles/utils/result_card.scss',
+                    'apps/assets/styles/utils/settings_section.scss'
                 ],
                 tasks: ['build-css']
             }
