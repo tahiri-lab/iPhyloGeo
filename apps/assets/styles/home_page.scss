@@ -1,4 +1,5 @@
-.page-content:has(.home-page) {
+.page-content:has(.home-page),
+.app-layout:has(.home-page) {
   background-color: transparent !important;
 }
 

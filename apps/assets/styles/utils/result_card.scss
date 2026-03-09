@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: space-between;
     background-color: var(--primary);
-    border-radius: 12px;
+    border-radius: 0px 12px 12px 0px;
     padding: 20px 24px;
     padding-left: 32px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
@@ -30,6 +30,10 @@
 
     &--error::before {
         background-color: var(--error, #FF6262);
+    }
+
+    &--pending::before {
+        background-color: var(--pending, #FFC107);
     }
 
     &:hover {

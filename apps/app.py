@@ -39,6 +39,7 @@ LIGHT_THEME = {
     "--action": "#B593DD",
     "--success": "#2DD4BF",
     "--error": "#FF6262",
+    "--pending": "#FFC107",
 }
 
 DARK_THEME = {
@@ -58,13 +59,13 @@ DARK_THEME = {
     "--black-and-white": "#111111",
     "--table-bg-color": "#282b32",
     "--table-alt-row-color": "#3a3f4a",
-    "--primary": "#1A1C1E",
+    "--primary": "#2A2D31",
     "--secondary": "#3a3f4a",
     "--text": "#FFFFFF",
     "--text-secondary": "#A0A0A0",
     "--background": "#1A1C1E",
-    "--action": "#B593DD",
-    "--success": "#2DD4BF",
+    "--action": "#9F74D0",
+    "--success": "#1FA391",
     "--error": "#FF6262",
 }
 
@@ -181,7 +182,7 @@ app.layout = html.Div(
                                     [
                                         html.Div(
                                             html.Img(
-                                                src="/assets/icons/moon.svg",
+                                                src="/assets/icons/sun.svg",
                                                 className="icon",
                                                 id="theme-icon",
                                             ),

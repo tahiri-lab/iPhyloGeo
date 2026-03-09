@@ -122,10 +122,12 @@
     }
 
     .Select-value,
+    .Select-value-label,
     .Select-placeholder,
     .Select-input {
         line-height: 38px;
         padding-left: 14px;
+        color: var(--text) !important;
     }
 
     .Select-menu-outer {

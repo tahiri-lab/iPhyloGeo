@@ -7,13 +7,17 @@
   border-radius: 16px;
   z-index: 100;
   width: 250px;
-  background-color: var(--primary, #FFFFFF);
+  background-color: var(--primary);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--secondary, #E5E5E5);
+  border: 1px solid var(--secondary);
   height: calc(100vh - 21px);
   transition: all 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
+
+  #lab-logo {
+    filter: var(--icon-filter);
+  }
 
   &.minimized {
     width: 75px !important;

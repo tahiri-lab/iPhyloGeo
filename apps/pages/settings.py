@@ -129,7 +129,7 @@ layout = html.Div(
                 ),
 
                 # --- Alignment Method ---
-                create_settings_section(
+                create_page_section(
                     "Alignment Method",
                     icon_src="/assets/icons/grip-lines.svg",
                     children=[
@@ -168,7 +168,7 @@ layout = html.Div(
                 ),
 
                 # --- Tree Type ---
-                create_settings_section(
+                create_page_section(
                     "Tree Type",
                     icon_src="/assets/icons/chart-diagram.svg",
                     children=[
@@ -196,7 +196,7 @@ layout = html.Div(
                 ),
 
                 # --- Preprocessing ---
-                create_settings_section(
+                create_page_section(
                     "Preprocessing",
                     icon_src="/assets/icons/gears.svg",
                     children=[
@@ -285,7 +285,7 @@ layout = html.Div(
                 ),
 
                 # --- Statistical Tests ---
-                create_settings_section(
+                create_page_section(
                     "Statistical Tests",
                     icon_src="/assets/icons/flask.svg",
                     children=[

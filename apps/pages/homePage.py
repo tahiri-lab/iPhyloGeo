@@ -68,11 +68,11 @@ def update_background_video(is_dark):
         The background video element.
     """
     if is_dark is None:
-        return []
+        is_dark = True  # default matches store default
 
     if not is_dark:
         return html.Video(
-            src="../assets/videos/indexPhylogeo_light.mp4",
+            src="/assets/videos/indexPhylogeo_light.mp4",
             autoPlay=True,
             loop=True,
             muted=True,
@@ -81,7 +81,7 @@ def update_background_video(is_dark):
         )
 
     return html.Video(
-        src="../assets/videos/indexPhylogeo.mp4",
+        src="/assets/videos/indexPhylogeo.mp4",
         autoPlay=True,
         loop=True,
         muted=True,
