@@ -1,5 +1,4 @@
 import dash
-import dash_bootstrap_components as dbc
 import utils.utils as utils
 from components.result_card import create_result_card
 from dash import callback, dcc, html

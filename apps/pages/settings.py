@@ -1,7 +1,6 @@
 import json
 
 import dash
-import dash_bootstrap_components as dbc
 from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
@@ -62,294 +61,306 @@ with open("genetic_settings_file.json", "r") as file:
     genetic_settings_file = json.load(file)
 
 layout = html.Div(
-    className="settings-container",
+    className="page-container",
     children=[
         dcc.Store(
             id="genetic-settings", storage_type="session", data=genetic_settings_file
         ),
         html.Div("Settings", className="title"),
         html.Div(
-            className="settings-page",
+            className="page-card",
             children=[
                 # --- Genetic Parameters ---
-        create_settings_section(
-            "Genetic parameters",
-            icon_src="/assets/icons/dna.svg",
-            children=[
-                create_field(
-                    "Bootstrap threshold",
-                    dcc.Input(
-                        id="bootstrap-threshold",
-                        type="number",
-                        min=BOOTSTRAP_THRESHOLD_MIN,
-                        max=BOOTSTRAP_THRESHOLD_MAX,
-                        value=genetic_settings_file["bootstrap_threshold"],
-                    ),
+                create_settings_section(
+                    "Genetic parameters",
+                    icon_src="/assets/icons/dna.svg",
+                    children=[
+                        create_field(
+                            "Bootstrap threshold",
+                            dcc.Input(
+                                id="bootstrap-threshold",
+                                type="number",
+                                min=BOOTSTRAP_THRESHOLD_MIN,
+                                max=BOOTSTRAP_THRESHOLD_MAX,
+                                value=genetic_settings_file["bootstrap_threshold"],
+                            ),
+                        ),
+                        create_field(
+                            "Distance threshold",
+                            dcc.Input(
+                                id="distance-threshold",
+                                type="number",
+                                min=DISTANCE_THRESHOLD_MIN,
+                                max=DISTANCE_THRESHOLD_MAX,
+                                value=genetic_settings_file["dist_threshold"],
+                            ),
+                        ),
+                        create_field(
+                            "Window size",
+                            dcc.Input(
+                                id="input-window-size",
+                                type="number",
+                                min=WINDOW_SIZE_MIN,
+                                max=WINDOW_SIZE_MAX,
+                                value=genetic_settings_file["window_size"],
+                            ),
+                        ),
+                        create_field(
+                            "Step size",
+                            dcc.Input(
+                                id="input-step-size",
+                                type="number",
+                                min=STEP_SIZE_MIN,
+                                max=STEP_SIZE_MAX,
+                                value=genetic_settings_file["step_size"],
+                            ),
+                        ),
+                        create_field(
+                            "Similarity rate",
+                            dcc.Input(
+                                id="rate-similarity",
+                                type="number",
+                                min=RATE_SIMILARITY_MIN,
+                                max=RATE_SIMILARITY_MAX,
+                                value=genetic_settings_file["rate_similarity"],
+                            ),
+                        ),
+                    ],
                 ),
-                create_field(
-                    "Distance threshold",
-                    dcc.Input(
-                        id="distance-threshold",
-                        type="number",
-                        min=DISTANCE_THRESHOLD_MIN,
-                        max=DISTANCE_THRESHOLD_MAX,
-                        value=genetic_settings_file["dist_threshold"],
-                    ),
-                ),
-                create_field(
-                    "Window size",
-                    dcc.Input(
-                        id="input-window-size",
-                        type="number",
-                        min=WINDOW_SIZE_MIN,
-                        max=WINDOW_SIZE_MAX,
-                        value=genetic_settings_file["window_size"],
-                    ),
-                ),
-                create_field(
-                    "Step size",
-                    dcc.Input(
-                        id="input-step-size",
-                        type="number",
-                        min=STEP_SIZE_MIN,
-                        max=STEP_SIZE_MAX,
-                        value=genetic_settings_file["step_size"],
-                    ),
-                ),
-                create_field(
-                    "Similarity rate",
-                    dcc.Input(
-                        id="rate-similarity",
-                        type="number",
-                        min=RATE_SIMILARITY_MIN,
-                        max=RATE_SIMILARITY_MAX,
-                        value=genetic_settings_file["rate_similarity"],
-                    ),
-                ),
-            ],
-        ),
 
-        # --- Alignment Method ---
-        create_settings_section(
-            "Alignment Method",
-            icon_src="/assets/icons/grip-lines.svg",
-            children=[
-                create_field(
-                    "Alignment method",
-                    dcc.Dropdown(
-                        id="alignment-method",
-                        options=AlignmentMethod.choices(),
-                        value=ALIGNMENT_METHOD_DEFAULT,
-                        clearable=False,
-                    ),
+                # --- Alignment Method ---
+                create_settings_section(
+                    "Alignment Method",
+                    icon_src="/assets/icons/grip-lines.svg",
+                    children=[
+                        create_field(
+                            "Alignment method",
+                            dcc.Dropdown(
+                                id="alignment-method",
+                                options=AlignmentMethod.choices(),
+                                value=ALIGNMENT_METHOD_DEFAULT,
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
+                        ),
+                        create_field(
+                            "Distance method",
+                            dcc.Dropdown(
+                                id="distance-method",
+                                options=DistanceMethod.choices(),
+                                value=DISTANCE_METHOD_DEFAULT,
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
+                        ),
+                        create_field(
+                            "Fit method",
+                            dcc.Dropdown(
+                                id="fit-method",
+                                options=FitMethod.choices(),
+                                value=FIT_METHOD_DEFAULT,
+                                optionHeight=50,
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
+                        ),
+                    ],
                 ),
-                create_field(
-                    "Distance method",
-                    dcc.Dropdown(
-                        id="distance-method",
-                        options=DistanceMethod.choices(),
-                        value=DISTANCE_METHOD_DEFAULT,
-                        clearable=False,
-                    ),
-                ),
-                create_field(
-                    "Fit method",
-                    dcc.Dropdown(
-                        id="fit-method",
-                        options=FitMethod.choices(),
-                        value=FIT_METHOD_DEFAULT,
-                        optionHeight=50,
-                        clearable=False,
-                    ),
-                ),
-            ],
-        ),
 
-        # --- Tree Type ---
-        create_settings_section(
-            "Tree Type",
-            icon_src="/assets/icons/chart-diagram.svg",
-            children=[
-                create_field(
-                    "Tree type",
-                    dcc.Dropdown(
-                        id="tree-type",
-                        options=TreeType.choices(),
-                        value=TREE_TYPE_DEFAULT,
-                        clearable=False,
-                    ),
+                # --- Tree Type ---
+                create_settings_section(
+                    "Tree Type",
+                    icon_src="/assets/icons/chart-diagram.svg",
+                    children=[
+                        create_field(
+                            "Tree type",
+                            dcc.Dropdown(
+                                id="tree-type",
+                                options=TreeType.choices(),
+                                value=TREE_TYPE_DEFAULT,
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
+                        ),
+                        create_field(
+                            "Similarity method",
+                            dcc.Dropdown(
+                                id="method-similarity",
+                                options=SimilarityMethod.choices(),
+                                value=METHOD_SIMILARITY_DEFAULT,
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
+                        ),
+                    ],
                 ),
-                create_field(
-                    "Similarity method",
-                    dcc.Dropdown(
-                        id="method-similarity",
-                        options=SimilarityMethod.choices(),
-                        value=METHOD_SIMILARITY_DEFAULT,
-                        clearable=False,
-                    ),
-                ),
-            ],
-        ),
 
-        # --- Preprocessing ---
-        create_settings_section(
-            "Preprocessing",
-            icon_src="/assets/icons/gears.svg",
-            children=[
-                create_field(
-                    "Genetic preprocessing",
-                    dcc.Dropdown(
-                        id="preprocessing-genetic",
-                        options=PreprocessingToggle.choices(),
-                        value=genetic_settings_file.get(
-                            "preprocessing_genetic",
-                            PREPROCESSING_GENETIC_DEFAULT,
+                # --- Preprocessing ---
+                create_settings_section(
+                    "Preprocessing",
+                    icon_src="/assets/icons/gears.svg",
+                    children=[
+                        create_field(
+                            "Genetic preprocessing",
+                            dcc.Dropdown(
+                                id="preprocessing-genetic",
+                                options=PreprocessingToggle.choices(),
+                                value=genetic_settings_file.get(
+                                    "preprocessing_genetic",
+                                    PREPROCESSING_GENETIC_DEFAULT,
+                                ),
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
                         ),
-                        clearable=False,
-                    ),
-                ),
-                create_field(
-                    "Genetic threshold",
-                    dcc.Input(
-                        id="preprocessing-threshold-genetic",
-                        type="number",
-                        min=PREPROCESSING_THRESHOLD_GENETIC_MIN,
-                        max=PREPROCESSING_THRESHOLD_GENETIC_MAX,
-                        step=0.01,
-                        value=genetic_settings_file.get(
-                            "preprocessing_threshold_genetic",
-                            PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
+                        create_field(
+                            "Genetic threshold",
+                            dcc.Input(
+                                id="preprocessing-threshold-genetic",
+                                type="number",
+                                min=PREPROCESSING_THRESHOLD_GENETIC_MIN,
+                                max=PREPROCESSING_THRESHOLD_GENETIC_MAX,
+                                step=0.01,
+                                value=genetic_settings_file.get(
+                                    "preprocessing_threshold_genetic",
+                                    PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
+                                ),
+                            ),
                         ),
-                    ),
-                ),
-                create_field(
-                    "Climatic preprocessing",
-                    dcc.Dropdown(
-                        id="preprocessing-climatic",
-                        options=PreprocessingToggle.choices(),
-                        value=genetic_settings_file.get(
-                            "preprocessing_climatic",
-                            PREPROCESSING_CLIMATIC_DEFAULT,
+                        create_field(
+                            "Climatic preprocessing",
+                            dcc.Dropdown(
+                                id="preprocessing-climatic",
+                                options=PreprocessingToggle.choices(),
+                                value=genetic_settings_file.get(
+                                    "preprocessing_climatic",
+                                    PREPROCESSING_CLIMATIC_DEFAULT,
+                                ),
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
                         ),
-                        clearable=False,
-                    ),
-                ),
-                create_field(
-                    "Climatic threshold",
-                    dcc.Input(
-                        id="preprocessing-threshold-climatic",
-                        type="number",
-                        min=PREPROCESSING_THRESHOLD_CLIMATIC_MIN,
-                        max=PREPROCESSING_THRESHOLD_CLIMATIC_MAX,
-                        step=0.01,
-                        value=genetic_settings_file.get(
-                            "preprocessing_threshold_climatic",
-                            PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
+                        create_field(
+                            "Climatic threshold",
+                            dcc.Input(
+                                id="preprocessing-threshold-climatic",
+                                type="number",
+                                min=PREPROCESSING_THRESHOLD_CLIMATIC_MIN,
+                                max=PREPROCESSING_THRESHOLD_CLIMATIC_MAX,
+                                step=0.01,
+                                value=genetic_settings_file.get(
+                                    "preprocessing_threshold_climatic",
+                                    PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
+                                ),
+                            ),
                         ),
-                    ),
-                ),
-                create_field(
-                    "Correlation filtering (climatic)",
-                    dcc.Dropdown(
-                        id="correlation-climatic-enabled",
-                        options=PreprocessingToggle.choices(),
-                        value=genetic_settings_file.get(
-                            "correlation_climatic_enabled",
-                            CORRELATION_CLIMATIC_ENABLED_DEFAULT,
+                        create_field(
+                            "Correlation filtering (climatic)",
+                            dcc.Dropdown(
+                                id="correlation-climatic-enabled",
+                                options=PreprocessingToggle.choices(),
+                                value=genetic_settings_file.get(
+                                    "correlation_climatic_enabled",
+                                    CORRELATION_CLIMATIC_ENABLED_DEFAULT,
+                                ),
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
                         ),
-                        clearable=False,
-                    ),
-                ),
-                create_field(
-                    "Max correlation (climatic)",
-                    dcc.Input(
-                        id="max-correlation-climatic",
-                        type="number",
-                        min=CORRELATION_THRESHOLD_CLIMATIC_MIN,
-                        max=CORRELATION_THRESHOLD_CLIMATIC_MAX,
-                        step=0.01,
-                        value=genetic_settings_file.get(
-                            "correlation_threshold_climatic",
-                            CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
+                        create_field(
+                            "Max correlation (climatic)",
+                            dcc.Input(
+                                id="max-correlation-climatic",
+                                type="number",
+                                min=CORRELATION_THRESHOLD_CLIMATIC_MIN,
+                                max=CORRELATION_THRESHOLD_CLIMATIC_MAX,
+                                step=0.01,
+                                value=genetic_settings_file.get(
+                                    "correlation_threshold_climatic",
+                                    CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
+                                ),
+                            ),
                         ),
-                    ),
+                    ],
                 ),
-            ],
-        ),
 
-        # --- Statistical Tests ---
-        create_settings_section(
-            "Statistical Tests",
-            icon_src="/assets/icons/flask.svg",
-            children=[
-                create_field(
-                    "Statistical test",
-                    dcc.Dropdown(
-                        id="statistical-test",
-                        options=StatisticalTest.choices(),
-                        value=genetic_settings_file.get(
-                            "statistical_test",
-                            STATISTICAL_TEST_DEFAULT,
+                # --- Statistical Tests ---
+                create_settings_section(
+                    "Statistical Tests",
+                    icon_src="/assets/icons/flask.svg",
+                    children=[
+                        create_field(
+                            "Statistical test",
+                            dcc.Dropdown(
+                                id="statistical-test",
+                                options=StatisticalTest.choices(),
+                                value=genetic_settings_file.get(
+                                    "statistical_test",
+                                    STATISTICAL_TEST_DEFAULT,
+                                ),
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
                         ),
-                    ),
-                ),
-                create_field(
-                    "Mantel test method",
-                    dcc.Dropdown(
-                        id="mantel-test-method",
-                        options=MantelTestMethod.choices(),
-                        value=genetic_settings_file.get(
-                            "mantel_test_method",
-                            MANTEL_TEST_METHOD_DEFAULT,
+                        create_field(
+                            "Mantel test method",
+                            dcc.Dropdown(
+                                id="mantel-test-method",
+                                options=MantelTestMethod.choices(),
+                                value=genetic_settings_file.get(
+                                    "mantel_test_method",
+                                    MANTEL_TEST_METHOD_DEFAULT,
+                                ),
+                                clearable=False,
+                                className="pointer-dropdown",
+                            ),
                         ),
-                    ),
-                ),
-                create_field(
-                    "Mantel test permutations",
-                    dcc.Input(
-                        id="permutations-mantel-test",
-                        type="number",
-                        min=PERMUTATIONS_MIN,
-                        max=PERMUTATIONS_MAX,
-                        value=genetic_settings_file.get(
-                            "permutations_mantel_test",
-                            PERMUTATIONS_MANTEL_TEST_DEFAULT,
+                        create_field(
+                            "Mantel test permutations",
+                            dcc.Input(
+                                id="permutations-mantel-test",
+                                type="number",
+                                min=PERMUTATIONS_MIN,
+                                max=PERMUTATIONS_MAX,
+                                value=genetic_settings_file.get(
+                                    "permutations_mantel_test",
+                                    PERMUTATIONS_MANTEL_TEST_DEFAULT,
+                                ),
+                            ),
                         ),
-                    ),
-                ),
-                create_field(
-                    "PROTEST permutations",
-                    dcc.Input(
-                        id="permutations-protest",
-                        type="number",
-                        min=PERMUTATIONS_MIN,
-                        max=PERMUTATIONS_MAX,
-                        value=genetic_settings_file.get(
-                            "permutations_protest",
-                            PERMUTATIONS_PROTEST_DEFAULT,
+                        create_field(
+                            "PROTEST permutations",
+                            dcc.Input(
+                                id="permutations-protest",
+                                type="number",
+                                min=PERMUTATIONS_MIN,
+                                max=PERMUTATIONS_MAX,
+                                value=genetic_settings_file.get(
+                                    "permutations_protest",
+                                    PERMUTATIONS_PROTEST_DEFAULT,
+                                ),
+                            ),
                         ),
-                    ),
+                    ],
                 ),
-            ],
-        ),
 
-        # --- Action Buttons ---
-        html.Div(
-            className="settings-actions",
-            children=[
-                html.Button(
-                    "Reset to default",
-                    id="reset-button",
-                    n_clicks=0,
-                    className="button primary",
-                ),
-                html.Button(
-                    "Save settings",
-                    id="save-settings-button",
-                    n_clicks=0,
-                    className="button theme-action",
-                ),
-            ],
+                # --- Action Buttons ---
+                html.Div(
+                    className="page-actions",
+                    children=[
+                        html.Button(
+                            "Reset to default",
+                            id="reset-button",
+                            n_clicks=0,
+                            className="button primary",
+                        ),
+                        html.Button(
+                            "Save settings",
+                            id="save-settings-button",
+                            n_clicks=0,
+                            className="button theme-action",
+                        ),
+                    ],
                 ),
             ],
         ),

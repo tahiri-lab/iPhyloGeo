@@ -101,4 +101,3 @@ def create_result_card(
         href=f"/result/{result_id}" if result_id else "#",
         className=f"result-card result-card--{status_class}",
     )
-

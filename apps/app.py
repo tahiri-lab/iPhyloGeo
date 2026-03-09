@@ -33,7 +33,7 @@ LIGHT_THEME = {
     "--table-alt-row-color": "#F8F9FA",
     "--primary": "#FFFFFF",
     "--secondary": "#DBDBDB",
-    "--text": "#000000",
+    "--text": "#1A1C1E",
     "--text-secondary": "#828282",
     "--background": "#EBECF0",
     "--action": "#B593DD",

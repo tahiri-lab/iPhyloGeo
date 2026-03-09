@@ -3,14 +3,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: var(--primary, #FFFFFF);
+    background-color: var(--primary);
     border-radius: 12px;
     padding: 20px 24px;
     padding-left: 32px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
     transition: all 0.2s ease-in-out;
     margin-bottom: 12px;
-    overflow: hidden;
     text-decoration: none;
     cursor: pointer;
 
@@ -54,7 +53,7 @@
     &__title {
         font-size: 18px;
         font-weight: 700;
-        color: var(--text, #000000);
+        color: var(--text);
     }
 
     &__badge {
@@ -65,13 +64,13 @@
         text-transform: uppercase;
 
         &--success {
-            background-color: var(--success, #2DD4BF);
-            color: var(--text, #000000);
+            background-color: var(--success);
+            color: var(--text);
         }
 
         &--error {
-            background-color: var(--error, #FF6262);
-            color: var(--text, #000000);
+            background-color: var(--error);
+            color: var(--text);
         }
     }
 
@@ -86,7 +85,7 @@
         gap: 6px;
         font-size: 14px;
         font-weight: 700;
-        color: var(--text-secondary, #828282);
+        color: var(--text-secondary);
     }
 
     &__date-icon-calendar {
@@ -103,7 +102,7 @@
         display: flex;
         align-items: center;
         gap: 4px;
-        color: var(--text, #000000);
+        color: var(--text);
         font-size: 16px;
         font-weight: 700;
         padding: 8px 16px;
@@ -121,4 +120,3 @@
         margin-top: -4px;
     }
 }
-
