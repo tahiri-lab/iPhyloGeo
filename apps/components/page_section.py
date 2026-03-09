@@ -1,13 +1,13 @@
 """
 Reusable page section components.
-Provides create_settings_section and create_field helpers for building
+Provides create_page_section and create_field helpers for building
 consistent page layouts across the application (settings, help, results, etc.).
 """
 
 from dash import html
 
 
-def create_settings_section(title, children, icon_src=None):
+def create_page_section(title, children, icon_src=None):
     """
     Create a styled page section with an icon + title header.
 

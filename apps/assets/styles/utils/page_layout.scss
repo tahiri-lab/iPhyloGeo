@@ -1,4 +1,4 @@
-// Outer white/themed card that holds all sections
+// Page card
 .page-card {
     width: 100%;
     margin: 12px auto;
@@ -8,7 +8,7 @@
     box-sizing: border-box;
 }
 
-// Full-width page wrapper (column, centred, padded)
+// Page wrapper
 .page-container {
     display: flex;
     flex-direction: column;
@@ -93,7 +93,6 @@
     color: var(--text);
 }
 
-
 //Dash Input overrides
 .page-field input[type="number"],
 .page-field input[type="text"],
@@ -110,7 +109,6 @@
     outline: none;
     transition: border-color 0.2s ease;
 }
-
 
 //Dash dropdown overrides
 .page-field .Select {
@@ -138,7 +136,6 @@
         overflow: hidden;
     }
 }
-
 
 //Dash dropdown options overrides (used by dcc.Dropdown with many options)
 .VirtualizedSelectOption {

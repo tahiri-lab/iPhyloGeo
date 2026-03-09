@@ -4,7 +4,7 @@ import dash
 from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
-from components.settings_section import create_field, create_settings_section
+from components.page_section import create_field, create_page_section
 from enums import (AlignmentMethod, DistanceMethod, FitMethod,
                    MantelTestMethod, PreprocessingToggle, SimilarityMethod,
                    StatisticalTest, TreeType)
@@ -71,7 +71,7 @@ layout = html.Div(
             className="page-card",
             children=[
                 # --- Genetic Parameters ---
-                create_settings_section(
+                create_page_section(
                     "Genetic parameters",
                     icon_src="/assets/icons/dna.svg",
                     children=[

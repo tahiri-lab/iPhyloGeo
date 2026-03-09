@@ -1,5 +1,5 @@
 html body {
-    background-color: var(--background-color, #EBECF0);
+    background-color: var(--background-color);
     font-family: Inter, sans-serif;
     transition: all 0.3s ease-in-out;
     box-sizing: border-box;
@@ -19,7 +19,7 @@ html body {
     position: relative;
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: var(--background-color, #EBECF0);
+    background-color: var(--background);
 }
 
 .full-viewport-background {
@@ -32,7 +32,7 @@ html body {
 }
 
 .footer {
-    background-color: var(--background-color);
+    background-color: var(--background);
     height: 50px;
     margin-top: -7px;
 }

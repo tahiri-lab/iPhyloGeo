@@ -24,10 +24,12 @@
 
   @keyframes video-transition {
     from {
+      filter: brightness(70%);
       background-color: black;
     }
 
     to {
+      filter: brightness(70%);
       background-color: black;
     }
   }

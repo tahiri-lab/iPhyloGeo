@@ -27,14 +27,14 @@ def create_result_card(
         html.Div: Result card component
     """
     # Determine badge class based on status
-    # Possible statuses: pending, climatic_trees, alignement, genetic_trees, complete, error
+    # Possible statuses: pending, complete, error
     if status == "error":
         status_class = "error"
         status_text = "ERROR"
     elif status == "complete":
         status_class = "success"
         status_text = "SUCCESS"
-    elif status in ["pending", "climatic_trees", "alignement", "genetic_trees"]:
+    elif status in ["pending"]:
         status_class = "pending"
         status_text = "IN PROGRESS"
     else:

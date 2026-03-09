@@ -1,6 +1,6 @@
 import dash
 from dash import dcc, html
-from components.settings_section import create_settings_section
+from components.page_section import create_page_section
 
 dash.register_page(__name__, path="/help")
 
@@ -12,7 +12,7 @@ layout = html.Div(
             className="page-card",
             children=[
                 # Section Upload data
-                create_settings_section(
+                create_page_section(
                     "Upload data",
                     icon_src="/assets/icons/folder-upload.svg",
                     children=[
@@ -43,7 +43,7 @@ By combining these approaches, you can gain a better understanding of relationsh
                     ],
                 ),
                 # Section Check results
-                create_settings_section(
+                create_page_section(
                     "Check results",
                     icon_src="/assets/icons/eye.svg",
                     children=[
@@ -75,7 +75,7 @@ You can examine and download the following outputs:
                     ],
                 ),
                 # Section Settings
-                create_settings_section(
+                create_page_section(
                     "Settings",
                     icon_src="/assets/icons/gears.svg",
                     children=[
@@ -105,7 +105,7 @@ Methods & Algorithms:
                     ],
                 ),
                 # Section Statistical Tests
-                create_settings_section(
+                create_page_section(
                     "Statistical Tests",
                     icon_src="/assets/icons/flask.svg",
                     children=[
