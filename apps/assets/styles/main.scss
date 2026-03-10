@@ -6,6 +6,34 @@ html body {
     overflow-x: hidden;
 }
 
+// Global scrollbar styling (adapts to dark/light theme via CSS vars)
+* {
+    // Firefox
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary) var(--primary);
+
+    // Chrome / Edge / Safari
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--primary);
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--secondary);
+        border-radius: 4px;
+        border: 2px solid var(--primary);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--text-secondary);
+    }
+}
+
 .app-layout {
     display: flex;
     align-items: flex-start;

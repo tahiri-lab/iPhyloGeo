@@ -249,11 +249,11 @@ app.layout = html.Div(
                     dash.page_container,
                     className="page-content",
                 ),
+                toast_container,
             ],
             id="themer",
             className="app-layout",
         ),
-        toast_container,
     ]
 )
 

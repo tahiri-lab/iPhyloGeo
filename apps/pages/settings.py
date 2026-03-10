@@ -80,8 +80,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="bootstrap-threshold",
                                 type="number",
-                                min=BOOTSTRAP_THRESHOLD_MIN,
-                                max=BOOTSTRAP_THRESHOLD_MAX,
                                 value=genetic_settings_file["bootstrap_threshold"],
                             ),
                         ),
@@ -90,8 +88,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="distance-threshold",
                                 type="number",
-                                min=DISTANCE_THRESHOLD_MIN,
-                                max=DISTANCE_THRESHOLD_MAX,
                                 value=genetic_settings_file["dist_threshold"],
                             ),
                         ),
@@ -100,8 +96,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="input-window-size",
                                 type="number",
-                                min=WINDOW_SIZE_MIN,
-                                max=WINDOW_SIZE_MAX,
                                 value=genetic_settings_file["window_size"],
                             ),
                         ),
@@ -110,8 +104,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="input-step-size",
                                 type="number",
-                                min=STEP_SIZE_MIN,
-                                max=STEP_SIZE_MAX,
                                 value=genetic_settings_file["step_size"],
                             ),
                         ),
@@ -120,8 +112,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="rate-similarity",
                                 type="number",
-                                min=RATE_SIMILARITY_MIN,
-                                max=RATE_SIMILARITY_MAX,
                                 value=genetic_settings_file["rate_similarity"],
                             ),
                         ),
@@ -218,8 +208,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="preprocessing-threshold-genetic",
                                 type="number",
-                                min=PREPROCESSING_THRESHOLD_GENETIC_MIN,
-                                max=PREPROCESSING_THRESHOLD_GENETIC_MAX,
                                 step=0.01,
                                 value=genetic_settings_file.get(
                                     "preprocessing_threshold_genetic",
@@ -245,8 +233,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="preprocessing-threshold-climatic",
                                 type="number",
-                                min=PREPROCESSING_THRESHOLD_CLIMATIC_MIN,
-                                max=PREPROCESSING_THRESHOLD_CLIMATIC_MAX,
                                 step=0.01,
                                 value=genetic_settings_file.get(
                                     "preprocessing_threshold_climatic",
@@ -272,8 +258,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="max-correlation-climatic",
                                 type="number",
-                                min=CORRELATION_THRESHOLD_CLIMATIC_MIN,
-                                max=CORRELATION_THRESHOLD_CLIMATIC_MAX,
                                 step=0.01,
                                 value=genetic_settings_file.get(
                                     "correlation_threshold_climatic",
@@ -320,8 +304,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="permutations-mantel-test",
                                 type="number",
-                                min=PERMUTATIONS_MIN,
-                                max=PERMUTATIONS_MAX,
                                 value=genetic_settings_file.get(
                                     "permutations_mantel_test",
                                     PERMUTATIONS_MANTEL_TEST_DEFAULT,
@@ -333,8 +315,6 @@ layout = html.Div(
                             dcc.Input(
                                 id="permutations-protest",
                                 type="number",
-                                min=PERMUTATIONS_MIN,
-                                max=PERMUTATIONS_MAX,
                                 value=genetic_settings_file.get(
                                     "permutations_protest",
                                     PERMUTATIONS_PROTEST_DEFAULT,
@@ -392,6 +372,38 @@ def get_default_settings():
         "mantel_test_method": MANTEL_TEST_METHOD_DEFAULT,
         "statistical_test": STATISTICAL_TEST_DEFAULT,
     }
+
+
+def validate_updated_settings(settings):
+    """
+    Validate that all numeric settings are within their allowed bounds.
+
+    Args:
+        settings: dict of setting key -> value
+
+    Returns:
+        str | None: A human-readable error message if any value is invalid,
+                    or None if all values are valid.
+    """
+    numeric_bounds = [
+        ("bootstrap_threshold", "Bootstrap threshold", BOOTSTRAP_THRESHOLD_MIN, BOOTSTRAP_THRESHOLD_MAX),
+        ("dist_threshold", "Distance threshold", DISTANCE_THRESHOLD_MIN, DISTANCE_THRESHOLD_MAX),
+        ("window_size", "Window size", WINDOW_SIZE_MIN, WINDOW_SIZE_MAX),
+        ("step_size", "Step size", STEP_SIZE_MIN, STEP_SIZE_MAX),
+        ("rate_similarity", "Similarity rate", RATE_SIMILARITY_MIN, RATE_SIMILARITY_MAX),
+        ("preprocessing_threshold_genetic", "Genetic threshold", PREPROCESSING_THRESHOLD_GENETIC_MIN, PREPROCESSING_THRESHOLD_GENETIC_MAX),
+        ("preprocessing_threshold_climatic", "Climatic threshold", PREPROCESSING_THRESHOLD_CLIMATIC_MIN, PREPROCESSING_THRESHOLD_CLIMATIC_MAX),
+        ("correlation_threshold_climatic", "Max correlation (climatic)", CORRELATION_THRESHOLD_CLIMATIC_MIN, CORRELATION_THRESHOLD_CLIMATIC_MAX),
+        ("permutations_mantel_test", "Mantel test permutations", PERMUTATIONS_MIN, PERMUTATIONS_MAX),
+        ("permutations_protest", "PROTEST permutations", PERMUTATIONS_MIN, PERMUTATIONS_MAX),
+    ]
+    for key, label, min_val, max_val in numeric_bounds:
+        value = settings.get(key)
+        if value is None:
+            return f"{label} is required."
+        if not (min_val <= value <= max_val):
+            return f"{label} must be between {min_val} and {max_val} (got {value})."
+    return None
 
 
 # Update settings on the form
@@ -532,6 +544,10 @@ def update_parameters(
             "mantel_test_method": mantel_test_method,
             "statistical_test": statistical_test,
         }
+        error = validate_updated_settings(updated_settings)
+        if error:
+            return dash.no_update, {"message": error, "type": "error"}
+
         with open("genetic_settings_file.json", "w") as file:
             json.dump(updated_settings, file, indent=4)
 

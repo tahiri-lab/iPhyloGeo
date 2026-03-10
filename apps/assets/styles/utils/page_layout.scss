@@ -110,6 +110,7 @@
     transition: border-color 0.2s ease;
 }
 
+
 //Dash dropdown overrides
 .page-field .Select {
     .Select-control {
@@ -128,6 +129,7 @@
         line-height: 38px;
         padding-left: 14px;
         color: var(--text) !important;
+        background-color: var(--primary) !important;
     }
 
     .Select-menu-outer {
