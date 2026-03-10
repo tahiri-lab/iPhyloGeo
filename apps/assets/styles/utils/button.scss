@@ -59,10 +59,13 @@
   }
 
   &.download {
-    background-color: #AD00FA;
-    font-size: 15px;
+    background-color: var(--action);
+    font-size: 14px;
     font-weight: bold;
-    color: white;
+    color: var(--text);
+    border: none;
+    padding: 10px 15px;
+    box-shadow: none;
 
     .text {
       white-space: nowrap;
@@ -71,7 +74,11 @@
     }
 
     &:hover {
-      background-color: #8B00D1;
+      background-color: var(--action-hover);
     }
+  }
+
+  .icon {
+    filter: var(--icon-filter);
   }
 }

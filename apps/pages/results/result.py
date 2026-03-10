@@ -32,6 +32,39 @@ from plotly.subplots import make_subplots
 
 dash.register_page(__name__, path_template="/result/<result_id>")
 
+
+def create_email_section():
+    """
+    Creates the email share section content (header + input).
+    """
+    return [
+        html.Div(
+            [
+                html.Div("Share result", className="result-section-title"),
+                html.Img(
+                    src="../../assets/icons/angle-down.svg",
+                    id="results-email-collapse-button",
+                    className="icon collapse-icon",
+                ),
+            ],
+            className="result-section-header",
+        ),
+        html.Div(
+            [
+                html.P(
+                    "if you would like to receive the url of these data by email, you can enter your adress mail below.",
+                    className="email-description",
+                ),
+                create_email_input(
+                    input_id="user-input",
+                    placeholder="Enter your adress mail here",
+                ),
+            ],
+            id="email-section-container",
+        ),
+    ]
+
+
 layout = html.Div(
     [
         dcc.Location(id="url"),
@@ -39,36 +72,54 @@ layout = html.Div(
         html.Div(id="dummy-table-collapse", style={"display": "none"}),
         html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
         html.Div(id="dummy-genetic-collapse", style={"display": "none"}),
+        html.Div(id="dummy-email-collapse", style={"display": "none"}),
         html.Div(
             [
+                html.H1(id="results-name", className="title"),
+                # Top action buttons row
                 html.Div(
                     [
                         html.Div(
                             [
-                                html.H1(id="results-name", className="title"),
-                                html.Div(
-                                    [
-                                        html.Div(
-                                            [
-                                                html.Img(
-                                                    src="../../assets/icons/share.svg",
-                                                    id="share_result",
-                                                    className="options-icons",
-                                                ),
-                                            ],
-                                            className="header-options",
-                                        ),
-                                        html.Div(
-                                            "Link copied to your clipboard",
-                                            id="share_tooltip",
-                                            className="tooltips",
-                                        ),
-                                    ]
+                                html.Span("share", className="text"),
+                                html.Img(
+                                    src="../../assets/icons/share.svg",
+                                    id="share_result",
+                                    className="icon",
                                 ),
                             ],
-                            className="header",
+                            className="button download",
+                            id="share-result-btn",
                         ),
-                        html.H2(id="results-table-title", className="title"),
+                        html.Div(
+                            [
+                                html.Span("download output.csv", className="text"),
+                                html.Img(
+                                    src="../../assets/icons/download.svg",
+                                    className="icon",
+                                ),
+                            ],
+                            className="button download",
+                            id="download-button-complete",
+                        ),
+                        html.Div(
+                            [
+                                html.Span("download genetic sequences", className="text"),
+                                html.Img(
+                                    src="../../assets/icons/download.svg",
+                                    className="icon",
+                                ),
+                            ],
+                            className="button download",
+                            id="download-button-aligned",
+                        ),
+                    ],
+                    className="result-actions",
+                ),
+                # Results section card
+                html.Div(
+                    [
+                        html.Div(id="results-table-title"),
                         html.Div(
                             [
                                 html.Div(id="output-results"),
@@ -77,28 +128,41 @@ layout = html.Div(
                             id="results-row",
                             className="results-row",
                         ),
-                        dcc.Download(id="download-link-results"),
-                        html.H2(id="climatic-tree-title", className="title"),
+                    ],
+                    className="page-card result-section-card",
+                ),
+                dcc.Download(id="download-link-results"),
+                # Climatic trees section card
+                html.Div(
+                    [
+                        html.Div(id="climatic-tree-title"),
                         html.Div(
-                            [
-                                html.Div(id="climatic-tree"),
-                            ],
+                            [html.Div(id="climatic-tree")],
                             className="tree",
                             id="climatic-tree-container",
                         ),
-                        html.H2(id="genetic-tree-title", className="title"),
+                    ],
+                    className="page-card result-section-card",
+                ),
+                # Genetic trees section card
+                html.Div(
+                    [
+                        html.Div(id="genetic-tree-title"),
                         html.Div(
-                            [
-                                html.Div(id="genetic-tree"),
-                            ],
+                            [html.Div(id="genetic-tree")],
                             className="tree",
                             id="genetic-tree-container",
                         ),
                     ],
-                    className="treeContainer",
+                    className="page-card result-section-card",
+                ),
+                # Email section card
+                html.Div(
+                    create_email_section(),
+                    className="page-card result-section-card",
                 ),
             ],
-            className="result",
+            className="page-container result-page",
         ),
         html.Div(
             id="email-status-message",
@@ -110,31 +174,7 @@ layout = html.Div(
 )
 
 
-# E-mail section at the bottom of the page
-bottom_email_div = html.Div(
-    [
-        html.Div(
-            [
-                html.H2(
-                    "If you would like to receive the URL by email, you can enter your address below.",
-                    style={
-                        "textAlign": "center",
-                        "color": "#AD00FA",
-                        "fontSize": "14px",
-                    },
-                ),
-                create_email_input(
-                    input_id="user-input",
-                ),
-            ],
-            className="center-container",
-            style={"textAlign": "center"},
-        ),
-    ],
-    className="result",
-)
 
-layout.children.append(bottom_email_div)
 
 
 @callback(
@@ -169,7 +209,7 @@ def show_result_name(path):
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
     title = utils.get_result(result_id)["name"]
-    return html.Div(title, className="title")
+    return f"Result of {title}"
 
 
 @callback(
@@ -234,8 +274,9 @@ def show_complete_results(path, generated_page):
     Output("climatic-tree", "children"),
     State("url", "pathname"),
     Input("output-results-graph", "children"),
+    Input("theme-store", "data"),
 )
-def create_climatic_trees(path, generated_results_header):
+def create_climatic_trees(path, generated_results_header, is_dark_theme):
     """
     This function creates the list of divs containing the climatic trees
 
@@ -243,6 +284,7 @@ def create_climatic_trees(path, generated_results_header):
     args:
         path (str): the path of the page
         generated_results_header: used to wait for the results header to be created before showing climatic trees
+        is_dark_theme: True if dark theme, False if light theme
     returns:
         htmml.Div: the div containing the header (title & download button) of the climatic trees
         html.Div: the div containing the climatic trees
@@ -266,7 +308,7 @@ def create_climatic_trees(path, generated_results_header):
 
     return create_climatic_trees_header(), html.Div(
         children=[
-            generate_tree(elem, name)
+            generate_tree(elem, name, is_dark_theme)
             for elem, name in zip(climatic_elements, tree_names)
         ],
         className="tree-sub-container",
@@ -344,13 +386,15 @@ def download_results(
     Output("genetic-tree", "children"),
     State("url", "pathname"),
     Input("output-results-graph", "children"),
+    Input("theme-store", "data"),
 )
-def create_genetic_trees(path, generated_results_header):
+def create_genetic_trees(path, generated_results_header, is_dark_theme):
     """
     This function creates the list of divs containing the genetic trees
     args:
         path (str): the path of the page
         generated_results_header: used to wait for the results header to be created before showing genetic trees
+        is_dark_theme: True if dark theme, False if light theme
     returns:
         htmml.Div: the div containing the header (title & download button) of the genetic trees
         html.Div: the div containing the genetic trees
@@ -373,7 +417,7 @@ def create_genetic_trees(path, generated_results_header):
 
     return create_genetic_trees_header(), html.Div(
         children=[
-            generate_tree(elem, name)
+            generate_tree(elem, name, is_dark_theme)
             for elem, name in zip(genetic_elements, tree_names)
         ],
         className="tree-sub-container",
@@ -394,51 +438,18 @@ def add_to_cookie(result_id):
 
 def create_result_table_header():
     """
-    This function creates the header of the results table
-    returns:
-        html.Div: the div containing the header of the results table
+    Creates the collapsible section header for the results table.
     """
-
     return html.Div(
         [
-            html.Div(
-                [
-                    html.Div("Results", className="title"),
-                    html.Img(
-                        src="../../assets/icons/angle-down.svg",
-                        id="results-table-collapse-button",
-                        className="icon collapse-icon",
-                    ),
-                ],
-                className="sub-section",
-            ),
-            html.Div(
-                [
-                    html.Div(
-                        [
-                            html.Div("Aligned genetic sequences", className="text"),
-                            html.Img(
-                                src="../../assets/icons/download.svg", className="icon"
-                            ),
-                        ],
-                        className="individual-tree-download-container button download",
-                        id="download-button-aligned",
-                    ),
-                    html.Div(
-                        [
-                            html.Div("output.csv", className="text"),
-                            html.Img(
-                                src="../../assets/icons/download.svg", className="icon"
-                            ),
-                        ],
-                        className="individual-tree-download-container button download",
-                        id="download-button-complete",
-                    ),
-                ],
-                className="download-container",
+            html.Div("Results", className="result-section-title"),
+            html.Img(
+                src="../../assets/icons/angle-down.svg",
+                id="results-table-collapse-button",
+                className="icon collapse-icon",
             ),
         ],
-        className="section",
+        className="result-section-header",
     )
 
 
@@ -549,76 +560,79 @@ def create_result_graphic(results_data):
 
 def create_climatic_trees_header():
     """
-    This function creates the header for the climatic trees
+    Creates the collapsible section header for the climatic trees.
     """
     return html.Div(
         [
             html.Div(
                 [
-                    html.Div("Climatic Trees", className="title"),
+                    html.Div("Climatic Trees", className="result-section-title"),
                     html.Img(
                         src="../../assets/icons/angle-down.svg",
                         id="results-climatic-collapse-button",
                         className="icon collapse-icon",
                     ),
                 ],
-                className="sub-section",
+                className="result-section-header",
             ),
             html.Div(
                 [
-                    html.Div("Climatic Trees", className="text"),
-                    html.Img(src="../../assets/icons/download.svg", className="icon"),
+                    html.Span("download climatic trees", className="text"),
+                    html.Img(
+                        src="../../assets/icons/download.svg", className="icon"
+                    ),
                 ],
-                className="individual-tree-download-container button download",
+                className="button download",
                 id="download-button-climatic",
             ),
         ],
-        className="section",
+        className="result-section-header result-section-header--with-action",
     )
 
 
 def create_genetic_trees_header():
     """
-    This function creates the header for the genetic trees
+    Creates the collapsible section header for the genetic trees.
     """
     return html.Div(
         [
             html.Div(
                 [
-                    html.Div("Genetic Trees", className="title"),
+                    html.Div("Genetic Trees", className="result-section-title"),
                     html.Img(
                         src="../../assets/icons/angle-down.svg",
                         id="results-genetic-collapse-button",
                         className="icon collapse-icon",
                     ),
                 ],
-                className="sub-section",
+                className="result-section-header",
             ),
             html.Div(
                 [
-                    html.Div("Genetic Trees", className="text"),
+                    html.Span("download genetic trees", className="text"),
                     html.Img(
                         src="../../assets/icons/download.svg", className="icon"
                     ),
                 ],
-                className="individual-tree-download-container button download",
+                className="button download",
                 id="download-button-genetic",
             ),
         ],
-        className="section",
+        className="result-section-header result-section-header--with-action",
     )
 
 
+
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
-def generate_tree(elem, name):
+def generate_tree(elem, name, is_dark_theme=True):
     return html.Div(
         [
             html.H3(name, className="treeTitle"),
             cyto.Cytoscape(
                 elements=elem,
-                stylesheet=stylesheet,
-                layout={"name": "preset"},  # or any other non-preset layout
-                style={"height": "550px", "width": "100%"},
+                stylesheet=get_cytoscape_stylesheet(is_dark_theme),
+                layout={"name": "preset", "fit": True, "padding": 20},
+                style={"height": "400px", "width": "100%"},
                 userZoomingEnabled=False,
             ),
         ],
@@ -775,36 +789,64 @@ clientside_callback(
 )
 
 
-stylesheet = [
-    {
-        "selector": ".nonterminal",
-        "style": {
-            "label": 'data(confidence) ? data(confidence) : "" ',
-            "background-opacity": 0,
-            "text-halign": "left",
-            "text-valign": "top",
+clientside_callback(
+    ClientsideFunction(
+        namespace="clientside", function_name="collapse_result_section_function"
+    ),
+    Output("dummy-email-collapse", "children"),  # needed for the callback to trigger
+    [
+        Input("results-email-collapse-button", "n_clicks"),
+        Input("email-section-container", "id"),
+        Input("results-email-collapse-button", "id"),
+    ],
+    prevent_initial_call=True,
+)
+
+
+def get_cytoscape_stylesheet(is_dark_theme=True):
+    """
+    Returns the Cytoscape stylesheet with the appropriate text color based on theme.
+    Args:
+        is_dark_theme: True for dark theme (white text), False for light theme (dark text)
+    """
+    text_color = "#FFFFFF" if is_dark_theme else "#1A1C1E"
+    line_color = "#9F74D0" if is_dark_theme else "#B593DD"
+    node_color = "#1FA391" if is_dark_theme else "#2DD4BF"
+    return [
+        {
+            "selector": ".nonterminal",
+            "style": {
+                "label": "",
+                "background-opacity": 0,
+                "text-opacity": 0,
+            },
         },
-    },
-    {"selector": ".support", "style": {"background-opacity": 0}},
-    {
-        "selector": "edge",
-        "style": {
-            "line-color": "#AD00FA ",
-            "source-endpoint": "inside-to-node",
-            "target-endpoint": "inside-to-node",
+        {"selector": ".support", "style": {"background-opacity": 0, "text-opacity": 0}},
+        {
+            "selector": "edge",
+            "style": {
+                "line-color": line_color,
+                "source-endpoint": "inside-to-node",
+                "target-endpoint": "inside-to-node",
+            },
         },
-    },
-    {
-        "selector": ".terminal",
-        "style": {
-            "label": "data(name)",
-            "font-weight": "bold",
-            "color": "white",
-            "width": 10,
-            "height": 10,
-            "text-valign": "center",
-            "text-halign": "right",
-            "backgroundColor": "#00faad",
+        {
+            "selector": ".terminal",
+            "style": {
+                "label": "data(name)",
+                "font-weight": "bold",
+                "color": text_color,
+                "width": 10,
+                "height": 10,
+                "text-valign": "center",
+                "text-halign": "right",
+                "background-color": node_color,
+            },
         },
-    },
-]
+    ]
+
+
+# Default stylesheet (dark theme)
+stylesheet = get_cytoscape_stylesheet(True)
+
+

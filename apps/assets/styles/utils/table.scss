@@ -72,3 +72,11 @@
     }
   }
 }
+
+.dash-table-container {
+  .dash-spreadsheet-container {
+    .column-header-name {
+      color: var(--text) !important;
+    }
+  }
+}

@@ -37,6 +37,7 @@ LIGHT_THEME = {
     "--text-secondary": "#828282",
     "--background": "#EBECF0",
     "--action": "#B593DD",
+    "--action-hover": "#9F79D6",
     "--success": "#2DD4BF",
     "--error": "#FF6262",
     "--pending": "#FFC107",
@@ -65,6 +66,7 @@ DARK_THEME = {
     "--text-secondary": "#A0A0A0",
     "--background": "#1A1C1E",
     "--action": "#9F74D0",
+    "--action-hover": "#8B5FC2",
     "--success": "#1FA391",
     "--error": "#FF6262",
 }

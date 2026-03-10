@@ -1,227 +1,215 @@
 @use 'utils/table';
 
 .resultContainer {
-  background-color: var(--background-color);
-  transition: all 0.3s ease-in-out;
-  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+}
+
+// Result detail page wrapper
+.result-page {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40px;
+
+  >.title {
+    color: var(--text);
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 30px;
+    margin-bottom: 16px;
+  }
+}
+
+// Top action buttons row
+.result-actions {
+  display: grid;
+  grid-template-columns: 1fr 3fr 3fr;
+  gap: 24px;
+  margin-bottom: 12px;
   width: 100%;
   box-sizing: border-box;
 
-  &::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--background-color);
-    z-index: -1;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .section {
+  .button.download {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    width: 100%;
-    box-sizing: border-box;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
 
-    .sub-section {
-      display: flex;
-      gap: 30px;
-
-      .icon {
-        cursor: pointer;
-        width: 20px;
-        rotate: 0deg;
-        transition: rotate 0.3s ease-in-out;
-
-        &.collapse-icon {
-         filter: var(--icon-filter);
-        }
-
-        &.close {
-          transition: rotate 0.3s ease-in-out;
-          rotate: -90deg;
-        }
-      }
+    &:nth-child(1) {
+      grid-column: 1;
     }
 
-    .download-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
+    &:nth-child(2) {
+      grid-column: 2;
     }
 
-    .individual-tree-download-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-left: auto;
-      margin-right: 0;
+    &:nth-child(3) {
+      grid-column: 3;
+    }
 
-      .icon {
-        width: 20px;
-        margin-left: 10px;
-        filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(288deg) brightness(102%) contrast(102%);
-      }
+    .icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Section card (Results / Climatic Trees / Genetic Trees)
+.result-section-card {
+  margin-bottom: 16px;
+  padding: 20px 24px;
+}
+
+// Section header: title + collapse chevron
+.result-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+
+  .result-section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text);
+  }
+
+  .collapse-icon {
+    width: 20px;
+    cursor: pointer;
+    rotate: 0deg;
+    transition: rotate 0.3s ease-in-out;
+    filter: var(--icon-filter);
+
+    &.close {
+      rotate: -90deg;
     }
   }
 
-  .result {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-width: 0;
-    padding: 20px;
-    box-sizing: border-box;
+  // When a download button sits alongside the header (climatic/genetic)
+  &.result-section-header--with-action {
+    justify-content: space-between;
 
-    .title {
-      color: var(--reverse-black-white-color);
-      font-size: 40px;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: all 0.3s ease-in-out;
-    }
-
-    .results-row {
-      max-height: 1800px;
-      padding: 0;
-      opacity: 1;
-      transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
-      width: 100%;
-      box-sizing: border-box;
-      overflow-x: auto;
-
-      &.collapse-row {
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-        transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
-      }
-
-      .graph {
-        margin-top: 20px;
-        border-radius: 10px;
-        background-color: black;
-        width: 100%;
-        box-sizing: border-box;
-      }
-    }
-
-    .dash-fixed-content {
-      overflow-x: auto;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .result-table {
-      @extend .shared-table;
-    }
-
-    .treeContainer {
+    .button.download {
+      margin: 0;
       display: flex;
-      justify-content: center;
-      flex-direction: column;
-      gap: 30px;
-      width: 100%;
-      min-width: 0;
-      box-sizing: border-box;
+      align-items: center;
+      gap: 8px;
 
-      .header {
-        display: flex;
-        align-items: center;
-        align-self: flex-end;
-        width: fit-content;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 20px;
-        margin-top: 20px;
-        font-weight: bold;
-        background-color: var(--black-and-white);
-        transition: all 0.3s ease-in-out;
-
-        .header-options {
-          display: flex;
-          gap: 15px;
-        }
-
-        .download-button-container {
-          display: flex;
-          justify-content: center;
-          width: 35px;
-        }
-
-        .options-icons {
-          width: 30px;
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          cursor: pointer;
-          filter: var(--icon-filter);
-          transition: all 0.3s ease-in-out;
-
-          &:hover {
-            filter: invert(20%) sepia(90%) saturate(3517%) hue-rotate(275deg) brightness(87%) contrast(139%);
-          }
-
-          &.download {
-            &:hover + div {
-              transition: all 0.3s ease-in-out;
-              opacity: 1;
-              visibility: visible;
-            }
-          }
-        }
+      .icon {
+        width: 16px;
       }
+    }
+  }
+}
+
+// Collapsible Areas
+.results-row {
+  opacity: 1;
+  overflow: visible;
+  transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+
+  &.collapse-row {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
+  }
+
+  .graph {
+    margin-top: 20px;
+    border-radius: 10px;
+    background-color: black;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+.tree {
+  width: 100%;
+  max-height: 10000px;
+  opacity: 1;
+  transition: opacity 1s ease-in-out, max-height 0s ease-in-out;
+  box-sizing: border-box;
+
+  &.collapse-row {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
+  }
+
+  .tree-sub-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 16px;
+
+    .tree-container {
+      flex: 1 1 min(100%, 500px);
+      min-width: 0;
+      max-height: 450px;
+      border-radius: 15px;
+      background-color: var(--primary);
+      border: 2px solid var(--secondary);
+      transition: all 0.3s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
 
       .treeTitle {
-        padding: 15px;
-        font-size: 20px;
+        padding: 10px;
+        font-size: 14px;
         font-weight: bold;
         word-wrap: break-word;
-        color: white;
-      }
-
-      .tree {
+        color: var(--text);
+        text-align: center;
         width: 100%;
-        max-height: 10000px; // to avoid the tree to be cut off since we don't know the height of the tree
-        opacity: 1;
-        transition: opacity 1s ease-in-out, max-height 0s ease-in-out;
-        box-sizing: border-box;
-
-        &.collapse-row {
-          max-height: 0;
-          opacity: 0;
-          overflow: hidden;
-          transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
-        }
-
-        .tree-sub-container {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          flex-direction: row;
-          gap: 30px;
-          width: 100%;
-          box-sizing: border-box;
-
-          .tree-container {
-            flex: 1 1 min(100%, 500px);
-            min-width: 0;
-            max-width: 100%;
-            box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-            border-radius: 15px;
-            background-color: black;
-            transition: all 0.3s ease-in-out;
-          }
-        }
       }
     }
+  }
+}
+
+// Results table
+.result-table {
+  @extend .shared-table;
+
+  .dash-cell {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .dash-header {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  th {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+
+// Email section collapse
+#email-section-container {
+  max-height: 500px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
+  margin-top: 16px;
+
+  &.collapse-row {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-top: 0;
+    transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
   }
 }
