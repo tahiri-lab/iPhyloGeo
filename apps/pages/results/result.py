@@ -174,9 +174,6 @@ layout = html.Div(
 )
 
 
-
-
-
 @callback(
     Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
@@ -622,7 +619,6 @@ def create_genetic_trees_header():
     )
 
 
-
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name, is_dark_theme=True):
     return html.Div(
@@ -848,5 +844,3 @@ def get_cytoscape_stylesheet(is_dark_theme=True):
 
 # Default stylesheet (dark theme)
 stylesheet = get_cytoscape_stylesheet(True)
-
-
