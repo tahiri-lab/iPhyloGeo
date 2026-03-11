@@ -144,7 +144,7 @@ app.layout = html.Div(
                                     ],
                                     href="/",
                                     id="nav-link-home",
-                                    className="nav-link selected",
+                                    className="nav-link",
                                 ),
                                 dcc.Link(
                                     [
@@ -332,6 +332,23 @@ def display_toast(toast_data, n_intervals):
         ], className=f"toast-message {toast_type}")
         return [toast_element], False
     return [], True
+
+
+# Clientside callback to copy to clipboard when share button is clicked
+app.clientside_callback(
+    """
+    function(n_clicks, href) {
+        if (n_clicks && n_clicks > 0) {
+            navigator.clipboard.writeText(href);
+        }
+        return '';
+    }
+    """,
+    Output("dummy-share-result-output", "children"),
+    Input("share-result-btn", "n_clicks"),
+    State("url", "href"),
+    prevent_initial_call=True,
+)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,12 @@ function updateNavHighlight() {
   };
   var navIds = ['nav-link-home', 'nav-link-getstarted', 'nav-link-results'];
   var bottomIds = ['nav-link-settings', 'nav-link-help'];
+
+  // Check for exact match first, then check for /result/* pattern
   var activeId = linkMap[pathname] || '';
+  if (!activeId && pathname.startsWith('/result/')) {
+    activeId = 'nav-link-results';
+  }
 
   navIds.forEach(function (id) {
     var el = document.getElementById(id);
@@ -41,7 +46,7 @@ window.addEventListener('popstate', function () {
   setTimeout(updateNavHighlight, 0);
 });
 
-// Re-apply highlight whenever Dash overwrites our classes via its VDOM
+// Apply highlight when nav elements are available
 (function () {
   var _updating = false;
   var ids = ['nav-link-home', 'nav-link-getstarted', 'nav-link-results', 'nav-link-settings', 'nav-link-help'];
@@ -60,7 +65,6 @@ window.addEventListener('popstate', function () {
     });
   }
 
-  // Patch updateNavHighlight to disconnect/reconnect observer around updates
   var origUpdate = updateNavHighlight;
   updateNavHighlight = function () {
     observer.disconnect();
@@ -68,10 +72,21 @@ window.addEventListener('popstate', function () {
     startObserving();
   };
 
-  document.addEventListener('DOMContentLoaded', function () {
-    startObserving();
-    updateNavHighlight();
+  // Detect when nav elements are added to the DOM
+  var bodyObserver = new MutationObserver(function () {
+    if (document.getElementById('nav-link-home')) {
+      bodyObserver.disconnect();
+      updateNavHighlight();
+    }
   });
+
+  if (document.body) {
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      bodyObserver.observe(document.body, { childList: true, subtree: true });
+    });
+  }
 })();
 
 let open = true;
@@ -147,6 +162,10 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         '/help': 4
       };
       var idx = sel[pathname];
+      // Check for /result/* pattern (individual result page)
+      if (idx === undefined && pathname.startsWith('/result/')) {
+        idx = 2; // Same as /results
+      }
       if (idx === undefined) idx = -1;
       return [
         idx === 0 ? 'nav-link selected' : 'nav-link',

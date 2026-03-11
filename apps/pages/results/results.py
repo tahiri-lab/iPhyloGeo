@@ -1,7 +1,7 @@
 import dash
 import utils.utils as utils
 from components.result_card import create_result_card
-from dash import callback, dcc, html
+from dash import callback, html
 from dash.dependencies import Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import request
@@ -43,7 +43,6 @@ PROGRESS = {
 def get_layout():
     return html.Div(
         [
-            dcc.Location(id="url"),  # This component is needed for URL change detection
             html.Div(
                 [
                     html.Div(

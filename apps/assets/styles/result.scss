@@ -67,7 +67,6 @@
   padding: 20px 24px;
 }
 
-// Section header: title + collapse chevron
 .result-section-header {
   display: flex;
   align-items: center;
@@ -92,7 +91,6 @@
     }
   }
 
-  // When a download button sits alongside the header (climatic/genetic)
   &.result-section-header--with-action {
     justify-content: space-between;
 
@@ -202,7 +200,7 @@
   }
 }
 
-// Email section collapse
+// Email section
 #email-section-container {
   max-height: 500px;
   opacity: 1;

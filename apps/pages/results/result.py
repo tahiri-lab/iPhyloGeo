@@ -52,12 +52,12 @@ def create_email_section():
         html.Div(
             [
                 html.P(
-                    "if you would like to receive the url of these data by email, you can enter your adress mail below.",
+                    "if you would like to receive the url of these data by email, you can enter your address mail below.",
                     className="email-description",
                 ),
                 create_email_input(
                     input_id="user-input",
-                    placeholder="Enter your adress mail here",
+                    placeholder="Enter your address mail here",
                 ),
             ],
             id="email-section-container",
@@ -67,7 +67,6 @@ def create_email_section():
 
 layout = html.Div(
     [
-        dcc.Location(id="url"),
         html.Div(id="dummy-share-result-output", style={"display": "none"}),
         html.Div(id="dummy-table-collapse", style={"display": "none"}),
         html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
@@ -172,6 +171,21 @@ layout = html.Div(
     className="resultContainer",
     id="all-results",
 )
+
+
+@callback(
+    Output("toast-store", "data", allow_duplicate=True),
+    Input("share-result-btn", "n_clicks"),
+    State("url", "href"),
+    prevent_initial_call=True,
+)
+def share_result_link(n_clicks, href):
+    """
+    Copy the result link to clipboard and show a toast notification.
+    """
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+    return {"message": "Link copied to your clipboard!", "type": "success", "clipboard": href}
 
 
 @callback(
