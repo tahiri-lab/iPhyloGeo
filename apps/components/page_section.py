@@ -23,8 +23,8 @@ def create_page_section(title, children, icon_src=None):
         icon = html.Div(
             className="page-section-icon",
             style={
-                "mask-image": f"url({icon_src})",
-                "-webkit-mask-image": f"url({icon_src})",
+                "maskImage": f"url({icon_src})",
+                "WebkitMaskImage": f"url({icon_src})",
             }
         )
     else:
