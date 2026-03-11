@@ -338,7 +338,7 @@ layout = html.Div(
                             "Reset to default",
                             id="reset-button",
                             n_clicks=0,
-                            className="button primary",
+                            className="button primary border",
                         ),
                     ],
                 ),

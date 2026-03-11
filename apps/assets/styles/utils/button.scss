@@ -30,10 +30,15 @@
     font-size: 15px;
     font-weight: bold;
     color: var(--text);
+    border: none;
 
     &:hover {
       background-color: var(--secondary);
     }
+  }
+
+  &.border {
+    border-width: 2px !important;
   }
 
   &.actions {
