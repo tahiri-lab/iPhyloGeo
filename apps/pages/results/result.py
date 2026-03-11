@@ -328,6 +328,7 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme):
 
 @callback(
     Output("download-link-results", "data"),
+    Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
     Input("climatic-tree", "children"),
     Input("genetic-tree", "children"),
@@ -373,23 +374,27 @@ def download_results(
         data_genetic = "".join(list(result_genetic_trees.values()))
         return dict(
             content=data_genetic, filename=result["name"] + "_genetic_trees.newick"
-        )
+        ), {"message": "Genetic trees downloaded!", "type": "success"}
     if trigger_id == "download-button-climatic" and btn_climatic:
         result_climatic_trees = result["climatic_trees"]
         data_climatic = "".join(list(result_climatic_trees.values()))
         return dict(
             content=data_climatic, filename=result["name"] + "_climatic_trees.newick"
-        )
+        ), {"message": "Climatic trees downloaded!", "type": "success"}
     if trigger_id == "download-button-aligned" and btn_aligned:
         result_msa = result["msaSet"]
         data_msa = json.dumps(result_msa)
-        return dict(content=data_msa, filename=result["name"] + "_msa.json")
+        return dict(
+            content=data_msa, filename=result["name"] + "_msa.json"
+        ), {"message": "Genetic sequences downloaded!", "type": "success"}
     if trigger_id == "download-button-complete" and btn_complete:
         data_results = str_csv_to_df(result["output"])
         return dict(
             content=data_results.to_csv(header=True, index=False),
             filename=result["name"] + "_results.csv",
-        )
+        ), {"message": "Output downloaded!", "type": "success"}
+
+    raise dash.exceptions.PreventUpdate
 
 
 @callback(
