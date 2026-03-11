@@ -76,6 +76,11 @@
             background-color: var(--error);
             color: var(--text);
         }
+
+        &--pending {
+            background-color: var(--pending);
+            color: var(--text);
+        }
     }
 
     &__dates {
