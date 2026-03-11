@@ -329,16 +329,16 @@ layout = html.Div(
                     className="page-actions",
                     children=[
                         html.Button(
-                            "Reset to default",
-                            id="reset-button",
-                            n_clicks=0,
-                            className="button primary",
-                        ),
-                        html.Button(
                             "Save settings",
                             id="save-settings-button",
                             n_clicks=0,
                             className="button theme-action",
+                        ),
+                        html.Button(
+                            "Reset to default",
+                            id="reset-button",
+                            n_clicks=0,
+                            className="button primary",
                         ),
                     ],
                 ),

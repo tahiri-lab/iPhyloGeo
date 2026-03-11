@@ -3,14 +3,12 @@
 .resultContainer {
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: 20px;
 }
 
 // Result detail page wrapper
 .result-page {
   display: flex;
   flex-direction: column;
-  padding-bottom: 40px;
 
   >.title {
     color: var(--text);
@@ -18,7 +16,8 @@
     font-weight: bold;
     text-align: center;
     padding-top: 30px;
-    margin-bottom: 16px;
+    padding-bottom: 30px;
+    margin-bottom: 0px;
   }
 }
 
@@ -60,6 +59,11 @@
 // Section card (Results / Climatic Trees / Genetic Trees)
 .result-section-card {
   margin-bottom: 16px;
+  padding: 20px 24px;
+}
+
+.result-section-card-bottom {
+  margin-bottom: 0px;
   padding: 20px 24px;
 }
 

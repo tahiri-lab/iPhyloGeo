@@ -85,6 +85,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
 }
 
 .page-field-label {
@@ -110,9 +111,19 @@
     transition: border-color 0.2s ease;
 }
 
+.page-field input[type="number"]:hover,
+.page-field input[type="text"]:hover,
+.page-field .form-control:hover,
+.page-field input[type="number"]:focus,
+.page-field input[type="text"]:focus,
+.page-field .form-control:focus {
+        border-color: var(--secondary-hover);
+}
 
 //Dash dropdown overrides
 .page-field .Select {
+    width: 100%;
+
     .Select-control {
         border: 2px solid var(--secondary);
         border-radius: 10px;
@@ -120,6 +131,11 @@
         height: 42px;
         box-shadow: none;
         transition: border-color 0.2s ease;
+        width: 100%;
+    }
+    .Select-control:hover,
+    .Select-control:focus {
+        border-color: var(--secondary-hover);
     }
 
     .Select-value,
@@ -138,7 +154,14 @@
         background-color: var(--primary) !important;
         margin-top: 4px;
         overflow: hidden;
+        width: 100%;
     }
+}
+
+// Dash Dropdown wrapper (dcc.Dropdown)
+.page-field .dash-dropdown {
+    width: 100%;
+    margin: 0 !important;
 }
 
 //Dash dropdown options overrides (used by dcc.Dropdown with many options)
@@ -162,7 +185,7 @@
 // Page-level action buttons row
 .page-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* mieux que right */
     gap: 12px;
     margin-top: 10px;
     margin-bottom: 20px;

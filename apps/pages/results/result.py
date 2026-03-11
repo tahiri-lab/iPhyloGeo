@@ -159,7 +159,7 @@ layout = html.Div(
                 # Email section card
                 html.Div(
                     create_email_section(),
-                    className="page-card result-section-card",
+                    className="page-card result-section-card-bottom",
                 ),
             ],
             className="page-container result-page",
@@ -628,7 +628,7 @@ def generate_tree(elem, name, is_dark_theme=True):
                 elements=elem,
                 stylesheet=get_cytoscape_stylesheet(is_dark_theme),
                 layout={"name": "preset", "fit": True, "padding": 20},
-                style={"height": "400px", "width": "100%"},
+                style={"height": "400px", "width": "100%", "cursor": "pointer"},
                 userZoomingEnabled=False,
             ),
         ],
