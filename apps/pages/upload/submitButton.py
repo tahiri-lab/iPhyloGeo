@@ -12,20 +12,19 @@ layout = html.Div(
                             className="name-error-message",
                             children=[],
                         ),
+                        # Input for dataset name - synced with main layout input-dataset
                         dcc.Input(
-                            id="input-dataset",
+                            id="input-dataset-visible",
                             type="text",
                             placeholder="Enter dataset Name",
                             className="data-set-input",
                             value=""
                         ),
-                        #  html.Div("A popup will appear when results are completed.", className="info-popup"),
                     ],
                     className="dataset-input-container",
                 ),
                 html.Div(
                     [
-                        html.Div(id="submit-button"),
                         html.Div(
                             "Submit", id="submit-dataset", className="button actions"
                         ),

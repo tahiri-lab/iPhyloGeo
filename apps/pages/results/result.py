@@ -67,6 +67,17 @@ def create_email_section():
 
 layout = html.Div(
     [
+        # Interval for auto-refreshing while result is processing
+        dcc.Interval(
+            id="result-status-interval",
+            interval=3000,  # Poll every 3 seconds
+            n_intervals=0,
+        ),
+        dcc.Store(id="result-processing-status", data=None),
+        dcc.Store(id="refresh-trigger", data=0),  # Trigger to force component refresh
+        # Hidden placeholder buttons for dynamic download buttons (suppress callback exceptions)
+        html.Button(id="download-btn-genetic", style={"display": "none"}),
+        html.Button(id="download-btn-climatic", style={"display": "none"}),
         html.Div(id="dummy-share-result-output", style={"display": "none"}),
         html.Div(id="dummy-table-collapse", style={"display": "none"}),
         html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
@@ -75,6 +86,12 @@ layout = html.Div(
         html.Div(
             [
                 html.H1(id="results-name", className="title"),
+                # Processing status with spinner (shown when not complete)
+                html.Div(
+                    id="processing-status-container",
+                    className="processing-status-container",
+                    style={"display": "none"},
+                ),
                 # Top action buttons row
                 html.Div(
                     [
@@ -173,6 +190,71 @@ layout = html.Div(
 )
 
 
+# Callback to check result status and refresh when complete
+@callback(
+    Output("result-processing-status", "data"),
+    Output("result-status-interval", "disabled"),
+    Output("results-name", "children", allow_duplicate=True),
+    Output("processing-status-container", "children", allow_duplicate=True),
+    Output("processing-status-container", "style", allow_duplicate=True),
+    Output("toast-store", "data", allow_duplicate=True),
+    Output("refresh-trigger", "data"),
+    Input("result-status-interval", "n_intervals"),
+    State("url", "pathname"),
+    State("result-processing-status", "data"),
+    State("refresh-trigger", "data"),
+    prevent_initial_call=True,
+)
+def check_result_status(n_intervals, path, prev_status, current_refresh):
+    """
+    Check if a processing result has completed and refresh the page.
+    """
+    result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
+
+    result = utils.get_result(result_id)
+    status = result.get("status", "pending")
+    title = result["name"]
+
+    # Status labels mapping
+    status_labels = {
+        "pending": "Queued",
+        "queued": "Queued",
+        "running": "Processing",
+        "climatic_trees": "Building climatic trees",
+        "alignment": "Aligning sequences",
+        "genetic_trees": "Building genetic trees",
+        "output": "Generating output",
+        # Uppercase variants
+        "PENDING": "Queued",
+        "QUEUED": "Queued",
+        "RUNNING": "Processing",
+        "CLIMATIC_TREES": "Building climatic trees",
+        "ALIGNMENT": "Aligning sequences",
+        "GENETIC_TREES": "Building genetic trees",
+        "OUTPUT": "Generating output",
+    }
+
+    # If already complete or error, disable the interval and hide spinner
+    if status.lower() == "complete":
+        if prev_status and prev_status.lower() != "complete":
+            # Just became complete - show toast and trigger refresh
+            new_refresh = (current_refresh or 0) + 1
+            return status, True, f"Result of {title}", [], {"display": "none"}, {"message": "Results are ready!", "type": "success"}, new_refresh
+        return status, True, f"Result of {title}", [], {"display": "none"}, dash.no_update, dash.no_update
+    elif status.lower() == "error":
+        return status, True, f"Result of {title} (Error)", [], {"display": "none"}, dash.no_update, dash.no_update
+    else:
+        # Still processing - show spinner with status
+        status_label = status_labels.get(status, status.replace("_", " ").title())
+        spinner_content = [
+            html.Div(className="loading-spinner"),
+            html.Span(f"In progress – {status_label}...", className="processing-text"),
+        ]
+        return status, False, f"Result of {title}", spinner_content, {"display": "flex"}, dash.no_update, dash.no_update
+
+
 @callback(
     Output("toast-store", "data", allow_duplicate=True),
     Input("share-result-btn", "n_clicks"),
@@ -207,6 +289,8 @@ def handle_submit_click(pathname, n_clicks, user_email):
 
 @callback(
     Output("results-name", "children"),
+    Output("processing-status-container", "children"),
+    Output("processing-status-container", "style"),
     Input("url", "pathname"),
 )
 def show_result_name(path):
@@ -214,13 +298,47 @@ def show_result_name(path):
     args:
         path (str): the path of the page
     returns:
-        html.Div: the div containing the name of the result
+        tuple: the title, spinner content, and spinner style
     """
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
-    title = utils.get_result(result_id)["name"]
-    return f"Result of {title}"
+    result = utils.get_result(result_id)
+    title = result["name"]
+    status = result.get("status", "pending")
+
+    # Status labels mapping
+    status_labels = {
+        "pending": "Queued",
+        "queued": "Queued",
+        "running": "Processing",
+        "climatic_trees": "Building climatic trees",
+        "alignment": "Aligning sequences",
+        "genetic_trees": "Building genetic trees",
+        "output": "Generating output",
+        # Uppercase variants
+        "PENDING": "Queued",
+        "QUEUED": "Queued",
+        "RUNNING": "Processing",
+        "CLIMATIC_TREES": "Building climatic trees",
+        "ALIGNMENT": "Aligning sequences",
+        "GENETIC_TREES": "Building genetic trees",
+        "OUTPUT": "Generating output",
+    }
+
+    # Show processing status if not complete
+    if status.lower() == "complete":
+        return f"Result of {title}", [], {"display": "none"}
+    elif status.lower() == "error":
+        return f"Result of {title} (Error)", [], {"display": "none"}
+    else:
+        # Show spinner with status
+        status_label = status_labels.get(status, status.replace("_", " ").title())
+        spinner_content = [
+            html.Div(className="loading-spinner"),
+            html.Span(f"In progress – {status_label}...", className="processing-text"),
+        ]
+        return f"Result of {title}", spinner_content, {"display": "flex"}
 
 
 @callback(
@@ -229,8 +347,9 @@ def show_result_name(path):
     Output("output-results-graph", "children"),
     State("url", "pathname"),
     Input("all-results", "children"),
+    Input("refresh-trigger", "data"),
 )
-def show_complete_results(path, generated_page):
+def show_complete_results(path, generated_page, refresh_trigger):
     """
 
       This function creates the header (title & download button) of the results,
@@ -239,6 +358,7 @@ def show_complete_results(path, generated_page):
     Args:
         path (str): The path of the page.
         generated_page: (Not used in this function, but required for the callback trigger)
+        refresh_trigger: Trigger to force refresh when processing completes
 
     Returns:
         html.Div: The div containing the header of the results table.
@@ -286,8 +406,9 @@ def show_complete_results(path, generated_page):
     State("url", "pathname"),
     Input("output-results-graph", "children"),
     Input("theme-store", "data"),
+    Input("refresh-trigger", "data"),
 )
-def create_climatic_trees(path, generated_results_header, is_dark_theme):
+def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh_trigger):
     """
     This function creates the list of divs containing the climatic trees
 
@@ -306,7 +427,7 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme):
     add_to_cookie(result_id)
 
     result = utils.get_result(result_id)
-    if "climatic" not in result["result_type"]:
+    if "climatic" not in result["result_type"] or "climatic_trees" not in result:
         return "", ""
 
     climatic_trees = result["climatic_trees"]
@@ -326,39 +447,34 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme):
     )
 
 
+# Callback for static download buttons (aligned and complete) - these always exist in layout
 @callback(
     Output("download-link-results", "data"),
     Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
-    Input("climatic-tree", "children"),
-    Input("genetic-tree", "children"),
-    Input("download-button-genetic", "n_clicks"),
-    Input("download-button-climatic", "n_clicks"),
     Input("download-button-aligned", "n_clicks"),
     Input("download-button-complete", "n_clicks"),
+    Input("download-btn-genetic", "n_clicks"),
+    Input("download-btn-climatic", "n_clicks"),
     prevent_initial_call=True,
 )
 def download_results(
     path,
-    climatic_tree,
-    genetic_tree,
-    btn_genetic,
-    btn_climatic,
     btn_aligned,
     btn_complete,
+    btn_genetic,
+    btn_climatic,
 ):
     """
-    This function creates the list of divs containing the genetic trees
-    Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
+    This function handles all download buttons.
+    The genetic and climatic buttons are hidden placeholders that get clicked via JS.
 
     args:
         path (str): the path of the page
-        climatic_tree: Climatic section previously generated, have to be generated for this callback to fire
-        genetic_tree: Genetic section previously generated, have to be generated for this callback to fire
-        btn_genetic : dummy inpput needed to trigger the callback
-        btn_climatic : dummy inpput needed to trigger the callback
-        btn_msa : dummy inpput needed to trigger the callback
-        btn_data : dummy inpput needed to trigger the callback
+        btn_aligned : aligned sequences download button
+        btn_complete : complete results download button
+        btn_genetic : genetic trees download button (hidden placeholder)
+        btn_climatic : climatic trees download button (hidden placeholder)
     """
 
     result_id = path.split("/")[-1]
@@ -369,25 +485,33 @@ def download_results(
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "download-button-genetic" and btn_genetic:
+    if trigger_id == "download-btn-genetic" and btn_genetic:
+        if "genetic_trees" not in result:
+            raise dash.exceptions.PreventUpdate
         result_genetic_trees = result["genetic_trees"]
         data_genetic = "".join(list(result_genetic_trees.values()))
         return dict(
             content=data_genetic, filename=result["name"] + "_genetic_trees.newick"
         ), {"message": "Genetic trees downloaded!", "type": "success"}
-    if trigger_id == "download-button-climatic" and btn_climatic:
+    if trigger_id == "download-btn-climatic" and btn_climatic:
+        if "climatic_trees" not in result:
+            raise dash.exceptions.PreventUpdate
         result_climatic_trees = result["climatic_trees"]
         data_climatic = "".join(list(result_climatic_trees.values()))
         return dict(
             content=data_climatic, filename=result["name"] + "_climatic_trees.newick"
         ), {"message": "Climatic trees downloaded!", "type": "success"}
     if trigger_id == "download-button-aligned" and btn_aligned:
+        if "msaSet" not in result:
+            raise dash.exceptions.PreventUpdate
         result_msa = result["msaSet"]
         data_msa = json.dumps(result_msa)
         return dict(
             content=data_msa, filename=result["name"] + "_msa.json"
         ), {"message": "Genetic sequences downloaded!", "type": "success"}
     if trigger_id == "download-button-complete" and btn_complete:
+        if "output" not in result:
+            raise dash.exceptions.PreventUpdate
         data_results = str_csv_to_df(result["output"])
         return dict(
             content=data_results.to_csv(header=True, index=False),
@@ -403,8 +527,9 @@ def download_results(
     State("url", "pathname"),
     Input("output-results-graph", "children"),
     Input("theme-store", "data"),
+    Input("refresh-trigger", "data"),
 )
-def create_genetic_trees(path, generated_results_header, is_dark_theme):
+def create_genetic_trees(path, generated_results_header, is_dark_theme, refresh_trigger):
     """
     This function creates the list of divs containing the genetic trees
     args:
@@ -598,8 +723,7 @@ def create_climatic_trees_header():
                         src="../../assets/icons/download.svg", className="icon"
                     ),
                 ],
-                className="button download",
-                id="download-button-climatic",
+                className="button download download-climatic-trigger",
             ),
         ],
         className="result-section-header result-section-header--with-action",
@@ -630,8 +754,7 @@ def create_genetic_trees_header():
                         src="../../assets/icons/download.svg", className="icon"
                     ),
                 ],
-                className="button download",
-                id="download-button-genetic",
+                className="button download download-genetic-trigger",
             ),
         ],
         className="result-section-header result-section-header--with-action",
@@ -640,15 +763,46 @@ def create_genetic_trees_header():
 
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name, is_dark_theme=True):
+    # Create a unique ID for the cytoscape element
+    cyto_id = f"cyto-{name.replace(' ', '-').replace('_', '-')}"
     return html.Div(
         [
             html.H3(name, className="treeTitle"),
-            cyto.Cytoscape(
-                elements=elem,
-                stylesheet=get_cytoscape_stylesheet(is_dark_theme),
-                layout={"name": "preset", "fit": True, "padding": 20},
-                style={"height": "400px", "width": "100%", "cursor": "pointer"},
-                userZoomingEnabled=False,
+            html.Div(
+                [
+                    cyto.Cytoscape(
+                        id=cyto_id,
+                        elements=elem,
+                        stylesheet=get_cytoscape_stylesheet(is_dark_theme),
+                        layout={"name": "preset", "fit": True, "padding": 20},
+                        style={"height": "400px", "width": "100%", "cursor": "grab"},
+                        userZoomingEnabled=False,
+                        userPanningEnabled=True,
+                        minZoom=0.2,
+                        maxZoom=3,
+                    ),
+                    html.Div(
+                        [
+                            html.Button(
+                                "+",
+                                className="tree-zoom-btn tree-zoom-in",
+                                **{"data-cyto-id": cyto_id},
+                            ),
+                            html.Button(
+                                "−",
+                                className="tree-zoom-btn tree-zoom-out",
+                                **{"data-cyto-id": cyto_id},
+                            ),
+                            html.Button(
+                                "⟲",
+                                className="tree-zoom-btn tree-zoom-reset",
+                                **{"data-cyto-id": cyto_id},
+                            ),
+                        ],
+                        className="tree-zoom-controls",
+                    ),
+                ],
+                className="tree-cytoscape-wrapper",
             ),
         ],
         id=name,

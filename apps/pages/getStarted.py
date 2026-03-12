@@ -1,7 +1,6 @@
 import base64
 import io
 import json
-import os
 import re
 
 import dash
@@ -18,12 +17,10 @@ import pages.upload.dropFileSection as dropFileSection
 import pages.upload.genetic.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
-import pages.utils.popupDone as popupDone
 import pandas as pd
 import utils.mail as mail
 import utils.utils as utils
-from aphylogeo.alignement import Alignment
-from aphylogeo.genetic_trees import GeneticTrees
+import utils.background_tasks as background_tasks
 from aphylogeo.params import Params
 from Bio import SeqIO
 from dash import Input, Output, State, callback, ctx, dcc, html
@@ -59,6 +56,13 @@ JSON_REGEX = re.compile(r".*\.json")
 layout = html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
+        dcc.Store(id="pipeline-started", data=False),
+        dcc.Interval(
+            id="pipeline-status-interval",
+            interval=2000,  # Poll every 2 seconds
+            n_intervals=0,
+            disabled=True,  # Disabled by default
+        ),
         dcc.Store(
             id="input-data",
             data={
@@ -122,11 +126,12 @@ layout = html.Div(
         dcc.Store(id="email-store", storage_type="memory", data=None),
         # Store to save current result id (memory = resets on page reload)
         dcc.Store(id="current-result-id", storage_type="memory", data=None),
+        # Store for dataset name value
+        dcc.Store(id="input-dataset", storage_type="memory", data=""),
         html.Div(
             className="get-started",
             children=[
                 html.Div(children=[popup.layout]),
-                html.Div(children=[popupDone.layout]),
                 html.Div(children=[dropFileSection.layout]),
                 html.Div(
                     [
@@ -140,6 +145,108 @@ layout = html.Div(
         ),
     ]
 )
+
+
+# Callback to close popup when close button is clicked
+@callback(
+    Output("popup", "className", allow_duplicate=True),
+    Input("close-popup-btn", "n_clicks"),
+    prevent_initial_call=True,
+)
+def close_popup(n_clicks):
+    """Close the popup when user clicks the X button."""
+    if n_clicks:
+        return "popup hidden"
+    raise PreventUpdate
+
+
+# Callback to poll pipeline status and update UI
+@callback(
+    Output("popup-status-message", "children"),
+    Output("popup-title", "children"),
+    Output("popup-icon", "src"),
+    Output("pipeline-status-interval", "disabled", allow_duplicate=True),
+    Output("global-pipeline-status", "data", allow_duplicate=True),
+    Input("pipeline-status-interval", "n_intervals"),
+    State("current-result-id", "data"),
+    State("pipeline-started", "data"),
+    prevent_initial_call=True,
+)
+def poll_pipeline_status(n_intervals, result_id, pipeline_started):
+    """
+    Poll the background task status and update the UI accordingly.
+    Shows current step and estimated time remaining in the popup.
+    """
+    if not pipeline_started or not result_id:
+        raise PreventUpdate
+
+    status_info = background_tasks.get_task_status(result_id)
+    status = status_info.get("status", "unknown")
+    progress = status_info.get("progress", 0)
+    estimated_time = status_info.get("estimated_time", 0)
+    elapsed_time = status_info.get("elapsed_time", 0)
+
+    # Map status to user-friendly messages (handle both lowercase and uppercase)
+    status_messages = {
+        "queued": "Starting pipeline...",
+        "running": "Processing...",
+        "climatic_trees": "Building climatic trees...",
+        "alignment": "Aligning genetic sequences...",
+        "genetic_trees": "Building genetic trees...",
+        "output": "Generating output...",
+        "complete": "Analysis complete!",
+        "error": "An error occurred",
+        # Uppercase variants
+        "QUEUED": "Starting pipeline...",
+        "RUNNING": "Processing...",
+        "CLIMATIC_TREES": "Building climatic trees...",
+        "ALIGNMENT": "Aligning genetic sequences...",
+        "GENETIC_TREES": "Building genetic trees...",
+        "OUTPUT": "Generating output...",
+        "COMPLETE": "Analysis complete!",
+        "ERROR": "An error occurred",
+    }
+
+    base_message = status_messages.get(status, "Processing...")
+
+    # Add time estimate to message
+    if estimated_time > 0 and elapsed_time >= 0:
+        remaining_time = max(0, estimated_time - elapsed_time)
+        if remaining_time > 60:
+            time_str = f"~{int(remaining_time / 60)} min remaining"
+        else:
+            time_str = f"~{int(remaining_time)} sec remaining"
+        message = f"{base_message} ({time_str})"
+    else:
+        message = base_message
+
+    if status.lower() == "complete":
+        # Pipeline finished
+        return (
+            "Analysis complete!",
+            "Results are ready! 🎉",
+            "../../assets/icons/check-circle.svg",
+            True,  # Disable interval
+            status,  # Update global status
+        )
+    elif status.lower() == "error":
+        error_msg = status_info.get("error", "Unknown error")
+        return (
+            f"Error: {error_msg}",
+            "An error occurred",
+            "../../assets/icons/error.svg",
+            True,  # Disable interval
+            status,  # Update global status
+        )
+    else:
+        # Still processing - update status message with time estimate
+        return (
+            message,
+            "Your results are on the way!",
+            "../../assets/img/coffee-cup.gif",
+            False,  # Keep polling
+            status,  # Update global status
+        )
 
 
 # Callback to save email when user clicks "Send Email" in popup
@@ -751,6 +858,7 @@ def upload_data(
     ):
         raise PreventUpdate
 
+    # Show submit button when data is loaded
     submit_button = ""
     if not current_data["submit button"]:
         current_data["submit button"] = True
@@ -940,14 +1048,14 @@ def parse_uploaded_files(content, file_name):
 
 
 @callback(
-    Output("popup", "className"),
+    Output("popup", "className", allow_duplicate=True),
     Output("column-error-message", "children"),
     Output("name-error-message", "children"),
     Output("ready-for-pipeline", "data"),
+    Output("input-dataset", "data"),
     [
         Input("submit-dataset", "n_clicks"),
-        # Input("close_popup", "n_clicks"),
-        Input("input-dataset", "value"),
+        Input("input-dataset-visible", "value"),
     ],
     State("input-data", "data"),
     State("params-climatic", "data"),
@@ -1009,11 +1117,12 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
             dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"),
             "",
             False,
+            result_name,
         )
     elif (
         climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid
     ):
-        return "popup hidden", "", dbc.Alert(NAME_ERROR_MESSAGE, color="danger"), False
+        return "popup hidden", "", dbc.Alert(NAME_ERROR_MESSAGE, color="danger"), False, result_name
     elif (
         climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid
     ):
@@ -1022,35 +1131,54 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
             dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"),
             dbc.Alert(NAME_ERROR_MESSAGE, color="danger"),
             False,
+            result_name,
         )
 
     if trigger_id != "submit-dataset":
-        return "", "", "", False
+        return "", "", "", False, result_name
 
-    return "popup", "", "", True
+    return "popup", "", "", True, result_name
 
 
 @callback(
-    Output("popupDone", "className"),
+    Output("popup", "className", allow_duplicate=True),
     Output("current-result-id", "data"),
+    Output("pipeline-started", "data"),
+    Output("pipeline-status-interval", "disabled"),
+    Output("global-pipeline-status", "data", allow_duplicate=True),
+    Output("global-result-id", "data", allow_duplicate=True),
+    Output("global-pipeline-interval", "disabled", allow_duplicate=True),
+    Output("progress-bar", "className", allow_duplicate=True),
+    Output("progress-bar-fill", "style", allow_duplicate=True),
     Input("ready-for-pipeline", "data"),
     State("input-data", "data"),
     State("params-climatic", "data"),
     State("params-genetic", "data"),
-    State("input-dataset", "value"),
+    State("input-dataset", "data"),
+    State("email-store", "data"),
     prevent_initial_call=True,
 )
 def submit_button(
-    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name
+    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name, email
 ):
-    if ready_for_pipeline is False:
-        return "popup hidden", None
+    """
+    Starts the pipeline asynchronously when all prerequisites are met.
+    Returns immediately so the user can navigate elsewhere.
+    """
+    print(f"[submit_button] Called with ready_for_pipeline={ready_for_pipeline}")
 
+    if ready_for_pipeline is False:
+        print(f"[submit_button] ready_for_pipeline is False, returning hidden state")
+        return "popup hidden", None, False, True, None, None, True, "progress-bar hidden", {"width": "0%"}
+
+    print(f"[submit_button] Pipeline is ready, processing input_data...")
     climatic_file = input_data["climatic"]["file"]
 
     genetic_file = input_data["genetic"]["file"]
     aligned_genetic_file = input_data["aligned_genetic"]["file"]
     genetic_tree_file = input_data["genetic_tree"]["file"]
+
+    print(f"[submit_button] Files: climatic={climatic_file is not None}, genetic={genetic_file is not None}, aligned={aligned_genetic_file is not None}, tree={genetic_tree_file is not None}")
 
     result_type = []
     files_ids = {}
@@ -1075,78 +1203,53 @@ def submit_button(
         files_ids["genetic_tree_files_id"] = genetic_tree_file_id
 
     try:
-        # Re-read latest settings from JSON and apply to Params so that the
-        # pipeline uses the current user choices (e.g. statistical_test).
-        with open("genetic_settings_file.json", "r") as _sf:
-            _latest_settings = json.load(_sf)
-        _latest_codes = convert_settings_to_codes(_latest_settings)
-        Params.update_from_dict(
-            {k: v for k, v in _latest_codes.items() if k in Params.PARAMETER_KEYS}
-        )
-
-        # create a new result in the database
+        # Create a new result in the database with 'pending' status
+        print(f"[submit_button] Creating result in database...")
         result_id = utils.create_result(
             files_ids, result_type, params_climatic, params_genetic, result_name
         )
+        print(f"[submit_button] Result created with id: {result_id}")
+
         if ENV_CONFIG["HOST"] != "local":
             add_result_to_cookie(result_id)
 
-        # Prepare climatic trees (pass selected column names to filter)
-        selected_columns = params_climatic.get("names") if params_climatic else None
-        climatic_trees = utils.create_climatic_trees(
-            result_id, climatic_file, selected_columns
+        # Launch the pipeline asynchronously
+        print(f"[submit_button] Launching pipeline async...")
+        background_tasks.run_pipeline_async(
+            result_id=result_id,
+            climatic_file=climatic_file,
+            genetic_file=genetic_file,
+            aligned_genetic_file=aligned_genetic_file,
+            genetic_tree_file=genetic_tree_file,
+            params_climatic=params_climatic,
+            email=email,
         )
+        print(f"[submit_button] Pipeline launched successfully!")
 
-        genetic_trees = None
-
-        # Prepare genetic trees
-        if genetic_file is not None:
-            reference_gene_file = {
-                "reference_gene_dir": os.getcwd() + "\\temp",
-                "reference_gene_file": "genetic_data.fasta",
-            }
-            Params.update_from_dict(reference_gene_file)
-
-            utils.run_genetic_pipeline(
-                result_id, climatic_file, genetic_file, climatic_trees
-            )
-        elif aligned_genetic_file is not None:
-
-            loaded_seq_alignment = Alignment.from_json_string(aligned_genetic_file)
-            msaSet = loaded_seq_alignment.msa
-
-            results_ctrl.update_result(
-                {"_id": result_id, "msaSet": msaSet, "status": "alignment"}
-            )
-
-            genetic_trees = utils.create_genetic_trees(result_id, msaSet)
-            utils.create_output(
-                result_id,
-                climatic_trees,
-                genetic_trees,
-                pd.read_json(io.StringIO(climatic_file)),
-            )
-        elif genetic_tree_file is not None:
-
-            loaded_genetic_trees = GeneticTrees.load_trees_from_json(genetic_tree_file)
-            genetic_trees = loaded_genetic_trees.trees
-
-            results_ctrl.update_result(
-                {
-                    "_id": result_id,
-                    "genetic_trees": genetic_trees,
-                    "status": "genetic_trees",
-                }
-            )
-
-            utils.create_output(
-                result_id,
-                climatic_trees,
-                genetic_trees,
-                pd.read_json(io.StringIO(climatic_file)),
-            )
-
-        return "popup", result_id
+        # Return immediately - pipeline runs in background
+        # Enable the intervals to poll for status updates
+        # Show progress bar at 5%
+        return (
+            "popup",           # popup className
+            result_id,         # current-result-id
+            True,              # pipeline-started
+            False,             # pipeline-status-interval disabled
+            "running",         # global-pipeline-status
+            result_id,         # global-result-id
+            False,             # global-pipeline-interval disabled
+            "progress-bar",    # progress-bar className
+            {"width": "5%"},   # progress-bar-fill style
+        )
     except Exception as e:
         print("[Error]:", e)
-        return "popup", None
+        return (
+            "popup",
+            None,
+            False,
+            True,
+            None,
+            None,
+            True,
+            "progress-bar hidden",
+            {"width": "0%"},
+        )

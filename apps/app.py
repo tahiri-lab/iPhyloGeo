@@ -71,6 +71,7 @@ DARK_THEME = {
     "--action-hover": "#8B5FC2",
     "--success": "#1FA391",
     "--error": "#FF6262",
+    "--pending": "#E6AD06",
 }
 
 path_params = {
@@ -102,6 +103,22 @@ def NavbarComponent(children):
 
 app.layout = html.Div(
     [
+        # Global progress bar for pipeline status (visible on all pages)
+        html.Div(
+            html.Div(className="progress-bar-fill", id="progress-bar-fill"),
+            className="progress-bar hidden",
+            id="progress-bar",
+        ),
+        # Global stores for pipeline status
+        dcc.Store(id="global-pipeline-status", storage_type="session", data=None),
+        dcc.Store(id="global-result-id", storage_type="session", data=None),
+        # Interval for polling pipeline status globally
+        dcc.Interval(
+            id="global-pipeline-interval",
+            interval=2000,
+            n_intervals=0,
+            disabled=True,
+        ),
         dcc.Location(id="url", refresh=False),
         html.Div(
             [
@@ -332,6 +349,42 @@ def display_toast(toast_data, n_intervals):
         ], className=f"toast-message {toast_type}")
         return [toast_element], False
     return [], True
+
+
+@app.callback(
+    Output("progress-bar", "className"),
+    Output("progress-bar-fill", "style"),
+    Output("global-pipeline-interval", "disabled"),
+    Output("toast-store", "data", allow_duplicate=True),
+    Input("global-pipeline-interval", "n_intervals"),
+    Input("global-pipeline-status", "data"),
+    State("global-result-id", "data"),
+    prevent_initial_call=True,
+)
+def update_global_progress_bar(n_intervals, pipeline_status, result_id):
+    """
+    Update the global progress bar based on estimated time and elapsed time.
+    """
+    import utils.background_tasks as background_tasks
+
+    if not result_id or not pipeline_status:
+        return "progress-bar hidden", {"width": "0%"}, True, dash.no_update
+
+    # Get current status from background tasks (includes progress based on time)
+    status_info = background_tasks.get_task_status(result_id)
+    status = status_info.get("status", "unknown")
+
+    # Get time-based progress (calculated in get_task_status)
+    progress = status_info.get("progress", 0)
+    progress_style = {"width": f"{progress}%"}
+
+    if status.lower() == "complete":
+        return "progress-bar hidden", {"width": "100%"}, True, dash.no_update
+    elif status.lower() == "error":
+        error_msg = status_info.get("error", "Unknown error")
+        return "progress-bar hidden", {"width": "0%"}, True, {"message": f"Pipeline error: {error_msg}", "type": "error"}
+    else:
+        return "progress-bar", progress_style, False, dash.no_update
 
 
 # Clientside callback to copy to clipboard when share button is clicked

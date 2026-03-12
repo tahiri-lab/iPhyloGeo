@@ -210,3 +210,60 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     }
   }
 });
+
+// Tree zoom controls event handler using event delegation
+document.addEventListener('click', function(e) {
+  var target = e.target;
+
+  // Check if clicked element is a zoom button
+  if (!target.classList.contains('tree-zoom-btn')) return;
+
+  var cytoId = target.getAttribute('data-cyto-id');
+  if (!cytoId) return;
+
+  // Find the cytoscape element
+  var cytoEl = document.getElementById(cytoId);
+  if (!cytoEl || !cytoEl._cyreg || !cytoEl._cyreg.cy) return;
+
+  var cy = cytoEl._cyreg.cy;
+  var currentZoom = cy.zoom();
+  var zoomFactor = 1.3;
+  var newZoom;
+
+  if (target.classList.contains('tree-zoom-in')) {
+    // Zoom in
+    newZoom = Math.min(currentZoom * zoomFactor, cy.maxZoom());
+    cy.zoom({
+      level: newZoom,
+      renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 }
+    });
+  } else if (target.classList.contains('tree-zoom-out')) {
+    // Zoom out
+    newZoom = Math.max(currentZoom / zoomFactor, cy.minZoom());
+    cy.zoom({
+      level: newZoom,
+      renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 }
+    });
+  } else if (target.classList.contains('tree-zoom-reset')) {
+    // Reset zoom and pan to fit
+    cy.fit(undefined, 20);
+  }
+});
+
+// Download trigger buttons - click the hidden placeholder buttons
+document.addEventListener('click', function(e) {
+  var target = e.target.closest('.download-climatic-trigger');
+  if (target) {
+    var hiddenBtn = document.getElementById('download-btn-climatic');
+    if (hiddenBtn) hiddenBtn.click();
+    return;
+  }
+
+  target = e.target.closest('.download-genetic-trigger');
+  if (target) {
+    var hiddenBtn = document.getElementById('download-btn-genetic');
+    if (hiddenBtn) hiddenBtn.click();
+    return;
+  }
+});
+

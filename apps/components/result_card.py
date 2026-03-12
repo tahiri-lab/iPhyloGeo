@@ -27,20 +27,32 @@ def create_result_card(
         html.Div: Result card component
     """
     # Determine badge class based on status
-    # Possible statuses: pending, complete, error
-    if status == "error":
+    # Possible statuses: pending, complete, error, climatic_trees, alignment, genetic_trees, output
+    status_lower = status.lower() if status else ""
+
+    if status_lower == "error":
         status_class = "error"
         status_text = "ERROR"
-    elif status == "complete":
+    elif status_lower == "complete":
         status_class = "success"
         status_text = "SUCCESS"
-    elif status in ["pending"]:
+    elif status_lower in ["pending", "queued", "running"]:
         status_class = "pending"
         status_text = "IN PROGRESS"
+    elif status_lower in ["climatic_trees", "alignment", "genetic_trees", "output"]:
+        # Processing steps - show friendly labels
+        status_labels = {
+            "climatic_trees": "Pending - Building climatic trees",
+            "alignment": "Pending - Aligning sequences",
+            "genetic_trees": "Pending - Building genetic trees",
+            "output": "Pending - Generating output",
+        }
+        status_class = "pending"
+        status_text = status_labels.get(status_lower, "IN PROGRESS")
     else:
         # Fallback for unknown status
         status_class = "pending"
-        status_text = status.upper() if status else "UNKNOWN"
+        status_text = "IN PROGRESS"
 
     # Build date info if provided
     date_info = []
