@@ -44,83 +44,106 @@ def create_table(df):
                             html.Div(
                                 [
                                     html.Div(
+                                        "Generate your graph",
+                                        className="graph-section-title",
+                                    ),
+                                    # X and Y axis dropdowns side by side
+                                    html.Div(
                                         [
                                             html.Div(
                                                 [
-                                                    html.Div(
-                                                        "Generate your graph",
-                                                        className="title center-text",
+                                                    html.P(
+                                                        "Insert X axis data",
+                                                        className="field-label",
                                                     ),
-                                                    html.Div(
-                                                        [
-                                                            html.P(
-                                                                "Insert X axis data",
-                                                                className="sub-title center-text",
-                                                            ),
-                                                            dcc.Dropdown(
-                                                                id="xaxis-data",
-                                                                options=[],
-                                                                className="center-text",
-                                                            ),
-                                                        ],
-                                                        className="field",
-                                                    ),
-                                                    html.Div(
-                                                        [
-                                                            html.P(
-                                                                "Insert Y axis data",
-                                                                className="sub-title center-text",
-                                                            ),
-                                                            dcc.Dropdown(
-                                                                id="yaxis-data",
-                                                                options=[],
-                                                                className="center-text",
-                                                            ),
-                                                        ],
-                                                        className="field",
-                                                    ),
-                                                    dcc.Checklist(
-                                                        id="choose-graph-type",
-                                                        options=[
-                                                            {
-                                                                "label": "Bar Graph",
-                                                                "value": "Bar",
-                                                            },
-                                                            {
-                                                                "label": "Scatter Plot",
-                                                                "value": "Scatter",
-                                                            },
-                                                            {
-                                                                "label": "Line Plot",
-                                                                "value": "Line",
-                                                            },
-                                                            {
-                                                                "label": "Pie Plot",
-                                                                "value": "Pie",
-                                                            },
-                                                        ],
-                                                        value=[],
-                                                        className="field graphType center-text",
-                                                    ),
-                                                    html.Div(
-                                                        [
-                                                            html.P(
-                                                                "Select data for choropleth map",
-                                                                className="sub-title center-text",
-                                                            ),
-                                                            dcc.Dropdown(
-                                                                id="map-data",
-                                                                options=[],
-                                                                className="center-text",
-                                                            ),
-                                                        ],
-                                                        className="field",
+                                                    dcc.Dropdown(
+                                                        id="xaxis-data",
+                                                        options=[],
+                                                        className="axis-dropdown",
                                                     ),
                                                 ],
-                                                className="axis-field",
+                                                className="axis-field-item",
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.P(
+                                                        "Insert Y axis data",
+                                                        className="field-label",
+                                                    ),
+                                                    dcc.Dropdown(
+                                                        id="yaxis-data",
+                                                        options=[],
+                                                        className="axis-dropdown",
+                                                    ),
+                                                ],
+                                                className="axis-field-item",
                                             ),
                                         ],
-                                        className="axis",
+                                        className="axis-row",
+                                    ),
+                                    # Chart type cards
+                                    html.P("Chart type", className="field-label"),
+                                    dcc.Checklist(
+                                        id="choose-graph-type",
+                                        options=[
+                                            {
+                                                "label": html.Span([
+                                                    html.Img(
+                                                        src="../../assets/icons/chart-bar.svg",
+                                                        className="chart-icon",
+                                                    ),
+                                                    html.Span("Bar graph"),
+                                                ]),
+                                                "value": "Bar",
+                                            },
+                                            {
+                                                "label": html.Span([
+                                                    html.Img(
+                                                        src="../../assets/icons/chart-scatter.svg",
+                                                        className="chart-icon",
+                                                    ),
+                                                    html.Span("Scatter plot"),
+                                                ]),
+                                                "value": "Scatter",
+                                            },
+                                            {
+                                                "label": html.Span([
+                                                    html.Img(
+                                                        src="../../assets/icons/chart-line.svg",
+                                                        className="chart-icon",
+                                                    ),
+                                                    html.Span("Line plot"),
+                                                ]),
+                                                "value": "Line",
+                                            },
+                                            {
+                                                "label": html.Span([
+                                                    html.Img(
+                                                        src="../../assets/icons/chart-pie.svg",
+                                                        className="chart-icon",
+                                                    ),
+                                                    html.Span("Pie plot"),
+                                                ]),
+                                                "value": "Pie",
+                                            },
+                                        ],
+                                        value=[],
+                                        className="chart-type-cards",
+                                    ),
+                                    # Choropleth map dropdown
+                                    html.Div(
+                                        [
+                                            html.P(
+                                                "Select data for choropleth map",
+                                                className="field-label",
+                                            ),
+                                            dcc.Dropdown(
+                                                id="map-data",
+                                                options=[],
+                                                className="axis-dropdown",
+                                            ),
+                                        ],
+                                        className="map-field",
                                     ),
                                 ],
                                 className="params-climatic-parameters",
@@ -132,33 +155,6 @@ def create_table(df):
                                     ),
                                 ],
                                 className="graph-generator-container",
-                            ),
-                            html.Div(
-                                [
-                                    html.Div(children=[], id="column-error-message"),
-                                    html.Div(
-                                        [
-                                            html.Div(
-                                                "Select the name of the column to analyze",
-                                                className="sub-title center-text",
-                                            ),
-                                            dcc.Checklist(
-                                                id="col-analyze",
-                                                options=[
-                                                    {"label": x, "value": x}
-                                                    for x in df._get_numeric_data().columns
-                                                ],
-                                                labelStyle={
-                                                    "display": "inline-block",
-                                                    "marginRight": "20px",
-                                                },
-                                                className="center-text",
-                                            ),
-                                        ],
-                                        className="axis",
-                                    ),
-                                ],
-                                className="col-to-analyse-container",
                             ),
                         ],
                         className="params-climatic",
@@ -178,15 +174,19 @@ def create_table(df):
     Output("xaxis-data", "options"),
     Output("yaxis-data", "options"),
     Output("map-data", "options"),
+    Output("col-analyze", "options"),
     Input("datatable-interactivity", "data"),
 )
 def update_dropdown_options(rows):
     if not rows:
-        return [], [], []
+        return [], [], [], []
 
     df = pd.DataFrame(rows)
     options = [{"label": col, "value": col} for col in df.columns]
-    return options, options, options
+    numeric_options = [
+        {"label": col, "value": col} for col in df.select_dtypes(include="number").columns
+    ]
+    return options, options, options, numeric_options
 
 
 @callback(
@@ -215,7 +215,11 @@ def update_table_columns(x_data, y_data, data):
 )
 def make_graphs(graph_types, filter_query, x_data, y_data, figures):
     if not graph_types or not x_data or not y_data:
-        return dash.no_update, dash.no_update
+        empty_message = html.Div(
+            "Please select X and Y axis data and at least one chart type to generate a graph",
+            className="empty-graph-message"
+        )
+        return [empty_message], []
 
     df = pd.DataFrame(filter_query)
 

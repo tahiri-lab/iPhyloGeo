@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 15px;
   width: 100%;
   margin: auto;
   box-sizing: border-box;
@@ -11,8 +10,7 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
-    width: 90%;
-    margin: 10px auto auto auto;
+    width: 100%;
     padding: 50px;
     border-radius: 15px;
     background-color: var(--black-and-white);
@@ -27,12 +25,12 @@
       }
     }
 
-  .title {
-    color: var(--reverse-black-white-color);
-    font-size: 25px;
-    font-weight: bold;
-    margin: auto;
-  }
+    .title {
+      color: var(--reverse-black-white-color);
+      font-size: 25px;
+      font-weight: bold;
+      margin: auto;
+    }
 
     .sub-title {
       color: var(--reverse-black-white-color);
@@ -67,28 +65,27 @@
     .parameter-container-inside {
       color: var(--reverse-white-black-color);
       display: grid;
-      grid-template-areas:
-      'title slider counter';
+      grid-template-areas: "title slider counter";
       grid-template-columns: auto 1fr auto;
       align-items: center;
       padding: 15px;
       border-radius: 5px;
       background-color: var(--reverse-black-white-color);
 
-        @media (max-width: 900px) {
-            grid-template-areas:
-            'title'
-            'slider'
-            'counter';
-            grid-template-columns: 1fr;
-        }
+      @media (max-width: 900px) {
+        grid-template-areas:
+          "title"
+          "slider"
+          "counter";
+        grid-template-columns: 1fr;
+      }
 
       .param-title {
         grid-area: title;
       }
 
       .slider {
-        grid-area: slider ;
+        grid-area: slider;
         padding: 0px 25px 25px;
       }
     }
