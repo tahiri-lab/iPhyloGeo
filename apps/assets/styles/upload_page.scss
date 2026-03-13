@@ -226,11 +226,16 @@
 
 #params-sections {
   width: 100%;
-  padding: 0 40px;
+  padding: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 0;
+
+  &:has(> *:not(:empty)) {
+    padding: 0 40px 40px;
+    gap: 40px;
+  }
 
   .dataset-input-container {
     display: flex;
@@ -278,7 +283,6 @@
   .upload-page-subtitle {
     text-align: center;
     color: #888;
-    margin: 0 0 32px;
     font-size: 0.95rem;
   }
 
@@ -377,6 +381,12 @@
         font-weight: 600;
         color: #2b8a3e;
         font-size: 0.9rem;
+      }
+
+      &.error {
+        .text {
+          color: #d6336c;
+        }
       }
     }
   }
@@ -492,73 +502,9 @@
     animation: fadeSlideIn 0.25s ease;
   }
 
-  .secondary-zone-inner {
-    display: flex;
-    justify-content: center;
-  }
-
-  // Reuse styles for the genetic/aligned/tree upload boxes
-  .upload-drag-drop {
-    user-select: none;
-    width: 100%;
-    line-height: normal;
-    border: 2px dashed #d0c8e0;
-    border-radius: 12px;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.25s;
-    padding: 28px 20px;
-    cursor: pointer;
-
-    &:hover {
-      border-color: #9b59b6;
-      background: rgba(155, 89, 182, 0.03);
-    }
-
-    .icon {
-      width: 30px;
-      filter: var(--icon-filter);
-      transition: filter 0.3s;
-    }
-
-    .drop-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      color: var(--reverse-black-white-color);
-      transition: color 0.3s;
-    }
-
-    .text {
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    // Loaded file state
-    .loaded-file {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .icon {
-        width: 24px;
-      }
-
-      .text {
-        font-weight: 600;
-        color: #2b8a3e;
-      }
-    }
-  }
-
   // ── Continue button ──
   .continue-btn {
     align-self: flex-end;
-    margin-top: 16px;
     padding: 12px 32px;
     border: none;
     border-radius: 10px;
@@ -596,7 +542,6 @@
   .continue-wrapper {
     align-self: flex-end;
     position: relative;
-    margin-top: 16px;
 
     &:hover .continue-tooltip {
       opacity: 1;

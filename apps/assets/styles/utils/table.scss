@@ -5,7 +5,6 @@
   border-collapse: collapse;
   border-radius: 1em;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
   .dash-spreadsheet-container {
     border-radius: 0;
@@ -33,7 +32,10 @@
   }
 
   tr:nth-child(2) .dash-select-header {
-    background-color: var(--table-alt-row-color, rgba(0, 0, 0, 0.02)) !important;
+    background-color: var(
+      --table-alt-row-color,
+      rgba(0, 0, 0, 0.02)
+    ) !important;
     border-color: var(--glass-style, rgba(0, 0, 0, 0.1)) !important;
   }
 
@@ -52,7 +54,10 @@
   }
 
   th.dash-filter {
-    background-color: var(--table-alt-row-color, rgba(0, 0, 0, 0.02)) !important;
+    background-color: var(
+      --table-alt-row-color,
+      rgba(0, 0, 0, 0.02)
+    ) !important;
     border-color: var(--glass-style, rgba(0, 0, 0, 0.1));
 
     div {

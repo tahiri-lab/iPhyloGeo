@@ -11,22 +11,18 @@ def _make_upload_zone(upload_id, label, file_types):
     """Helper to create a single dcc.Upload drop zone."""
     return dcc.Upload(
         id=upload_id,
-        className="upload-drag-drop",
+        className="upload-drop-area",
         children=html.Div(
             [
-                html.A(
-                    [
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg",
-                            className="icon",
-                        ),
-                        html.Div(label, className="text"),
-                    ],
-                    className="drop-content",
+                html.Img(
+                    src="../../assets/icons/folder-drop.svg",
+                    className="drop-icon",
                 ),
+                html.Div("Drag & drop your file here", className="drop-main-text"),
+                html.Div("or click to browse", className="drop-sub-text"),
+                html.Span(file_types, className="file-badge"),
             ],
-            className="drop-container",
-            id=f"drop-container-{upload_id}",
+            className="drop-content-inner",
         ),
     )
 
@@ -61,11 +57,16 @@ DATA_TYPES = [
     },
 ]
 
+DEFAULT_DATA_TYPE = "genetic"
+
 
 def _build_data_type_card(dt):
     """Build a single selectable card for a data type."""
+    is_default = dt["key"] == DEFAULT_DATA_TYPE
+    class_name = "data-type-card selected" if is_default else "data-type-card"
+
     return html.Div(
-        className="data-type-card",
+        className=class_name,
         id=f"card-{dt['key']}",
         children=[
             html.Div(dt["label"], className="card-label"),
@@ -79,7 +80,7 @@ layout = html.Div(
     [
         html.Div(id="output-file-drop-position-next"),
         html.Div(id="upload-data-output"),
-        dcc.Store(id="selected-data-type", data=None),
+        dcc.Store(id="selected-data-type", data=DEFAULT_DATA_TYPE),
         html.Div(
             id="all-upload-container",
             children=[
@@ -155,10 +156,14 @@ layout = html.Div(
                                 html.Div(
                                     id=f"upload-zone-{dt['key']}",
                                     className="secondary-upload-zone",
-                                    style={"display": "none"},
+                                    style={
+                                        "display": "block"
+                                        if dt["key"] == DEFAULT_DATA_TYPE
+                                        else "none"
+                                    },
                                     children=[
                                         html.Div(
-                                            className="secondary-zone-inner",
+                                            className="climatic-drop-zone",
                                             children=[
                                                 _make_upload_zone(
                                                     dt["upload_id"],

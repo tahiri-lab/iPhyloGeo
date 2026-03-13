@@ -243,6 +243,19 @@
     text-align: left;
   }
 
+  .field-error-message {
+    min-height: 20px;
+    margin-top: 6px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: #d6336c;
+    text-align: left;
+  }
+
+  .name-error-message {
+    margin-top: 6px;
+  }
+
   // Column analyze checklist as cards
   .col-analyze-cards {
     display: flex;

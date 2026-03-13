@@ -7,7 +7,6 @@ layout = html.Div(
             "Analyse data",
             className="analyse-title",
         ),
-        html.Div(children=[], id="column-error-message"),
         html.P(
             "Select columns to analyze",
             className="field-label",
@@ -20,8 +19,8 @@ layout = html.Div(
             labelStyle={"display": "flex"},
         ),
         html.Div(
-            id="name-error-message",
-            className="name-error-message",
+            id="column-error-message",
+            className="field-error-message",
             children=[],
         ),
         html.P("Enter dataset name", className="field-label"),
@@ -31,6 +30,11 @@ layout = html.Div(
             placeholder="Enter dataset Name",
             className="dataset-input",
             value="",
+        ),
+        html.Div(
+            id="name-error-message",
+            className="field-error-message name-error-message",
+            children=[],
         ),
         html.Div(
             [

@@ -48,8 +48,8 @@ DARK_THEME = {
     "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
     "--result-row-color": "#444444",
     "--black-and-white": "#111111",
-    "--table-bg-color": "#282b32",
-    "--table-alt-row-color": "#3a3f4a",
+    "--table-bg-color": "#111111",
+    "--table-alt-row-color": "#141414",
 }
 
 path_params = {
