@@ -5,7 +5,6 @@ import os
 import re
 
 import dash
-import dash_bootstrap_components as dbc
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
 from components.email_input import (
