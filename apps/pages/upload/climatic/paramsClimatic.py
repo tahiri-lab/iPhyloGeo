@@ -4,7 +4,7 @@ import plotly.express as px
 import utils.utils as utils
 from dash import Input, Output, State, callback, dash_table, dcc, html
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
 # Sample DataFrame for demonstration
 df = pd.DataFrame({"A": [1, 2, 3, 4], "B": [10, 20, 30, 40], "C": [100, 200, 300, 400]})
