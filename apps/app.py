@@ -76,7 +76,7 @@ DARK_THEME = {
     "--success": "#1FA391",
     "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
-    "--border": "e0d8ee",
+    "--border": "#2F343D",
 }
 
 path_params = {
