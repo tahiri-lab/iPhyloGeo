@@ -7,6 +7,7 @@ import re
 import dash
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
+from components.badge import create_badge
 from components.email_input import (
     get_button_id,
     validate_email,
@@ -316,7 +317,11 @@ def uploaded_genetic_data(
                 ),
                 html.Div("Drag & drop your file here", className="drop-main-text"),
                 html.Div("or click to browse", className="drop-sub-text"),
-                html.Span(file_types, className="file-badge"),
+                create_badge(
+                    text=file_types,
+                    background_color="var(--action-soft-bg)",
+                    text_color="var(--action)",
+                ),
             ],
             className="drop-content-inner",
         )

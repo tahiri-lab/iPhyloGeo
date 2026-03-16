@@ -39,9 +39,12 @@ LIGHT_THEME = {
     "--background": "#EBECF0",
     "--action": "#B593DD",
     "--action-hover": "#9F79D6",
+    "--action-soft-bg": "color-mix(in srgb, var(--action) 10%, transparent)",
     "--success": "#2DD4BF",
+    "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
     "--pending": "#FFC107",
+    "--border": "#e0d8ee",
 }
 
 DARK_THEME = {
@@ -69,8 +72,11 @@ DARK_THEME = {
     "--background": "#1A1C1E",
     "--action": "#9F74D0",
     "--action-hover": "#8B5FC2",
+    "--action-soft-bg": "color-mix(in srgb, var(--action) 10%, transparent)",
     "--success": "#1FA391",
+    "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
+    "--border": "e0d8ee",
 }
 
 path_params = {

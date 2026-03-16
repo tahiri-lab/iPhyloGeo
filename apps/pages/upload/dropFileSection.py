@@ -1,4 +1,5 @@
 from dash import ClientsideFunction, Input, Output, State, callback, clientside_callback, ctx, dcc, html
+from components.badge import create_badge
 
 # this is a shortcut. It's the base64 content of the test files (geo.csv and genetic.csv)
 # TODO: find a way to load the files from the server and use them instead
@@ -19,7 +20,11 @@ def _make_upload_zone(upload_id, file_types):
                 ),
                 html.Div("Drag & drop your file here", className="drop-main-text"),
                 html.Div("or click to browse", className="drop-sub-text"),
-                html.Span(file_types, className="file-badge"),
+                create_badge(
+                    text=file_types,
+                    background_color="var(--action-soft-bg)",
+                    text_color="var(--action)",
+                ),
             ],
             className="drop-content-inner",
         ),
@@ -100,7 +105,11 @@ layout = html.Div(
                             className="section-header",
                             children=[
                                 html.Span("Climatic Data", className="section-title"),
-                                html.Span("REQUIRED", className="badge badge-required"),
+                                create_badge(
+                                    text="REQUIRED",
+                                    background_color="var(--action-soft-bg)",
+                                    text_color="var(--action)",
+                                ),
                             ],
                         ),
                         html.Div(
@@ -117,7 +126,11 @@ layout = html.Div(
                                             ),
                                             html.Div("Drag & drop your file here", className="drop-main-text"),
                                             html.Div("or click to browse", className="drop-sub-text"),
-                                            html.Span(".csv", className="file-badge"),
+                                            create_badge(
+                                                text=".csv",
+                                                background_color="var(--action-soft-bg)",
+                                                text_color="var(--action)",
+                                            ),
                                         ],
                                         className="drop-content-inner",
                                     ),
@@ -136,7 +149,11 @@ layout = html.Div(
                             className="section-header",
                             children=[
                                 html.Span("Additional Data", className="section-title"),
-                                html.Span("CHOOSE ONE", className="badge badge-choose"),
+                                create_badge(
+                                    text="CHOOSE ONE",
+                                    background_color="var(--success-soft-bg)",
+                                    text_color="var(--success)",
+                                ),
                             ],
                         ),
                         html.P(

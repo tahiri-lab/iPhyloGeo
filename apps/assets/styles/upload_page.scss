@@ -29,7 +29,7 @@
   }
 
   .title {
-    color: var(--reverse-black-white-color);
+    color: var(--text);
     font-size: 25px;
     font-weight: bold;
     transition: all 0.3s ease-in-out;
@@ -56,7 +56,7 @@
     .option {
       transition: all 0.3s ease-in-out;
       background-color: var(--reverse-background-color);
-      color: var(--reverse-white-black-color);
+      color: var(--text);
       border-radius: 10px;
       box-shadow:
         var(--switch-toggle-background) 0px 19px 38px,
@@ -74,7 +74,7 @@
       }
 
       &.selected {
-        outline: 4px solid #ad00fa;
+        outline: 4px solid var(--action-hover);
       }
 
       .optionImage {
@@ -95,7 +95,7 @@
       }
 
       .title {
-        color: var(--reverse-white-black-color);
+        color: var(--text);
         margin-top: 10px;
         font-size: 15px;
         transition: all 0.3s ease-in-out;
@@ -121,18 +121,6 @@
       align-items: center;
       width: 100%;
       max-width: 800px;
-    }
-
-    .icon {
-      margin-right: 10px;
-      width: 40px;
-      filter: var(--icon-filter);
-      transition: all 0.3s ease-in-out;
-
-      &.arrow {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg)
-          brightness(106%) contrast(101%) !important;
-      }
     }
 
     .text {
@@ -289,13 +277,11 @@
   // ── Section cards ──
   .upload-section-card {
     background: var(--black-and-white);
-    border: 1.5px solid #e0dce6;
+    border: 1.5px solid var(--border);
     border-radius: 16px;
     padding: 28px 32px;
     margin-bottom: 24px;
-    transition:
-      background 0.3s,
-      border-color 0.3s;
+    transition: border-color 0.3s;
   }
 
   .section-header {
@@ -312,25 +298,6 @@
     transition: color 0.3s;
   }
 
-  .badge {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 3px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-  }
-
-  .badge-required {
-    background: #ffe0e6;
-    color: #d6336c;
-  }
-
-  .badge-choose {
-    background: #e0f5e9;
-    color: #2b8a3e;
-  }
-
   .section-description {
     color: #888;
     font-size: 0.88rem;
@@ -343,19 +310,17 @@
   }
 
   .upload-drop-area {
-    border: 2px dashed #d0c8e0;
+    border: 2px dashed var(--border);
     border-radius: 12px;
     padding: 32px 20px;
     text-align: center;
     cursor: pointer;
-    transition:
-      border-color 0.25s,
-      background 0.25s;
+    transition: border-color 0.25s;
     background: transparent;
 
     &:hover {
-      border-color: #9b59b6;
-      background: rgba(155, 89, 182, 0.03);
+      border-color: var(--action-hover);
+      background: var(--action-soft-bg);
     }
 
     // Constrain any images inside the drop area
@@ -379,13 +344,13 @@
 
       .text {
         font-weight: 600;
-        color: #2b8a3e;
+        color: var(--success);
         font-size: 0.9rem;
       }
 
       &.error {
         .text {
-          color: #d6336c;
+          color: var(--error);
         }
       }
     }
@@ -416,18 +381,7 @@
 
   .drop-sub-text {
     font-size: 0.82rem;
-    color: #999;
-  }
-
-  .file-badge {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 2px 12px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: #f0ecf5;
-    color: #7c3aed;
+    color: var(--secondary-text);
   }
 
   // ── Data-type cards ──
@@ -439,25 +393,24 @@
 
   .data-type-card {
     flex: 1;
-    border: 1.5px solid #e0dce6;
+    border: 1.5px solid var(--border);
     border-radius: 12px;
     padding: 20px 14px;
     text-align: center;
     cursor: pointer;
     transition:
       border-color 0.25s,
-      box-shadow 0.25s,
-      background 0.25s;
+      box-shadow 0.25s;
     background: var(--black-and-white);
     position: relative;
 
     &:hover {
-      border-color: #c4b5fd;
+      border-color: var(--action);
       box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
     }
 
     &.selected {
-      border-color: #7c3aed;
+      border-color: var(--action-hover);
       box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.18);
 
       &::after {
@@ -468,7 +421,7 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: #7c3aed;
+        background: var(--action-hover);
       }
     }
 
@@ -489,7 +442,7 @@
     .card-formats {
       font-size: 0.75rem;
       font-weight: 600;
-      color: #7c3aed;
+      color: var(--action-hover);
     }
   }
 
@@ -508,7 +461,7 @@
     padding: 12px 32px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #7c3aed 0%, #9b59b6 100%);
+    background: var(--action);
     color: #fff;
     font-size: 0.95rem;
     font-weight: 600;
@@ -576,7 +529,7 @@
       top: 100%;
       right: 16px;
       border: 5px solid transparent;
-      border-top-color: #333;
+      border-top-color: var(--border);
     }
 
     &.hidden {
@@ -602,14 +555,14 @@
     color: #999;
 
     .demo-data-link {
-      color: #7c3aed;
+      color: var(--action);
       text-decoration: none;
       font-weight: 600;
       cursor: pointer;
       transition: opacity 0.2s;
 
       &:hover {
-        opacity: 0.75;
+        color: var(--action-hover);
         text-decoration: underline;
       }
     }

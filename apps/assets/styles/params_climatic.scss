@@ -32,14 +32,14 @@
     .graph-section-title {
       font-size: 1.4rem;
       font-weight: 700;
-      color: var(--reverse-black-white-color);
+      color: var(--text);
       margin-bottom: 20px;
     }
 
     .field-label {
       font-size: 0.85rem;
       font-weight: 500;
-      color: var(--reverse-black-white-color);
+      color: var(--text);
       margin-bottom: 6px;
       margin-top: 16px;
       text-align: left;
@@ -62,30 +62,30 @@
     // ── Chart type cards ──
     .chart-type-cards {
       display: flex;
+      flex-wrap: wrap;
       gap: 16px;
       margin-top: 4px;
 
       label {
-        flex: 1;
+        flex: 1 1 0;
+        min-width: 160px;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
         padding: 12px 14px;
-        border: 1.5px solid #e0d8ee;
+        border: 1.5px solid var(--border);
         border-radius: 10px;
         cursor: pointer;
-        transition:
-          border-color 0.2s,
-          background 0.2s;
+        transition: border-color 0.2s;
         font-size: 0.88rem;
         font-weight: 500;
-        color: var(--reverse-black-white-color);
+        color: var(--text);
         background: transparent;
         white-space: nowrap;
 
         &:hover {
-          border-color: #7c3aed;
+          border-color: var(--action-hover);
         }
 
         // Hide the default checkbox
@@ -109,16 +109,8 @@
 
       // Checked state
       label:has(input:checked) {
-        border-color: #7c3aed;
-        background: rgba(124, 58, 237, 0.06);
-      }
-
-      @media (max-width: 768px) {
-        flex-wrap: wrap;
-
-        label {
-          flex: 1 1 45%;
-        }
+        border-color: var(--action-hover);
+        background: var(--action-soft-bg);
       }
     }
 
@@ -189,7 +181,7 @@
     }
 
     .empty-graph-message {
-      color: var(--reverse-black-white-color);
+      color: var(--text);
       font-size: 0.95rem;
       font-weight: 500;
       opacity: 0.7;
@@ -230,14 +222,14 @@
   .analyse-title {
     font-size: 1.4rem;
     font-weight: 700;
-    color: var(--reverse-black-white-color);
+    color: var(--text);
     margin-bottom: 4px;
   }
 
   .field-label {
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--reverse-black-white-color);
+    color: var(--text);
     margin-bottom: 6px;
     margin-top: 16px;
     text-align: left;
@@ -248,7 +240,7 @@
     margin-top: 6px;
     font-size: 0.74rem;
     font-weight: 500;
-    color: #d6336c;
+    color: var(--error);
     text-align: left;
   }
 
@@ -267,23 +259,21 @@
       align-items: center;
       gap: 12px;
       padding: 10px 18px;
-      border: 1.5px solid #e0d8ee;
+      border: 1.5px solid var(--border);
       border-radius: 10px;
       cursor: pointer;
-      transition:
-        border-color 0.2s,
-        background 0.2s;
+      transition: border-color 0.2s;
       font-size: 0.88rem;
       font-weight: 500;
-      color: var(--reverse-black-white-color);
+      color: var(--text);
       background: transparent;
 
       &:hover {
-        border-color: #7c3aed;
+        border-color: var(--action-hover);
       }
 
       input[type="checkbox"] {
-        accent-color: #7c3aed;
+        accent-color: var(--action-hover);
         width: 16px;
         height: 16px;
         margin: 0 !important;
@@ -293,8 +283,8 @@
     }
 
     label:has(input:checked) {
-      border-color: #7c3aed;
-      background: rgba(124, 58, 237, 0.06);
+      border-color: var(--action);
+      background: var(--action-soft-bg);
     }
   }
 
@@ -302,9 +292,9 @@
     width: 100%;
     padding: 12px 16px;
     border-radius: 10px;
-    border: 1.5px solid #e0d8ee;
+    border: 1.5px solid var(--border);
     background: transparent;
-    color: var(--reverse-black-white-color);
+    color: var(--text);
     font-size: 0.9rem;
     outline: none;
     box-sizing: border-box;
@@ -315,7 +305,7 @@
     }
 
     &:focus {
-      border-color: #7c3aed;
+      border-color: var(--action-hover);
     }
   }
 
@@ -329,7 +319,7 @@
     padding: 12px 36px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #7c3aed 0%, #9b59b6 100%);
+    background: var(--action);
     color: #fff;
     font-size: 0.95rem;
     font-weight: 600;
@@ -339,7 +329,7 @@
       transform 0.15s;
 
     &:hover {
-      opacity: 0.9;
+      background: var(--action-hover);
       transform: translateY(-1px);
     }
 
