@@ -9,15 +9,15 @@
   border-radius: 10px;
   padding: 15px 40px;
   margin-top: 10px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
   width: auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: 15px;
   margin-bottom: 15px;
-  margin-left: auto;
-  margin-right: auto;
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--text);
 
   &:hover {
     cursor: pointer;
@@ -26,14 +26,19 @@
   }
 
   &.primary {
-    background-color: #AD00FA;
+    background-color: var(--primary);
     font-size: 15px;
     font-weight: bold;
-    color: white;
+    color: var(--text);
+    border: none;
 
     &:hover {
-      background-color: #8B00D1;
+      background-color: var(--secondary);
     }
+  }
+
+  &.border {
+    border-width: 2px !important;
   }
 
   &.actions {
@@ -47,11 +52,25 @@
     }
   }
 
-  &.download {
-    background-color: #AD00FA;
+  &.theme-action {
+    background-color: var(--action);
     font-size: 15px;
     font-weight: bold;
-    color: white;
+    border: none;
+    color: black;
+
+    &:hover {
+      background-color: var(--action-hover);
+    }
+  }
+
+  &.download {
+    background-color: var(--action);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text);
+    border: none;
+    padding: 10px 15px;
 
     .text {
       white-space: nowrap;
@@ -60,7 +79,11 @@
     }
 
     &:hover {
-      background-color: #8B00D1;
+      background-color: var(--action-hover);
     }
+  }
+
+  .icon {
+    filter: var(--icon-filter);
   }
 }
