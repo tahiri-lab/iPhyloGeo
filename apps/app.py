@@ -131,8 +131,8 @@ app.layout = html.Div(
                                         html.Div(id="dummy-output"),
                                         html.Img(
                                             src="/assets/icons/bars.svg",
-                                            id="lab-logo",
-                                            className="logo",
+                                            id="lab-burger",
+                                            className="burger",
                                         ),
                                         html.Div(
                                             "Tahiri Lab",
@@ -161,7 +161,7 @@ app.layout = html.Div(
                                     ],
                                     href="/",
                                     id="nav-link-home",
-                                    className="nav-link",
+                                    className="nav-item nav-item-top",
                                 ),
                                 dcc.Link(
                                     [
@@ -176,7 +176,7 @@ app.layout = html.Div(
                                     ],
                                     href="/getStarted",
                                     id="nav-link-getstarted",
-                                    className="nav-link",
+                                    className="nav-item nav-item-top",
                                 ),
                                 dcc.Link(
                                     [
@@ -191,7 +191,7 @@ app.layout = html.Div(
                                     ],
                                     href="/results",
                                     id="nav-link-results",
-                                    className="nav-link",
+                                    className="nav-item nav-item-top",
                                 ),
                             ],
                             id="nav-link",
@@ -209,10 +209,10 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Night mode", className="text"),
+                                        html.Div("Night mode", className="text", id="theme-text"),
                                     ],
                                     id="theme-switch",
-                                    className="bottom-nav-item theme-toggle-btn",
+                                    className="nav-item nav-item-bottom theme-toggle-btn",
                                 ),
                                 dcc.Store(id="theme-store", storage_type="local", data=True),
                                 html.Div(id="theme-switch-output", style={"display": "none"}),
@@ -229,7 +229,7 @@ app.layout = html.Div(
                                     ],
                                     href="/settings",
                                     id="nav-link-settings",
-                                    className="bottom-nav-item",
+                                    className="nav-item nav-item-bottom",
                                 ),
                                 dcc.Link(
                                     [
@@ -244,7 +244,7 @@ app.layout = html.Div(
                                     ],
                                     href="/help",
                                     id="nav-link-help",
-                                    className="bottom-nav-item",
+                                    className="nav-item nav-item-bottom",
                                 ),
                                 html.A(
                                     [
@@ -259,7 +259,7 @@ app.layout = html.Div(
                                     ],
                                     target="_blank",
                                     href="https://github.com/tahiri-lab",
-                                    className="bottom-nav-item",
+                                    className="nav-item nav-item-bottom",
                                 ),
                             ],
                             className="bottom-section",
@@ -281,7 +281,7 @@ app.layout = html.Div(
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="navbar_function"),
     Output("dummy-output", "children"),  # needed for the callback to trigger
-    Input("lab-logo", "n_clicks"),
+    Input("lab-burger", "n_clicks"),
     prevent_initial_call=True,
 )
 
@@ -295,7 +295,7 @@ app.clientside_callback(
 )
 def toggle_theme(n_clicks, current_theme):
     """
-    Toggle theme when night mode button is clicked.
+    Toggle theme when theme switch button is clicked.
     Args:
         n_clicks: number of clicks on the theme button
         current_theme: current theme state (True = dark, False = light)
@@ -310,6 +310,7 @@ def toggle_theme(n_clicks, current_theme):
 @app.callback(
     Output("themer", "style"),
     Output("theme-icon", "src"),
+    Output("theme-text", "children"),
     Input("theme-store", "data"),
 )
 def update_color(is_dark):
@@ -319,11 +320,12 @@ def update_color(is_dark):
     Returns:
         themer: dict, css style for the theme
         theme-icon: src path for the theme icon
+        theme-text: string, text for the theme switch
     """
     if is_dark:
-        return DARK_THEME, "/assets/icons/sun.svg"
+        return DARK_THEME, "/assets/icons/sun.svg", "Light mode"
     else:
-        return LIGHT_THEME, "/assets/icons/moon.svg"
+        return LIGHT_THEME, "/assets/icons/moon.svg", "Night mode"
 
 
 @app.callback(

@@ -139,20 +139,23 @@
   }
 }
 
+// Collapsible utility class
+.collapse-row {
+  opacity: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  margin-top: 0 !important;
+  transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out !important;
+}
+
 // Collapsible Areas
 .results-row {
   opacity: 1;
   overflow: visible;
-  transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
+  max-height: 10000px;
+  transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
   width: 100%;
   box-sizing: border-box;
-
-  &.collapse-row {
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
-  }
 
   .graph {
     margin-top: 20px;
@@ -169,13 +172,6 @@
   opacity: 1;
   transition: opacity 1s ease-in-out, max-height 0s ease-in-out;
   box-sizing: border-box;
-
-  &.collapse-row {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
-  }
 
   .tree-sub-container {
     display: flex;
@@ -255,25 +251,6 @@
   }
 }
 
-// Results table
-.result-table {
-  @extend .shared-table;
-
-  .dash-cell {
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-
-  .dash-header {
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-
-  th {
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-}
 
 // Email section
 #email-section-container {
@@ -281,12 +258,4 @@
   opacity: 1;
   transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
   margin-top: 16px;
-
-  &.collapse-row {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    margin-top: 0;
-    transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
-  }
 }
