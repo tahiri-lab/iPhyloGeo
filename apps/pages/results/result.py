@@ -52,7 +52,7 @@ def create_email_section():
         html.Div(
             [
                 html.P(
-                    "if you would like to receive the url of these data by email, you can enter your address mail below.",
+                    "if you would like to receive the URL of this result by email, you can enter your address mail below.",
                     className="email-description",
                 ),
                 create_email_input(
@@ -494,7 +494,7 @@ def create_result_table(data):
                 **utils.get_table_styles(),
             )
         ],
-        className="result-table",
+        className="shared-table",
     )
 
 

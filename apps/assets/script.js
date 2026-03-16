@@ -19,11 +19,11 @@ function updateNavHighlight() {
 
   navIds.forEach(function (id) {
     var el = document.getElementById(id);
-    if (el) el.className = (id === activeId) ? 'nav-link selected' : 'nav-link';
+    if (el) el.className = (id === activeId) ? 'nav-item nav-item-top selected' : 'nav-item nav-item-top';
   });
   bottomIds.forEach(function (id) {
     var el = document.getElementById(id);
-    if (el) el.className = (id === activeId) ? 'bottom-nav-item selected' : 'bottom-nav-item';
+    if (el) el.className = (id === activeId) ? 'nav-item nav-item-bottom selected' : 'nav-item nav-item-bottom';
   });
 }
 
@@ -95,9 +95,9 @@ function responsiveNavbar() {
   const labContainer = document.getElementById('lab-container');
   const navBar = document.getElementById('nav-bar');
   const labName = document.getElementById('lab-name');
+  const labBurger = document.getElementById('lab-burger');
   const themeSwitch = document.getElementById('theme-switch');
   const navLink = document.getElementById('nav-link');
-  const gitHubContainer = document.getElementById('gitHub-container');
 
   if (open) {
     if (labContainer) labContainer.classList.add("minimized");
@@ -105,7 +105,6 @@ function responsiveNavbar() {
     if (labName) labName.classList.add("minimized");
     if (themeSwitch) themeSwitch.classList.add("minimized");
     if (navLink) navLink.classList.add("minimized");
-    if (gitHubContainer) gitHubContainer.classList.add("minimized");
 
     open = false;
   }
@@ -116,7 +115,6 @@ function responsiveNavbar() {
     if (labName) labName.classList.remove("minimized");
     if (themeSwitch) themeSwitch.classList.remove("minimized");
     if (navLink) navLink.classList.remove("minimized");
-    if (gitHubContainer) gitHubContainer.classList.remove("minimized");
 
     open = true
   }
@@ -151,38 +149,6 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       }
 
       return '';
-    },
-
-    update_nav_selected: function (pathname) {
-      var sel = {
-        '/': 0,
-        '/getStarted': 1,
-        '/results': 2,
-        '/settings': 3,
-        '/help': 4
-      };
-      var idx = sel[pathname];
-      // Check for /result/* pattern (individual result page)
-      if (idx === undefined && pathname.startsWith('/result/')) {
-        idx = 2; // Same as /results
-      }
-      if (idx === undefined) idx = -1;
-      return [
-        idx === 0 ? 'nav-link selected' : 'nav-link',
-        idx === 1 ? 'nav-link selected' : 'nav-link',
-        idx === 2 ? 'nav-link selected' : 'nav-link',
-        idx === 3 ? 'bottom-nav-item selected' : 'bottom-nav-item',
-        idx === 4 ? 'bottom-nav-item selected' : 'bottom-nav-item'
-      ];
-    },
-
-    share_result_function: function () {
-      navigator.clipboard.writeText(window.location.href);
-      document.getElementById('share_tooltip').classList.add("visible");
-      window.setTimeout(function () {
-        document.getElementById('share_tooltip').classList.remove("visible");
-      }, 4000);
-      return ''
     },
 
     collapse_result_section_function: function (trigger, collapse_section, trigger_id) {

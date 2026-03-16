@@ -3,7 +3,7 @@ Result card component.
 Displays a result card with name, status badge, dates and access button.
 """
 
-from dash import html
+from dash import dcc, html
 
 
 def create_result_card(
@@ -65,7 +65,7 @@ def create_result_card(
             )
         )
 
-    return html.A(
+    return dcc.Link(
         [
             # Left section with title, badge and dates
             html.Div(
@@ -100,4 +100,5 @@ def create_result_card(
         ],
         href=f"/result/{result_id}" if result_id else "#",
         className=f"result-card result-card--{status_class}",
+        refresh=False
     )
