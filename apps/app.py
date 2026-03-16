@@ -71,6 +71,7 @@ DARK_THEME = {
     "--action-hover": "#8B5FC2",
     "--success": "#1FA391",
     "--error": "#FF6262",
+    "--pending": "#E6AD06",
 }
 
 path_params = {
