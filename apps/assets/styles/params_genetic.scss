@@ -11,9 +11,10 @@
     flex-direction: column;
     gap: 30px;
     width: 100%;
-    padding: 50px;
+    padding: 25px;
+    padding-top: 40px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--primary);
 
     #alignment-chart {
       display: block;
@@ -29,13 +30,16 @@
       color: var(--reverse-black-white-color);
       font-size: 25px;
       font-weight: bold;
-      margin: auto;
+      text-align: left;
+      margin-bottom: 10px;
     }
 
     .sub-title {
       color: var(--reverse-black-white-color);
       font-size: 20px;
-      margin: auto;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 15px;
       margin-bottom: 20px;
     }
 

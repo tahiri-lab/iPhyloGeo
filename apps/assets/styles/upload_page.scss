@@ -232,7 +232,7 @@
     margin: 10px auto auto auto;
     padding: 20px 40px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--primary);
     box-sizing: border-box;
     transition: all 0.3s ease-in-out;
 
@@ -261,23 +261,16 @@
   // ── Page header ──
   .upload-page-title {
     text-align: center;
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: var(--reverse-black-white-color);
-    margin: 0 0 6px;
     transition: color 0.3s;
-  }
-
-  .upload-page-subtitle {
-    text-align: center;
-    color: #888;
-    font-size: 0.95rem;
+    margin-bottom: 40px;
   }
 
   // ── Section cards ──
   .upload-section-card {
-    background: var(--black-and-white);
-    border: 1.5px solid var(--border);
+    background: var(--primary);
     border-radius: 16px;
     padding: 28px 32px;
     margin-bottom: 24px;
@@ -294,12 +287,12 @@
   .section-title {
     font-size: 1.15rem;
     font-weight: 700;
-    color: var(--reverse-black-white-color);
+    color: var(--text);
     transition: color 0.3s;
   }
 
   .section-description {
-    color: #888;
+    color: var(--text-secondary);
     font-size: 0.88rem;
     margin: 0 0 16px;
   }
@@ -312,6 +305,7 @@
   .upload-drop-area {
     border: 2px dashed var(--border);
     border-radius: 12px;
+    border-color: var(--secondary);
     padding: 32px 20px;
     text-align: center;
     cursor: pointer;
@@ -366,7 +360,6 @@
   .drop-icon {
     width: 36px;
     height: 36px;
-    opacity: 0.5;
     filter: var(--icon-filter);
     margin-bottom: 4px;
     transition: filter 0.3s;
@@ -393,7 +386,7 @@
 
   .data-type-card {
     flex: 1;
-    border: 1.5px solid var(--border);
+    border: 2px solid var(--secondary);
     border-radius: 12px;
     padding: 20px 14px;
     text-align: center;
@@ -401,7 +394,7 @@
     transition:
       border-color 0.25s,
       box-shadow 0.25s;
-    background: var(--black-and-white);
+    background: var(--primary);
     position: relative;
 
     &:hover {
@@ -411,7 +404,6 @@
 
     &.selected {
       border-color: var(--action-hover);
-      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.18);
 
       &::after {
         content: "";
@@ -574,6 +566,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

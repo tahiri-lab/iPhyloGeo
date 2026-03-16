@@ -20,13 +20,25 @@
     @extend .shared-table;
     margin: 10px auto 30px;
     width: 100%;
+    background-color: var(--primary);
+    padding: 24px;
+    border-radius: 15px;
+    box-sizing: border-box;
+
+    .table-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: left;
+    }
   }
 
   .params-climatic-parameters {
     width: 100%;
     padding: 30px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--primary);
     box-sizing: border-box;
 
     .graph-section-title {
@@ -34,6 +46,7 @@
       font-weight: 700;
       color: var(--text);
       margin-bottom: 20px;
+      text-align: left;
     }
 
     .field-label {
@@ -137,11 +150,11 @@
   }
 
   .choropleth-map-container {
-    width: 100%; /* Adjust as needed */
-    height: 500px; /* Adjust the height according to your preference */
+    width: 100%;
+    height: 500px;
     margin-top: 20px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--secondary);
 
     @media (max-width: 1080px) {
       width: 100%;
@@ -150,6 +163,7 @@
     .choropleth-map {
       width: 100%;
       height: 100%;
+
       .dash-graph {
         height: 100%;
       }
@@ -162,7 +176,7 @@
     width: 100%;
     margin: 10px auto auto auto;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--primary);
 
     .generated-graph {
       display: flex;
@@ -192,6 +206,7 @@
     .dash-graph {
       color: white !important;
       width: 50%;
+
       @media (max-width: 1080px) {
         width: 100%;
       }
@@ -200,13 +215,13 @@
 
   .graph-and-map-container {
     display: flex;
-    justify-content: space-around; /* Distribute space around items */
-    align-items: flex-start; /* Align items to the top */
+    justify-content: space-around;
+    align-items: flex-start;
   }
 
   .generated-graph,
   .map-selection-container {
-    width: 48%; /* Adjust width as needed */
+    width: 48%;
   }
 }
 
@@ -216,7 +231,7 @@
   width: 100%;
   padding: 30px;
   border-radius: 15px;
-  background-color: var(--black-and-white);
+  background-color: var(--primary);
   box-sizing: border-box;
 
   .analyse-title {
@@ -224,6 +239,7 @@
     font-weight: 700;
     color: var(--text);
     margin-bottom: 4px;
+    text-align: left;
   }
 
   .field-label {

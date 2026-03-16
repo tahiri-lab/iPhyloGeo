@@ -20,6 +20,7 @@ def create_table(df):
                         [
                             html.Div(
                                 [
+                                    html.Div("Data Preview", className="table-title"),
                                     dash_table.DataTable(
                                         id="datatable-interactivity",
                                         data=df.to_dict("records"),

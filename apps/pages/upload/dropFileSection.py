@@ -91,10 +91,6 @@ layout = html.Div(
             children=[
                 # ── Header ──
                 html.H2("Upload Files", className="upload-page-title"),
-                html.P(
-                    "Provide your data files to begin analysis",
-                    className="upload-page-subtitle",
-                ),
 
                 # ── Climatic Data section (REQUIRED) ──
                 html.Div(
@@ -151,8 +147,8 @@ layout = html.Div(
                                 html.Span("Additional Data", className="section-title"),
                                 create_badge(
                                     text="CHOOSE ONE",
-                                    background_color="var(--success-soft-bg)",
-                                    text_color="var(--success)",
+                                    background_color="var(--action-soft-bg)",
+                                    text_color="var(--action)",
                                 ),
                             ],
                         ),
