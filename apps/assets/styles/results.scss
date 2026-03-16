@@ -1,13 +1,14 @@
 .results {
-  background-color: var(--background-color);
+  background-color: var(--background, #EBECF0);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 0 300px;
+  padding: 0 5vw;
   transition: all 0.3s ease-in-out;
   position: relative;
+
   &::before {
     content: '';
     position: fixed;
@@ -15,13 +16,12 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: var(--background-color);
+    background-color: var(--background, #EBECF0);
     z-index: -1;
     transition: all 0.3s ease-in-out;
   }
 
   .results-container {
-    max-width: 1200px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -42,6 +42,7 @@
 
   .title {
     color: var(--reverse-black-white-color);
+    padding-top: 30px;
     font-size: 40px;
     font-weight: bold;
   }
@@ -74,7 +75,7 @@
       background-repeat: no-repeat;
 
       &.bg1 {
-         background-image: url("/assets/img/jobBg.png");
+        background-image: url("/assets/img/jobBg.png");
       }
 
       //&.bg2 {
@@ -97,7 +98,7 @@
       color: var(--reverse-black-white-color);
       display: grid;
       grid-template-areas:
-      'name creationDate expirationDate progress arrow';
+        'name creationDate expirationDate progress arrow';
       grid-template-columns: auto auto auto 0.5fr auto;
       border-radius: 5px;
       padding: 10px;

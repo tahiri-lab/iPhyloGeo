@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from components.toast import create_toast_container
 from dash import ctx, dcc, html
-from dash.dependencies import ClientsideFunction, Input, Output
+from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 
@@ -108,6 +108,7 @@ def NavbarComponent(children):
 
 app.layout = html.Div(
     [
+        dcc.Location(id="url", refresh=False),
         html.Div(
             [
                 NavbarComponent(
@@ -118,23 +119,15 @@ app.layout = html.Div(
                                     [
                                         html.Div(id="dummy-output"),
                                         html.Img(
-                                            src="/assets/logo/LabLogo.png",
-                                            id="lab-logo",
-                                            className="logo",
+                                            src="/assets/icons/bars.svg",
+                                            id="lab-burger",
+                                            className="burger",
                                         ),
                                         html.Div(
                                             "Tahiri Lab",
                                             id="lab-name",
                                             className="lab-name",
                                         ),
-                                        dbc.Switch(
-                                            id="theme-switch",
-                                            value=True,
-                                            className="theme-switcher",
-                                            persistence=True,
-                                            persistence_type="local",
-                                        ),
-                                        html.Div(id="theme-switch-output", style={"display": "none"}),
                                     ],
                                     id="lab-container",
                                     className="lab-container",
@@ -144,52 +137,121 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
-                                html.Div(
+                                dcc.Link(
                                     [
-                                        dcc.Link(
-                                            [
-                                                html.Img(
-                                                    src=path_params[page["name"]][
-                                                        "img"
-                                                    ],
-                                                    className="icon",
-                                                ),
-                                                html.Div(
-                                                    f"{path_params[page['name']]['name']}",
-                                                    className="text",
-                                                ),
-                                            ],
-                                            href=page["relative_path"],
-                                            className="nav-link",
-                                        )
-                                        for page in [
-                                            page
-                                            for page in dash.page_registry.values()
-                                            if page["name"] != "Result"
-                                        ]
-                                    ]
-                                )
+                                        html.Div(
+                                            html.Img(
+                                                src=path_params["Homepage"]["img"],
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Home", className="text"),
+                                    ],
+                                    href="/",
+                                    id="nav-link-home",
+                                    className="nav-item nav-item-top",
+                                ),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src=path_params["Getstarted"]["img"],
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Upload data", className="text"),
+                                    ],
+                                    href="/getStarted",
+                                    id="nav-link-getstarted",
+                                    className="nav-item nav-item-top",
+                                ),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src=path_params["Results"]["img"],
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Check results", className="text"),
+                                    ],
+                                    href="/results",
+                                    id="nav-link-results",
+                                    className="nav-item nav-item-top",
+                                ),
                             ],
                             id="nav-link",
                             className="nav-link-container",
                         ),
                         html.Div(
                             [
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/sun.svg",
+                                                className="icon",
+                                                id="theme-icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Night mode", className="text", id="theme-text"),
+                                    ],
+                                    id="theme-switch",
+                                    className="nav-item nav-item-bottom theme-toggle-btn",
+                                ),
+                                dcc.Store(id="theme-store", storage_type="local", data=True),
+                                html.Div(id="theme-switch-output", style={"display": "none"}),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/gear.svg",
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Settings", className="text"),
+                                    ],
+                                    href="/settings",
+                                    id="nav-link-settings",
+                                    className="nav-item nav-item-bottom",
+                                ),
+                                dcc.Link(
+                                    [
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/question-circle.svg",
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
+                                        ),
+                                        html.Div("Help", className="text"),
+                                    ],
+                                    href="/help",
+                                    id="nav-link-help",
+                                    className="nav-item nav-item-bottom",
+                                ),
                                 html.A(
                                     [
-                                        html.Img(
-                                            src="/assets/icons/github.svg",
-                                            className="icon",
+                                        html.Div(
+                                            html.Img(
+                                                src="/assets/icons/github.svg",
+                                                className="icon",
+                                            ),
+                                            className="icon-wrapper",
                                         ),
                                         html.Div("Visit our GitHub", className="text"),
                                     ],
                                     target="_blank",
                                     href="https://github.com/tahiri-lab",
-                                    className="gitHub",
+                                    className="nav-item nav-item-bottom",
                                 ),
                             ],
-                            id="gitHub-container",
-                            className="gitHub-container",
+                            className="bottom-section",
                         ),
                     ]
                 ),
@@ -197,47 +259,62 @@ app.layout = html.Div(
                     dash.page_container,
                     className="page-content",
                 ),
+                toast_container,
             ],
             id="themer",
             className="app-layout",
         ),
-        toast_container,
     ]
 )
 
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="navbar_function"),
     Output("dummy-output", "children"),  # needed for the callback to trigger
-    Input("lab-logo", "n_clicks"),
+    Input("lab-burger", "n_clicks"),
     prevent_initial_call=True,
 )
 
 
 @app.callback(
+    Output("theme-store", "data"),
     Output("theme-switch-output", "children"),
-    Input("theme-switch", "value"),
+    Input("theme-switch", "n_clicks"),
+    State("theme-store", "data"),
+    prevent_initial_call=True,
 )
-def change_theme(value):
+def toggle_theme(n_clicks, current_theme):
     """
+    Toggle theme when theme switch button is clicked.
     Args:
-        value: boolean, True if dark theme is selected, False if light theme is selected.
-            Button to trigger callback (need at least one parameter, but we dont use n_clicks)
+        n_clicks: number of clicks on the theme button
+        current_theme: current theme state (True = dark, False = light)
     Returns:
-        theme-switch-output: value of the button (true or false). Hidden div to trigger callback
+        theme-store: new theme state
+        theme-switch-output: string representation of new theme state
     """
-    return str(value)
+    new_theme = not current_theme if current_theme is not None else False
+    return new_theme, str(new_theme)
 
 
-@app.callback(Output("themer", "style"), Input("theme-switch-output", "children"))
-def update_color(children):
+@app.callback(
+    Output("themer", "style"),
+    Output("theme-icon", "src"),
+    Output("theme-text", "children"),
+    Input("theme-store", "data"),
+)
+def update_color(is_dark):
     """
     Args:
-        children: string, "True" if dark theme is selected, "False" if light theme is selected.
-            Button to trigger callback (need at least one parameter, but we dont use n_clicks)
+        is_dark: boolean, True if dark theme is selected, False if light theme is selected.
     Returns:
         themer: dict, css style for the theme
+        theme-icon: src path for the theme icon
+        theme-text: string, text for the theme switch
     """
-    return LIGHT_THEME if children == "False" else DARK_THEME
+    if is_dark:
+        return DARK_THEME, "/assets/icons/sun.svg", "Light mode"
+    else:
+        return LIGHT_THEME, "/assets/icons/moon.svg", "Night mode"
 
 
 @app.callback(
@@ -263,6 +340,23 @@ def display_toast(toast_data, n_intervals):
         ], className=f"toast-message {toast_type}")
         return [toast_element], False
     return [], True
+
+
+# Clientside callback to copy to clipboard when share button is clicked
+app.clientside_callback(
+    """
+    function(n_clicks, href) {
+        if (n_clicks && n_clicks > 0) {
+            navigator.clipboard.writeText(href);
+        }
+        return '';
+    }
+    """,
+    Output("dummy-share-result-output", "children"),
+    Input("share-result-btn", "n_clicks"),
+    State("url", "href"),
+    prevent_initial_call=True,
+)
 
 
 if __name__ == "__main__":

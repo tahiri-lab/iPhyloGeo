@@ -665,7 +665,7 @@ def get_table_styles():
             },
             {
                 "selector": ".dash-spreadsheet tr:first-child th",
-                "rule": "background-color: #AD00FA !important;",
+                "rule": "background-color: var(--action) !important;",
             },
             {
                 "selector": ".dash-spreadsheet tr:nth-child(2) th:hover",
@@ -673,7 +673,7 @@ def get_table_styles():
             },
             {
                 "selector": "tr:first-child .dash-select-header",
-                "rule": "background-color: #AD00FA !important; border: none !important;",
+                "rule": "background-color: var(--action) !important; border: none !important;",
             },
         ],
     }
