@@ -1,0 +1,10 @@
+.app-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  background: var(--badge-bg-color, #ffe0e6);
+  color: var(--badge-text-color, #d6336c);
+}

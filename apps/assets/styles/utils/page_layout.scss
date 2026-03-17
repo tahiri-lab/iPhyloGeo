@@ -117,11 +117,11 @@
 .page-field input[type="number"]:focus,
 .page-field input[type="text"]:focus,
 .page-field .form-control:focus {
-        border-color: var(--secondary-hover);
+    border-color: var(--secondary-hover);
 }
 
 //Dash dropdown overrides
-.page-field .Select {
+.Select {
     width: 100%;
 
     .Select-control {
@@ -133,6 +133,7 @@
         transition: border-color 0.2s ease;
         width: 100%;
     }
+
     .Select-control:hover,
     .Select-control:focus {
         border-color: var(--secondary-hover);
@@ -159,7 +160,7 @@
 }
 
 // Dash Dropdown wrapper (dcc.Dropdown)
-.page-field .dash-dropdown {
+.dash-dropdown {
     width: 100%;
     margin: 0 !important;
 }
@@ -185,7 +186,8 @@
 // Page-level action buttons row
 .page-actions {
     display: flex;
-    justify-content: flex-start; /* mieux que right */
+    justify-content: flex-start;
+    /* mieux que right */
     gap: 12px;
     margin-top: 10px;
     margin-bottom: 20px;

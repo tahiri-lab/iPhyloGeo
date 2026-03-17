@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 15px;
   width: 100%;
   margin: auto;
   box-sizing: border-box;
@@ -11,11 +10,11 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
-    width: 90%;
-    margin: 10px auto auto auto;
-    padding: 50px;
+    width: 100%;
+    padding: 25px;
+    padding-top: 40px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--primary);
 
     #alignment-chart {
       display: block;
@@ -27,17 +26,20 @@
       }
     }
 
-  .title {
-    color: var(--reverse-black-white-color);
-    font-size: 25px;
-    font-weight: bold;
-    margin: auto;
-  }
+    .title {
+      color: var(--reverse-black-white-color);
+      font-size: 25px;
+      font-weight: bold;
+      text-align: left;
+      margin-bottom: 10px;
+    }
 
     .sub-title {
       color: var(--reverse-black-white-color);
       font-size: 20px;
-      margin: auto;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 15px;
       margin-bottom: 20px;
     }
 
@@ -67,28 +69,27 @@
     .parameter-container-inside {
       color: var(--reverse-white-black-color);
       display: grid;
-      grid-template-areas:
-      'title slider counter';
+      grid-template-areas: "title slider counter";
       grid-template-columns: auto 1fr auto;
       align-items: center;
       padding: 15px;
       border-radius: 5px;
       background-color: var(--reverse-black-white-color);
 
-        @media (max-width: 900px) {
-            grid-template-areas:
-            'title'
-            'slider'
-            'counter';
-            grid-template-columns: 1fr;
-        }
+      @media (max-width: 900px) {
+        grid-template-areas:
+          "title"
+          "slider"
+          "counter";
+        grid-template-columns: 1fr;
+      }
 
       .param-title {
         grid-area: title;
       }
 
       .slider {
-        grid-area: slider ;
+        grid-area: slider;
         padding: 0px 25px 25px;
       }
     }

@@ -60,28 +60,6 @@
         color: var(--text);
     }
 
-    &__badge {
-        padding: 2px 20px;
-        border-radius: 20px;
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-
-        &--success {
-            background-color: var(--success);
-            color: var(--text);
-        }
-
-        &--error {
-            background-color: var(--error);
-            color: var(--text);
-        }
-
-        &--pending {
-            background-color: var(--pending);
-            color: var(--text);
-        }
-    }
 
     &__dates {
         display: flex;
