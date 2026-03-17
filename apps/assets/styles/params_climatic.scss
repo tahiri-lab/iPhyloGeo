@@ -301,58 +301,59 @@
     label:has(input:checked) {
       border-color: var(--action);
       background: var(--action-soft-bg);
+    }
+  }
 
-      .dataset-input {
-        width: 100%;
-        padding: 12px 16px;
-        border-radius: 10px;
-        border: 2px solid var(--border);
-        background: transparent;
-        color: var(--text);
-        font-size: 0.9rem;
-        outline: none;
-        box-sizing: border-box;
-        transition: border-color 0.2s;
+  .dataset-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
 
-        &::placeholder {
-          color: #aaa;
-        }
-
-        &:focus {
-          border-color: var(--action-hover);
-        }
-      }
-
-      .submit-btn-wrapper {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 16px;
-      }
-
-      .submit-btn {
-        padding: 12px 36px;
-        border: none;
-        border-radius: 10px;
-        background: var(--action);
-        color: #fff;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition:
-          opacity 0.25s,
-          transform 0.15s;
-
-        &:hover {
-          background: var(--action-hover);
-          transform: translateY(-1px);
-        }
-
-        &:active {
-          transform: translateY(0);
-        }
-      }
+    &::placeholder {
+      color: #aaa;
     }
 
-    rect {
-      fill: rgba(0, 0, 0, 0) !important;
+    &:focus {
+      border-color: var(--action-hover);
     }
+  }
+
+  .submit-btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .submit-btn {
+    padding: 12px 36px;
+    border: none;
+    border-radius: 10px;
+    background: var(--action);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      opacity 0.25s,
+      transform 0.15s;
+
+    &:hover {
+      background: var(--action-hover);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+rect {
+  fill: rgba(0, 0, 0, 0) !important;
+}
