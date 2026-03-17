@@ -42,13 +42,14 @@
   }
 
   &.actions {
-    background-color: #EA46FF;
+    background-color: var(--action);
     font-size: 15px;
     font-weight: bold;
-    color: white;
+    color: var(--text);
+    border: none;
 
     &:hover {
-      background-color: #8B00D1;
+      background-color: var(--action-hover);
     }
   }
 
