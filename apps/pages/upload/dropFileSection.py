@@ -116,153 +116,153 @@ def get_layout(lang="en"):
 
     return html.Div(
         [
-        html.Div(id="output-file-drop-position-next"),
-        html.Div(id="upload-data-output"),
-        dcc.Store(id="selected-data-type", data=DEFAULT_DATA_TYPE),
-        html.Div(
-            id="all-upload-container",
-            children=[
-                # ── Header ──
-                html.H2(t("upload.upload-files", lang), className="upload-page-title"),
+            html.Div(id="output-file-drop-position-next"),
+            html.Div(id="upload-data-output"),
+            dcc.Store(id="selected-data-type", data=DEFAULT_DATA_TYPE),
+            html.Div(
+                id="all-upload-container",
+                children=[
+                    # ── Header ──
+                    html.H2(t("upload.upload-files", lang), className="upload-page-title"),
 
-                # ── Climatic Data section (REQUIRED) ──
-                html.Div(
-                    id="section-climatic",
-                    className="upload-section-card",
-                    children=[
-                        html.Div(
-                            className="section-header",
-                            children=[
-                                html.Span(t("upload.section-climatic-title", lang), className="section-title"),
-                                create_badge(
-                                    text=t("upload.required-badge", lang),
-                                    background_color="var(--action-soft-bg)",
-                                    text_color="var(--action)",
-                                ),
-                            ],
-                        ),
-                        html.Div(
-                            className="climatic-drop-zone",
-                            children=[
-                                dcc.Upload(
-                                    id="upload-climatic-data",
-                                    className="upload-drop-area",
-                                    children=html.Div(
-                                        [
-                                            html.Img(
-                                                src="../../assets/icons/folder-drop.svg",
-                                                className="drop-icon",
-                                            ),
-                                            html.Div(t("upload.drag-drop", lang), className="drop-main-text"),
-                                            html.Div(t("upload.click-browse", lang), className="drop-sub-text"),
-                                            create_badge(
-                                                text=".csv",
-                                                background_color="var(--action-soft-bg)",
-                                                text_color="var(--action)",
-                                            ),
-                                        ],
-                                        className="drop-content-inner",
+                    # ── Climatic Data section (REQUIRED) ──
+                    html.Div(
+                        id="section-climatic",
+                        className="upload-section-card",
+                        children=[
+                            html.Div(
+                                className="section-header",
+                                children=[
+                                    html.Span(t("upload.section-climatic-title", lang), className="section-title"),
+                                    create_badge(
+                                        text=t("upload.required-badge", lang),
+                                        background_color="var(--action-soft-bg)",
+                                        text_color="var(--action)",
                                     ),
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-
-                # ── Additional Data section (CHOOSE ONE) ──
-                html.Div(
-                    id="section-additional",
-                    className="upload-section-card",
-                    children=[
-                        html.Div(
-                            className="section-header",
-                            children=[
-                                html.Span(t("upload.section-additional-title", lang), className="section-title"),
-                                create_badge(
-                                    text=t("upload.choose-one-badge", lang),
-                                    background_color="var(--action-soft-bg)",
-                                    text_color="var(--action)",
-                                ),
-                            ],
-                        ),
-                        html.P(
-                            t("upload.section-additional-description", lang),
-                            className="section-description",
-                        ),
-                        # Three selectable cards
-                        html.Div(
-                            className="data-type-cards",
-                            children=[_build_data_type_card(dt) for dt in data_types],
-                        ),
-                        # Conditional upload zones (all rendered, toggled via callback)
-                        html.Div(
-                            id="secondary-upload-wrapper",
-                            className="secondary-upload-wrapper",
-                            children=[
-                                html.Div(
-                                    id=f"upload-zone-{dt['key']}",
-                                    className="secondary-upload-zone",
-                                    style={
-                                        "display": "block"
-                                        if dt["key"] == DEFAULT_DATA_TYPE
-                                        else "none"
-                                    },
-                                    children=[
-                                        html.Div(
-                                            className="climatic-drop-zone",
-                                            children=[
-                                                _make_upload_zone(
-                                                    dt["upload_id"],
-                                                    dt["formats"],
-                                                    lang,
+                                ],
+                            ),
+                            html.Div(
+                                className="climatic-drop-zone",
+                                children=[
+                                    dcc.Upload(
+                                        id="upload-climatic-data",
+                                        className="upload-drop-area",
+                                        children=html.Div(
+                                            [
+                                                html.Img(
+                                                    src="../../assets/icons/folder-drop.svg",
+                                                    className="drop-icon",
+                                                ),
+                                                html.Div(t("upload.drag-drop", lang), className="drop-main-text"),
+                                                html.Div(t("upload.click-browse", lang), className="drop-sub-text"),
+                                                create_badge(
+                                                    text=".csv",
+                                                    background_color="var(--action-soft-bg)",
+                                                    text_color="var(--action)",
                                                 ),
                                             ],
+                                            className="drop-content-inner",
                                         ),
-                                    ],
-                                )
-                                for dt in data_types
-                            ],
-                        ),
-                    ],
-                ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
 
-                # ── Continue button with tooltip ──
-                html.Div(
-                    className="continue-wrapper",
-                    children=[
-                        html.Button(
-                            [html.Span(t("upload.continue", lang)), html.Span(" →")],
-                            id="next-button",
-                            className="continue-btn disabled",
-                            n_clicks=0,
-                            disabled=True,
-                        ),
-                        html.Span(
-                            t("upload.continue-tooltip", lang),
-                            id="continue-tooltip",
-                            className="continue-tooltip",
-                        ),
-                    ],
-                ),
+                    # ── Additional Data section (CHOOSE ONE) ──
+                    html.Div(
+                        id="section-additional",
+                        className="upload-section-card",
+                        children=[
+                            html.Div(
+                                className="section-header",
+                                children=[
+                                    html.Span(t("upload.section-additional-title", lang), className="section-title"),
+                                    create_badge(
+                                        text=t("upload.choose-one-badge", lang),
+                                        background_color="var(--action-soft-bg)",
+                                        text_color="var(--action)",
+                                    ),
+                                ],
+                            ),
+                            html.P(
+                                t("upload.section-additional-description", lang),
+                                className="section-description",
+                            ),
+                            # Three selectable cards
+                            html.Div(
+                                className="data-type-cards",
+                                children=[_build_data_type_card(dt) for dt in data_types],
+                            ),
+                            # Conditional upload zones (all rendered, toggled via callback)
+                            html.Div(
+                                id="secondary-upload-wrapper",
+                                className="secondary-upload-wrapper",
+                                children=[
+                                    html.Div(
+                                        id=f"upload-zone-{dt['key']}",
+                                        className="secondary-upload-zone",
+                                        style={
+                                            "display": "block"
+                                            if dt["key"] == DEFAULT_DATA_TYPE
+                                            else "none"
+                                        },
+                                        children=[
+                                            html.Div(
+                                                className="climatic-drop-zone",
+                                                children=[
+                                                    _make_upload_zone(
+                                                        dt["upload_id"],
+                                                        dt["formats"],
+                                                        lang,
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    )
+                                    for dt in data_types
+                                ],
+                            ),
+                        ],
+                    ),
 
-                # ── Helper: "Try with demo data" ──
-                html.Div(
-                    [
-                        html.Span(t("upload.demo-data-prefix", lang)),
-                        html.A(
-                            t("upload.demo-data-link", lang),
-                            id="upload-test-data",
-                            className="demo-data-link",
-                        ),
-                    ],
-                    className="demo-data-helper",
-                ),
+                    # ── Continue button with tooltip ──
+                    html.Div(
+                        className="continue-wrapper",
+                        children=[
+                            html.Button(
+                                [html.Span(t("upload.continue", lang)), html.Span(" →")],
+                                id="next-button",
+                                className="continue-btn disabled",
+                                n_clicks=0,
+                                disabled=True,
+                            ),
+                            html.Span(
+                                t("upload.continue-tooltip", lang),
+                                id="continue-tooltip",
+                                className="continue-tooltip",
+                            ),
+                        ],
+                    ),
 
-                # Show uploaded files (kept for compatibility)
-                html.Div(id="uploaded-files", className="upload-row"),
-            ],
-        ),
-    ],
+                    # ── Helper: "Try with demo data" ──
+                    html.Div(
+                        [
+                            html.Span(t("upload.demo-data-prefix", lang)),
+                            html.A(
+                                t("upload.demo-data-link", lang),
+                                id="upload-test-data",
+                                className="demo-data-link",
+                            ),
+                        ],
+                        className="demo-data-helper",
+                    ),
+
+                    # Show uploaded files (kept for compatibility)
+                    html.Div(id="uploaded-files", className="upload-row"),
+                ],
+            ),
+        ],
     )
 
 

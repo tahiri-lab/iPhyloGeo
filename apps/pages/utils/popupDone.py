@@ -1,6 +1,7 @@
 from dash import html
 from utils.i18n import t
 
+
 def get_layout(lang="en"):
     return html.Div(
         [

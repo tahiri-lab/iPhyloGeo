@@ -15,6 +15,7 @@ for key, value in dotenv_values().items():
 
 dash.register_page(__name__, path_template="/results")
 
+
 def get_no_results_html(lang="en"):
     return html.Div(
         [
@@ -31,6 +32,7 @@ def get_no_results_html(lang="en"):
         ],
         className="empty-results",
     )
+
 
 PROGRESS = {
     "pending": 0,

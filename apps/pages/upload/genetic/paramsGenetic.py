@@ -1,7 +1,7 @@
 import json
 
 import dash_bio as dashbio
-from dash import dcc, html
+from dash import html
 from utils.i18n import t
 
 

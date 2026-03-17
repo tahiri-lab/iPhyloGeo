@@ -2,6 +2,7 @@ from components.email_input import create_email_input
 from dash import html
 from utils.i18n import t
 
+
 def get_layout(lang="en"):
     return html.Div(
         [

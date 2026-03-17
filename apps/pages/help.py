@@ -5,6 +5,7 @@ from utils.i18n import t
 
 dash.register_page(__name__, path="/help")
 
+
 def get_layout(lang="en"):
     return html.Div(
         className="page-container",

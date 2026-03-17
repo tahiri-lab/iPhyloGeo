@@ -189,51 +189,51 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
+                                html.Div(
+                                    [
                                         html.Div(
-                                            [
-                                                html.Div(
-                                                    html.Span("🇺🇸", id="language-flag", className="icon language-flag"),
-                                                    className="icon-wrapper",
-                                                ),
-                                                html.Div(
-                                                    "English",
-                                                    id="language-open-text",
-                                                    className="text language-open-text",
-                                                ),
-                                                dcc.Dropdown(
-                                                    id="language-selector",
-                                                    options=[
-                                                        {
-                                                            "label": html.Span(
-                                                                [
-                                                                    html.Span("🇺🇸", className="lang-option-flag"),
-                                                                    html.Span("English", className="lang-option-text"),
-                                                                ],
-                                                                className="lang-option",
-                                                            ),
-                                                            "value": "en",
-                                                        },
-                                                        {
-                                                            "label": html.Span(
-                                                                [
-                                                                    html.Span("🇫🇷", className="lang-option-flag"),
-                                                                    html.Span("Français", className="lang-option-text"),
-                                                                ],
-                                                                className="lang-option",
-                                                            ),
-                                                            "value": "fr",
-                                                        },
-                                                    ],
-                                                    value="en",
-                                                    clearable=False,
-                                                    searchable=False,
-                                                    persistence=True,
-                                                    persistence_type="local",
-                                                    className="language-selector",
-                                                ),
-                                            ],
-                                            className="nav-item nav-item-bottom language-item",
+                                            html.Span("🇺🇸", id="language-flag", className="icon language-flag"),
+                                            className="icon-wrapper",
                                         ),
+                                        html.Div(
+                                            "English",
+                                            id="language-open-text",
+                                            className="text language-open-text",
+                                        ),
+                                        dcc.Dropdown(
+                                            id="language-selector",
+                                            options=[
+                                                {
+                                                    "label": html.Span(
+                                                        [
+                                                            html.Span("🇺🇸", className="lang-option-flag"),
+                                                            html.Span("English", className="lang-option-text"),
+                                                        ],
+                                                        className="lang-option",
+                                                    ),
+                                                    "value": "en",
+                                                },
+                                                {
+                                                    "label": html.Span(
+                                                        [
+                                                            html.Span("🇫🇷", className="lang-option-flag"),
+                                                            html.Span("Français", className="lang-option-text"),
+                                                        ],
+                                                        className="lang-option",
+                                                    ),
+                                                    "value": "fr",
+                                                },
+                                            ],
+                                            value="en",
+                                            clearable=False,
+                                            searchable=False,
+                                            persistence=True,
+                                            persistence_type="local",
+                                            className="language-selector",
+                                        ),
+                                    ],
+                                    className="nav-item nav-item-bottom language-item",
+                                ),
                                 html.Div(
                                     [
                                         html.Div(
