@@ -1,0 +1,37 @@
+{
+  "title": "Result",
+  "title-of": "Result of {name}",
+  "actions": {
+    "share": "share",
+    "download-output": "download output.csv",
+    "download-sequences": "download genetic sequences",
+    "download-climatic-trees": "download climatic trees",
+    "download-genetic-trees": "download genetic trees"
+  },
+  "sections": {
+    "share-result": "Share result",
+    "results": "Results",
+    "climatic-trees": "Climatic Trees",
+    "genetic-trees": "Genetic Trees",
+    "email-description": "Ff you would like to receive the URL of this result by email, you can enter your address mail below."
+  },
+  "email": {
+    "placeholder": "Enter your address mail here",
+    "invalid": "Invalid email address",
+    "sent": "Email sent successfully!",
+    "error": "Error sending email"
+  },
+  "toast": {
+    "link-copied": "Link copied to your clipboard!",
+    "genetic-downloaded": "Genetic trees downloaded!",
+    "climatic-downloaded": "Climatic trees downloaded!",
+    "sequences-downloaded": "Genetic sequences downloaded!",
+    "output-downloaded": "Output downloaded!"
+  },
+  "graph": {
+    "bootstrap-mean": "bootstrap mean",
+    "title-bootstrap-distance": "Bootstrap mean and {distance_method}",
+    "x-axis-position": "Position in ASM",
+    "y-axis-bootstrap": "<b>Bootstrap mean</b>"
+  }
+}

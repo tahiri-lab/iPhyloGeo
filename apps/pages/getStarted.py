@@ -22,6 +22,7 @@ import pages.utils.popupDone as popupDone
 import pandas as pd
 import utils.mail as mail
 import utils.utils as utils
+from utils.i18n import t
 from aphylogeo.alignement import Alignment
 from aphylogeo.genetic_trees import GeneticTrees
 from aphylogeo.params import Params
@@ -47,9 +48,6 @@ dash.register_page(__name__, path="/getStarted")
 
 ENV_CONFIG = dotenv_values()
 
-NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least one column"
-NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
-
 CSV_REGEX = re.compile(r".*\.csv")
 EXCEL_REGEX = re.compile(r".*\.xls[x]?$")
 FASTA_REGEX = re.compile(r".*\.fasta$")
@@ -64,21 +62,18 @@ layout = html.Div(
             data={
                 "genetic": {
                     "file": None,
-                    "layout": None,
                     "file_name": None,
                     "last_modified_date": None,
                     "type": "genetic",
                 },
                 "climatic": {
                     "file": None,
-                    "layout": None,
                     "file_name": None,
                     "last_modified_date": None,
                     "type": "climatic",
                 },
                 "aligned_genetic": {
                     "file": None,
-                    "layout": None,
                     "file_name": None,
                     "last_modified_date": None,
                     "type": None,
@@ -125,9 +120,9 @@ layout = html.Div(
         html.Div(
             className="get-started",
             children=[
-                html.Div(children=[popup.layout]),
-                html.Div(children=[popupDone.layout]),
-                html.Div(children=[dropFileSection.layout]),
+                html.Div(id="popup-container", children=[popup.get_layout("en")]),
+                html.Div(id="popup-done-container", children=[popupDone.get_layout("en")]),
+                html.Div(id="drop-file-section-container", children=[dropFileSection.get_layout("en")]),
                 html.Div(
                     [
                         html.Div(id="climatic-params-layout"),
@@ -142,21 +137,34 @@ layout = html.Div(
 )
 
 
+@callback(
+    Output("drop-file-section-container", "children"),
+    Output("popup-container", "children"),
+    Output("popup-done-container", "children"),
+    Input("language-store", "data"),
+)
+def update_drop_file_section_language(language):
+    lang = language if language in ["en", "fr"] else "en"
+    return [dropFileSection.get_layout(lang)], [popup.get_layout(lang)], [popupDone.get_layout(lang)]
+
+
 # Callback to save email when user clicks "Send Email" in popup
 @callback(
     Output("email-store", "data"),
     Output("toast-store", "data", allow_duplicate=True),
     Input(get_button_id("email-input"), "n_clicks"),
     State("email-input", "value"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def save_email_on_click(n_clicks, email):
+def save_email_on_click(n_clicks, email, language):
     """Save email when user clicks Send Email button. Email will be sent when results are ready."""
+    lang = language if language in ["en", "fr"] else "en"
     if not n_clicks:
         raise PreventUpdate
     if not validate_email(email):
-        return None, {"message": "Invalid email address", "type": "error"}
-    toast_data = {"message": "An email will be sent when results are ready", "type": "success"}
+        return None, {"message": t("upload.email.invalid", lang), "type": "error"}
+    toast_data = {"message": t("upload.email.notify-on-ready", lang), "type": "success"}
     return email, toast_data
 
 
@@ -217,9 +225,10 @@ def add_result_to_cookie(result_id):
     Output("upload-climatic-data", "children"),
     Input("upload-climatic-data", "contents"),
     State("upload-climatic-data", "filename"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
+def uploaded_climatic_data(climatic_data_contents, climatic_data_filename, language):
     """
     This function is called when the user upload climatic data files.
     It displays the name of the file in the upload box.
@@ -229,6 +238,8 @@ def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
         climatic_data_contents: uploaded climatic data file content in a base64 formatted string.
         climatic_data_filename: name of the uploaded climatic data file
     """
+    lang = language if language in ["en", "fr"] else "en"
+
     # Validate file extension
     if CSV_REGEX.fullmatch(climatic_data_filename or "") or EXCEL_REGEX.fullmatch(
         climatic_data_filename or ""
@@ -258,7 +269,7 @@ def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
                     html.Img(
                         src="../../assets/icons/folder-drop.svg", className="icon"
                     ),
-                    html.Div("File must be .csv or Excel", className="text"),
+                    html.Div(t("upload.file-error-csv-excel", lang), className="text"),
                 ],
             ),
         )
@@ -281,6 +292,7 @@ def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
     State("upload-genetic-data", "filename"),
     State("upload-aligned-genetic-data", "filename"),
     State("upload-genetic-tree", "filename"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
 def uploaded_genetic_data(
@@ -290,6 +302,7 @@ def uploaded_genetic_data(
     genetic_data_filename,
     aligned_genetic_data_filename,
     genetic_tree_filename,
+    language,
 ):
     """
     This function is called when the user upload genetic data files.
@@ -308,6 +321,8 @@ def uploaded_genetic_data(
         genetic_tree_filename: name of the uploaded genetic tree file
     """
 
+    lang = language if language in ["en", "fr"] else "en"
+
     def default_upload_child(file_types):
         return html.Div(
             [
@@ -315,8 +330,8 @@ def uploaded_genetic_data(
                     src="../../assets/icons/folder-drop.svg",
                     className="drop-icon",
                 ),
-                html.Div("Drag & drop your file here", className="drop-main-text"),
-                html.Div("or click to browse", className="drop-sub-text"),
+                html.Div(t("upload.drag-drop", lang), className="drop-main-text"),
+                html.Div(t("upload.click-browse", lang), className="drop-sub-text"),
                 create_badge(
                     text=file_types,
                     background_color="var(--action-soft-bg)",
@@ -363,7 +378,7 @@ def uploaded_genetic_data(
                 None,
                 None,
                 None,
-                loaded_upload_child("File must be .fasta", is_error=True),
+                loaded_upload_child(t("upload.file-error-fasta", lang), is_error=True),
                 aligned_default,
                 tree_default,
             )
@@ -389,7 +404,7 @@ def uploaded_genetic_data(
                 None,
                 None,
                 genetic_default,
-                loaded_upload_child("File must be .json", is_error=True),
+                loaded_upload_child(t("upload.file-error-json", lang), is_error=True),
                 tree_default,
             )
     elif upload_box == "upload-genetic-tree":
@@ -415,7 +430,7 @@ def uploaded_genetic_data(
                 None,
                 genetic_default,
                 aligned_default,
-                loaded_upload_child("File must be .json", is_error=True),
+                loaded_upload_child(t("upload.file-error-json", lang), is_error=True),
             )
 
 
@@ -426,6 +441,7 @@ def uploaded_genetic_data(
     Output("input-data", "data"),
     Input("next-button", "n_clicks"),
     Input("upload-test-data", "n_clicks"),
+    Input("language-store", "data"),
     State("upload-genetic-data", "contents"),
     State("upload-genetic-data", "filename"),
     State("upload-genetic-data", "last_modified"),
@@ -445,6 +461,7 @@ def uploaded_genetic_data(
 def upload_data(
     next_n_clicks,
     test_n_clicks,
+    language,
     genetic_data_contents,
     genetic_data_filename,
     genetic_data_last_modified,
@@ -483,6 +500,24 @@ def upload_data(
         the layouts to show on the page, and
         the update content from uploaded files to the Dash Store element 'input-data'
     """
+    lang = language if language in ["en", "fr"] else "en"
+    button_clicked = ctx.triggered_id
+    triggered_ids = {
+        trigger.get("prop_id", "").split(".")[0]
+        for trigger in (ctx.triggered or [])
+    }
+    language_triggered = "language-store" in triggered_ids
+    genetic_layout = ""
+    climatic_layout = ""
+
+    if language_triggered:
+        return rebuild_params_sections_from_store(current_data, lang)
+
+    if button_clicked in ["next-button", "upload-test-data"]:
+        click_count = next_n_clicks if button_clicked == "next-button" else test_n_clicks
+        if (click_count is None or click_count == 0) and current_data.get("submit button"):
+            return rebuild_params_sections_from_store(current_data, lang)
+
     genetic_data_is_present = (
         genetic_data_contents is not None and genetic_data_contents != ""
     )
@@ -502,17 +537,15 @@ def upload_data(
         not genetic_data_is_present and not aligned_genetic_data_is_present and not genetic_tree_is_present
     )
 
-    button_clicked = ctx.triggered_id
-
     if button_clicked == "next-button" and (
         climatic_data_is_missing or genetic_data_is_missing
     ):
         raise PreventUpdate
 
-    submit_button = ""
-    if not current_data["submit button"]:
+    submit_button = submitButton.get_layout(lang) if current_data.get("submit button") else ""
+    if not current_data["submit button"] and button_clicked in ["next-button", "upload-test-data"]:
         current_data["submit button"] = True
-        submit_button = submitButton.layout
+        submit_button = submitButton.get_layout(lang)
 
     if button_clicked == "upload-test-data":
         # Test data example "Don't know where to start?"
@@ -523,8 +556,9 @@ def upload_data(
         current_data["genetic"]["file"] = parsed_genetic_file[
             "dataframe"
         ]  # dict key=  value= fasta strings
-        current_data["genetic"]["layout"] = paramsGenetic.get_layout(
-            parsed_genetic_file["dataframe"]
+        genetic_layout = paramsGenetic.get_layout(
+            parsed_genetic_file["dataframe"],
+            lang,
         )
         current_data["genetic"]["file_name"] = "seq very small.fasta"
         current_data["genetic"]["last_modified_date"] = 1680370585.9890237
@@ -543,8 +577,9 @@ def upload_data(
         current_data["climatic"]["file"] = parsed_climatic_file[
             "dataframe"
         ].to_json()  # json of a pandas dataframe
-        current_data["climatic"]["layout"] = paramsClimatic.create_table(
-            parsed_climatic_file["dataframe"]
+        climatic_layout = paramsClimatic.create_table(
+            parsed_climatic_file["dataframe"],
+            lang,
         )
         current_data["climatic"]["file_name"] = "geo.csv"
         current_data["climatic"]["last_modified_date"] = 1680370585.9880235
@@ -559,8 +594,9 @@ def upload_data(
             current_data["genetic"]["file"] = parsed_genetic_file[
                 "dataframe"
             ]  # dict key=  value= fasta strings
-            current_data["genetic"]["layout"] = paramsGenetic.get_layout(
-                parsed_genetic_file["dataframe"]
+            genetic_layout = paramsGenetic.get_layout(
+                parsed_genetic_file["dataframe"],
+                lang,
             )
             current_data["genetic"]["file_name"] = genetic_data_filename
             current_data["genetic"]["last_modified_date"] = genetic_data_last_modified
@@ -587,7 +623,6 @@ def upload_data(
             genetic_data_to_show: False
             # Change genetic data and genetic tree to None
             current_data["genetic"]["file"] = None
-            current_data["genetic"]["layout"] = None
             current_data["genetic"]["file_name"] = None
             current_data["genetic"]["last_modified_date"] = None
             current_data["genetic_tree"]["file"] = None
@@ -608,7 +643,6 @@ def upload_data(
             genetic_data_to_show: False
             # Change aligned genetic data and genetic data to None
             current_data["genetic"]["file"] = None
-            current_data["genetic"]["layout"] = None
             current_data["genetic"]["file_name"] = None
             current_data["genetic"]["last_modified_date"] = None
             current_data["aligned_genetic"]["file"] = None
@@ -623,8 +657,9 @@ def upload_data(
             current_data["climatic"]["file"] = parsed_climatic_file[
                 "dataframe"
             ].to_json()  # json of a pandas dataframe
-            current_data["climatic"]["layout"] = paramsClimatic.create_table(
-                parsed_climatic_file["dataframe"]
+            climatic_layout = paramsClimatic.create_table(
+                parsed_climatic_file["dataframe"],
+                lang,
             )
             current_data["climatic"]["file_name"] = climatic_data_filename
             current_data["climatic"]["last_modified_date"] = climatic_data_last_modified
@@ -632,15 +667,15 @@ def upload_data(
 
     if climatic_data_to_show and genetic_data_to_show:
         return (
-            current_data["genetic"]["layout"],
-            current_data["climatic"]["layout"],
+            genetic_layout,
+            climatic_layout,
             submit_button,
             current_data,
         )
     elif climatic_data_to_show:
-        return "", current_data["climatic"]["layout"], submit_button, current_data
+        return "", climatic_layout, submit_button, current_data
     elif genetic_data_to_show:
-        return current_data["genetic"]["layout"], "", submit_button, current_data
+        return genetic_layout, "", submit_button, current_data
     else:
         return "", "", submit_button, current_data
 
@@ -697,6 +732,28 @@ def parse_uploaded_files(content, file_name):
         print(e)
 
 
+def rebuild_params_sections_from_store(current_data, lang):
+    genetic_layout = ""
+    climatic_layout = ""
+
+    if current_data["genetic"]["file"] is not None:
+        genetic_layout = paramsGenetic.get_layout(
+            current_data["genetic"]["file"],
+            lang,
+        )
+
+    if current_data["climatic"]["file"] is not None:
+        climatic_df = pd.read_json(io.StringIO(current_data["climatic"]["file"]))
+        climatic_layout = paramsClimatic.create_table(
+            climatic_df,
+            lang,
+        )
+
+    submit_layout = submitButton.get_layout(lang) if current_data.get("submit button") else ""
+
+    return genetic_layout, climatic_layout, submit_layout, current_data
+
+
 @callback(
     Output("popup", "className"),
     Output("column-error-message", "children"),
@@ -709,9 +766,10 @@ def parse_uploaded_files(content, file_name):
     ],
     State("input-data", "data"),
     State("params-climatic", "data"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def ready_for_pipeline(open, result_name, input_data, params_climatic):
+def ready_for_pipeline(open, result_name, input_data, params_climatic, language):
     """
     Verify the following prerequisites needed for aPhyloGeo pipeline to start:
      - At least two columns are selected from the climatic data file.
@@ -731,6 +789,8 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
         name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
         ready-for-pipeline: True if all prerequisites are met for aPhyloGeo pipeline to start, else False
     """
+    lang = language if language in ["en", "fr"] else "en"
+
     # Add climatic column names to Params
     if params_climatic["names"] is not None:
         names = ["id"] + params_climatic["names"]
@@ -764,21 +824,21 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
     ):
         return (
             "popup hidden",
-            NUMBER_OF_COLUMNS_ERROR_MESSAGE,
+            t("upload.errors.number-of-columns", lang),
             "",
             False,
         )
     elif (
         climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid
     ):
-        return "popup hidden", "", NAME_ERROR_MESSAGE, False
+        return "popup hidden", "", t("upload.errors.name-required", lang), False
     elif (
         climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid
     ):
         return (
             "popup hidden",
-            NUMBER_OF_COLUMNS_ERROR_MESSAGE,
-            NAME_ERROR_MESSAGE,
+            t("upload.errors.number-of-columns", lang),
+            t("upload.errors.name-required", lang),
             False,
         )
 

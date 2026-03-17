@@ -5,6 +5,7 @@ from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 from components.page_section import create_field, create_page_section
+from utils.i18n import t
 from enums import (AlignmentMethod, DistanceMethod, FitMethod,
                    MantelTestMethod, PreprocessingToggle, SimilarityMethod,
                    StatisticalTest, TreeType)
@@ -60,23 +61,94 @@ STATISTICAL_TEST_DEFAULT = StatisticalTest.BOTH.value
 with open("genetic_settings_file.json", "r") as file:
     genetic_settings_file = json.load(file)
 
-layout = html.Div(
-    className="page-container",
-    children=[
+
+def get_alignment_method_options(lang="en"):
+    return [
+        {"label": t("setting.options.alignment.no-alignment", lang), "value": AlignmentMethod.NO_ALIGNMENT.value},
+        {"label": t("setting.options.alignment.pairwise-align", lang), "value": AlignmentMethod.PAIRWISE_ALIGN.value},
+        {"label": t("setting.options.alignment.muscle", lang), "value": AlignmentMethod.MUSCLE.value},
+        {"label": t("setting.options.alignment.clustalw", lang), "value": AlignmentMethod.CLUSTALW.value},
+        {"label": t("setting.options.alignment.mafft", lang), "value": AlignmentMethod.MAFFT.value},
+    ]
+
+
+def get_distance_method_options(lang="en"):
+    return [
+        {"label": t("setting.options.distance.all", lang), "value": DistanceMethod.ALL.value},
+        {"label": t("setting.options.distance.least-square", lang), "value": DistanceMethod.LEAST_SQUARE.value},
+        {"label": t("setting.options.distance.robinson-foulds", lang), "value": DistanceMethod.ROBINSON_FOULDS.value},
+        {"label": t("setting.options.distance.bipartition", lang), "value": DistanceMethod.BIPARTITION.value},
+    ]
+
+
+def get_fit_method_options(lang="en"):
+    return [
+        {"label": t("setting.options.fit.wider-fit", lang), "value": FitMethod.WIDER_FIT.value},
+        {"label": t("setting.options.fit.narrow-fit", lang), "value": FitMethod.NARROW_FIT.value},
+    ]
+
+
+def get_tree_type_options(lang="en"):
+    return [
+        {"label": t("setting.options.tree.biopython", lang), "value": TreeType.BIOPYTHON.value},
+        {"label": t("setting.options.tree.fast-tree", lang), "value": TreeType.FASTTREE.value},
+    ]
+
+
+def get_similarity_method_options(lang="en"):
+    return [
+        {"label": t("setting.options.similarity.hamming", lang), "value": SimilarityMethod.HAMMING.value},
+        {"label": t("setting.options.similarity.levenshtein", lang), "value": SimilarityMethod.LEVENSHTEIN.value},
+        {"label": t("setting.options.similarity.damerau-levenshtein", lang), "value": SimilarityMethod.DAMERAU_LEVENSHTEIN.value},
+        {"label": t("setting.options.similarity.jaro", lang), "value": SimilarityMethod.JARO.value},
+        {"label": t("setting.options.similarity.jaro-winkler", lang), "value": SimilarityMethod.JARO_WINKLER.value},
+        {"label": t("setting.options.similarity.smith-waterman", lang), "value": SimilarityMethod.SMITH_WATERMAN.value},
+        {"label": t("setting.options.similarity.jaccard", lang), "value": SimilarityMethod.JACCARD.value},
+        {"label": t("setting.options.similarity.sorensen-dice", lang), "value": SimilarityMethod.SORENSEN_DICE.value},
+    ]
+
+
+def get_preprocessing_toggle_options(lang="en"):
+    return [
+        {"label": t("setting.options.preprocessing.disabled", lang), "value": PreprocessingToggle.DISABLED.value},
+        {"label": t("setting.options.preprocessing.enabled", lang), "value": PreprocessingToggle.ENABLED.value},
+    ]
+
+
+def get_statistical_test_options(lang="en"):
+    return [
+        {"label": t("setting.options.statistical.both", lang), "value": StatisticalTest.BOTH.value},
+        {"label": t("setting.options.statistical.mantel", lang), "value": StatisticalTest.MANTEL_TEST.value},
+        {"label": t("setting.options.statistical.procrustes", lang), "value": StatisticalTest.PROCRUSTES.value},
+        {"label": t("setting.options.statistical.none", lang), "value": StatisticalTest.NONE.value},
+    ]
+
+
+def get_mantel_method_options(lang="en"):
+    return [
+        {"label": t("setting.options.mantel.pearson", lang), "value": MantelTestMethod.PEARSON.value},
+        {"label": t("setting.options.mantel.spearman", lang), "value": MantelTestMethod.SPEARMAN.value},
+        {"label": t("setting.options.mantel.kendall-tau", lang), "value": MantelTestMethod.KENDALL_TAU.value},
+    ]
+
+def get_layout(lang="en"):
+    return html.Div(
+        className="page-container",
+        children=[
         dcc.Store(
             id="genetic-settings", storage_type="session", data=genetic_settings_file
         ),
-        html.Div("Settings", className="title"),
+        html.Div(t("setting.title", lang), className="title"),
         html.Div(
             className="page-card",
             children=[
                 # --- Genetic Parameters ---
                 create_page_section(
-                    "Genetic parameters",
+                    t("setting.sections.genetic-parameters", lang),
                     icon_src="/assets/icons/dna.svg",
                     children=[
                         create_field(
-                            "Bootstrap threshold",
+                            t("setting.fields.bootstrap-threshold", lang),
                             dcc.Input(
                                 id="bootstrap-threshold",
                                 type="number",
@@ -84,7 +156,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Distance threshold",
+                            t("setting.fields.distance-threshold", lang),
                             dcc.Input(
                                 id="distance-threshold",
                                 type="number",
@@ -92,7 +164,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Window size",
+                            t("setting.fields.window-size", lang),
                             dcc.Input(
                                 id="input-window-size",
                                 type="number",
@@ -100,7 +172,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Step size",
+                            t("setting.fields.step-size", lang),
                             dcc.Input(
                                 id="input-step-size",
                                 type="number",
@@ -108,7 +180,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Similarity rate",
+                            t("setting.fields.similarity-rate", lang),
                             dcc.Input(
                                 id="rate-similarity",
                                 type="number",
@@ -120,34 +192,34 @@ layout = html.Div(
 
                 # --- Alignment Method ---
                 create_page_section(
-                    "Alignment Method",
+                    t("setting.sections.alignment-method", lang),
                     icon_src="/assets/icons/grip-lines.svg",
                     children=[
                         create_field(
-                            "Alignment method",
+                            t("setting.fields.alignment-method", lang),
                             dcc.Dropdown(
                                 id="alignment-method",
-                                options=AlignmentMethod.choices(),
+                                options=get_alignment_method_options(lang),
                                 value=ALIGNMENT_METHOD_DEFAULT,
                                 clearable=False,
                                 className="pointer-dropdown",
                             ),
                         ),
                         create_field(
-                            "Distance method",
+                            t("setting.fields.distance-method", lang),
                             dcc.Dropdown(
                                 id="distance-method",
-                                options=DistanceMethod.choices(),
+                                options=get_distance_method_options(lang),
                                 value=DISTANCE_METHOD_DEFAULT,
                                 clearable=False,
                                 className="pointer-dropdown",
                             ),
                         ),
                         create_field(
-                            "Fit method",
+                            t("setting.fields.fit-method", lang),
                             dcc.Dropdown(
                                 id="fit-method",
-                                options=FitMethod.choices(),
+                                options=get_fit_method_options(lang),
                                 value=FIT_METHOD_DEFAULT,
                                 optionHeight=50,
                                 clearable=False,
@@ -159,24 +231,24 @@ layout = html.Div(
 
                 # --- Tree Type ---
                 create_page_section(
-                    "Tree Type",
+                    t("setting.sections.tree-type", lang),
                     icon_src="/assets/icons/chart-diagram.svg",
                     children=[
                         create_field(
-                            "Tree type",
+                            t("setting.fields.tree-type", lang),
                             dcc.Dropdown(
                                 id="tree-type",
-                                options=TreeType.choices(),
+                                options=get_tree_type_options(lang),
                                 value=TREE_TYPE_DEFAULT,
                                 clearable=False,
                                 className="pointer-dropdown",
                             ),
                         ),
                         create_field(
-                            "Similarity method",
+                            t("setting.fields.similarity-method", lang),
                             dcc.Dropdown(
                                 id="method-similarity",
-                                options=SimilarityMethod.choices(),
+                                options=get_similarity_method_options(lang),
                                 value=METHOD_SIMILARITY_DEFAULT,
                                 clearable=False,
                                 className="pointer-dropdown",
@@ -187,14 +259,14 @@ layout = html.Div(
 
                 # --- Preprocessing ---
                 create_page_section(
-                    "Preprocessing",
+                    t("setting.sections.preprocessing", lang),
                     icon_src="/assets/icons/gears.svg",
                     children=[
                         create_field(
-                            "Genetic preprocessing",
+                            t("setting.fields.genetic-preprocessing", lang),
                             dcc.Dropdown(
                                 id="preprocessing-genetic",
-                                options=PreprocessingToggle.choices(),
+                                options=get_preprocessing_toggle_options(lang),
                                 value=genetic_settings_file.get(
                                     "preprocessing_genetic",
                                     PREPROCESSING_GENETIC_DEFAULT,
@@ -204,7 +276,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Genetic threshold",
+                            t("setting.fields.genetic-threshold", lang),
                             dcc.Input(
                                 id="preprocessing-threshold-genetic",
                                 type="number",
@@ -216,10 +288,10 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Climatic preprocessing",
+                            t("setting.fields.climatic-preprocessing", lang),
                             dcc.Dropdown(
                                 id="preprocessing-climatic",
-                                options=PreprocessingToggle.choices(),
+                                options=get_preprocessing_toggle_options(lang),
                                 value=genetic_settings_file.get(
                                     "preprocessing_climatic",
                                     PREPROCESSING_CLIMATIC_DEFAULT,
@@ -229,7 +301,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Climatic threshold",
+                            t("setting.fields.climatic-threshold", lang),
                             dcc.Input(
                                 id="preprocessing-threshold-climatic",
                                 type="number",
@@ -241,10 +313,10 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Correlation filtering (climatic)",
+                            t("setting.fields.correlation-filtering-climatic", lang),
                             dcc.Dropdown(
                                 id="correlation-climatic-enabled",
-                                options=PreprocessingToggle.choices(),
+                                options=get_preprocessing_toggle_options(lang),
                                 value=genetic_settings_file.get(
                                     "correlation_climatic_enabled",
                                     CORRELATION_CLIMATIC_ENABLED_DEFAULT,
@@ -254,7 +326,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Max correlation (climatic)",
+                            t("setting.fields.max-correlation-climatic", lang),
                             dcc.Input(
                                 id="max-correlation-climatic",
                                 type="number",
@@ -270,14 +342,14 @@ layout = html.Div(
 
                 # --- Statistical Tests ---
                 create_page_section(
-                    "Statistical Tests",
+                    t("setting.sections.statistical-tests", lang),
                     icon_src="/assets/icons/flask.svg",
                     children=[
                         create_field(
-                            "Statistical test",
+                            t("setting.fields.statistical-test", lang),
                             dcc.Dropdown(
                                 id="statistical-test",
-                                options=StatisticalTest.choices(),
+                                options=get_statistical_test_options(lang),
                                 value=genetic_settings_file.get(
                                     "statistical_test",
                                     STATISTICAL_TEST_DEFAULT,
@@ -287,10 +359,10 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Mantel test method",
+                            t("setting.fields.mantel-test-method", lang),
                             dcc.Dropdown(
                                 id="mantel-test-method",
-                                options=MantelTestMethod.choices(),
+                                options=get_mantel_method_options(lang),
                                 value=genetic_settings_file.get(
                                     "mantel_test_method",
                                     MANTEL_TEST_METHOD_DEFAULT,
@@ -300,7 +372,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "Mantel test permutations",
+                            t("setting.fields.mantel-test-permutations", lang),
                             dcc.Input(
                                 id="permutations-mantel-test",
                                 type="number",
@@ -311,7 +383,7 @@ layout = html.Div(
                             ),
                         ),
                         create_field(
-                            "PROTEST permutations",
+                            t("setting.fields.protest-permutations", lang),
                             dcc.Input(
                                 id="permutations-protest",
                                 type="number",
@@ -329,13 +401,13 @@ layout = html.Div(
                     className="page-actions",
                     children=[
                         html.Button(
-                            "Save settings",
+                            t("setting.actions.save", lang),
                             id="save-settings-button",
                             n_clicks=0,
                             className="button theme-action",
                         ),
                         html.Button(
-                            "Reset to default",
+                            t("setting.actions.reset", lang),
                             id="reset-button",
                             n_clicks=0,
                             className="button primary border",
@@ -346,6 +418,15 @@ layout = html.Div(
         ),
     ],
 )
+
+
+layout = html.Div(id="settings-page-content", children=get_layout())
+
+
+@callback(Output("settings-page-content", "children"), Input("language-store", "data"))
+def update_settings_language(language):
+    lang = language if language in ["en", "fr"] else "en"
+    return get_layout(lang)
 
 
 # Function to return default settings if `Params` class does not provide one

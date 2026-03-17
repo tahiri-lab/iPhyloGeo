@@ -1,0 +1,76 @@
+{
+  "title": "Importer",
+  "upload-files": "Téléverser des fichiers",
+  "drag-drop": "Glissez-déposez votre fichier ici",
+  "click-browse": "ou cliquez pour parcourir",
+  "section-climatic-title": "Données climatiques",
+  "required-badge": "OBLIGATOIRE",
+  "section-additional-title": "Données supplémentaires",
+  "choose-one-badge": "CHOISIR UNE",
+  "section-additional-description": "Sélectionnez le type de données à inclure avec le jeu de données climatiques.",
+  "continue": "Continuer",
+  "continue-tooltip": "Téléversez les données climatiques et un jeu de données supplémentaire pour continuer",
+  "demo-data-prefix": "Vous n'avez pas de données ? ",
+  "demo-data-link": "Essayer avec des données de démonstration →",
+  "file-error-csv-excel": "Le fichier doit être .csv ou Excel",
+  "file-error-fasta": "Le fichier doit être .fasta",
+  "file-error-json": "Le fichier doit être .json",
+  "errors": {
+    "number-of-columns": "Vous devez sélectionner au moins une colonne",
+    "name-required": "Vous devez donner un nom à votre jeu de données"
+  },
+  "email": {
+    "invalid": "Adresse e-mail invalide",
+    "notify-on-ready": "Un e-mail sera envoyé lorsque les résultats seront prêts"
+  },
+  "popup": {
+    "title": "Vos résultats sont en cours de préparation !",
+    "description-delay": "Cela peut prendre quelques minutes.",
+    "description-email": "Entrez votre e-mail pour recevoir une notification lorsque vos résultats seront prêts."
+  },
+  "popup-done": {
+    "title": "Résultats terminés !",
+    "link-results": "Aller à la page des résultats"
+  },
+  "submit": {
+    "analyse-data": "Analyser les données",
+    "select-columns": "Sélectionnez les colonnes à analyser",
+    "enter-dataset-name": "Entrez le nom du jeu de données",
+    "placeholder-dataset-name": "Entrez le nom du jeu de données",
+    "submit": "Soumettre"
+  },
+  "climatic": {
+    "data-preview": "Aperçu des données",
+    "generate-graph": "Générez votre graphique",
+    "insert-x-axis": "Insérer les données de l'axe X",
+    "insert-y-axis": "Insérer les données de l'axe Y",
+    "chart-type": "Type de graphique",
+    "chart-bar": "Graphique à barres",
+    "chart-scatter": "Nuage de points",
+    "chart-line": "Graphique linéaire",
+    "chart-pie": "Diagramme circulaire",
+    "select-map-data": "Sélectionnez les données pour la carte choroplèthe",
+    "empty-graph-message": "Veuillez sélectionner les données des axes X et Y et au moins un type de graphique pour générer un graphique",
+    "no-map": "Aucune carte à afficher."
+  },
+  "genetic": {
+    "alignment-chart": "Graphique d'alignement"
+  },
+  "data-type": {
+    "genetic": {
+      "label": "Données génétiques",
+      "description": "Données de séquences ou de variants",
+      "upload-label": "Téléverser des données génétiques (.fasta)"
+    },
+    "aligned": {
+      "label": "Données génétiques alignées",
+      "description": "Séquences pré-alignées",
+      "upload-label": "Téléverser des données génétiques alignées (.json)"
+    },
+    "tree": {
+      "label": "Arbre génétique",
+      "description": "Données d'arbre phylogénétique",
+      "upload-label": "Téléverser un arbre génétique (.json)"
+    }
+  }
+}

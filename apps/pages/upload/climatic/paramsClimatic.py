@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import utils.utils as utils
 from dash import Input, Output, State, callback, dash_table, dcc, html
+from utils.i18n import t
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
@@ -10,17 +11,16 @@ app = dash.Dash(__name__, suppress_callback_exceptions=True)
 df = pd.DataFrame({"A": [1, 2, 3, 4], "B": [10, 20, 30, 40], "C": [100, 200, 300, 400]})
 
 
-def create_table(df):
+def create_table(df, lang="en"):
     param_selection = html.Div(
         [
-            dcc.Store(id="figures", data=[], storage_type="memory"),
             html.Div(
                 [
                     html.Div(
                         [
                             html.Div(
                                 [
-                                    html.Div("Data Preview", className="table-title"),
+                                    html.Div(t("upload.climatic.data-preview", lang), className="table-title"),
                                     dash_table.DataTable(
                                         id="datatable-interactivity",
                                         data=df.to_dict("records"),
@@ -45,7 +45,7 @@ def create_table(df):
                             html.Div(
                                 [
                                     html.Div(
-                                        "Generate your graph",
+                                        t("upload.climatic.generate-graph", lang),
                                         className="graph-section-title",
                                     ),
                                     # X and Y axis dropdowns side by side
@@ -54,7 +54,7 @@ def create_table(df):
                                             html.Div(
                                                 [
                                                     html.P(
-                                                        "Insert X axis data",
+                                                        t("upload.climatic.insert-x-axis", lang),
                                                         className="field-label",
                                                     ),
                                                     dcc.Dropdown(
@@ -68,7 +68,7 @@ def create_table(df):
                                             html.Div(
                                                 [
                                                     html.P(
-                                                        "Insert Y axis data",
+                                                        t("upload.climatic.insert-y-axis", lang),
                                                         className="field-label",
                                                     ),
                                                     dcc.Dropdown(
@@ -83,7 +83,7 @@ def create_table(df):
                                         className="axis-row",
                                     ),
                                     # Chart type cards
-                                    html.P("Chart type", className="field-label"),
+                                    html.P(t("upload.climatic.chart-type", lang), className="field-label"),
                                     dcc.Checklist(
                                         id="choose-graph-type",
                                         options=[
@@ -93,7 +93,7 @@ def create_table(df):
                                                         src="../../assets/icons/chart-bar.svg",
                                                         className="chart-icon",
                                                     ),
-                                                    html.Span("Bar graph"),
+                                                    html.Span(t("upload.climatic.chart-bar", lang)),
                                                 ]),
                                                 "value": "Bar",
                                             },
@@ -103,7 +103,7 @@ def create_table(df):
                                                         src="../../assets/icons/chart-scatter.svg",
                                                         className="chart-icon",
                                                     ),
-                                                    html.Span("Scatter plot"),
+                                                    html.Span(t("upload.climatic.chart-scatter", lang)),
                                                 ]),
                                                 "value": "Scatter",
                                             },
@@ -113,7 +113,7 @@ def create_table(df):
                                                         src="../../assets/icons/chart-line.svg",
                                                         className="chart-icon",
                                                     ),
-                                                    html.Span("Line plot"),
+                                                    html.Span(t("upload.climatic.chart-line", lang)),
                                                 ]),
                                                 "value": "Line",
                                             },
@@ -123,7 +123,7 @@ def create_table(df):
                                                         src="../../assets/icons/chart-pie.svg",
                                                         className="chart-icon",
                                                     ),
-                                                    html.Span("Pie plot"),
+                                                    html.Span(t("upload.climatic.chart-pie", lang)),
                                                 ]),
                                                 "value": "Pie",
                                             },
@@ -135,7 +135,7 @@ def create_table(df):
                                     html.Div(
                                         [
                                             html.P(
-                                                "Select data for choropleth map",
+                                                t("upload.climatic.select-map-data", lang),
                                                 className="field-label",
                                             ),
                                             dcc.Dropdown(
@@ -207,24 +207,23 @@ def update_table_columns(x_data, y_data, data):
 
 @callback(
     Output("output-graph", "children"),
-    Output("figures", "data"),
     Input("choose-graph-type", "value"),
     Input("stored-data", "data"),
     Input("xaxis-data", "value"),
     Input("yaxis-data", "value"),
-    State("figures", "data"),
+    State("language-store", "data"),
 )
-def make_graphs(graph_types, filter_query, x_data, y_data, figures):
+def make_graphs(graph_types, filter_query, x_data, y_data, language):
+    lang = language if language in ["en", "fr"] else "en"
     if not graph_types or not x_data or not y_data:
         empty_message = html.Div(
-            "Please select X and Y axis data and at least one chart type to generate a graph",
+            t("upload.climatic.empty-graph-message", lang),
             className="empty-graph-message"
         )
-        return [empty_message], []
+        return [empty_message]
 
     df = pd.DataFrame(filter_query)
-
-    figures.clear()  # Clear existing figures
+    figures = []
 
     for graph_type in graph_types:
         if graph_type == "Bar":
@@ -244,22 +243,24 @@ def make_graphs(graph_types, filter_query, x_data, y_data, figures):
         fig.update_annotations(font_color="white")
         figures.append(dcc.Graph(figure=fig))
 
-    return figures, figures
+    return figures
 
 
 @callback(
     Output("output-map", "children"),
     Input("map-data", "value"),
+    Input("language-store", "data"),
     State("datatable-interactivity", "data"),
 )
-def update_output(map_data, data):
+def update_output(map_data, language, data):
+    lang = language if language in ["en", "fr"] else "en"
     if not map_data or not data:
         return dash.no_update
 
     df = pd.DataFrame(data)
 
     if "iso_alpha" not in df.columns:
-        map_fig = html.Div([html.Div("No map to display.")], className="noMapAvailable")
+        map_fig = html.Div([html.Div(t("upload.climatic.no-map", lang))], className="noMapAvailable")
         return map_fig
 
     fig = px.choropleth(

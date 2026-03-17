@@ -5,6 +5,7 @@ from dash import ctx, dcc, html
 from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
+from utils.i18n import t
 
 toast_container = create_toast_container()
 
@@ -146,7 +147,7 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Home", className="text"),
+                                        html.Div(t("sidebar.home"), className="text", id="nav-text-home"),
                                     ],
                                     href="/",
                                     id="nav-link-home",
@@ -161,7 +162,7 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Upload data", className="text"),
+                                        html.Div(t("sidebar.upload-data"), className="text", id="nav-text-upload"),
                                     ],
                                     href="/getStarted",
                                     id="nav-link-getstarted",
@@ -176,7 +177,7 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Check results", className="text"),
+                                        html.Div(t("sidebar.check-results"), className="text", id="nav-text-results"),
                                     ],
                                     href="/results",
                                     id="nav-link-results",
@@ -188,6 +189,51 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
+                                        html.Div(
+                                            [
+                                                html.Div(
+                                                    html.Span("🇺🇸", id="language-flag", className="icon language-flag"),
+                                                    className="icon-wrapper",
+                                                ),
+                                                html.Div(
+                                                    "English",
+                                                    id="language-open-text",
+                                                    className="text language-open-text",
+                                                ),
+                                                dcc.Dropdown(
+                                                    id="language-selector",
+                                                    options=[
+                                                        {
+                                                            "label": html.Span(
+                                                                [
+                                                                    html.Span("🇺🇸", className="lang-option-flag"),
+                                                                    html.Span("English", className="lang-option-text"),
+                                                                ],
+                                                                className="lang-option",
+                                                            ),
+                                                            "value": "en",
+                                                        },
+                                                        {
+                                                            "label": html.Span(
+                                                                [
+                                                                    html.Span("🇫🇷", className="lang-option-flag"),
+                                                                    html.Span("Français", className="lang-option-text"),
+                                                                ],
+                                                                className="lang-option",
+                                                            ),
+                                                            "value": "fr",
+                                                        },
+                                                    ],
+                                                    value="en",
+                                                    clearable=False,
+                                                    searchable=False,
+                                                    persistence=True,
+                                                    persistence_type="local",
+                                                    className="language-selector",
+                                                ),
+                                            ],
+                                            className="nav-item nav-item-bottom language-item",
+                                        ),
                                 html.Div(
                                     [
                                         html.Div(
@@ -198,12 +244,13 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Night mode", className="text", id="theme-text"),
+                                        html.Div(t("sidebar.night-mode"), className="text", id="theme-text"),
                                     ],
                                     id="theme-switch",
                                     className="nav-item nav-item-bottom theme-toggle-btn",
                                 ),
                                 dcc.Store(id="theme-store", storage_type="local", data=True),
+                                dcc.Store(id="language-store", storage_type="local", data="en"),
                                 html.Div(id="theme-switch-output", style={"display": "none"}),
                                 dcc.Link(
                                     [
@@ -214,7 +261,7 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Settings", className="text"),
+                                        html.Div(t("sidebar.settings"), className="text", id="nav-text-settings"),
                                     ],
                                     href="/settings",
                                     id="nav-link-settings",
@@ -229,7 +276,7 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Help", className="text"),
+                                        html.Div(t("sidebar.help"), className="text", id="nav-text-help"),
                                     ],
                                     href="/help",
                                     id="nav-link-help",
@@ -244,7 +291,7 @@ app.layout = html.Div(
                                             ),
                                             className="icon-wrapper",
                                         ),
-                                        html.Div("Visit our GitHub", className="text"),
+                                        html.Div(t("sidebar.visit-github"), className="text", id="nav-text-github"),
                                     ],
                                     target="_blank",
                                     href="https://github.com/tahiri-lab",
@@ -297,9 +344,19 @@ def toggle_theme(n_clicks, current_theme):
 
 
 @app.callback(
+    Output("language-store", "data"),
+    Input("language-selector", "value"),
+    prevent_initial_call=True,
+)
+def update_language(selected_language):
+    if selected_language in ["en", "fr"]:
+        return selected_language
+    return "en"
+
+
+@app.callback(
     Output("themer", "style"),
     Output("theme-icon", "src"),
-    Output("theme-text", "children"),
     Input("theme-store", "data"),
 )
 def update_color(is_dark):
@@ -309,12 +366,67 @@ def update_color(is_dark):
     Returns:
         themer: dict, css style for the theme
         theme-icon: src path for the theme icon
-        theme-text: string, text for the theme switch
     """
     if is_dark:
-        return DARK_THEME, "/assets/icons/sun.svg", "Light mode"
+        return DARK_THEME, "/assets/icons/sun.svg"
     else:
-        return LIGHT_THEME, "/assets/icons/moon.svg", "Night mode"
+        return LIGHT_THEME, "/assets/icons/moon.svg"
+
+
+@app.callback(
+    Output("language-flag", "children"),
+    Output("language-open-text", "children"),
+    Output("language-selector", "options"),
+    Output("nav-text-home", "children"),
+    Output("nav-text-upload", "children"),
+    Output("nav-text-results", "children"),
+    Output("nav-text-settings", "children"),
+    Output("nav-text-help", "children"),
+    Output("nav-text-github", "children"),
+    Output("theme-text", "children"),
+    Input("language-store", "data"),
+    Input("theme-store", "data"),
+)
+def update_sidebar_language(language, is_dark):
+    lang = language if language in ["en", "fr"] else "en"
+    theme_text_key = "sidebar.light-mode" if is_dark else "sidebar.night-mode"
+    language_flag = "🇺🇸" if lang == "en" else "🇫🇷"
+
+    language_options = [
+        {
+            "label": html.Span(
+                [
+                    html.Span("🇺🇸", className="lang-option-flag"),
+                    html.Span("English", className="lang-option-text"),
+                ],
+                className="lang-option",
+            ),
+            "value": "en",
+        },
+        {
+            "label": html.Span(
+                [
+                    html.Span("🇫🇷", className="lang-option-flag"),
+                    html.Span("Français", className="lang-option-text"),
+                ],
+                className="lang-option",
+            ),
+            "value": "fr",
+        },
+    ]
+
+    return (
+        language_flag,
+        t("sidebar.lang-en", lang) if lang == "en" else t("sidebar.lang-fr", lang),
+        language_options,
+        t("sidebar.home", lang),
+        t("sidebar.upload-data", lang),
+        t("sidebar.check-results", lang),
+        t("sidebar.settings", lang),
+        t("sidebar.help", lang),
+        t("sidebar.visit-github", lang),
+        t(theme_text_key, lang),
+    )
 
 
 @app.callback(

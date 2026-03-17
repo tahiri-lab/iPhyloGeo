@@ -1,0 +1,84 @@
+{
+  "title": "Paramètres",
+  "sections": {
+    "genetic-parameters": "Paramètres génétiques",
+    "alignment-method": "Méthode d'alignement",
+    "tree-type": "Type d'arbre",
+    "preprocessing": "Prétraitement",
+    "statistical-tests": "Tests statistiques"
+  },
+  "fields": {
+    "bootstrap-threshold": "Seuil bootstrap",
+    "distance-threshold": "Seuil de distance",
+    "window-size": "Taille de fenêtre",
+    "step-size": "Pas",
+    "similarity-rate": "Taux de similarité",
+    "alignment-method": "Méthode d'alignement",
+    "distance-method": "Méthode de distance",
+    "fit-method": "Méthode d'ajustement",
+    "tree-type": "Type d'arbre",
+    "similarity-method": "Méthode de similarité",
+    "genetic-preprocessing": "Prétraitement génétique",
+    "genetic-threshold": "Seuil génétique",
+    "climatic-preprocessing": "Prétraitement climatique",
+    "climatic-threshold": "Seuil climatique",
+    "correlation-filtering-climatic": "Filtrage corrélation (climatique)",
+    "max-correlation-climatic": "Corrélation max (climatique)",
+    "statistical-test": "Test statistique",
+    "mantel-test-method": "Méthode du test de Mantel",
+    "mantel-test-permutations": "Permutations du test de Mantel",
+    "protest-permutations": "Permutations PROTEST"
+  },
+  "actions": {
+    "save": "Enregistrer les paramètres",
+    "reset": "Réinitialiser par défaut"
+  },
+  "options": {
+    "alignment": {
+      "no-alignment": "Sans alignement",
+      "pairwise-align": "Alignement pair à pair",
+      "muscle": "MUSCLE",
+      "clustalw": "CLUSTALW",
+      "mafft": "MAFFT"
+    },
+    "distance": {
+      "all": "Toutes les méthodes de distance",
+      "least-square": "Moindres carrés",
+      "robinson-foulds": "Robinson-Foulds (RF)",
+      "bipartition": "Bipartition (Dendropy)"
+    },
+    "fit": {
+      "wider-fit": "Ajustement large (ajout de gaps)",
+      "narrow-fit": "Ajustement étroit (évite les gaps supplémentaires)"
+    },
+    "tree": {
+      "biopython": "Arbre consensus BioPython",
+      "fast-tree": "Application FastTree"
+    },
+    "similarity": {
+      "hamming": "Distance de Hamming",
+      "levenshtein": "Distance de Levenshtein",
+      "damerau-levenshtein": "Distance de Damerau-Levenshtein",
+      "jaro": "Similarité de Jaro",
+      "jaro-winkler": "Similarité de Jaro-Winkler",
+      "smith-waterman": "Similarité de Smith-Waterman",
+      "jaccard": "Similarité de Jaccard",
+      "sorensen-dice": "Similarité de Sørensen-Dice"
+    },
+    "preprocessing": {
+      "disabled": "Désactivé",
+      "enabled": "Activé"
+    },
+    "statistical": {
+      "both": "Les deux (Mantel + PROTEST)",
+      "mantel": "Test de Mantel uniquement",
+      "procrustes": "PROTEST uniquement",
+      "none": "Aucun"
+    },
+    "mantel": {
+      "pearson": "Corrélation de Pearson",
+      "spearman": "Corrélation de Spearman",
+      "kendall-tau": "Corrélation de Kendall Tau"
+    }
+  }
+}

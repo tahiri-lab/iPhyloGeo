@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import callback, html, register_page
 from dash.dependencies import Input, Output
+from utils.i18n import t
 
 register_page(__name__, path="/")
 
@@ -22,13 +23,16 @@ layout = html.Div(
                 html.Div(
                     className="main-text",
                     children=[
-                        html.Div("Welcome to the Tahiri Lab", className="title"),
+                        html.Div(t("home.title", "en"), className="title", id="home-title"),
                         html.Div(
                             [
-                                "We are a dynamic research group at the Sherbrooke University, Department of Computer Science. ",
+                                html.Span(
+                                    "We are a dynamic research group at the Sherbrooke University, Department of Computer Science. ",
+                                    id="home-subtitle-prefix",
+                                ),
                                 html.A(
                                     [
-                                        "Learn more",
+                                        html.Span(t("home.learn-more", "en"), id="home-learn-more"),
                                         html.Img(
                                             src="../assets/icons/up-right-from-square-solid.svg",
                                             className="icon",
@@ -87,4 +91,21 @@ def update_background_video(is_dark):
         muted=True,
         controls=False,
         className="home-page__video",
+    )
+
+
+@callback(
+    Output("home-title", "children"),
+    Output("home-subtitle-prefix", "children"),
+    Output("home-learn-more", "children"),
+    Output("themes", "children"),
+    Input("language-store", "data"),
+)
+def update_home_language(language):
+    lang = language if language in ["en", "fr"] else "en"
+    return (
+        t("home.title", lang),
+        t("home.subtitle-prefix", lang),
+        t("home.learn-more", lang),
+        t("home.get-started", lang),
     )
