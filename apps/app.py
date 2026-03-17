@@ -39,9 +39,12 @@ LIGHT_THEME = {
     "--background": "#EBECF0",
     "--action": "#B593DD",
     "--action-hover": "#9F79D6",
+    "--action-soft-bg": "color-mix(in srgb, var(--action) 10%, transparent)",
     "--success": "#2DD4BF",
+    "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
     "--pending": "#FFC107",
+    "--border": "#e0d8ee",
 }
 
 DARK_THEME = {
@@ -59,8 +62,8 @@ DARK_THEME = {
     "--glass-overlay-style": "rgba(59, 58, 67, 0.5)",
     "--result-row-color": "#444444",
     "--black-and-white": "#111111",
-    "--table-bg-color": "#282b32",
-    "--table-alt-row-color": "#3a3f4a",
+    "--table-bg-color": "#111111",
+    "--table-alt-row-color": "#141414",
     "--primary": "#2A2D31",
     "--secondary": "#2F343D",
     "--secondary-hover": "#4A5060",
@@ -69,9 +72,11 @@ DARK_THEME = {
     "--background": "#1A1C1E",
     "--action": "#9F74D0",
     "--action-hover": "#8B5FC2",
+    "--action-soft-bg": "color-mix(in srgb, var(--action) 10%, transparent)",
     "--success": "#1FA391",
+    "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
-    "--pending": "#E6AD06",
+    "--border": "#2F343D",
 }
 
 path_params = {

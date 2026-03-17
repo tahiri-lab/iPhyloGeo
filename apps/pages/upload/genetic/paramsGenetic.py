@@ -143,7 +143,7 @@ def get_layout(file):
                                     html.Div(
                                         [
                                             html.Div(
-                                                "Alignement chart",
+                                                "Alignment chart",
                                                 className="sub-title",
                                             ),
                                             html.Div(id="alignment-chart"),

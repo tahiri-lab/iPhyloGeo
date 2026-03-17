@@ -5,6 +5,8 @@ Displays a result card with name, status badge, dates and access button.
 
 from dash import dcc, html
 
+from components.badge import create_badge
+
 
 def create_result_card(
     name,
@@ -74,9 +76,10 @@ def create_result_card(
                     html.Div(
                         [
                             html.Div(name, className="result-card__title"),
-                            html.Div(
+                            create_badge(
                                 status_text,
-                                className=f"result-card__badge result-card__badge--{status_class}",
+                                background_color=f"var(--{status_class})",
+                                text_color="var(--text)",
                             ),
                         ],
                         className="result-card__header",

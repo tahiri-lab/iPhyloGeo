@@ -5,9 +5,9 @@ import os
 import re
 
 import dash
-import dash_bootstrap_components as dbc
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
+from components.badge import create_badge
 from components.email_input import (
     get_button_id,
     validate_email,
@@ -47,7 +47,7 @@ dash.register_page(__name__, path="/getStarted")
 
 ENV_CONFIG = dotenv_values()
 
-NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least two columns"
+NUMBER_OF_COLUMNS_ERROR_MESSAGE = "You need to select at least one column"
 NAME_ERROR_MESSAGE = "You need to give a name to your dataset"
 
 CSV_REGEX = re.compile(r".*\.csv")
@@ -230,8 +230,8 @@ def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
         climatic_data_filename: name of the uploaded climatic data file
     """
     # Validate file extension
-    if CSV_REGEX.fullmatch(climatic_data_filename) or EXCEL_REGEX.fullmatch(
-        climatic_data_filename
+    if CSV_REGEX.fullmatch(climatic_data_filename or "") or EXCEL_REGEX.fullmatch(
+        climatic_data_filename or ""
     ):
         return (
             climatic_data_contents,
@@ -253,7 +253,7 @@ def uploaded_climatic_data(climatic_data_contents, climatic_data_filename):
             None,
             # Output in climatic data upload box
             html.Div(
-                className="loaded-file",
+                className="loaded-file error",
                 children=[
                     html.Img(
                         src="../../assets/icons/folder-drop.svg", className="icon"
@@ -308,10 +308,42 @@ def uploaded_genetic_data(
         genetic_tree_filename: name of the uploaded genetic tree file
     """
 
+    def default_upload_child(file_types):
+        return html.Div(
+            [
+                html.Img(
+                    src="../../assets/icons/folder-drop.svg",
+                    className="drop-icon",
+                ),
+                html.Div("Drag & drop your file here", className="drop-main-text"),
+                html.Div("or click to browse", className="drop-sub-text"),
+                create_badge(
+                    text=file_types,
+                    background_color="var(--action-soft-bg)",
+                    text_color="var(--action)",
+                ),
+            ],
+            className="drop-content-inner",
+        )
+
+    def loaded_upload_child(text, is_error=False):
+        class_name = "loaded-file error" if is_error else "loaded-file"
+        return html.Div(
+            className=class_name,
+            children=[
+                html.Img(src="../../assets/icons/folder-drop.svg", className="icon"),
+                html.Div(text, className="text"),
+            ],
+        )
+
+    genetic_default = default_upload_child(".fasta")
+    aligned_default = default_upload_child(".json")
+    tree_default = default_upload_child(".json")
+
     upload_box = dash.callback_context.triggered_id
 
     if upload_box == "upload-genetic-data":
-        if FASTA_REGEX.fullmatch(genetic_data_filename):
+        if FASTA_REGEX.fullmatch(genetic_data_filename or ""):
             return (
                 genetic_data_contents,
                 None,
@@ -319,55 +351,9 @@ def uploaded_genetic_data(
                 genetic_data_filename,
                 None,
                 None,
-                # Output in genetic data upload box
-                html.Div(
-                    className="loaded-file",
-                    children=[
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg", className="icon"
-                        ),
-                        html.Div(genetic_data_filename, className="text"),
-                    ],
-                ),
-                # Output in aligned genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload aligned genetic data (.json)",
-                                    className="text",
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in genetic tree upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic tree (.json)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
+                loaded_upload_child(genetic_data_filename),
+                aligned_default,
+                tree_default,
             )
         else:
             return (
@@ -377,58 +363,12 @@ def uploaded_genetic_data(
                 None,
                 None,
                 None,
-                # Output in genetic data upload box
-                html.Div(
-                    className="loaded-file",
-                    children=[
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg", className="icon"
-                        ),
-                        html.Div("File must be .fasta", className="text"),
-                    ],
-                ),
-                # Output in aligned genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload aligned genetic data (.json)",
-                                    className="text",
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in genetic tree upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic tree (.json)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
+                loaded_upload_child("File must be .fasta", is_error=True),
+                aligned_default,
+                tree_default,
             )
     elif upload_box == "upload-aligned-genetic-data":
-        if JSON_REGEX.fullmatch(aligned_genetic_data_filename):
+        if JSON_REGEX.fullmatch(aligned_genetic_data_filename or ""):
             return (
                 None,
                 aligned_genetic_data_contents,
@@ -436,54 +376,9 @@ def uploaded_genetic_data(
                 None,
                 aligned_genetic_data_filename,
                 None,
-                # Output in genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic data (.fasta)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in aligned genetic data upload box
-                html.Div(
-                    className="loaded-file",
-                    children=[
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg", className="icon"
-                        ),
-                        html.Div(aligned_genetic_data_filename, className="text"),
-                    ],
-                ),
-                # Output in genetic tree upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic tree (.json)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
+                genetic_default,
+                loaded_upload_child(aligned_genetic_data_filename),
+                tree_default,
             )
         else:
             return (
@@ -493,57 +388,12 @@ def uploaded_genetic_data(
                 None,
                 None,
                 None,
-                # Output in genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic data (.fasta)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in aligned genetic data upload box
-                html.Div(
-                    className="loaded-file",
-                    children=[
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg", className="icon"
-                        ),
-                        html.Div("File must be .json", className="text"),
-                    ],
-                ),
-                # Output in genetic tree upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic tree (.json)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
+                genetic_default,
+                loaded_upload_child("File must be .json", is_error=True),
+                tree_default,
             )
     elif upload_box == "upload-genetic-tree":
-        if JSON_REGEX.fullmatch(genetic_tree_filename):
+        if JSON_REGEX.fullmatch(genetic_tree_filename or ""):
             return (
                 None,
                 None,
@@ -551,55 +401,9 @@ def uploaded_genetic_data(
                 None,
                 None,
                 genetic_tree_filename,
-                # Output in genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic data (.fasta)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in aligned genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload aligned genetic data (.json)",
-                                    className="text",
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in genetic tree upload box
-                html.Div(
-                    className="loaded-file",
-                    children=[
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg", className="icon"
-                        ),
-                        html.Div(genetic_tree_filename, className="text"),
-                    ],
-                ),
+                genetic_default,
+                aligned_default,
+                loaded_upload_child(genetic_tree_filename),
             )
         else:
             return (
@@ -609,55 +413,9 @@ def uploaded_genetic_data(
                 None,
                 None,
                 None,
-                # Output in genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload genetic data (.fasta)", className="text"
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in aligned genetic data upload box
-                html.Div(
-                    [
-                        html.A(
-                            [
-                                html.Img(
-                                    src="../../assets/icons/folder-drop.svg",
-                                    className="icon",
-                                ),
-                                html.Div(
-                                    "Upload aligned genetic data (.json)",
-                                    className="text",
-                                ),
-                            ],
-                            className="drop-content",
-                        ),
-                    ],
-                    className="drop-container",
-                    id="drop-container",
-                ),
-                # Output in genetic tree upload box
-                html.Div(
-                    className="loaded-file",
-                    children=[
-                        html.Img(
-                            src="../../assets/icons/folder-drop.svg", className="icon"
-                        ),
-                        html.Div("File must be .json", className="text"),
-                    ],
-                ),
+                genetic_default,
+                aligned_default,
+                loaded_upload_child("File must be .json", is_error=True),
             )
 
 
@@ -1006,21 +764,21 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
     ):
         return (
             "popup hidden",
-            dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"),
+            NUMBER_OF_COLUMNS_ERROR_MESSAGE,
             "",
             False,
         )
     elif (
         climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid
     ):
-        return "popup hidden", "", dbc.Alert(NAME_ERROR_MESSAGE, color="danger"), False
+        return "popup hidden", "", NAME_ERROR_MESSAGE, False
     elif (
         climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid
     ):
         return (
             "popup hidden",
-            dbc.Alert(NUMBER_OF_COLUMNS_ERROR_MESSAGE, color="danger"),
-            dbc.Alert(NAME_ERROR_MESSAGE, color="danger"),
+            NUMBER_OF_COLUMNS_ERROR_MESSAGE,
+            NAME_ERROR_MESSAGE,
             False,
         )
 
@@ -1028,6 +786,18 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic):
         return "", "", "", False
 
     return "popup", "", "", True
+
+
+@callback(
+    Output("column-error-message", "children", allow_duplicate=True),
+    Input("col-analyze", "value"),
+    prevent_initial_call=True,
+)
+def clear_column_error_when_valid(column_names):
+    """Clear the column error as soon as at least two columns are selected."""
+    if column_names is not None and len(column_names) >= 2:
+        return ""
+    return dash.no_update
 
 
 @callback(

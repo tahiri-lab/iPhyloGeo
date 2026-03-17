@@ -5,7 +5,7 @@
   box-sizing: border-box;
 
   &::before {
-    content: '';
+    content: "";
     position: fixed;
     top: 0;
     left: 0;
@@ -29,7 +29,7 @@
   }
 
   .title {
-    color: var(--reverse-black-white-color);
+    color: var(--text);
     font-size: 25px;
     font-weight: bold;
     transition: all 0.3s ease-in-out;
@@ -56,9 +56,11 @@
     .option {
       transition: all 0.3s ease-in-out;
       background-color: var(--reverse-background-color);
-      color: var(--reverse-white-black-color);
+      color: var(--text);
       border-radius: 10px;
-      box-shadow: var(--switch-toggle-background) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+      box-shadow:
+        var(--switch-toggle-background) 0px 19px 38px,
+        rgba(0, 0, 0, 0.22) 0px 15px 12px;
       width: 250px;
       min-height: 250px;
       margin: 10px;
@@ -72,7 +74,7 @@
       }
 
       &.selected {
-        outline: 4px solid #AD00FA;
+        outline: 4px solid var(--action-hover);
       }
 
       .optionImage {
@@ -93,7 +95,7 @@
       }
 
       .title {
-        color: var(--reverse-white-black-color);
+        color: var(--text);
         margin-top: 10px;
         font-size: 15px;
         transition: all 0.3s ease-in-out;
@@ -119,17 +121,6 @@
       align-items: center;
       width: 100%;
       max-width: 800px;
-    }
-
-    .icon {
-      margin-right: 10px;
-      width: 40px;
-      filter: var(--icon-filter);
-      transition: all 0.3s ease-in-out;
-
-      &.arrow {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%) !important;
-      }
     }
 
     .text {
@@ -190,7 +181,7 @@
         user-select: none;
         position: relative;
         cursor: pointer;
-        color: #299FF5;
+        color: #299ff5;
         z-index: 2;
         width: 250px;
         margin: -30px auto 0 auto;
@@ -223,6 +214,16 @@
 
 #params-sections {
   width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  &:has(> *:not(:empty)) {
+    padding: 0 40px 40px;
+    gap: 40px;
+  }
 
   .dataset-input-container {
     display: flex;
@@ -231,7 +232,7 @@
     margin: 10px auto auto auto;
     padding: 20px 40px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--primary);
     box-sizing: border-box;
     transition: all 0.3s ease-in-out;
 
@@ -251,19 +252,284 @@
 #all-upload-container {
   display: flex;
   flex-direction: column;
-  margin: auto;
-  margin-top: 20px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 40px 40px;
+  box-sizing: border-box;
 
-  #upload-title {
+  // ── Page header ──
+  .upload-page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: var(--reverse-black-white-color);
-    font-weight: bold;
-    width: auto;
-    margin: auto;
-    margin-top: 50px;
-    margin-bottom: 25px;
-
+    transition: color 0.3s;
+    margin-bottom: 40px;
   }
 
+  // ── Section cards ──
+  .upload-section-card {
+    background: var(--primary);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    transition: border-color 0.3s;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    transition: color 0.3s;
+  }
+
+  .section-description {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    margin: 0 0 16px;
+  }
+
+  // ── Climatic drop zone ──
+  .climatic-drop-zone {
+    margin-top: 4px;
+  }
+
+  .upload-drop-area {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    border-color: var(--secondary);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    background: transparent;
+
+    &:hover {
+      border-color: var(--action-hover);
+      background: var(--action-soft-bg);
+    }
+
+    // Constrain any images inside the drop area
+    img {
+      max-width: 36px;
+      max-height: 36px;
+    }
+
+    // Loaded file state (after upload)
+    .loaded-file {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      .icon {
+        width: 24px;
+        height: 24px;
+        filter: var(--icon-filter);
+      }
+
+      .text {
+        font-weight: 600;
+        color: var(--success);
+        font-size: 0.9rem;
+      }
+
+      &.error {
+        .text {
+          color: var(--error);
+        }
+      }
+    }
+  }
+
+  .drop-content-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .drop-icon {
+    width: 36px;
+    height: 36px;
+    filter: var(--icon-filter);
+    margin-bottom: 4px;
+    transition: filter 0.3s;
+  }
+
+  .drop-main-text {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--reverse-black-white-color);
+    transition: color 0.3s;
+  }
+
+  .drop-sub-text {
+    font-size: 0.82rem;
+    color: var(--secondary-text);
+  }
+
+  // ── Data-type cards ──
+  .data-type-cards {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .data-type-card {
+    flex: 1;
+    border: 2px solid var(--secondary);
+    border-radius: 12px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 0.25s,
+      box-shadow 0.25s;
+    background: var(--primary);
+    position: relative;
+
+    &:hover {
+      border-color: var(--action);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+    }
+
+    &.selected {
+      border-color: var(--action-hover);
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--action-hover);
+      }
+    }
+
+    .card-label {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--reverse-black-white-color);
+      margin-bottom: 4px;
+      transition: color 0.3s;
+    }
+
+    .card-description {
+      font-size: 0.78rem;
+      color: #999;
+      margin-bottom: 6px;
+    }
+
+    .card-formats {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--action-hover);
+    }
+  }
+
+  // ── Secondary upload zone ──
+  .secondary-upload-wrapper {
+    margin-top: 16px;
+  }
+
+  .secondary-upload-zone {
+    animation: fadeSlideIn 0.25s ease;
+  }
+
+  // ── Continue button ──
+  .continue-btn {
+    align-self: flex-end;
+    padding: 12px 32px;
+    border: none;
+    border-radius: 10px;
+    background: var(--action);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      opacity 0.25s,
+      transform 0.15s;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &.disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      opacity: 0.6;
+
+      &:hover {
+        opacity: 0.6;
+        transform: none;
+      }
+    }
+  }
+
+  // ── Continue wrapper + tooltip ──
+  .continue-wrapper {
+    align-self: flex-end;
+    position: relative;
+
+    &:hover .continue-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  .continue-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    white-space: nowrap;
+    background: #333;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition:
+      opacity 0.2s,
+      visibility 0.2s,
+      transform 0.2s;
+    pointer-events: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      right: 16px;
+      border: 5px solid transparent;
+      border-top-color: var(--border);
+    }
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  // ── Upload row (compatibility) ──
   .upload-row {
     display: flex;
     flex-direction: row;
@@ -273,39 +539,37 @@
     margin-bottom: 15px;
   }
 
-  .upload-drag-drop {
-    user-select: none;
-    width: 340px;
-    height: 125px;
-    line-height: 60px;
-    border: 2px dotted var(--reverse-black-white-color);
-    border-radius: 5px;
+  // ── Demo data helper ──
+  .demo-data-helper {
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease-in-out;
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: #999;
 
-    margin-right: 10px;
-    padding: 15px;
-    cursor: pointer;
+    .demo-data-link {
+      color: var(--action);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
 
-    .icon {
-      margin-right: 10px;
-      width: 30px;
-      filter: var(--icon-filter);
-      transition: all 0.3s ease-in-out;
-
-      &.arrow {
-        filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(109deg) brightness(106%) contrast(101%) !important;
+      &:hover {
+        color: var(--action-hover);
+        text-decoration: underline;
       }
     }
+  }
+}
 
-    a {
-      color: var(--reverse-black-white-color);
-      text-decoration: none;
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
