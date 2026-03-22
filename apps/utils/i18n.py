@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 SUPPORTED_LOCALES = ["en", "fr"]
 LOCALE_PAGES = ["home", "setting", "upload", "help", "result", "results", "sidebar"]
-LOCALE_DIR_CANDIDATES = ["locales", "traduction"]
+LOCALE_DIR_CANDIDATES = ["locales"]
 
 
 def _load_json_file(path: Path) -> dict:
@@ -31,11 +31,6 @@ def _resolve_locale_base_dir() -> Path:
     for folder_name in LOCALE_DIR_CANDIDATES:
         candidate = apps_dir / folder_name
         if candidate.exists() and candidate.is_dir():
-            if folder_name != "locales":
-                logger.warning(
-                    "Using legacy translation folder '%s'. Consider renaming to 'locales'.",
-                    folder_name,
-                )
             return candidate
 
     default_dir = apps_dir / "locales"
