@@ -13,10 +13,11 @@
     "results": "Results",
     "climatic-trees": "Climatic Trees",
     "genetic-trees": "Genetic Trees",
-    "email-description": "Ff you would like to receive the URL of this result by email, you can enter your address mail below."
+    "email-description": "If you would like to receive the URL of this result by email, you can enter your address mail below."
   },
   "email": {
     "placeholder": "Enter your address mail here",
+    "send": "Send Email",
     "invalid": "Invalid email address",
     "sent": "Email sent successfully!",
     "error": "Error sending email"

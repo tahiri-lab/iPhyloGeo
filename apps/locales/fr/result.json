@@ -17,6 +17,7 @@
   },
   "email": {
     "placeholder": "Entrez votre adresse e-mail ici",
+    "send": "Envoyer l'e-mail",
     "invalid": "Adresse e-mail invalide",
     "sent": "E-mail envoyé avec succès !",
     "error": "Erreur lors de l'envoi de l'e-mail"

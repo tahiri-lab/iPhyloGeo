@@ -142,4 +142,10 @@ def create_layout(result, lang="en"):
     )
 
 
-layout = get_layout()
+layout = html.Div(id="results-page-content", children=get_layout())
+
+
+@callback(Output("results-page-content", "children"), Input("language-store", "data"))
+def update_results_language(language):
+    lang = language if language in ["en", "fr"] else "en"
+    return get_layout(lang)

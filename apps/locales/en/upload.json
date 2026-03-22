@@ -21,7 +21,9 @@
   },
   "email": {
     "invalid": "Invalid email address",
-    "notify-on-ready": "An email will be sent when results are ready"
+    "notify-on-ready": "An email will be sent when results are ready",
+    "placeholder": "Enter your email address",
+    "send": "Send Email"
   },
   "popup": {
     "title": "Your results are on the way!",
@@ -49,6 +51,7 @@
     "chart-scatter": "Scatter plot",
     "chart-line": "Line plot",
     "chart-pie": "Pie plot",
+    "select-placeholder": "Select...",
     "select-map-data": "Select data for choropleth map",
     "empty-graph-message": "Please select X and Y axis data and at least one chart type to generate a graph",
     "no-map": "No map to display."

@@ -59,6 +59,7 @@ def create_email_section(lang="en"):
                 create_email_input(
                     input_id="user-input",
                     placeholder=t("result.email.placeholder", lang),
+                    button_text=t("result.email.send", lang),
                 ),
             ],
             id="email-section-container",

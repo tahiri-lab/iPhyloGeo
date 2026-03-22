@@ -456,7 +456,6 @@ def uploaded_genetic_data(
     State("upload-climatic-data", "last_modified"),
     State("input-data", "data"),
     prevent_initial_call=True,
-    log=True,
 )
 def upload_data(
     next_n_clicks,

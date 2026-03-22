@@ -21,7 +21,9 @@
   },
   "email": {
     "invalid": "Adresse e-mail invalide",
-    "notify-on-ready": "Un e-mail sera envoyé lorsque les résultats seront prêts"
+    "notify-on-ready": "Un e-mail sera envoyé lorsque les résultats seront prêts",
+    "placeholder": "Entrez votre adresse e-mail",
+    "send": "Envoyer l'e-mail"
   },
   "popup": {
     "title": "Vos résultats sont en cours de préparation !",
@@ -49,6 +51,7 @@
     "chart-scatter": "Nuage de points",
     "chart-line": "Graphique linéaire",
     "chart-pie": "Diagramme circulaire",
+    "select-placeholder": "Sélectionner...",
     "select-map-data": "Sélectionnez les données pour la carte choroplèthe",
     "empty-graph-message": "Veuillez sélectionner les données des axes X et Y et au moins un type de graphique pour générer un graphique",
     "no-map": "Aucune carte à afficher."

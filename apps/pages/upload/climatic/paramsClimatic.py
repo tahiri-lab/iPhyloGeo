@@ -60,6 +60,7 @@ def create_table(df, lang="en"):
                                                     dcc.Dropdown(
                                                         id="xaxis-data",
                                                         options=[],
+                                                        placeholder=t("upload.climatic.select-placeholder", lang),
                                                         className="axis-dropdown",
                                                     ),
                                                 ],
@@ -74,6 +75,7 @@ def create_table(df, lang="en"):
                                                     dcc.Dropdown(
                                                         id="yaxis-data",
                                                         options=[],
+                                                        placeholder=t("upload.climatic.select-placeholder", lang),
                                                         className="axis-dropdown",
                                                     ),
                                                 ],
@@ -141,6 +143,7 @@ def create_table(df, lang="en"):
                                             dcc.Dropdown(
                                                 id="map-data",
                                                 options=[],
+                                                placeholder=t("upload.climatic.select-placeholder", lang),
                                                 className="axis-dropdown",
                                             ),
                                         ],

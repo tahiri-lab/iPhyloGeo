@@ -32,6 +32,8 @@ def get_layout(lang="en"):
                                 ),
                                 create_email_input(
                                     input_id="email-input",
+                                    placeholder=t("upload.email.placeholder", lang),
+                                    button_text=t("upload.email.send", lang),
                                 ),
                             ],
                             className="content",
