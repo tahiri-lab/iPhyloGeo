@@ -938,8 +938,8 @@ def submit_button(
     print(f"[submit_button] Called with ready_for_pipeline={ready_for_pipeline}")
 
     if ready_for_pipeline is False:
-        print(f"[submit_button] ready_for_pipeline is False, returning hidden state")
-        return "popup hidden", None, False, True, None, None, True, "progress-bar hidden", {"width": "0%"}
+        print(f"[submit_button] ready_for_pipeline is False, returning dash.no_update")
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     print(f"[submit_button] Pipeline is ready, processing input_data...")
     climatic_file = input_data["climatic"]["file"]
@@ -1014,12 +1014,12 @@ def submit_button(
         print("[Error]:", e)
         return (
             "popup",
-            None,
-            False,
-            True,
-            None,
-            None,
-            True,
-            "progress-bar hidden",
-            {"width": "0%"},
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
         )

@@ -76,6 +76,7 @@ DARK_THEME = {
     "--success": "#1FA391",
     "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
+    "--pending": "#E6AD06",
     "--border": "#2F343D",
 }
 

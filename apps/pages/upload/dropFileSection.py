@@ -12,6 +12,7 @@ def _make_upload_zone(upload_id, file_types):
     return dcc.Upload(
         id=upload_id,
         className="upload-drop-area",
+        style_active={"backgroundColor": "var(--action-soft-bg)", "borderColor": "var(--action-hover)"},
         children=html.Div(
             [
                 html.Img(
@@ -114,6 +115,7 @@ layout = html.Div(
                                 dcc.Upload(
                                     id="upload-climatic-data",
                                     className="upload-drop-area",
+                                    style_active={"backgroundColor": "var(--action-soft-bg)", "borderColor": "var(--action-hover)"},
                                     children=html.Div(
                                         [
                                             html.Img(
