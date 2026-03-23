@@ -23,7 +23,9 @@
     "error": "Erreur lors de l'envoi de l'e-mail"
   },
   "table": {
-    "filter-placeholder": "Filtrer les données..."
+    "filter-placeholder": "Filtrer les données...",
+    "main-results-title": "Résultats principaux",
+    "statistical-tests-title": "Tests statistiques"
   },
   "email-template": {
     "subject": "Vos résultats iPhyloGeo sont prêts !",

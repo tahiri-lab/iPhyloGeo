@@ -123,7 +123,8 @@ layout = html.Div(
                         html.Div(id="results-table-title"),
                         html.Div(
                             [
-                                html.Div(id="output-results"),
+                                html.Div(id="main-results-table-container"),
+                                html.Div(id="statistical-results-table-container"),
                                 html.Div(id="output-results-graph", className="graph"),
                             ],
                             id="results-row",
@@ -251,7 +252,8 @@ def update_result_static_text(language):
 
 @callback(
     Output("results-table-title", "children"),
-    Output("output-results", "children"),
+    Output("main-results-table-container", "children"),
+    Output("statistical-results-table-container", "children"),
     Output("output-results-graph", "children"),
     State("url", "pathname"),
     Input("all-results", "children"),
@@ -279,7 +281,7 @@ def show_complete_results(path, generated_page, language):
     result = utils.get_result(result_id)
 
     if "genetic" not in result["result_type"] or "output" not in result:
-        return "", "", ""
+        return "", "", "", ""
 
     results_data = str_csv_to_df(result["output"])
 
@@ -289,21 +291,45 @@ def show_complete_results(path, generated_page, language):
     ):
         return (
             create_result_table_header(lang),  # Still return the header
-            create_result_table(results_data, lang),  # Display the table (might be empty)
+            create_titled_result_table(
+                results_data,
+                t("result.table.main-results-title", lang),
+                "datatable-main-results",
+                lang,
+            ),
+            "",  # No statistical table to display
             "",  # No graph to display
         )
 
-    # Filter out statistical test summary rows (NaN in core columns) for the graphic
+    # Split exported output into main results and optional statistical test block
     core_cols = ["Position in ASM", "Bootstrap mean"]
     results_data[core_cols] = results_data[core_cols].replace(r'^\s*$', np.nan, regex=True)
-    graphic_data = results_data.dropna(subset=core_cols)
+    normal_results_data, statistical_results_data = split_output_tables(results_data)
+    graphic_data = normal_results_data.dropna(subset=core_cols)
 
     # Now it's safe to call create_result_graphic
     graph_output = create_result_graphic(graphic_data, lang) if len(graphic_data) > 0 else None
 
+    main_results_table = create_titled_result_table(
+        normal_results_data,
+        t("result.table.main-results-title", lang),
+        "datatable-main-results",
+        lang,
+    )
+
+    statistical_results_table = ""
+    if isinstance(statistical_results_data, pd.DataFrame) and not statistical_results_data.empty:
+        statistical_results_table = create_titled_result_table(
+            statistical_results_data,
+            t("result.table.statistical-tests-title", lang),
+            "datatable-statistical-tests",
+            lang,
+        )
+
     return (
         create_result_table_header(lang),
-        create_result_table(results_data, lang),
+        main_results_table,
+        statistical_results_table,
         graph_output,
     )
 
@@ -532,6 +558,89 @@ def create_result_table(data, lang="en"):
         ],
         className="shared-table",
     )
+
+
+def create_titled_result_table(data, title, table_id, lang="en"):
+    return html.Div(
+        [
+            html.Div(title, className="results-table-title"),
+            html.Div(
+                [
+                    dash_table.DataTable(
+                        id=table_id,
+                        data=data.to_dict("records"),
+                        columns=[{"name": i, "id": i} for i in data.columns],
+                        filter_action="native",
+                        sort_action="native",
+                        sort_mode="single",
+                        page_current=0,
+                        page_size=15,
+                        filter_query="",
+                        filter_options={"placeholder_text": t("result.table.filter-placeholder", lang)},
+                        row_selectable="multi",
+                        **utils.get_table_styles(),
+                    ),
+                ],
+                className="shared-table",
+            ),
+        ]
+    )
+
+
+def split_output_tables(results_data):
+    if not isinstance(results_data, pd.DataFrame) or results_data.empty:
+        return results_data, pd.DataFrame(columns=getattr(results_data, "columns", []))
+
+    df = results_data.reset_index(drop=True).copy()
+    expected_order = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
+
+    def normalize_token(token):
+        return re.sub(r"[^a-z0-9]", "", str(token).lower())
+
+    normalized_expected = {normalize_token(col): col for col in expected_order}
+
+    def build_stats_df_from_rows(header_row, value_row):
+        stats_record = {}
+        for index, header in enumerate(header_row.tolist()):
+            header_text = str(header).strip()
+            if not header_text:
+                continue
+            normalized_header = normalize_token(header_text)
+            if normalized_header not in normalized_expected:
+                continue
+            canonical_name = normalized_expected[normalized_header]
+            value = value_row.iloc[index] if index < len(value_row) else ""
+            stats_record[canonical_name] = value
+
+        if not stats_record:
+            return pd.DataFrame(columns=expected_order)
+
+        ordered_record = {
+            col: stats_record[col] for col in expected_order if col in stats_record
+        }
+        return pd.DataFrame([ordered_record])
+
+    clean_df = df.fillna("").astype(str).apply(lambda col: col.str.strip())
+    normalized_df = clean_df.apply(
+        lambda col: col.str.lower().str.replace(r"[^a-z0-9]", "", regex=True)
+    )
+
+    empty_row_mask = clean_df.eq("").all(axis=1)
+    header_row_mask = normalized_df.isin(set(normalized_expected.keys())).any(axis=1)
+
+    separator_candidate_mask = empty_row_mask & header_row_mask.shift(-1, fill_value=False)
+    candidate_indices = np.flatnonzero(separator_candidate_mask.to_numpy())
+    valid_candidate_indices = candidate_indices[candidate_indices + 2 < len(df)]
+
+    if len(valid_candidate_indices) > 0:
+        separator_idx = int(valid_candidate_indices[0])
+        header_row = df.iloc[separator_idx + 1]
+        value_row = df.iloc[separator_idx + 2]
+        main_results_data = df.iloc[:separator_idx].copy()
+        statistical_results_data = build_stats_df_from_rows(header_row, value_row)
+        return main_results_data, statistical_results_data
+
+    return df, pd.DataFrame(columns=expected_order)
 
 
 def create_result_graphic(results_data, lang="en"):
