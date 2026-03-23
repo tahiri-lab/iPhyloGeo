@@ -18,5 +18,5 @@
     "permutations_mantel_test": 999,
     "permutations_protest": 999,
     "mantel_test_method": "Pearson",
-    "statistical_test": "None"
+    "statistical_test": "Both"
 }
