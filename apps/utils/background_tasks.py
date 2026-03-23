@@ -8,6 +8,8 @@ allowing users to navigate freely while the computation is in progress.
 import io
 import json
 import os
+import re
+import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -277,6 +279,8 @@ def update_task_status(result_id: str, status: str, error: str = None, estimated
             _task_store[result_id] = {}
 
         _task_store[result_id]["status"] = status
+        # Reset sub-progress when moving to a new step
+        _task_store[result_id]["sub_progress"] = None
 
         if error:
             _task_store[result_id]["error"] = error
@@ -289,6 +293,40 @@ def update_task_status(result_id: str, status: str, error: str = None, estimated
             _task_store[result_id]["progress"] = 100
         elif status.lower() == "error":
             _task_store[result_id]["progress"] = 0
+
+
+def update_task_sub_progress(result_id: str, done: int, total: int):
+    """Update within-step sub-progress (0–100) from aphylogeo multiProcessor output."""
+    if total <= 0:
+        return
+    with _task_lock:
+        if result_id in _task_store:
+            _task_store[result_id]["sub_progress"] = round(done / total * 100)
+
+
+class ProgressCapture(io.TextIOBase):
+    """
+    A stdout wrapper that intercepts aphylogeo multiProcessor progress lines
+    such as "Started:           1 / 4     25 %" and records the sub-progress
+    into the _task_store for the given result_id.
+    """
+
+    # Pattern: "Started:   <done> / <total>"
+    _PATTERN = re.compile(r"Started:\s+(\d+)\s*/\s*(\d+)")
+
+    def __init__(self, result_id: str, inner):
+        self.result_id = result_id
+        self.inner = inner
+
+    def write(self, s: str) -> int:
+        m = self._PATTERN.search(s)
+        if m:
+            done, total = int(m.group(1)), int(m.group(2))
+            update_task_sub_progress(self.result_id, done, total)
+        return self.inner.write(s)
+
+    def flush(self):
+        self.inner.flush()
 
 
 def cleanup_task(result_id: str):
@@ -401,9 +439,15 @@ def _run_pipeline_task(
             }
             Params.update_from_dict(reference_gene_file)
 
-            utils.run_genetic_pipeline(
-                result_id, climatic_file, genetic_file, climatic_trees
-            )
+            # Capture multiProcessor stdout to track sub-step progress
+            _orig_stdout = sys.stdout
+            sys.stdout = ProgressCapture(result_id, _orig_stdout)
+            try:
+                utils.run_genetic_pipeline(
+                    result_id, climatic_file, genetic_file, climatic_trees
+                )
+            finally:
+                sys.stdout = _orig_stdout
 
         elif aligned_genetic_file is not None:
             # Process pre-aligned genetic data
@@ -415,7 +459,13 @@ def _run_pipeline_task(
                 {"_id": result_id, "msaSet": msaSet, "status": "alignment"}
             )
 
-            genetic_trees = utils.create_genetic_trees(result_id, msaSet)
+            # Capture multiProcessor stdout to track sub-step progress
+            _orig_stdout = sys.stdout
+            sys.stdout = ProgressCapture(result_id, _orig_stdout)
+            try:
+                genetic_trees = utils.create_genetic_trees(result_id, msaSet)
+            finally:
+                sys.stdout = _orig_stdout
 
             update_task_status(result_id, "output")
             utils.create_output(

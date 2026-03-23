@@ -14,6 +14,7 @@ def create_result_card(
     created_at=None,
     expired_at=None,
     result_id=None,
+    progress=None,
 ):
     """
     Create a result card component.
@@ -84,7 +85,7 @@ def create_result_card(
             # Left section with title, badge and dates
             html.Div(
                 [
-                    # Title and badge row
+                    # Title, badge, and progress bar
                     html.Div(
                         [
                             html.Div(name, className="result-card__title"),
@@ -96,6 +97,14 @@ def create_result_card(
                         ],
                         className="result-card__header",
                     ),
+                    # Progress bar (only shown when computation is in progress)
+                    html.Div(
+                        html.Div(
+                            style={"width": f"{progress}%"},
+                            className="result-card__progress-fill",
+                        ),
+                        className="result-card__progress-bar",
+                    ) if progress is not None and status_lower not in ("complete", "error") else None,
                     # Dates row
                     html.Div(
                         date_info,
