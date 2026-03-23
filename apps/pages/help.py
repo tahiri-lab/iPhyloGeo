@@ -1,7 +1,7 @@
 import dash
 from dash import Input, Output, callback, dcc, html
 from components.page_section import create_page_section
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 
 dash.register_page(__name__, path="/help")
 
@@ -21,10 +21,10 @@ def get_layout(lang="en"):
                             html.Div(
                                 children=[
                                     html.H3(t("help.section-upload-subtitle", lang)),
-                                    dcc.Markdown(t("help.section-upload-p1", lang), className="help-text"),
-                                    dcc.Markdown(t("help.section-upload-p2", lang), className="help-text"),
-                                    dcc.Markdown(t("help.section-upload-p3", lang), className="help-text"),
-                                    dcc.Markdown(t("help.section-upload-p4", lang), className="help-text"),
+                                    dcc.Markdown(t("help.section-upload-intro", lang), className="help-text"),
+                                    dcc.Markdown(t("help.section-upload-axis-selection", lang), className="help-text"),
+                                    dcc.Markdown(t("help.section-upload-pre-analysis", lang), className="help-text"),
+                                    dcc.Markdown(t("help.section-upload-visualization-benefits", lang), className="help-text"),
                                 ],
                                 className="help-section-content",
                             ),
@@ -77,5 +77,5 @@ layout = html.Div(id="help-page-content", children=get_layout())
 
 @callback(Output("help-page-content", "children"), Input("language-store", "data"))
 def update_help_language(language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     return get_layout(lang)

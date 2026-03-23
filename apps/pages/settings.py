@@ -5,7 +5,7 @@ from aphylogeo.params import Params
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 from components.page_section import create_field, create_page_section
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 from enums import (AlignmentMethod, DistanceMethod, FitMethod,
                    MantelTestMethod, PreprocessingToggle, SimilarityMethod,
                    StatisticalTest, TreeType)
@@ -426,7 +426,7 @@ layout = html.Div(id="settings-page-content", children=get_layout())
 
 @callback(Output("settings-page-content", "children"), Input("language-store", "data"))
 def update_settings_language(language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     return get_layout(lang)
 
 
@@ -456,7 +456,7 @@ def get_default_settings():
     }
 
 
-def validate_updated_settings(settings):
+def validate_updated_settings(settings, lang="en"):
     """
     Validate that all numeric settings are within their allowed bounds.
 
@@ -468,23 +468,70 @@ def validate_updated_settings(settings):
                     or None if all values are valid.
     """
     numeric_bounds = [
-        ("bootstrap_threshold", "Bootstrap threshold", BOOTSTRAP_THRESHOLD_MIN, BOOTSTRAP_THRESHOLD_MAX),
-        ("dist_threshold", "Distance threshold", DISTANCE_THRESHOLD_MIN, DISTANCE_THRESHOLD_MAX),
-        ("window_size", "Window size", WINDOW_SIZE_MIN, WINDOW_SIZE_MAX),
-        ("step_size", "Step size", STEP_SIZE_MIN, STEP_SIZE_MAX),
-        ("rate_similarity", "Similarity rate", RATE_SIMILARITY_MIN, RATE_SIMILARITY_MAX),
-        ("preprocessing_threshold_genetic", "Genetic threshold", PREPROCESSING_THRESHOLD_GENETIC_MIN, PREPROCESSING_THRESHOLD_GENETIC_MAX),
-        ("preprocessing_threshold_climatic", "Climatic threshold", PREPROCESSING_THRESHOLD_CLIMATIC_MIN, PREPROCESSING_THRESHOLD_CLIMATIC_MAX),
-        ("correlation_threshold_climatic", "Max correlation (climatic)", CORRELATION_THRESHOLD_CLIMATIC_MIN, CORRELATION_THRESHOLD_CLIMATIC_MAX),
-        ("permutations_mantel_test", "Mantel test permutations", PERMUTATIONS_MIN, PERMUTATIONS_MAX),
-        ("permutations_protest", "PROTEST permutations", PERMUTATIONS_MIN, PERMUTATIONS_MAX),
+        (
+            "bootstrap_threshold",
+            "setting.fields.bootstrap-threshold",
+            BOOTSTRAP_THRESHOLD_MIN,
+            BOOTSTRAP_THRESHOLD_MAX,
+        ),
+        (
+            "dist_threshold",
+            "setting.fields.distance-threshold",
+            DISTANCE_THRESHOLD_MIN,
+            DISTANCE_THRESHOLD_MAX,
+        ),
+        ("window_size", "setting.fields.window-size", WINDOW_SIZE_MIN, WINDOW_SIZE_MAX),
+        ("step_size", "setting.fields.step-size", STEP_SIZE_MIN, STEP_SIZE_MAX),
+        (
+            "rate_similarity",
+            "setting.fields.similarity-rate",
+            RATE_SIMILARITY_MIN,
+            RATE_SIMILARITY_MAX,
+        ),
+        (
+            "preprocessing_threshold_genetic",
+            "setting.fields.genetic-threshold",
+            PREPROCESSING_THRESHOLD_GENETIC_MIN,
+            PREPROCESSING_THRESHOLD_GENETIC_MAX,
+        ),
+        (
+            "preprocessing_threshold_climatic",
+            "setting.fields.climatic-threshold",
+            PREPROCESSING_THRESHOLD_CLIMATIC_MIN,
+            PREPROCESSING_THRESHOLD_CLIMATIC_MAX,
+        ),
+        (
+            "correlation_threshold_climatic",
+            "setting.fields.max-correlation-climatic",
+            CORRELATION_THRESHOLD_CLIMATIC_MIN,
+            CORRELATION_THRESHOLD_CLIMATIC_MAX,
+        ),
+        (
+            "permutations_mantel_test",
+            "setting.fields.mantel-test-permutations",
+            PERMUTATIONS_MIN,
+            PERMUTATIONS_MAX,
+        ),
+        (
+            "permutations_protest",
+            "setting.fields.protest-permutations",
+            PERMUTATIONS_MIN,
+            PERMUTATIONS_MAX,
+        ),
     ]
-    for key, label, min_val, max_val in numeric_bounds:
+    for key, label_key, min_val, max_val in numeric_bounds:
         value = settings.get(key)
+        label = t(label_key, lang)
         if value is None:
-            return f"{label} is required."
+            return t("setting.validation.required", lang).replace("{field}", label)
         if not (min_val <= value <= max_val):
-            return f"{label} must be between {min_val} and {max_val} (got {value})."
+            return (
+                t("setting.validation.range", lang)
+                .replace("{field}", label)
+                .replace("{min}", str(min_val))
+                .replace("{max}", str(max_val))
+                .replace("{value}", str(value))
+            )
     return None
 
 
@@ -563,6 +610,7 @@ def update_settings(settings):
     State("permutations-protest", "value"),
     State("mantel-test-method", "value"),
     State("statistical-test", "value"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
 def update_parameters(
@@ -588,7 +636,9 @@ def update_parameters(
     permutations_protest,
     mantel_test_method,
     statistical_test,
+    language,
 ):
+    lang = language if language in LANGUAGE_LIST else "en"
     # Prevent callback from running if no button was actually clicked
     if not n_clicks_reset and not n_clicks_save:
         raise PreventUpdate
@@ -598,9 +648,15 @@ def update_parameters(
         default_params = Params()
         # Assuming Params class has a method called `to_dict` or similar to get default settings
         if hasattr(default_params, "to_dict"):
-            return default_params.to_dict(), {"message": "Settings reset to default", "type": "success"}
+            return default_params.to_dict(), {
+                "message": t("setting.toast.reset-default", lang),
+                "type": "success",
+            }
         else:
-            return get_default_settings(), {"message": "Settings reset to default", "type": "success"}
+            return get_default_settings(), {
+                "message": t("setting.toast.reset-default", lang),
+                "type": "success",
+            }
 
     # Save the settings to the JSON file if save button is clicked
     elif ctx.triggered_id == "save-settings-button":
@@ -626,7 +682,7 @@ def update_parameters(
             "mantel_test_method": mantel_test_method,
             "statistical_test": statistical_test,
         }
-        error = validate_updated_settings(updated_settings)
+        error = validate_updated_settings(updated_settings, lang)
         if error:
             return dash.no_update, {"message": error, "type": "error"}
 
@@ -634,7 +690,10 @@ def update_parameters(
             json.dump(updated_settings, file, indent=4)
 
         # Update the settings store
-        return updated_settings, {"message": "Settings saved successfully", "type": "success"}
+        return updated_settings, {
+            "message": t("setting.toast.saved-success", lang),
+            "type": "success",
+        }
 
     else:
         raise PreventUpdate

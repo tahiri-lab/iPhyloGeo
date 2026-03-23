@@ -33,6 +33,14 @@
     "save": "Save settings",
     "reset": "Reset to default"
   },
+  "toast": {
+    "saved-success": "Settings saved successfully",
+    "reset-default": "Settings reset to default"
+  },
+  "validation": {
+    "required": "{field} is required.",
+    "range": "{field} must be between {min} and {max} (got {value})."
+  },
   "options": {
     "alignment": {
       "no-alignment": "No alignment",

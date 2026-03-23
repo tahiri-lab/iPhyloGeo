@@ -22,6 +22,16 @@
     "sent": "E-mail envoyé avec succès !",
     "error": "Erreur lors de l'envoi de l'e-mail"
   },
+  "table": {
+    "filter-placeholder": "Filtrer les données..."
+  },
+  "email-template": {
+    "subject": "Vos résultats iPhyloGeo sont prêts !",
+    "title": "Vos résultats sont prêts !",
+    "completed": "Votre analyse phylogéographique est terminée.",
+    "view-prompt": "Cliquez sur le bouton ci-dessous pour consulter vos résultats (disponibles pendant 7 jours) :",
+    "button": "VOIR LES RÉSULTATS"
+  },
   "toast": {
     "link-copied": "Lien copié dans votre presse-papiers !",
     "genetic-downloaded": "Arbres génétiques téléchargés !",

@@ -5,7 +5,7 @@ from dash import ctx, dcc, html
 from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 
 toast_container = create_toast_container()
 
@@ -388,7 +388,7 @@ def update_color(is_dark):
     Input("theme-store", "data"),
 )
 def update_sidebar_language(language, is_dark):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     theme_text_key = "sidebar.light-mode" if is_dark else "sidebar.night-mode"
     language_flag = "🇺🇸" if lang == "en" else "🇫🇷"
 

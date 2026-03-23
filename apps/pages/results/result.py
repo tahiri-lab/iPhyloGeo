@@ -11,7 +11,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import utils.mail as mail
 import utils.utils as utils
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 from Bio import Phylo
 from components.email_input import (
     create_email_input,
@@ -187,7 +187,7 @@ def share_result_link(n_clicks, href, language):
     """
     Copy the result link to clipboard and show a toast notification.
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     return {"message": t("result.toast.link-copied", lang), "type": "success", "clipboard": href}
@@ -202,12 +202,12 @@ def share_result_link(n_clicks, href, language):
     prevent_initial_call=True,
 )
 def handle_submit_click(pathname, n_clicks, user_email, language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     if not validate_email(user_email):
         return {"message": t("result.email.invalid", lang), "type": "error"}
-    success = mail.send_results_ready_email(user_email, pathname)
+    success = mail.send_results_ready_email(user_email, pathname, lang)
     msg = t("result.email.sent", lang) if success else t("result.email.error", lang)
     return {"message": msg, "type": "success" if success else "error"}
 
@@ -224,7 +224,7 @@ def show_result_name(path, language):
     returns:
         html.Div: the div containing the name of the result
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
@@ -240,7 +240,7 @@ def show_result_name(path, language):
     Input("language-store", "data"),
 )
 def update_result_static_text(language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     return (
         t("result.actions.share", lang),
         t("result.actions.download-output", lang),
@@ -272,7 +272,7 @@ def show_complete_results(path, generated_page, language):
         html.Div: The div containing the results table.
         Union[dcc.Graph, None]: The results graph if data is available and valid, else None.
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
@@ -289,7 +289,7 @@ def show_complete_results(path, generated_page, language):
     ):
         return (
             create_result_table_header(lang),  # Still return the header
-            create_result_table(results_data),  # Display the table (might be empty)
+            create_result_table(results_data, lang),  # Display the table (might be empty)
             "",  # No graph to display
         )
 
@@ -303,7 +303,7 @@ def show_complete_results(path, generated_page, language):
 
     return (
         create_result_table_header(lang),
-        create_result_table(results_data),
+        create_result_table(results_data, lang),
         graph_output,
     )
 
@@ -317,7 +317,7 @@ def show_complete_results(path, generated_page, language):
     Input("language-store", "data"),
 )
 def create_climatic_trees(path, generated_results_header, is_dark_theme, language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the climatic trees
 
@@ -379,7 +379,7 @@ def download_results(
     btn_complete,
     language,
 ):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the genetic trees
     Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
@@ -439,7 +439,7 @@ def download_results(
     Input("language-store", "data"),
 )
 def create_genetic_trees(path, generated_results_header, is_dark_theme, language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the genetic trees
     args:
@@ -504,7 +504,7 @@ def create_result_table_header(lang="en"):
     )
 
 
-def create_result_table(data):
+def create_result_table(data, lang="en"):
     """
     This function creates the results table
     args:
@@ -525,6 +525,7 @@ def create_result_table(data):
                 page_current=0,
                 page_size=15,
                 filter_query="",
+                filter_options={"placeholder_text": t("result.table.filter-placeholder", lang)},
                 row_selectable="multi",
                 **utils.get_table_styles(),
             )

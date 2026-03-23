@@ -33,6 +33,14 @@
     "save": "Enregistrer les paramètres",
     "reset": "Réinitialiser par défaut"
   },
+  "toast": {
+    "saved-success": "Paramètres enregistrés avec succès",
+    "reset-default": "Paramètres réinitialisés par défaut"
+  },
+  "validation": {
+    "required": "{field} est requis.",
+    "range": "{field} doit être entre {min} et {max} (valeur : {value})."
+  },
   "options": {
     "alignment": {
       "no-alignment": "Sans alignement",

@@ -5,7 +5,7 @@ from dash import callback, html
 from dash.dependencies import Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import request
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 
 load_dotenv()
 
@@ -82,7 +82,7 @@ def generate_result_list(path, language):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
 
     if ENV_CONFIG["HOST"] == "local":
         results = utils.get_all_results()
@@ -147,5 +147,5 @@ layout = html.Div(id="results-page-content", children=get_layout())
 
 @callback(Output("results-page-content", "children"), Input("language-store", "data"))
 def update_results_language(language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     return get_layout(lang)

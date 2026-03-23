@@ -43,6 +43,9 @@
   },
   "climatic": {
     "data-preview": "Aperçu des données",
+    "table": {
+      "filter-placeholder": "Filtrer les données..."
+    },
     "generate-graph": "Générez votre graphique",
     "insert-x-axis": "Insérer les données de l'axe X",
     "insert-y-axis": "Insérer les données de l'axe Y",

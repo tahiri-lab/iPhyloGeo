@@ -22,7 +22,7 @@ import pages.utils.popupDone as popupDone
 import pandas as pd
 import utils.mail as mail
 import utils.utils as utils
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 from aphylogeo.alignement import Alignment
 from aphylogeo.genetic_trees import GeneticTrees
 from aphylogeo.params import Params
@@ -144,7 +144,7 @@ layout = html.Div(
     Input("language-store", "data"),
 )
 def update_drop_file_section_language(language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     return [dropFileSection.get_layout(lang)], [popup.get_layout(lang)], [popupDone.get_layout(lang)]
 
 
@@ -159,7 +159,7 @@ def update_drop_file_section_language(language):
 )
 def save_email_on_click(n_clicks, email, language):
     """Save email when user clicks Send Email button. Email will be sent when results are ready."""
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise PreventUpdate
     if not validate_email(email):
@@ -173,13 +173,15 @@ def save_email_on_click(n_clicks, email, language):
     Output("email-store", "data", allow_duplicate=True),
     Input("current-result-id", "data"),
     State("email-store", "data"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def send_email_when_results_ready(result_id, email):
+def send_email_when_results_ready(result_id, email, language):
     """Send email when pipeline finishes and result_id is available."""
+    lang = language if language in LANGUAGE_LIST else "en"
     if result_id and email:
         results_url = f"/result/{result_id}"
-        mail.send_results_ready_email(email, results_url)
+        mail.send_results_ready_email(email, results_url, lang)
         # Clear email after sending to prevent re-sending
         return None
     raise PreventUpdate
@@ -238,7 +240,7 @@ def uploaded_climatic_data(climatic_data_contents, climatic_data_filename, langu
         climatic_data_contents: uploaded climatic data file content in a base64 formatted string.
         climatic_data_filename: name of the uploaded climatic data file
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
 
     # Validate file extension
     if CSV_REGEX.fullmatch(climatic_data_filename or "") or EXCEL_REGEX.fullmatch(
@@ -321,7 +323,7 @@ def uploaded_genetic_data(
         genetic_tree_filename: name of the uploaded genetic tree file
     """
 
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
 
     def default_upload_child(file_types):
         return html.Div(
@@ -499,7 +501,7 @@ def upload_data(
         the layouts to show on the page, and
         the update content from uploaded files to the Dash Store element 'input-data'
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     button_clicked = ctx.triggered_id
     triggered_ids = {
         trigger.get("prop_id", "").split(".")[0]
@@ -788,7 +790,7 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic, language)
         name_error_message : NAME_ERROR_MESSAGE if the name of the results is not valid
         ready-for-pipeline: True if all prerequisites are met for aPhyloGeo pipeline to start, else False
     """
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
 
     # Add climatic column names to Params
     if params_climatic["names"] is not None:

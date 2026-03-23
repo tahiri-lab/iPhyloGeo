@@ -1,7 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import callback, html, register_page
 from dash.dependencies import Input, Output
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 
 register_page(__name__, path="/")
 
@@ -102,7 +102,7 @@ def update_background_video(is_dark):
     Input("language-store", "data"),
 )
 def update_home_language(language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     return (
         t("home.title", lang),
         t("home.subtitle-prefix", lang),

@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import utils.utils as utils
 from dash import Input, Output, State, callback, dash_table, dcc, html
-from utils.i18n import t
+from utils.i18n import LANGUAGE_LIST, t
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
@@ -33,6 +33,7 @@ def create_table(df, lang="en"):
                                         page_current=0,
                                         page_size=15,
                                         filter_query="",
+                                        filter_options={"placeholder_text": t("upload.climatic.table.filter-placeholder", lang)},
                                         **utils.get_table_styles(),
                                     ),
                                     dcc.Store(
@@ -217,7 +218,7 @@ def update_table_columns(x_data, y_data, data):
     State("language-store", "data"),
 )
 def make_graphs(graph_types, filter_query, x_data, y_data, language):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     if not graph_types or not x_data or not y_data:
         empty_message = html.Div(
             t("upload.climatic.empty-graph-message", lang),
@@ -256,7 +257,7 @@ def make_graphs(graph_types, filter_query, x_data, y_data, language):
     State("datatable-interactivity", "data"),
 )
 def update_output(map_data, language, data):
-    lang = language if language in ["en", "fr"] else "en"
+    lang = language if language in LANGUAGE_LIST else "en"
     if not map_data or not data:
         return dash.no_update
 
