@@ -530,36 +530,6 @@ def create_result_table_header(lang="en"):
     )
 
 
-def create_result_table(data, lang="en"):
-    """
-    This function creates the results table
-    args:
-        data (pandas.DataFrame): the data to display in the table
-    returns:
-        dash_table.DataTable: the table containing the results
-    """
-
-    return html.Div(
-        [
-            dash_table.DataTable(
-                id="datatable-interactivity",
-                data=data.to_dict("records"),
-                columns=[{"name": i, "id": i} for i in data.columns],
-                filter_action="native",
-                sort_action="native",
-                sort_mode="single",
-                page_current=0,
-                page_size=15,
-                filter_query="",
-                filter_options={"placeholder_text": t("result.table.filter-placeholder", lang)},
-                row_selectable="multi",
-                **utils.get_table_styles(),
-            )
-        ],
-        className="shared-table",
-    )
-
-
 def create_titled_result_table(data, title, table_id, lang="en"):
     return html.Div(
         [
@@ -588,11 +558,15 @@ def create_titled_result_table(data, title, table_id, lang="en"):
 
 
 def split_output_tables(results_data):
-    if not isinstance(results_data, pd.DataFrame) or results_data.empty:
-        return results_data, pd.DataFrame(columns=getattr(results_data, "columns", []))
+    expected_order = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
+
+    if not isinstance(results_data, pd.DataFrame):
+        return pd.DataFrame(), pd.DataFrame(columns=expected_order)
+
+    if results_data.empty:
+        return results_data, pd.DataFrame(columns=expected_order)
 
     df = results_data.reset_index(drop=True).copy()
-    expected_order = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
 
     def normalize_token(token):
         return re.sub(r"[^a-z0-9]", "", str(token).lower())
