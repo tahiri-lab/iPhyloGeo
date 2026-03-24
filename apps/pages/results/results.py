@@ -5,6 +5,7 @@ from dash import callback, html
 from dash.dependencies import Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import request
+from utils.i18n import LANGUAGE_LIST, t
 
 load_dotenv()
 
@@ -14,21 +15,24 @@ for key, value in dotenv_values().items():
 
 dash.register_page(__name__, path_template="/results")
 
-NO_RESULTS_HTML = html.Div(
-    [
-        html.Div(
-            [
-                html.Div(
-                    'You have no results yet. You can start a new job by going to the "Upload data" page',
-                    className="text",
-                ),
-                html.Div(className="img bg1"),
-            ],
-            className="notification",
-        ),
-    ],
-    className="empty-results",
-)
+
+def get_no_results_html(lang="en"):
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Div(
+                        t("results.empty", lang),
+                        className="text",
+                    ),
+                    html.Div(className="img bg1"),
+                ],
+                className="notification",
+            ),
+        ],
+        className="empty-results",
+    )
+
 
 PROGRESS = {
     "pending": 0,
@@ -40,7 +44,7 @@ PROGRESS = {
 }
 
 
-def get_layout():
+def get_layout(lang="en"):
     return html.Div(
         [
             html.Div(
@@ -49,7 +53,7 @@ def get_layout():
                         children=[
                             html.Div(
                                 [
-                                    html.Div("Results", className="title"),
+                                    html.Div(t("results.title", lang), className="title"),
                                     html.Div(
                                         id="results-list", className="results-row"
                                     ),
@@ -68,8 +72,9 @@ def get_layout():
 @callback(
     Output("results-list", "children"),
     Input("url", "pathname"),
+    Input("language-store", "data"),
 )
-def generate_result_list(path):
+def generate_result_list(path, language):
     """
     This function generates the list of layout of the results.
     args :
@@ -77,26 +82,28 @@ def generate_result_list(path):
     returns :
         layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
     """
+    lang = language if language in LANGUAGE_LIST else "en"
+
     if ENV_CONFIG["HOST"] == "local":
         results = utils.get_all_results()
         if not results:
-            return NO_RESULTS_HTML
-        return [create_layout(result) for result in results]
+            return get_no_results_html(lang)
+        return [create_layout(result, lang) for result in results]
 
     try:
         cookie = request.cookies.get("AUTH")
     except Exception as e:
         print(e)
-        return NO_RESULTS_HTML
+        return get_no_results_html(lang)
 
     if not cookie:
-        return NO_RESULTS_HTML
+        return get_no_results_html(lang)
 
     results_ids = cookie.split(".")
     results = utils.get_results(results_ids)
 
     if not results:
-        return NO_RESULTS_HTML
+        return get_no_results_html(lang)
 
     # Update the cookie with the new list of result IDs, if needed
     new_cookie_ids = [str(result["_id"]) for result in results]
@@ -106,10 +113,10 @@ def generate_result_list(path):
             utils.COOKIE_NAME, ".".join(new_cookie_ids), max_age=utils.COOKIE_MAX_AGE
         )
 
-    return [create_layout(result) for result in results]
+    return [create_layout(result, lang) for result in results]
 
 
-def create_layout(result):
+def create_layout(result, lang="en"):
     """
     This function creates the layout for a result.
     args :
@@ -131,7 +138,14 @@ def create_layout(result):
         created_at=created_at,
         expired_at=expired_at,
         result_id=str(result["_id"]),
+        lang=lang,
     )
 
 
-layout = get_layout()
+layout = html.Div(id="results-page-content", children=get_layout())
+
+
+@callback(Output("results-page-content", "children"), Input("language-store", "data"))
+def update_results_language(language):
+    lang = language if language in LANGUAGE_LIST else "en"
+    return get_layout(lang)

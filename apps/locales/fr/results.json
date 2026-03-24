@@ -1,0 +1,15 @@
+{
+  "title": "Résultats",
+  "empty": "Vous n'avez pas encore de résultats. Vous pouvez lancer une nouvelle tâche depuis la page \"Téléverser des données\"",
+  "card": {
+    "access": "Ouvrir",
+    "created": "Créé",
+    "expired": "Expire",
+    "status": {
+      "error": "ERREUR",
+      "success": "SUCCÈS",
+      "in-progress": "EN COURS",
+      "unknown": "INCONNU"
+    }
+  }
+}

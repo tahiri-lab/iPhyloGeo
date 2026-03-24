@@ -6,6 +6,7 @@ Displays a result card with name, status badge, dates and access button.
 from dash import dcc, html
 
 from components.badge import create_badge
+from utils.i18n import t
 
 
 def create_result_card(
@@ -14,6 +15,7 @@ def create_result_card(
     created_at=None,
     expired_at=None,
     result_id=None,
+    lang="en",
 ):
     """
     Create a result card component.
@@ -32,17 +34,17 @@ def create_result_card(
     # Possible statuses: pending, complete, error
     if status == "error":
         status_class = "error"
-        status_text = "ERROR"
+        status_text = t("results.card.status.error", lang)
     elif status == "complete":
         status_class = "success"
-        status_text = "SUCCESS"
+        status_text = t("results.card.status.success", lang)
     elif status in ["pending"]:
         status_class = "pending"
-        status_text = "IN PROGRESS"
+        status_text = t("results.card.status.in-progress", lang)
     else:
         # Fallback for unknown status
         status_class = "pending"
-        status_text = status.upper() if status else "UNKNOWN"
+        status_text = status.upper() if status else t("results.card.status.unknown", lang)
 
     # Build date info if provided
     date_info = []
@@ -51,7 +53,7 @@ def create_result_card(
             html.Div(
                 [
                     html.Img(src="/assets/icons/calendar.svg", className="result-card__date-icon-calendar"),
-                    html.Span(f"Created {created_at}"),
+                    html.Span(f"{t('results.card.created', lang)} {created_at}"),
                 ],
                 className="result-card__date",
             )
@@ -61,7 +63,7 @@ def create_result_card(
             html.Div(
                 [
                     html.Img(src="/assets/icons/clock.svg", className="result-card__date-icon"),
-                    html.Span(f"Expired {expired_at}"),
+                    html.Span(f"{t('results.card.expired', lang)} {expired_at}"),
                 ],
                 className="result-card__date",
             )
@@ -95,7 +97,7 @@ def create_result_card(
             # Right section with access button
             html.Div(
                 [
-                    html.Span("Access", className="result-card__access-text"),
+                    html.Span(t("results.card.access", lang), className="result-card__access-text"),
                     html.Span("›", className="result-card__access-arrow"),
                 ],
                 className="result-card__access",

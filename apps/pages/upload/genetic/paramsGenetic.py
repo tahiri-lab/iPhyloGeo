@@ -1,11 +1,37 @@
 import json
 
-import dash
 import dash_bio as dashbio
-from dash import Input, Output, State, callback, dcc, html
+from dash import html
+from utils.i18n import t
 
 
-def get_layout(file):
+def build_alignment_chart(file, starting_position, window_size):
+    if not isinstance(file, dict) or not file:
+        return html.Div()
+
+    if starting_position is None:
+        return html.Div()
+
+    end_window = starting_position + window_size
+    genetic_values = ""
+    for key, value in file.items():
+        genetic_values += ">" + key + "\n"
+        genetic_values += str(value[int(starting_position):int(end_window)]) + "\n"
+
+    return html.Div(
+        [
+            dashbio.AlignmentChart(
+                id="my-alignment-viewer",
+                data=genetic_values,
+                tilewidth=20,
+                height=600,
+            ),
+            html.Div(id="alignment-viewer-output", className="alignment-chart"),
+        ]
+    )
+
+
+def get_layout(file, lang="en"):
 
     # Load saved settings from YAML file "genetic_settings_file" to populate the form
     genetic_setting_file = json.load(open("genetic_settings_file.json", "r"))
@@ -15,20 +41,18 @@ def get_layout(file):
     # second_quartile = int(0.5 * max_sequence_length)
     # third_quartile = int(0.75 * max_sequence_length)
     # print(max_sequence_length)
+    alignment_chart = build_alignment_chart(
+        file,
+        STARTING_POSITION_DEFAULT,
+        genetic_setting_file["window_size"],
+    )
+
     return html.Div(
         children=[
             html.Div(
                 [
-                    dcc.Store(
-                        id="sync",
-                        data={
-                            "starting_position": STARTING_POSITION_DEFAULT,
-                            "window_size": genetic_setting_file["window_size"],
-                        },
-                    ),
                     html.Div(
                         [
-                            dcc.Store(id="stored-genetic-data", data=file),
                             # html.Div('Genetic parameters', className="title"),
                             # html.Div([
                             #         # ----- Bootstrap value threshold -----
@@ -143,10 +167,10 @@ def get_layout(file):
                                     html.Div(
                                         [
                                             html.Div(
-                                                "Alignment chart",
+                                                t("upload.genetic.alignment-chart", lang),
                                                 className="sub-title",
                                             ),
-                                            html.Div(id="alignment-chart"),
+                                            html.Div(alignment_chart, id="alignment-chart"),
                                         ]
                                     ),
                                 ]
@@ -161,42 +185,6 @@ def get_layout(file):
         ],
         className="parameters-section",
         id="parameters-section",
-    )
-
-
-@callback(
-    Output("alignment-chart", "children"),
-    State("sync", "data"),
-    Input("stored-genetic-data", "data"),
-)
-def make_alignment_chart(sync_data, file):
-    """
-    This function creates the alignment chart
-    args:
-        starting_position (int): starting position of the alignment chart
-        window_size (int): size of the window
-        file (dict): dictionary containing the sequences
-    """
-    starting_position = sync_data["starting_position"]
-    window_size = sync_data["window_size"]
-
-    if starting_position is None:
-        return dash.no_update
-    end_window = starting_position + window_size
-    genetic_values = ""
-    for key, value in file.items():
-        genetic_values += ">" + key + "\n"
-        genetic_values += str(value[int(starting_position):int(end_window)]) + "\n"
-    return html.Div(
-        [
-            dashbio.AlignmentChart(
-                id="my-alignment-viewer",
-                data=genetic_values,
-                tilewidth=20,
-                height=600,
-            ),
-            html.Div(id="alignment-viewer-output", className="alignment-chart"),
-        ]
     )
 
 
