@@ -470,6 +470,11 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
         output_list = aPhyloGeo.filterResults(
             climatic_trees, genetic_trees, climatic_df, create_file=False
         )
+        none_count = sum(1 for row in output_list if row is None)
+        if none_count:
+            print(f"[Warning create_output] {none_count} / {len(output_list)} rows from "
+                  f"filterResults were None (specimen ID mismatch) — skipping them.")
+        output_list = [row for row in output_list if row is not None]
         output = aPhyloGeo.format_to_csv(output_list)
         df_output = pd.DataFrame(output)
 
