@@ -5,6 +5,10 @@
     "access": "Ouvrir",
     "created": "Créé",
     "expired": "Expire",
+    "temporary": "Résultat temporaire",
+    "expired-now": "Expiré",
+    "expire-in-minutes": "Expire dans {count}min",
+    "expire-in-hours-minutes": "Expire dans {hours}h{minutes}min",
     "status": {
       "error": "ERREUR",
       "success": "SUCCÈS",

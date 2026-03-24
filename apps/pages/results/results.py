@@ -1,4 +1,5 @@
 import dash
+from datetime import datetime
 import utils.utils as utils
 from components.result_card import create_result_card
 from dash import callback, html
@@ -14,6 +15,70 @@ for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
 dash.register_page(__name__, path_template="/results")
+
+
+def _format_card_date(value):
+    if value is None:
+        return None
+
+    if hasattr(value, "strftime"):
+        return value.strftime("%d/%m/%Y")
+
+    if isinstance(value, str):
+        normalized = value.replace("Z", "+00:00")
+        try:
+            return datetime.fromisoformat(normalized).strftime("%d/%m/%Y")
+        except ValueError:
+            return value
+
+    return str(value)
+
+
+def _to_datetime(value):
+    if value is None:
+        return datetime.min
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        normalized = value.replace("Z", "+00:00")
+        try:
+            return datetime.fromisoformat(normalized)
+        except ValueError:
+            return datetime.min
+    return datetime.min
+
+
+def _temporary_remaining_label(result, lang="en"):
+    if not result.get("is_temporary"):
+        return None
+
+    expires_at = _to_datetime(result.get("expired_at"))
+    if expires_at == datetime.min:
+        return t("results.card.temporary", lang)
+
+    if expires_at.tzinfo is not None:
+        now = datetime.now(expires_at.tzinfo)
+    else:
+        now = datetime.utcnow()
+
+    delta_seconds = int((expires_at - now).total_seconds())
+    if delta_seconds <= 0:
+        return t("results.card.expired-now", lang)
+
+    total_minutes = max(1, delta_seconds // 60)
+    hours = total_minutes // 60
+    minutes = total_minutes % 60
+
+    if hours > 0:
+        return (
+            t("results.card.expire-in-hours-minutes", lang)
+            .replace("{hours}", str(hours))
+            .replace("{minutes}", str(minutes))
+        )
+
+    return t("results.card.expire-in-minutes", lang).replace(
+        "{count}", str(total_minutes)
+    )
 
 
 def get_no_results_html(lang="en"):
@@ -101,6 +166,7 @@ def generate_result_list(path, language):
 
     results_ids = cookie.split(".")
     results = utils.get_results(results_ids)
+    results = sorted(results, key=lambda result: _to_datetime(result.get("created_at")))
 
     if not results:
         return get_no_results_html(lang)
@@ -129,14 +195,17 @@ def create_layout(result, lang="en"):
     expired_at = None
 
     if ENV_CONFIG["HOST"] != "local":
-        created_at = result["created_at"].strftime("%d/%m/%Y")
-        expired_at = result["expired_at"].strftime("%d/%m/%Y")
+        created_at = _format_card_date(result.get("created_at"))
+        expired_at = _format_card_date(result.get("expired_at"))
+
+    remaining_time = _temporary_remaining_label(result, lang)
 
     return create_result_card(
         name=result["name"],
         status=result["status"],
         created_at=created_at,
         expired_at=expired_at,
+        remaining_time=remaining_time,
         result_id=str(result["_id"]),
         lang=lang,
     )

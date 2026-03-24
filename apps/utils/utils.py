@@ -219,6 +219,7 @@ def create_result(
     genetic_params=None,
     name="result",
     status="pending",
+    temporary=False,
 ):
     """
     Creates a result in the database.
@@ -251,6 +252,9 @@ def create_result(
             result["genetic_params"] = genetic_params
         if climatic_params and "climatic" in result_type:
             result["climatic_params"] = climatic_params
+
+        if temporary:
+            return results_ctrl.create_temp_result(result)
 
         return results_ctrl.create_result(result)
 

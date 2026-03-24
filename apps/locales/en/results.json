@@ -5,6 +5,10 @@
     "access": "Access",
     "created": "Created",
     "expired": "Expired",
+    "temporary": "Temporary result",
+    "expired-now": "Expired",
+    "expire-in-minutes": "Expire in {count}min",
+    "expire-in-hours-minutes": "Expire in {hours}h{minutes}min",
     "status": {
       "error": "ERROR",
       "success": "SUCCESS",

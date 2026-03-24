@@ -14,6 +14,7 @@ def create_result_card(
     status,
     created_at=None,
     expired_at=None,
+    remaining_time=None,
     result_id=None,
     lang="en",
 ):
@@ -58,7 +59,17 @@ def create_result_card(
                 className="result-card__date",
             )
         )
-    if expired_at:
+    if remaining_time:
+        date_info.append(
+            html.Div(
+                [
+                    html.Img(src="/assets/icons/clock.svg", className="result-card__date-icon"),
+                    html.Span(remaining_time),
+                ],
+                className="result-card__date",
+            )
+        )
+    elif expired_at:
         date_info.append(
             html.Div(
                 [

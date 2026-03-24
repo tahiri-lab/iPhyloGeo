@@ -27,11 +27,36 @@ from dash import (
     html,
 )
 from dash.dependencies import Input, Output, State
+from db.controllers import temp_results
 from db.controllers.files import str_csv_to_df
 from flask import request
 from plotly.subplots import make_subplots
 
 dash.register_page(__name__, path_template="/result/<result_id>")
+
+
+def _get_result_id_from_path(path):
+    if not path:
+        return None
+    return path.split("/")[-1]
+
+
+def _is_valid_result_id(result_id):
+    if not result_id:
+        return False
+    return ObjectId.is_valid(result_id) or temp_results.is_temp_result_id(result_id)
+
+
+def _load_result_from_path(path):
+    result_id = _get_result_id_from_path(path)
+    if not _is_valid_result_id(result_id):
+        raise dash.exceptions.PreventUpdate
+
+    result = utils.get_result(result_id)
+    if not result:
+        raise dash.exceptions.PreventUpdate
+
+    return result_id, result
 
 
 def create_email_section(lang="en"):
@@ -226,10 +251,8 @@ def show_result_name(path, language):
         html.Div: the div containing the name of the result
     """
     lang = language if language in LANGUAGE_LIST else "en"
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
-        raise dash.exceptions.PreventUpdate
-    title = utils.get_result(result_id)["name"]
+    _, result = _load_result_from_path(path)
+    title = result["name"]
     return t("result.title-of", lang).replace("{name}", title)
 
 
@@ -275,10 +298,7 @@ def show_complete_results(path, generated_page, language):
         Union[dcc.Graph, None]: The results graph if data is available and valid, else None.
     """
     lang = language if language in LANGUAGE_LIST else "en"
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
-        raise dash.exceptions.PreventUpdate
-    result = utils.get_result(result_id)
+    _, result = _load_result_from_path(path)
 
     if "genetic" not in result["result_type"] or "output" not in result:
         return "", "", "", ""
@@ -356,12 +376,8 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, languag
         htmml.Div: the div containing the header (title & download button) of the climatic trees
         html.Div: the div containing the climatic trees
     """
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
-        raise dash.exceptions.PreventUpdate
+    result_id, result = _load_result_from_path(path)
     add_to_cookie(result_id)
-
-    result = utils.get_result(result_id)
     if "climatic" not in result["result_type"]:
         return "", ""
 
@@ -420,10 +436,7 @@ def download_results(
         btn_data : dummy inpput needed to trigger the callback
     """
 
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
-        raise dash.exceptions.PreventUpdate
-    result = utils.get_result(result_id)
+    _, result = _load_result_from_path(path)
 
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -476,10 +489,7 @@ def create_genetic_trees(path, generated_results_header, is_dark_theme, language
         htmml.Div: the div containing the header (title & download button) of the genetic trees
         html.Div: the div containing the genetic trees
     """
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
-        raise dash.exceptions.PreventUpdate
-    result = utils.get_result(result_id)
+    _, result = _load_result_from_path(path)
     if "genetic" not in result["result_type"] or "genetic_trees" not in result:
         return "", ""
 
