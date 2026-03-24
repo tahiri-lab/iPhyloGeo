@@ -773,7 +773,7 @@ def rebuild_params_sections_from_store(current_data, lang):
 def ready_for_pipeline(open, result_name, input_data, params_climatic, language):
     """
     Verify the following prerequisites needed for aPhyloGeo pipeline to start:
-     - At least two columns are selected from the climatic data file.
+    - At least one column is selected from the climatic data file.
      - The dataset has a name.
      - Verify the presence of uploaded climatic and genetic data.
 
@@ -819,7 +819,7 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic, language)
         params_climatic["names"] is not None and len(params_climatic["names"]) >= 2
     )
 
-    # Assure that at least two columns from the climatic data are selected
+    # Assure that at least one climatic column is selected
     if (
         climatic_data_is_present and not params_climatic_is_complete and result_name_is_valid
     ):
@@ -855,8 +855,8 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic, language)
     prevent_initial_call=True,
 )
 def clear_column_error_when_valid(column_names):
-    """Clear the column error as soon as at least two columns are selected."""
-    if column_names is not None and len(column_names) >= 2:
+    """Clear the column error as soon as at least one column is selected."""
+    if column_names is not None and len(column_names) >= 1:
         return ""
     return dash.no_update
 
