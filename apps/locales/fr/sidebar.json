@@ -1,0 +1,13 @@
+{
+  "language": "Langue",
+  "lang-en": "English",
+  "lang-fr": "Français",
+  "home": "Accueil",
+  "upload-data": "Importer",
+  "check-results": "Résultats",
+  "settings": "Paramètres",
+  "help": "Aide",
+  "visit-github": "GitHub",
+  "light-mode": "Mode clair",
+  "night-mode": "Mode nuit"
+}

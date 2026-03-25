@@ -1,4 +1,6 @@
 module.exports = function (grunt) {
+  const fs = require("fs");
+
   grunt.initConfig({
     sass: {
       options: {
@@ -13,8 +15,10 @@ module.exports = function (grunt) {
           "apps/assets/nav_bar.css": "apps/assets/styles/nav_bar.scss",
           "apps/assets/results.css": "apps/assets/styles/results.scss",
           "apps/assets/result.css": "apps/assets/styles/result.scss",
-          "apps/assets/params_climatic.css": "apps/assets/styles/params_climatic.scss",
-          "apps/assets/params_genetic.css": "apps/assets/styles/params_genetic.scss",
+          "apps/assets/params_climatic.css":
+            "apps/assets/styles/params_climatic.scss",
+          "apps/assets/params_genetic.css":
+            "apps/assets/styles/params_genetic.scss",
           "apps/assets/upload_page.css": "apps/assets/styles/upload_page.scss",
           "apps/assets/helper.css": "apps/assets/styles/utils/helper.scss",
           "apps/assets/button.css": "apps/assets/styles/utils/button.scss",
@@ -23,10 +27,13 @@ module.exports = function (grunt) {
           "apps/assets/settings.css": "apps/assets/styles/settings.scss",
           "apps/assets/help.css": "apps/assets/styles/help.scss",
           "apps/assets/toast.css": "apps/assets/styles/utils/toast.scss",
-          "apps/assets/email_input.css": "apps/assets/styles/utils/email_input.scss",
+          "apps/assets/email_input.css":
+            "apps/assets/styles/utils/email_input.scss",
           "apps/assets/badge.css": "apps/assets/styles/utils/badge.scss",
-          "apps/assets/result_card.css": "apps/assets/styles/utils/result_card.scss",
-          "apps/assets/page_layout.css": "apps/assets/styles/utils/page_layout.scss",
+          "apps/assets/result_card.css":
+            "apps/assets/styles/utils/result_card.scss",
+          "apps/assets/page_layout.css":
+            "apps/assets/styles/utils/page_layout.scss",
         },
       },
     },
@@ -56,11 +63,29 @@ module.exports = function (grunt) {
         ],
         tasks: ["build-css"],
       },
+      locales: {
+        files: ["apps/locales/**/*.json"],
+        tasks: ["reload-python-on-locale-change"],
+      },
     },
   });
 
   grunt.loadNpmTasks("grunt-sass");
   grunt.loadNpmTasks("grunt-contrib-watch");
+
+  grunt.registerTask(
+    "reload-python-on-locale-change",
+    "Trigger Dash reload when locale JSON changes",
+    function () {
+      const appPath = "apps/app.py";
+      const now = new Date();
+      fs.utimesSync(appPath, now, now);
+      grunt.log.writeln(
+        `Locale changed. Touched ${appPath} to trigger Python reload.`,
+      );
+    },
+  );
+
   grunt.registerTask("build-css", ["sass"]);
   grunt.registerTask("default", ["build-css", "watch"]);
 };

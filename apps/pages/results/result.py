@@ -11,6 +11,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import utils.mail as mail
 import utils.utils as utils
+from utils.i18n import LANGUAGE_LIST, t
 from Bio import Phylo
 from components.email_input import (
     create_email_input,
@@ -33,14 +34,14 @@ from plotly.subplots import make_subplots
 dash.register_page(__name__, path_template="/result/<result_id>")
 
 
-def create_email_section():
+def create_email_section(lang="en"):
     """
     Creates the email share section content (header + input).
     """
     return [
         html.Div(
             [
-                html.Div("Share result", className="result-section-title"),
+                html.Div(t("result.sections.share-result", lang), className="result-section-title"),
                 html.Img(
                     src="../../assets/icons/angle-down.svg",
                     id="results-email-collapse-button",
@@ -52,12 +53,13 @@ def create_email_section():
         html.Div(
             [
                 html.P(
-                    "if you would like to receive the URL of this result by email, you can enter your address mail below.",
+                    t("result.sections.email-description", lang),
                     className="email-description",
                 ),
                 create_email_input(
                     input_id="user-input",
-                    placeholder="Enter your address mail here",
+                    placeholder=t("result.email.placeholder", lang),
+                    button_text=t("result.email.send", lang),
                 ),
             ],
             id="email-section-container",
@@ -97,7 +99,7 @@ layout = html.Div(
                     [
                         html.Div(
                             [
-                                html.Span("share", className="text"),
+                                html.Span(t("result.actions.share", "en"), className="text", id="share-action-text"),
                                 html.Img(
                                     src="../../assets/icons/share.svg",
                                     id="share_result",
@@ -109,7 +111,7 @@ layout = html.Div(
                         ),
                         html.Div(
                             [
-                                html.Span("download output.csv", className="text"),
+                                html.Span(t("result.actions.download-output", "en"), className="text", id="download-output-text"),
                                 html.Img(
                                     src="../../assets/icons/download.svg",
                                     className="icon",
@@ -120,7 +122,7 @@ layout = html.Div(
                         ),
                         html.Div(
                             [
-                                html.Span("download genetic sequences", className="text"),
+                                html.Span(t("result.actions.download-sequences", "en"), className="text", id="download-sequences-text"),
                                 html.Img(
                                     src="../../assets/icons/download.svg",
                                     className="icon",
@@ -138,7 +140,8 @@ layout = html.Div(
                         html.Div(id="results-table-title"),
                         html.Div(
                             [
-                                html.Div(id="output-results"),
+                                html.Div(id="main-results-table-container"),
+                                html.Div(id="statistical-results-table-container"),
                                 html.Div(id="output-results-graph", className="graph"),
                             ],
                             id="results-row",
@@ -175,6 +178,7 @@ layout = html.Div(
                 # Email section card
                 html.Div(
                     create_email_section(),
+                    id="email-section-card-content",
                     className="page-card result-section-card-bottom",
                 ),
             ],
@@ -259,15 +263,17 @@ def check_result_status(n_intervals, path, prev_status, current_refresh):
     Output("toast-store", "data", allow_duplicate=True),
     Input("share-result-btn", "n_clicks"),
     State("url", "href"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def share_result_link(n_clicks, href):
+def share_result_link(n_clicks, href, language):
     """
     Copy the result link to clipboard and show a toast notification.
     """
+    lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
-    return {"message": "Link copied to your clipboard!", "type": "success", "clipboard": href}
+    return {"message": t("result.toast.link-copied", lang), "type": "success", "clipboard": href}
 
 
 @callback(
@@ -275,15 +281,17 @@ def share_result_link(n_clicks, href):
     State("url", "pathname"),
     Input(get_button_id("user-input"), "n_clicks"),
     State("user-input", "value"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def handle_submit_click(pathname, n_clicks, user_email):
+def handle_submit_click(pathname, n_clicks, user_email, language):
+    lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     if not validate_email(user_email):
-        return {"message": "Invalid email address", "type": "error"}
-    success = mail.send_results_ready_email(user_email, pathname)
-    msg = "Email sent successfully!" if success else "Error sending email"
+        return {"message": t("result.email.invalid", lang), "type": "error"}
+    success = mail.send_results_ready_email(user_email, pathname, lang)
+    msg = t("result.email.sent", lang) if success else t("result.email.error", lang)
     return {"message": msg, "type": "success" if success else "error"}
 
 
@@ -292,14 +300,16 @@ def handle_submit_click(pathname, n_clicks, user_email):
     Output("processing-status-container", "children"),
     Output("processing-status-container", "style"),
     Input("url", "pathname"),
+    Input("language-store", "data"),
 )
-def show_result_name(path):
+def show_result_name(path, language):
     """
     args:
         path (str): the path of the page
     returns:
         tuple: the title, spinner content, and spinner style
     """
+    lang = language if language in LANGUAGE_LIST else "en"
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
@@ -342,14 +352,33 @@ def show_result_name(path):
 
 
 @callback(
+    Output("share-action-text", "children"),
+    Output("download-output-text", "children"),
+    Output("download-sequences-text", "children"),
+    Output("email-section-card-content", "children"),
+    Input("language-store", "data"),
+)
+def update_result_static_text(language):
+    lang = language if language in LANGUAGE_LIST else "en"
+    return (
+        t("result.actions.share", lang),
+        t("result.actions.download-output", lang),
+        t("result.actions.download-sequences", lang),
+        create_email_section(lang),
+    )
+
+
+@callback(
     Output("results-table-title", "children"),
-    Output("output-results", "children"),
+    Output("main-results-table-container", "children"),
+    Output("statistical-results-table-container", "children"),
     Output("output-results-graph", "children"),
     State("url", "pathname"),
     Input("all-results", "children"),
     Input("refresh-trigger", "data"),
+    Input("language-store", "data"),
 )
-def show_complete_results(path, generated_page, refresh_trigger):
+def show_complete_results(path, generated_page, refresh_trigger, language):
     """
 
       This function creates the header (title & download button) of the results,
@@ -365,13 +394,14 @@ def show_complete_results(path, generated_page, refresh_trigger):
         html.Div: The div containing the results table.
         Union[dcc.Graph, None]: The results graph if data is available and valid, else None.
     """
+    lang = language if language in LANGUAGE_LIST else "en"
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
     result = utils.get_result(result_id)
 
     if "genetic" not in result["result_type"] or "output" not in result:
-        return "", "", ""
+        return "", "", "", ""
 
     results_data = str_csv_to_df(result["output"])
 
@@ -380,22 +410,46 @@ def show_complete_results(path, generated_page, refresh_trigger):
         col in results_data.columns for col in ["Position in ASM", "Bootstrap mean"]
     ):
         return (
-            create_result_table_header(),  # Still return the header
-            create_result_table(results_data),  # Display the table (might be empty)
+            create_result_table_header(lang),  # Still return the header
+            create_titled_result_table(
+                results_data,
+                t("result.table.main-results-title", lang),
+                "datatable-main-results",
+                lang,
+            ),
+            "",  # No statistical table to display
             "",  # No graph to display
         )
 
-    # Filter out statistical test summary rows (NaN in core columns) for the graphic
+    # Split exported output into main results and optional statistical test block
     core_cols = ["Position in ASM", "Bootstrap mean"]
     results_data[core_cols] = results_data[core_cols].replace(r'^\s*$', np.nan, regex=True)
-    graphic_data = results_data.dropna(subset=core_cols)
+    normal_results_data, statistical_results_data = split_output_tables(results_data)
+    graphic_data = normal_results_data.dropna(subset=core_cols)
 
     # Now it's safe to call create_result_graphic
-    graph_output = create_result_graphic(graphic_data) if len(graphic_data) > 0 else None
+    graph_output = create_result_graphic(graphic_data, lang) if len(graphic_data) > 0 else None
+
+    main_results_table = create_titled_result_table(
+        normal_results_data,
+        t("result.table.main-results-title", lang),
+        "datatable-main-results",
+        lang,
+    )
+
+    statistical_results_table = ""
+    if isinstance(statistical_results_data, pd.DataFrame) and not statistical_results_data.empty:
+        statistical_results_table = create_titled_result_table(
+            statistical_results_data,
+            t("result.table.statistical-tests-title", lang),
+            "datatable-statistical-tests",
+            lang,
+        )
 
     return (
-        create_result_table_header(),
-        create_result_table(results_data),
+        create_result_table_header(lang),
+        main_results_table,
+        statistical_results_table,
         graph_output,
     )
 
@@ -407,8 +461,10 @@ def show_complete_results(path, generated_page, refresh_trigger):
     Input("output-results-graph", "children"),
     Input("theme-store", "data"),
     Input("refresh-trigger", "data"),
+    Input("language-store", "data"),
 )
-def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh_trigger):
+def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh_trigger, language):
+    lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the climatic trees
 
@@ -438,7 +494,7 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh
         nodes, edges = generate_elements(tree)
         climatic_elements.append(nodes + edges)
 
-    return create_climatic_trees_header(), html.Div(
+    return create_climatic_trees_header(lang), html.Div(
         children=[
             generate_tree(elem, name, is_dark_theme)
             for elem, name in zip(climatic_elements, tree_names)
@@ -456,6 +512,7 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh
     Input("download-button-complete", "n_clicks"),
     Input("download-btn-genetic", "n_clicks"),
     Input("download-btn-climatic", "n_clicks"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
 def download_results(
@@ -464,7 +521,9 @@ def download_results(
     btn_complete,
     btn_genetic,
     btn_climatic,
+    language,
 ):
+    lang = language if language in LANGUAGE_LIST else "en"
     """
     This function handles all download buttons.
     The genetic and climatic buttons are hidden placeholders that get clicked via JS.
@@ -492,7 +551,7 @@ def download_results(
         data_genetic = "".join(list(result_genetic_trees.values()))
         return dict(
             content=data_genetic, filename=result["name"] + "_genetic_trees.newick"
-        ), {"message": "Genetic trees downloaded!", "type": "success"}
+        ), {"message": t("result.toast.genetic-downloaded", lang), "type": "success"}
     if trigger_id == "download-btn-climatic" and btn_climatic:
         if "climatic_trees" not in result:
             raise dash.exceptions.PreventUpdate
@@ -500,7 +559,7 @@ def download_results(
         data_climatic = "".join(list(result_climatic_trees.values()))
         return dict(
             content=data_climatic, filename=result["name"] + "_climatic_trees.newick"
-        ), {"message": "Climatic trees downloaded!", "type": "success"}
+        ), {"message": t("result.toast.climatic-downloaded", lang), "type": "success"}
     if trigger_id == "download-button-aligned" and btn_aligned:
         if "msaSet" not in result:
             raise dash.exceptions.PreventUpdate
@@ -508,7 +567,7 @@ def download_results(
         data_msa = json.dumps(result_msa)
         return dict(
             content=data_msa, filename=result["name"] + "_msa.json"
-        ), {"message": "Genetic sequences downloaded!", "type": "success"}
+        ), {"message": t("result.toast.sequences-downloaded", lang), "type": "success"}
     if trigger_id == "download-button-complete" and btn_complete:
         if "output" not in result:
             raise dash.exceptions.PreventUpdate
@@ -516,7 +575,7 @@ def download_results(
         return dict(
             content=data_results.to_csv(header=True, index=False),
             filename=result["name"] + "_results.csv",
-        ), {"message": "Output downloaded!", "type": "success"}
+        ), {"message": t("result.toast.output-downloaded", lang), "type": "success"}
 
     raise dash.exceptions.PreventUpdate
 
@@ -528,8 +587,10 @@ def download_results(
     Input("output-results-graph", "children"),
     Input("theme-store", "data"),
     Input("refresh-trigger", "data"),
+    Input("language-store", "data"),
 )
-def create_genetic_trees(path, generated_results_header, is_dark_theme, refresh_trigger):
+def create_genetic_trees(path, generated_results_header, is_dark_theme, refresh_trigger, language):
+    lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the genetic trees
     args:
@@ -556,7 +617,7 @@ def create_genetic_trees(path, generated_results_header, is_dark_theme, refresh_
         nodes, edges = generate_elements(tree)
         genetic_elements.append(nodes + edges)
 
-    return create_genetic_trees_header(), html.Div(
+    return create_genetic_trees_header(lang), html.Div(
         children=[
             generate_tree(elem, name, is_dark_theme)
             for elem, name in zip(genetic_elements, tree_names)
@@ -577,13 +638,13 @@ def add_to_cookie(result_id):
     utils.make_cookie(result_id, auth_cookie, response)
 
 
-def create_result_table_header():
+def create_result_table_header(lang="en"):
     """
     Creates the collapsible section header for the results table.
     """
     return html.Div(
         [
-            html.Div("Results", className="result-section-title"),
+            html.Div(t("result.sections.results", lang), className="result-section-title"),
             html.Img(
                 src="../../assets/icons/angle-down.svg",
                 id="results-table-collapse-button",
@@ -594,36 +655,94 @@ def create_result_table_header():
     )
 
 
-def create_result_table(data):
-    """
-    This function creates the results table
-    args:
-        data (pandas.DataFrame): the data to display in the table
-    returns:
-        dash_table.DataTable: the table containing the results
-    """
-
+def create_titled_result_table(data, title, table_id, lang="en"):
     return html.Div(
         [
-            dash_table.DataTable(
-                id="datatable-interactivity",
-                data=data.to_dict("records"),
-                columns=[{"name": i, "id": i} for i in data.columns],
-                filter_action="native",
-                sort_action="native",
-                sort_mode="single",
-                page_current=0,
-                page_size=15,
-                filter_query="",
-                row_selectable="multi",
-                **utils.get_table_styles(),
-            )
-        ],
-        className="shared-table",
+            html.Div(title, className="results-table-title"),
+            html.Div(
+                [
+                    dash_table.DataTable(
+                        id=table_id,
+                        data=data.to_dict("records"),
+                        columns=[{"name": i, "id": i} for i in data.columns],
+                        filter_action="native",
+                        sort_action="native",
+                        sort_mode="single",
+                        page_current=0,
+                        page_size=15,
+                        filter_query="",
+                        filter_options={"placeholder_text": t("result.table.filter-placeholder", lang)},
+                        row_selectable="multi",
+                        **utils.get_table_styles(),
+                    ),
+                ],
+                className="shared-table",
+            ),
+        ]
     )
 
 
-def create_result_graphic(results_data):
+def split_output_tables(results_data):
+    expected_order = ["Mantel_r", "Mantel_p", "Procrustes_M2", "PROTEST_p"]
+
+    if not isinstance(results_data, pd.DataFrame):
+        return pd.DataFrame(), pd.DataFrame(columns=expected_order)
+
+    if results_data.empty:
+        return results_data, pd.DataFrame(columns=expected_order)
+
+    df = results_data.reset_index(drop=True).copy()
+
+    def normalize_token(token):
+        return re.sub(r"[^a-z0-9]", "", str(token).lower())
+
+    normalized_expected = {normalize_token(col): col for col in expected_order}
+
+    def build_stats_df_from_rows(header_row, value_row):
+        stats_record = {}
+        for index, header in enumerate(header_row.tolist()):
+            header_text = str(header).strip()
+            if not header_text:
+                continue
+            normalized_header = normalize_token(header_text)
+            if normalized_header not in normalized_expected:
+                continue
+            canonical_name = normalized_expected[normalized_header]
+            value = value_row.iloc[index] if index < len(value_row) else ""
+            stats_record[canonical_name] = value
+
+        if not stats_record:
+            return pd.DataFrame(columns=expected_order)
+
+        ordered_record = {
+            col: stats_record[col] for col in expected_order if col in stats_record
+        }
+        return pd.DataFrame([ordered_record])
+
+    clean_df = df.fillna("").astype(str).apply(lambda col: col.str.strip())
+    normalized_df = clean_df.apply(
+        lambda col: col.str.lower().str.replace(r"[^a-z0-9]", "", regex=True)
+    )
+
+    empty_row_mask = clean_df.eq("").all(axis=1)
+    header_row_mask = normalized_df.isin(set(normalized_expected.keys())).any(axis=1)
+
+    separator_candidate_mask = empty_row_mask & header_row_mask.shift(-1, fill_value=False)
+    candidate_indices = np.flatnonzero(separator_candidate_mask.to_numpy())
+    valid_candidate_indices = candidate_indices[candidate_indices + 2 < len(df)]
+
+    if len(valid_candidate_indices) > 0:
+        separator_idx = int(valid_candidate_indices[0])
+        header_row = df.iloc[separator_idx + 1]
+        value_row = df.iloc[separator_idx + 2]
+        main_results_data = df.iloc[:separator_idx].copy()
+        statistical_results_data = build_stats_df_from_rows(header_row, value_row)
+        return main_results_data, statistical_results_data
+
+    return df, pd.DataFrame(columns=expected_order)
+
+
+def create_result_graphic(results_data, lang="en"):
     """
     This function creates the results graphic
     args:
@@ -654,7 +773,7 @@ def create_result_graphic(results_data):
             go.Scatter(
                 x=results_data["starting_position"],
                 y=results_data["Bootstrap mean"],
-                name="bootstrap mean",
+                name=t("result.graph.bootstrap-mean", lang),
                 line=dict(color="#AD00FA"),
             ),
             secondary_y=False,
@@ -669,16 +788,16 @@ def create_result_graphic(results_data):
             secondary_y=True,
         )
         fig.update_layout(
-            title_text=str("Bootstrap mean and " + distance_method),
+            title_text=t("result.graph.title-bootstrap-distance", lang).replace("{distance_method}", distance_method),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color="white"),
         )
         fig.update_xaxes(
-            title_text="Position in ASM", gridcolor="rgba(255,255,255,0.2)"
+            title_text=t("result.graph.x-axis-position", lang), gridcolor="rgba(255,255,255,0.2)"
         )
         fig.update_yaxes(
-            title_text="<b>Bootstrap mean</b>",
+            title_text=t("result.graph.y-axis-bootstrap", lang),
             secondary_y=False,
             gridcolor="rgba(255,255,255,0.2)",
         )
@@ -699,7 +818,7 @@ def create_result_graphic(results_data):
         fig.update_layout(yaxis1_tickvals=bootstrap_ticks, yaxis2_tickvals=ls_ticks)
 
 
-def create_climatic_trees_header():
+def create_climatic_trees_header(lang="en"):
     """
     Creates the collapsible section header for the climatic trees.
     """
@@ -707,7 +826,7 @@ def create_climatic_trees_header():
         [
             html.Div(
                 [
-                    html.Div("Climatic Trees", className="result-section-title"),
+                    html.Div(t("result.sections.climatic-trees", lang), className="result-section-title"),
                     html.Img(
                         src="../../assets/icons/angle-down.svg",
                         id="results-climatic-collapse-button",
@@ -718,7 +837,7 @@ def create_climatic_trees_header():
             ),
             html.Div(
                 [
-                    html.Span("download climatic trees", className="text"),
+                    html.Span(t("result.actions.download-climatic-trees", lang), className="text"),
                     html.Img(
                         src="../../assets/icons/download.svg", className="icon"
                     ),
@@ -730,7 +849,7 @@ def create_climatic_trees_header():
     )
 
 
-def create_genetic_trees_header():
+def create_genetic_trees_header(lang="en"):
     """
     Creates the collapsible section header for the genetic trees.
     """
@@ -738,7 +857,7 @@ def create_genetic_trees_header():
         [
             html.Div(
                 [
-                    html.Div("Genetic Trees", className="result-section-title"),
+                    html.Div(t("result.sections.genetic-trees", lang), className="result-section-title"),
                     html.Img(
                         src="../../assets/icons/angle-down.svg",
                         id="results-genetic-collapse-button",
@@ -749,7 +868,7 @@ def create_genetic_trees_header():
             ),
             html.Div(
                 [
-                    html.Span("download genetic trees", className="text"),
+                    html.Span(t("result.actions.download-genetic-trees", lang), className="text"),
                     html.Img(
                         src="../../assets/icons/download.svg", className="icon"
                     ),

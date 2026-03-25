@@ -26,7 +26,7 @@ def get_error_id(input_id):
     return f"{input_id}-error"
 
 
-def create_email_input(input_id, placeholder="Enter your email..."):
+def create_email_input(input_id, placeholder="Enter your email...", button_text="Send Email"):
     """
     Create an email input component with built-in button and error message.
 
@@ -34,6 +34,7 @@ def create_email_input(input_id, placeholder="Enter your email..."):
         input_id: ID for the email input field. The button and error IDs
                   are auto-derived as '{input_id}-button' and '{input_id}-error'.
         placeholder: Placeholder text for the input
+        button_text: Label text for the send button
 
     Returns:
         html.Div containing the email input, button, and error message
@@ -49,7 +50,7 @@ def create_email_input(input_id, placeholder="Enter your email..."):
                         value="",
                     ),
                     html.Button(
-                        "Send Email",
+                        button_text,
                         id=get_button_id(input_id),
                         n_clicks=0,
                         className="email-send-button",

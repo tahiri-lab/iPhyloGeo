@@ -1,0 +1,92 @@
+{
+  "title": "Settings",
+  "sections": {
+    "genetic-parameters": "Genetic parameters",
+    "alignment-method": "Alignment Method",
+    "tree-type": "Tree Type",
+    "preprocessing": "Preprocessing",
+    "statistical-tests": "Statistical Tests"
+  },
+  "fields": {
+    "bootstrap-threshold": "Bootstrap threshold",
+    "distance-threshold": "Distance threshold",
+    "window-size": "Window size",
+    "step-size": "Step size",
+    "similarity-rate": "Similarity rate",
+    "alignment-method": "Alignment method",
+    "distance-method": "Distance method",
+    "fit-method": "Fit method",
+    "tree-type": "Tree type",
+    "similarity-method": "Similarity method",
+    "genetic-preprocessing": "Genetic preprocessing",
+    "genetic-threshold": "Genetic threshold",
+    "climatic-preprocessing": "Climatic preprocessing",
+    "climatic-threshold": "Climatic threshold",
+    "correlation-filtering-climatic": "Correlation filtering (climatic)",
+    "max-correlation-climatic": "Max correlation (climatic)",
+    "statistical-test": "Statistical test",
+    "mantel-test-method": "Mantel test method",
+    "mantel-test-permutations": "Mantel test permutations",
+    "protest-permutations": "PROTEST permutations"
+  },
+  "actions": {
+    "save": "Save settings",
+    "reset": "Reset to default"
+  },
+  "toast": {
+    "saved-success": "Settings saved successfully",
+    "reset-default": "Settings reset to default"
+  },
+  "validation": {
+    "required": "{field} is required.",
+    "range": "{field} must be between {min} and {max} (got {value})."
+  },
+  "options": {
+    "alignment": {
+      "no-alignment": "No alignment",
+      "pairwise-align": "Pairwise alignment",
+      "muscle": "MUSCLE",
+      "clustalw": "CLUSTALW",
+      "mafft": "MAFFT"
+    },
+    "distance": {
+      "all": "All distance methods",
+      "least-square": "Least Square",
+      "robinson-foulds": "Robinson-Foulds (RF)",
+      "bipartition": "Bipartition (Dendropy)"
+    },
+    "fit": {
+      "wider-fit": "Wider fit (pad with gaps)",
+      "narrow-fit": "Narrow fit (avoid extra gaps)"
+    },
+    "tree": {
+      "biopython": "BioPython consensus tree",
+      "fast-tree": "FastTree application"
+    },
+    "similarity": {
+      "hamming": "Hamming distance",
+      "levenshtein": "Levenshtein distance",
+      "damerau-levenshtein": "Damerau-Levenshtein distance",
+      "jaro": "Jaro similarity",
+      "jaro-winkler": "Jaro-Winkler similarity",
+      "smith-waterman": "Smith-Waterman similarity",
+      "jaccard": "Jaccard similarity",
+      "sorensen-dice": "Sørensen-Dice similarity"
+    },
+    "preprocessing": {
+      "disabled": "Disabled",
+      "enabled": "Enabled"
+    },
+    "statistical": {
+      "both": "Both (Mantel + PROTEST)",
+      "mantel": "Mantel test only",
+      "procrustes": "PROTEST only",
+      "none": "None"
+    },
+    "mantel": {
+      "pearson": "Pearson correlation",
+      "spearman": "Spearman correlation",
+      "kendall-tau": "Kendall Tau correlation"
+    }
+  }
+}

@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 
 from assets.logo_base64 import LOGO_BASE64
 from dotenv import dotenv_values
+from utils.i18n import t
 
 # Load environment configuration
 ENV_CONFIG = dotenv_values()
@@ -49,7 +50,7 @@ def send_email(subject, content, user_email):
         return False
 
 
-def get_results_email_template(results_url):
+def get_results_email_template(results_url, lang="en"):
     """
     Generate the HTML content for the results email.
 
@@ -62,9 +63,16 @@ def get_results_email_template(results_url):
     else:
         full_url = results_url
 
+    title = t("result.email-template.title", lang)
+    completed = t("result.email-template.completed", lang)
+    view_prompt = t("result.email-template.view-prompt", lang)
+    button_text = t("result.email-template.button", lang)
+
+    html_lang = "fr" if lang == "fr" else "en"
+
     return f"""
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{html_lang}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,14 +132,14 @@ def get_results_email_template(results_url):
             <img src="{LOGO_BASE64}" alt="iPhyloGeo Logo">
         </div>
         <div class="title">
-            Your Results are Ready!
+            {title}
         </div>
         <div class="content">
-            <p>Your phylogeographic analysis has been completed.</p>
-            <p>Click the button below to view your results (available for 7 days):</p>
+            <p>{completed}</p>
+            <p>{view_prompt}</p>
         </div>
         <div class="button-container">
-            <a href="{full_url}" class="button">VIEW RESULTS</a>
+            <a href="{full_url}" class="button">{button_text}</a>
         </div>
     </div>
 </body>
@@ -139,7 +147,7 @@ def get_results_email_template(results_url):
 """
 
 
-def send_results_ready_email(user_email, results_url):
+def send_results_ready_email(user_email, results_url, lang="en"):
     """
     Send the standard 'Results Ready' email to the user.
 
@@ -147,6 +155,6 @@ def send_results_ready_email(user_email, results_url):
         user_email (str): Recipient email
         results_url (str): URL to the results page
     """
-    subject = "Your iPhyloGeo results are ready!"
-    content = get_results_email_template(results_url)
+    subject = t("result.email-template.subject", lang)
+    content = get_results_email_template(results_url, lang)
     return send_email(subject, content, user_email)

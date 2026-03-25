@@ -1,0 +1,50 @@
+{
+  "title": "Résultat",
+  "title-of": "Résultat de {name}",
+  "actions": {
+    "share": "partager",
+    "download-output": "télécharger output.csv",
+    "download-sequences": "télécharger les séquences génétiques",
+    "download-climatic-trees": "télécharger les arbres climatiques",
+    "download-genetic-trees": "télécharger les arbres génétiques"
+  },
+  "sections": {
+    "share-result": "Partager le résultat",
+    "results": "Résultats",
+    "climatic-trees": "Arbres climatiques",
+    "genetic-trees": "Arbres génétiques",
+    "email-description": "Si vous souhaitez recevoir l'URL de ce résultat par e-mail, vous pouvez saisir votre adresse ci-dessous."
+  },
+  "email": {
+    "placeholder": "Entrez votre adresse e-mail ici",
+    "send": "Envoyer l'e-mail",
+    "invalid": "Adresse e-mail invalide",
+    "sent": "E-mail envoyé avec succès !",
+    "error": "Erreur lors de l'envoi de l'e-mail"
+  },
+  "table": {
+    "filter-placeholder": "Filtrer les données...",
+    "main-results-title": "Résultats principaux",
+    "statistical-tests-title": "Tests statistiques"
+  },
+  "email-template": {
+    "subject": "Vos résultats iPhyloGeo sont prêts !",
+    "title": "Vos résultats sont prêts !",
+    "completed": "Votre analyse phylogéographique est terminée.",
+    "view-prompt": "Cliquez sur le bouton ci-dessous pour consulter vos résultats (disponibles pendant 7 jours) :",
+    "button": "VOIR LES RÉSULTATS"
+  },
+  "toast": {
+    "link-copied": "Lien copié dans votre presse-papiers !",
+    "genetic-downloaded": "Arbres génétiques téléchargés !",
+    "climatic-downloaded": "Arbres climatiques téléchargés !",
+    "sequences-downloaded": "Séquences génétiques téléchargées !",
+    "output-downloaded": "Résultats téléchargés !"
+  },
+  "graph": {
+    "bootstrap-mean": "moyenne bootstrap",
+    "title-bootstrap-distance": "Moyenne bootstrap et {distance_method}",
+    "x-axis-position": "Position dans ASM",
+    "y-axis-bootstrap": "<b>Moyenne bootstrap</b>"
+  }
+}

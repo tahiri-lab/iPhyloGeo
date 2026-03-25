@@ -1,0 +1,15 @@
+{
+  "title": "Results",
+  "empty": "You have no results yet. You can start a new job by going to the \"Upload data\" page",
+  "card": {
+    "access": "Access",
+    "created": "Created",
+    "expired": "Expired",
+    "status": {
+      "error": "ERROR",
+      "success": "SUCCESS",
+      "in-progress": "IN PROGRESS",
+      "unknown": "UNKNOWN"
+    }
+  }
+}

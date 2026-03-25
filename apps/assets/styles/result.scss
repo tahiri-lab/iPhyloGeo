@@ -1,4 +1,4 @@
-@use 'utils/table';
+@use "utils/table";
 
 .resultContainer {
   width: 100%;
@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
 
-  >.title {
+  > .title {
     color: var(--text);
     font-size: 36px;
     font-weight: bold;
@@ -145,7 +145,9 @@
   max-height: 0 !important;
   overflow: hidden !important;
   margin-top: 0 !important;
-  transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out !important;
+  transition:
+    opacity 0.3s ease-in-out,
+    max-height 0.6s ease-in-out !important;
 }
 
 // Collapsible Areas
@@ -153,9 +155,19 @@
   opacity: 1;
   overflow: visible;
   max-height: 10000px;
-  transition: opacity 0.3s ease-in-out, max-height 0.6s ease-in-out;
+  transition:
+    opacity 0.3s ease-in-out,
+    max-height 0.6s ease-in-out;
   width: 100%;
   box-sizing: border-box;
+
+  .results-table-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: left;
+  }
 
   .graph {
     margin-top: 20px;
@@ -170,7 +182,9 @@
   width: 100%;
   max-height: 10000px;
   opacity: 1;
-  transition: opacity 1s ease-in-out, max-height 0s ease-in-out;
+  transition:
+    opacity 1s ease-in-out,
+    max-height 0s ease-in-out;
   box-sizing: border-box;
 
   .tree-sub-container {
@@ -251,11 +265,12 @@
   }
 }
 
-
 // Email section
 #email-section-container {
   max-height: 500px;
   opacity: 1;
-  transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
+  transition:
+    opacity 0.3s ease-in-out,
+    max-height 0.3s ease-in-out;
   margin-top: 16px;
 }
