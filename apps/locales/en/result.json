@@ -1,6 +1,9 @@
 {
   "title": "Result",
   "title-of": "Result of {name}",
+  "title-of-error": "Result of {name}",
+  "in-progress": "In progress – {status}...",
+  "results-ready": "Results are ready!",
   "actions": {
     "share": "share",
     "download-output": "download output.csv",

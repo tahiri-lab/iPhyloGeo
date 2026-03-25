@@ -59,6 +59,7 @@ layout = html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
         dcc.Store(id="pipeline-started", data=False),
+        dcc.Store(id="popup-dismissed", data=False),
         dcc.Interval(
             id="pipeline-status-interval",
             interval=2000,  # Poll every 2 seconds
@@ -150,13 +151,14 @@ layout = html.Div(
 # Callback to close popup when close button is clicked
 @callback(
     Output("popup", "className", allow_duplicate=True),
+    Output("popup-dismissed", "data"),
     Input("close-popup-btn", "n_clicks"),
     prevent_initial_call=True,
 )
 def close_popup(n_clicks):
     """Close the popup when user clicks the X button."""
     if n_clicks:
-        return "popup hidden"
+        return "popup hidden", True
     raise PreventUpdate
 
 
@@ -174,6 +176,7 @@ def close_result_ready_popup(n_clicks):
 
 
 # Callback to poll pipeline status and update UI
+# Callback to poll pipeline status and update UI
 @callback(
     Output("popup-status-message", "children"),
     Output("popup-title", "children"),
@@ -185,9 +188,11 @@ def close_result_ready_popup(n_clicks):
     Input("pipeline-status-interval", "n_intervals"),
     State("current-result-id", "data"),
     State("pipeline-started", "data"),
+    State("popup-dismissed", "data"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def poll_pipeline_status(n_intervals, result_id, pipeline_started):
+def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismissed, language):
     """
     Poll the background task status and update the UI accordingly.
     Shows current step and estimated time remaining in the popup.
@@ -195,78 +200,69 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started):
     if not pipeline_started or not result_id:
         raise PreventUpdate
 
+    lang = language if language in LANGUAGE_LIST else "en"
+
     status_info = background_tasks.get_task_status(result_id)
     status = status_info.get("status", "unknown")
-    progress = status_info.get("progress", 0)
     estimated_time = status_info.get("estimated_time", 0)
     elapsed_time = status_info.get("elapsed_time", 0)
 
-    # Map status to user-friendly messages (handle both lowercase and uppercase)
-    status_messages = {
-        "queued": "Starting pipeline...",
-        "running": "Processing...",
-        "climatic_trees": "Building climatic trees...",
-        "alignment": "Aligning genetic sequences...",
-        "genetic_trees": "Building genetic trees...",
-        "output": "Generating output...",
-        "complete": "Analysis complete!",
-        "error": "An error occurred",
-        # Uppercase variants
-        "QUEUED": "Starting pipeline...",
-        "RUNNING": "Processing...",
-        "CLIMATIC_TREES": "Building climatic trees...",
-        "ALIGNMENT": "Aligning genetic sequences...",
-        "GENETIC_TREES": "Building genetic trees...",
-        "OUTPUT": "Generating output...",
-        "COMPLETE": "Analysis complete!",
-        "ERROR": "An error occurred",
+    status_key_map = {
+        "queued": "upload.popup.status.queued",
+        "running": "upload.popup.status.running",
+        "climatic_trees": "upload.popup.status.climatic-trees",
+        "alignment": "upload.popup.status.alignment",
+        "genetic_trees": "upload.popup.status.genetic-trees",
+        "output": "upload.popup.status.output",
+        "complete": "upload.popup.status.complete",
+        "error": "upload.popup.status.error",
     }
-
-    base_message = status_messages.get(status, "Processing...")
+    key = status_key_map.get(status.lower(), "upload.popup.status.running")
+    base_message = t(key, lang)
 
     # Add time estimate to message
     if estimated_time > 0 and elapsed_time >= 0:
         remaining_time = max(0, estimated_time - elapsed_time)
         if remaining_time > 60:
-            time_str = f"~{int(remaining_time / 60)} min remaining"
+            time_str = t("upload.popup.time-remaining-min", lang).replace("{n}", str(int(remaining_time / 60)))
         else:
-            time_str = f"~{int(remaining_time)} sec remaining"
+            time_str = t("upload.popup.time-remaining-sec", lang).replace("{n}", str(int(remaining_time)))
         message = f"{base_message} ({time_str})"
     else:
         message = base_message
 
     if status.lower() == "complete":
-        # Pipeline finished
         return (
             "",
-            "Analysis complete!",
+            t("upload.popup.title-complete", lang),
             "",
-            True,  # Disable interval
-            status,  # Update global status
-            "popup hidden",  # hide old popup
-            "popup",         # show new popup
+            True,            # Disable interval
+            status,          # Update global status
+            "popup hidden",  # hide progress popup
+            "popup",         # show result-ready popup
         )
     elif status.lower() == "error":
         error_msg = status_info.get("error", "Unknown error")
+        popup_class = "popup hidden" if popup_dismissed else "popup"
         return (
-            f"Error: {error_msg}",
-            "An error occurred",
+            t("upload.popup.error-prefix", lang) + error_msg,
+            t("upload.popup.title-error", lang),
             "../../assets/icons/error.svg",
-            True,  # Disable interval
-            status,  # Update global status
-            "popup",         # keep old popup
-            "popup hidden",  # keep new popup hidden
+            True,            # Disable interval
+            status,          # Update global status
+            popup_class,
+            "popup hidden",
         )
     else:
-        # Still processing - update status message with time estimate
+        popup_class = "popup hidden" if popup_dismissed else "popup"
         return (
             message,
-            "Your results are on the way!",
+            t("upload.popup.title", lang),
             "../../assets/img/coffee-cup.gif",
-            False,  # Keep polling
-            status,  # Update global status
-            "popup",         # keep old popup
-            "popup hidden",  # keep new popup hidden
+            False,           # Keep polling
+            status,          # Update global status
+            popup_class,
+            "popup hidden",
         )
 
 
@@ -274,11 +270,24 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started):
     Output("drop-file-section-container", "children"),
     Output("popup-container", "children"),
     Output("popup-done-container", "children"),
+    Output("genetic-params-layout", "children", allow_duplicate=True),
+    Output("climatic-params-layout", "children", allow_duplicate=True),
+    Output("submit-button", "children", allow_duplicate=True),
     Input("language-store", "data"),
+    State("input-data", "data"),
+    prevent_initial_call=True,
 )
-def update_drop_file_section_language(language):
+def update_drop_file_section_language(language, input_data):
     lang = language if language in LANGUAGE_LIST else "en"
-    return [dropFileSection.get_layout(lang)], [popup.get_layout(lang)], [result_ready_popup.get_layout(lang)]
+    genetic_layout, climatic_layout, submit_layout, _ = rebuild_params_sections_from_store(input_data, lang)
+    return (
+        [dropFileSection.get_layout(lang)],
+        [popup.get_layout(lang)],
+        [result_ready_popup.get_layout(lang)],
+        genetic_layout,
+        climatic_layout,
+        submit_layout,
+    )
 
 
 # Callback to save email when user clicks "Send Email" in popup
@@ -577,7 +586,7 @@ def uploaded_genetic_data(
     Output("toast-store", "data", allow_duplicate=True),
     Input("next-button", "n_clicks"),
     Input("upload-test-data", "n_clicks"),
-    Input("language-store", "data"),
+    State("language-store", "data"),
     State("upload-genetic-data", "contents"),
     State("upload-genetic-data", "filename"),
     State("upload-genetic-data", "last_modified"),
@@ -637,16 +646,8 @@ def upload_data(
     """
     lang = language if language in LANGUAGE_LIST else "en"
     button_clicked = ctx.triggered_id
-    triggered_ids = {
-        trigger.get("prop_id", "").split(".")[0]
-        for trigger in (ctx.triggered or [])
-    }
-    language_triggered = "language-store" in triggered_ids
     genetic_layout = ""
     climatic_layout = ""
-
-    if language_triggered:
-        return rebuild_params_sections_from_store(current_data, lang)
 
     if button_clicked in ["next-button", "upload-test-data"]:
         click_count = next_n_clicks if button_clicked == "next-button" else test_n_clicks
@@ -1023,6 +1024,7 @@ def clear_column_error_when_valid(column_names):
     Output("global-pipeline-interval", "disabled", allow_duplicate=True),
     Output("progress-bar", "className", allow_duplicate=True),
     Output("progress-bar-fill", "style", allow_duplicate=True),
+    Output("popup-dismissed", "data", allow_duplicate=True),
     Input("ready-for-pipeline", "data"),
     State("input-data", "data"),
     State("params-climatic", "data"),
@@ -1042,7 +1044,7 @@ def submit_button(
 
     if ready_for_pipeline is False:
         print(f"[submit_button] ready_for_pipeline is False, returning dash.no_update")
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
     print(f"[submit_button] Pipeline is ready, processing input_data...")
     climatic_file = input_data["climatic"]["file"]
@@ -1112,6 +1114,7 @@ def submit_button(
             False,             # global-pipeline-interval disabled
             "progress-bar",    # progress-bar className
             {"width": "0%"},   # progress-bar-fill style
+            False,             # popup-dismissed reset
         )
     except Exception as e:
         print("[Error]:", e)
@@ -1125,4 +1128,5 @@ def submit_button(
             dash.no_update,
             dash.no_update,
             dash.no_update,
+            False,
         )

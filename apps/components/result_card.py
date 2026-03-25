@@ -37,27 +37,25 @@ def create_result_card(
 
     if status_lower == "error":
         status_class = "error"
-        status_text = "ERROR"
+        status_text = t("results.card.status.error", lang)
     elif status_lower == "complete":
         status_class = "success"
-        status_text = "SUCCESS"
+        status_text = t("results.card.status.success", lang)
     elif status_lower in ["pending", "queued", "running"]:
         status_class = "pending"
-        status_text = "IN PROGRESS"
+        status_text = t("results.card.status.in-progress", lang)
     elif status_lower in ["climatic_trees", "alignment", "genetic_trees", "output"]:
-        # Processing steps - show friendly labels
-        status_labels = {
-            "climatic_trees": "Pending - Building climatic trees",
-            "alignment": "Pending - Aligning sequences",
-            "genetic_trees": "Pending - Building genetic trees",
-            "output": "Pending - Generating output",
+        status_keys = {
+            "climatic_trees": "results.card.status.climatic-trees",
+            "alignment": "results.card.status.alignment",
+            "genetic_trees": "results.card.status.genetic-trees",
+            "output": "results.card.status.output",
         }
         status_class = "pending"
-        status_text = status_labels.get(status_lower, "IN PROGRESS")
+        status_text = t(status_keys[status_lower], lang)
     else:
-        # Fallback for unknown status
         status_class = "pending"
-        status_text = "IN PROGRESS"
+        status_text = t("results.card.status.unknown", lang)
 
 
     # Build date info if provided

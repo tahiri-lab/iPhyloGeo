@@ -28,7 +28,22 @@
   "popup": {
     "title": "Vos résultats sont en cours de préparation !",
     "description-delay": "Cela peut prendre quelques minutes.",
-    "description-email": "Entrez votre e-mail pour recevoir une notification lorsque vos résultats seront prêts."
+    "description-email": "Entrez votre e-mail pour recevoir une notification lorsque vos résultats seront prêts.",
+    "status": {
+      "queued": "Démarrage du pipeline...",
+      "running": "Traitement en cours...",
+      "climatic-trees": "Construction des arbres climatiques...",
+      "alignment": "Alignement des séquences génétiques...",
+      "genetic-trees": "Construction des arbres génétiques...",
+      "output": "Génération des résultats...",
+      "complete": "Analyse terminée !",
+      "error": "Une erreur est survenue"
+    },
+    "time-remaining-min": "~{n} min restantes",
+    "time-remaining-sec": "~{n} sec restantes",
+    "title-complete": "Analyse terminée !",
+    "title-error": "Une erreur est survenue",
+    "error-prefix": "Erreur : "
   },
   "popup-done": {
     "title": "Résultats terminés !",
@@ -71,7 +86,7 @@
     "aligned": {
       "label": "Données génétiques alignées",
       "description": "Séquences pré-alignées",
-      "upload-label": "Téléverser des données génétiques alignées (.json)"
+      "upload-label": "Téléverser des données génétiques alignées (.fasta, .json)"
     },
     "tree": {
       "label": "Arbre génétique",

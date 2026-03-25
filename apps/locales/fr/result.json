@@ -1,6 +1,9 @@
 {
   "title": "Résultat",
   "title-of": "Résultat de {name}",
+  "title-of-error": "Résultat de {name}",
+  "in-progress": "En cours – {status}...",
+  "results-ready": "Les résultats sont prêts !",
   "actions": {
     "share": "partager",
     "download-output": "télécharger output.csv",

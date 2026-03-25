@@ -9,7 +9,11 @@
       "error": "ERROR",
       "success": "SUCCESS",
       "in-progress": "IN PROGRESS",
-      "unknown": "UNKNOWN"
+      "unknown": "UNKNOWN",
+      "climatic-trees": "Building climatic trees",
+      "alignment": "Aligning sequences",
+      "genetic-trees": "Building genetic trees",
+      "output": "Generating output"
     }
   }
 }

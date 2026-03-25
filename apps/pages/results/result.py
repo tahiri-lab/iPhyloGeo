@@ -207,12 +207,14 @@ layout = html.Div(
     State("url", "pathname"),
     State("result-processing-status", "data"),
     State("refresh-trigger", "data"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
-def check_result_status(n_intervals, path, prev_status, current_refresh):
+def check_result_status(n_intervals, path, prev_status, current_refresh, language):
     """
     Check if a processing result has completed and refresh the page.
     """
+    lang = language if language in LANGUAGE_LIST else "en"
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
         raise dash.exceptions.PreventUpdate
@@ -221,42 +223,34 @@ def check_result_status(n_intervals, path, prev_status, current_refresh):
     status = result.get("status", "pending")
     title = result["name"]
 
-    # Status labels mapping
-    status_labels = {
-        "pending": "Queued",
-        "queued": "Queued",
-        "running": "Processing",
-        "climatic_trees": "Building climatic trees",
-        "alignment": "Aligning sequences",
-        "genetic_trees": "Building genetic trees",
-        "output": "Generating output",
-        # Uppercase variants
-        "PENDING": "Queued",
-        "QUEUED": "Queued",
-        "RUNNING": "Processing",
-        "CLIMATIC_TREES": "Building climatic trees",
-        "ALIGNMENT": "Aligning sequences",
-        "GENETIC_TREES": "Building genetic trees",
-        "OUTPUT": "Generating output",
+    status_key_map = {
+        "pending": "results.card.status.in-progress",
+        "queued": "results.card.status.in-progress",
+        "running": "results.card.status.in-progress",
+        "climatic_trees": "results.card.status.climatic-trees",
+        "alignment": "results.card.status.alignment",
+        "genetic_trees": "results.card.status.genetic-trees",
+        "output": "results.card.status.output",
     }
 
-    # If already complete or error, disable the interval and hide spinner
     if status.lower() == "complete":
+        title_str = t("result.title-of", lang).replace("{name}", title)
         if prev_status and prev_status.lower() != "complete":
-            # Just became complete - show toast and trigger refresh
             new_refresh = (current_refresh or 0) + 1
-            return status, True, f"Result of {title}", [], {"display": "none"}, {"message": "Results are ready!", "type": "success"}, new_refresh
-        return status, True, f"Result of {title}", [], {"display": "none"}, dash.no_update, dash.no_update
+            return status, True, title_str, [], {"display": "none"}, {"message": t("result.results-ready", lang), "type": "success"}, new_refresh
+        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update
     elif status.lower() == "error":
-        return status, True, f"Result of {title} (Error)", [], {"display": "none"}, dash.no_update, dash.no_update
+        title_str = t("result.title-of-error", lang).replace("{name}", title)
+        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update
     else:
-        # Still processing - show spinner with status
-        status_label = status_labels.get(status, status.replace("_", " ").title())
+        status_key = status_key_map.get(status.lower(), "results.card.status.in-progress")
+        status_label = t(status_key, lang)
         spinner_content = [
             html.Div(className="loading-spinner"),
-            html.Span(f"In progress – {status_label}...", className="processing-text"),
+            html.Span(t("result.in-progress", lang).replace("{status}", status_label), className="processing-text"),
         ]
-        return status, False, f"Result of {title}", spinner_content, {"display": "flex"}, dash.no_update, dash.no_update
+        title_str = t("result.title-of", lang).replace("{name}", title)
+        return status, False, title_str, spinner_content, {"display": "flex"}, dash.no_update, dash.no_update
 
 
 @callback(
@@ -317,38 +311,28 @@ def show_result_name(path, language):
     title = result["name"]
     status = result.get("status", "pending")
 
-    # Status labels mapping
-    status_labels = {
-        "pending": "Queued",
-        "queued": "Queued",
-        "running": "Processing",
-        "climatic_trees": "Building climatic trees",
-        "alignment": "Aligning sequences",
-        "genetic_trees": "Building genetic trees",
-        "output": "Generating output",
-        # Uppercase variants
-        "PENDING": "Queued",
-        "QUEUED": "Queued",
-        "RUNNING": "Processing",
-        "CLIMATIC_TREES": "Building climatic trees",
-        "ALIGNMENT": "Aligning sequences",
-        "GENETIC_TREES": "Building genetic trees",
-        "OUTPUT": "Generating output",
+    status_key_map = {
+        "pending": "results.card.status.in-progress",
+        "queued": "results.card.status.in-progress",
+        "running": "results.card.status.in-progress",
+        "climatic_trees": "results.card.status.climatic-trees",
+        "alignment": "results.card.status.alignment",
+        "genetic_trees": "results.card.status.genetic-trees",
+        "output": "results.card.status.output",
     }
 
-    # Show processing status if not complete
     if status.lower() == "complete":
-        return f"Result of {title}", [], {"display": "none"}
+        return t("result.title-of", lang).replace("{name}", title), [], {"display": "none"}
     elif status.lower() == "error":
-        return f"Result of {title} (Error)", [], {"display": "none"}
+        return t("result.title-of-error", lang).replace("{name}", title), [], {"display": "none"}
     else:
-        # Show spinner with status
-        status_label = status_labels.get(status, status.replace("_", " ").title())
+        status_key = status_key_map.get(status.lower(), "results.card.status.in-progress")
+        status_label = t(status_key, lang)
         spinner_content = [
             html.Div(className="loading-spinner"),
-            html.Span(f"In progress – {status_label}...", className="processing-text"),
+            html.Span(t("result.in-progress", lang).replace("{status}", status_label), className="processing-text"),
         ]
-        return f"Result of {title}", spinner_content, {"display": "flex"}
+        return t("result.title-of", lang).replace("{name}", title), spinner_content, {"display": "flex"}
 
 
 @callback(

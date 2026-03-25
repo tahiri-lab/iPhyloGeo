@@ -129,7 +129,7 @@ def get_layout(lang="en"):
                         children=[
                             html.Div(
                                 [
-                                    html.Div(t("results.title", lang), className="title"),
+                                    html.Div(t("results.title", lang), className="title", id="results-title"),
                                     html.Div(
                                         id="results-list", className="results-row"
                                     ),
@@ -220,7 +220,10 @@ def create_layout(result, lang="en"):
 layout = html.Div(id="results-page-content", children=get_layout())
 
 
-@callback(Output("results-page-content", "children"), Input("language-store", "data"))
+@callback(
+    Output("results-title", "children"),
+    Input("language-store", "data"),
+)
 def update_results_language(language):
     lang = language if language in LANGUAGE_LIST else "en"
-    return get_layout(lang)
+    return t("results.title", lang)
