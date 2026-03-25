@@ -231,6 +231,63 @@ layout = html.Div(
                     id="email-section-card-content",
                     className="page-card result-section-card-bottom",
                 ),
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Span(
+                                    t("result.actions.delete", "en"),
+                                    className="text",
+                                    id="delete-action-text",
+                                ),
+                                html.Img(
+                                    src="../../assets/icons/close.svg",
+                                    className="icon",
+                                ),
+                            ],
+                            className="button delete-result",
+                            id="delete-result-btn",
+                        )
+                    ],
+                    className="result-delete-action",
+                    id="result-delete-action",
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    t("result.confirm.delete-title", "en"),
+                                    className="title",
+                                    id="result-delete-popup-title",
+                                ),
+                                html.Div(
+                                    t("result.confirm.delete-message", "en"),
+                                    className="description",
+                                    id="result-delete-popup-message",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            t("result.confirm.cancel", "en"),
+                                            className="button download",
+                                            id="delete-result-cancel-btn",
+                                        ),
+                                        html.Div(
+                                            t("result.confirm.confirm-delete", "en"),
+                                            className="button delete-result",
+                                            id="delete-result-confirm-btn",
+                                        ),
+                                    ],
+                                    className="result-delete-popup-actions",
+                                ),
+                            ],
+                            className="content page-card",
+                        )
+                    ],
+                    className="result-delete-popup hidden",
+                    id="result-delete-popup",
+                ),
             ],
             className="page-container result-page",
         ),
@@ -263,6 +320,65 @@ def share_result_link(n_clicks, pathname, href, language):
     if result is None:
         return _missing_result_toast(lang)
     return {"message": t("result.toast.link-copied", lang), "type": "success", "clipboard": href}
+
+
+@callback(
+    Output("result-delete-popup", "className"),
+    Input("delete-result-btn", "n_clicks"),
+    Input("delete-result-cancel-btn", "n_clicks"),
+    Input("delete-result-confirm-btn", "n_clicks"),
+    State("url", "pathname"),
+    prevent_initial_call=True,
+)
+def show_delete_result_confirmation(n_clicks, cancel_n_clicks, confirm_n_clicks, pathname):
+    trigger_id = dash.ctx.triggered_id
+
+    if trigger_id in ["delete-result-cancel-btn", "delete-result-confirm-btn"]:
+        return "result-delete-popup hidden"
+
+    if not n_clicks:
+        raise dash.exceptions.PreventUpdate
+
+    _, result = _load_result_from_path(pathname)
+    if result is None:
+        raise dash.exceptions.PreventUpdate
+
+    return "result-delete-popup"
+
+
+@callback(
+    Output("result-delete-popup", "className", allow_duplicate=True),
+    Output("toast-store", "data", allow_duplicate=True),
+    Output("url", "pathname"),
+    Input("delete-result-confirm-btn", "n_clicks"),
+    State("url", "pathname"),
+    State("language-store", "data"),
+    prevent_initial_call=True,
+)
+def delete_result_from_page(confirm_n_clicks, pathname, language):
+    lang = language if language in LANGUAGE_LIST else "en"
+
+    if not confirm_n_clicks:
+        raise dash.exceptions.PreventUpdate
+
+    result_id, result = _load_result_from_path(pathname)
+    if result is None:
+        return "result-delete-popup hidden", _missing_result_toast(lang), dash.no_update
+
+    was_deleted = utils.delete_result(result_id)
+    if not was_deleted:
+        return (
+            "result-delete-popup hidden",
+            {"message": t("result.toast.delete-failed", lang), "type": "error"},
+            dash.no_update,
+        )
+
+    auth_cookie = request.cookies.get("AUTH")
+    response = dash.callback_context.response
+    if response:
+        utils.remove_result_id_from_cookie(result_id, auth_cookie, response)
+
+    return "result-delete-popup hidden", {"message": t("result.toast.deleted", lang), "type": "success"}, "/results"
 
 
 @callback(
@@ -316,6 +432,7 @@ def show_result_name(path, _alive_tick, language):
     Output("climatic-section-card", "style"),
     Output("genetic-section-card", "style"),
     Output("email-section-card-content", "style"),
+    Output("result-delete-action", "style"),
     Input("url", "pathname"),
     Input("result-alive-check", "n_intervals"),
     Input("language-store", "data"),
@@ -340,16 +457,21 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
             className="page-card result-section-card unavailable-result-card",
         )
         hidden = {"display": "none"}
-        return message, "", hidden, hidden, hidden, hidden, hidden
+        return message, "", hidden, hidden, hidden, hidden, hidden, hidden
 
     shown = {}
-    return "", "hidden", shown, shown, shown, shown, shown
+    return "", "hidden", shown, shown, shown, shown, shown, shown
 
 
 @callback(
     Output("share-action-text", "children"),
     Output("download-output-text", "children"),
     Output("download-sequences-text", "children"),
+    Output("delete-action-text", "children"),
+    Output("result-delete-popup-title", "children"),
+    Output("result-delete-popup-message", "children"),
+    Output("delete-result-cancel-btn", "children"),
+    Output("delete-result-confirm-btn", "children"),
     Output("email-section-card-content", "children"),
     Input("language-store", "data"),
 )
@@ -359,6 +481,11 @@ def update_result_static_text(language):
         t("result.actions.share", lang),
         t("result.actions.download-output", lang),
         t("result.actions.download-sequences", lang),
+        t("result.actions.delete", lang),
+        t("result.confirm.delete-title", lang),
+        t("result.confirm.delete-message", lang),
+        t("result.confirm.cancel", lang),
+        t("result.confirm.confirm-delete", lang),
         create_email_section(lang),
     )
 

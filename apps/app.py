@@ -1,10 +1,13 @@
 import dash
 import dash_bootstrap_components as dbc
+from bson import ObjectId
 from components.toast import create_toast_container
+from db.controllers import temp_results
 from dash import ctx, dcc, html
 from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
-from flask import Flask
+from flask import Flask, jsonify, request
+import utils.utils as utils
 from utils.i18n import LANGUAGE_LIST, t
 
 toast_container = create_toast_container()
@@ -469,6 +472,29 @@ app.clientside_callback(
     State("url", "href"),
     prevent_initial_call=True,
 )
+
+
+@server.route("/api/results/<result_id>", methods=["DELETE"])
+def delete_result_api(result_id):
+    is_valid_id = ObjectId.is_valid(result_id) or temp_results.is_temp_result_id(result_id)
+    if not is_valid_id:
+        return jsonify({"ok": False, "error": "invalid-result-id"}), 400
+
+    existing_result = utils.get_result(result_id)
+    auth_cookie = request.cookies.get(utils.COOKIE_NAME)
+
+    if existing_result is None:
+        response = jsonify({"ok": False, "error": "result-not-found"})
+        utils.remove_result_id_from_cookie(result_id, auth_cookie, response)
+        return response, 404
+
+    was_deleted = utils.delete_result(result_id)
+    if not was_deleted:
+        return jsonify({"ok": False, "error": "delete-failed"}), 500
+
+    response = jsonify({"ok": True, "deleted_id": result_id})
+    utils.remove_result_id_from_cookie(result_id, auth_cookie, response)
+    return response, 200
 
 
 if __name__ == "__main__":

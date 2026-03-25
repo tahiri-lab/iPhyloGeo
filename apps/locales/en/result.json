@@ -5,8 +5,15 @@
     "share": "share",
     "download-output": "download output.csv",
     "download-sequences": "download genetic sequences",
+    "delete": "Delete result",
     "download-climatic-trees": "download climatic trees",
     "download-genetic-trees": "download genetic trees"
+  },
+  "confirm": {
+    "delete-title": "Delete this result?",
+    "delete-message": "Are you sure you want to delete this result? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm-delete": "Delete"
   },
   "sections": {
     "share-result": "Share result",
@@ -39,7 +46,9 @@
     "genetic-downloaded": "Genetic trees downloaded!",
     "climatic-downloaded": "Climatic trees downloaded!",
     "sequences-downloaded": "Genetic sequences downloaded!",
-    "output-downloaded": "Output downloaded!"
+    "output-downloaded": "Output downloaded!",
+    "deleted": "Result deleted successfully.",
+    "delete-failed": "Unable to delete this result. Please try again."
   },
   "errors": {
     "not-found-title": "Result unavailable",

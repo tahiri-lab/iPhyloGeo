@@ -91,8 +91,11 @@ def get_result(id):
 
     if ENV_CONFIG["HOST"] == "local":
         # look for id in the results directory
-        with open(Path("result") / (str(id) + ".json")) as f:
-            return json.load(f)
+        try:
+            with open(Path("result") / (str(id) + ".json")) as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return None
 
     res = results_db.find_one({"_id": ObjectId(id)})
     return res
@@ -110,14 +113,20 @@ def get_all_results():
 
 def delete_result(id):
     if _is_temp_result_id(id):
-        return temp_results.delete_temp_result(id)
+        return temp_results.delete_temp_result(id) > 0
 
     if ENV_CONFIG["HOST"] == "local":
-        # look for id in the results directory
-        os.remove(Path("result") / (str(id) + ".json"))
-        return
+        result_path = Path("result") / (str(id) + ".json")
+        if not result_path.exists():
+            return False
+        result_path.unlink()
+        return True
 
-    return results_db.delete_one({"_id": ObjectId(id)})
+    if not ObjectId.is_valid(str(id)):
+        return False
+
+    delete_result = results_db.delete_one({"_id": ObjectId(id)})
+    return delete_result.deleted_count > 0
 
 
 def create_result(result):

@@ -60,6 +60,19 @@ def get_result(id):
     return results_ctrl.get_result(id)
 
 
+def delete_result(id):
+    """
+    Delete one result with the given id.
+
+    Args:
+        id (string): The id of the result.
+
+    Returns:
+        bool: True when a result was deleted, False otherwise.
+    """
+    return bool(results_ctrl.delete_result(id))
+
+
 def get_all_results():
     """
     Get all results.
@@ -615,6 +628,24 @@ def make_cookie(
     # Create the string format for the cookie
     auth_cookie_value = ".".join(auth_ids)
     response.set_cookie(name, auth_cookie_value, max_age=max_age)
+
+
+def remove_result_id_from_cookie(
+    result_id, auth_cookie, response, name=COOKIE_NAME, max_age=COOKIE_MAX_AGE
+):
+    """
+    Remove one result id from a dot-separated cookie list.
+
+    Args:
+        result_id (str): The id to remove from the cookie value.
+        auth_cookie (str): The current cookie value.
+        response (Response): The response object to set the cookie on.
+        name (str, optional): Cookie name. Defaults to COOKIE_NAME.
+        max_age (int, optional): Cookie max-age. Defaults to COOKIE_MAX_AGE.
+    """
+    auth_ids = [] if not auth_cookie else auth_cookie.split(".")
+    updated_ids = [saved_id for saved_id in auth_ids if saved_id and saved_id != result_id]
+    response.set_cookie(name, ".".join(updated_ids), max_age=max_age)
 
 
 def get_table_styles():
