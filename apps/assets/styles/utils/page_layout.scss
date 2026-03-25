@@ -1,0 +1,264 @@
+// Page card
+.page-card {
+    width: 100%;
+    margin: 12px auto;
+    padding: 0px 24px;
+    background-color: var(--primary, #FFFFFF);
+    border-radius: 16px;
+    box-sizing: border-box;
+}
+
+// Page wrapper
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 5vw;
+
+    .title {
+        color: var(--text);
+        padding-top: 30px;
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+}
+
+// Individual named section inside the card
+.page-section {
+    padding: 24px;
+    margin: 0 -24px;
+
+    &+.page-section {
+        border-top: 1px solid var(--secondary, #DBDBDB);
+    }
+}
+
+// Section header: icon + title side-by-side
+.page-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+// Masked SVG icon in the section header
+.page-section-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+
+    background-color: var(--action, #B593DD);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+// Section title text
+.page-section-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text);
+    margin: 0;
+}
+
+// Responsive field grid inside a section
+.page-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.page-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.page-field-label {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text);
+}
+
+//Dash Input overrides
+.page-field input[type="number"],
+.page-field input[type="text"],
+.page-field .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--secondary);
+    border-radius: 10px;
+    background-color: var(--primary);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.page-field input[type="number"]:hover,
+.page-field input[type="text"]:hover,
+.page-field .form-control:hover,
+.page-field input[type="number"]:focus,
+.page-field input[type="text"]:focus,
+.page-field .form-control:focus {
+    border-color: var(--secondary-hover);
+}
+
+//Dash dropdown overrides
+.Select {
+    width: 100%;
+
+    .Select-control {
+        border: 2px solid var(--secondary);
+        border-radius: 10px;
+        background-color: var(--primary);
+        height: 42px;
+        box-shadow: none;
+        transition: border-color 0.2s ease;
+        width: 100%;
+    }
+
+    .Select-control:hover,
+    .Select-control:focus {
+        border-color: var(--secondary-hover);
+    }
+
+    .Select-value,
+    .Select-value-label,
+    .Select-placeholder,
+    .Select-input {
+        line-height: 38px;
+        padding-left: 14px;
+        color: var(--text) !important;
+        background-color: var(--primary) !important;
+    }
+
+    .Select-menu-outer {
+        border: 2px solid var(--secondary) !important;
+        border-radius: 10px !important;
+        background-color: var(--primary) !important;
+        margin-top: 4px;
+        overflow: hidden;
+        width: 100%;
+    }
+}
+
+// Dash Dropdown wrapper (dcc.Dropdown)
+.dash-dropdown {
+    width: 100%;
+    margin: 0 !important;
+}
+
+//Dash dropdown options overrides (used by dcc.Dropdown with many options)
+.VirtualizedSelectOption {
+    color: var(--text) !important;
+    background-color: var(--primary) !important;
+    font-size: 14px;
+    font-weight: normal !important;
+}
+
+.VirtualizedSelectFocusedOption {
+    background-color: color-mix(in srgb, var(--action) 50%, transparent) !important;
+    color: var(--text) !important;
+}
+
+.VirtualizedSelectSelectedOption {
+    color: var(--text) !important;
+    font-weight: bold !important;
+}
+
+// Page-level action buttons row
+.page-actions {
+    display: flex;
+    justify-content: flex-start;
+    /* mieux que right */
+    gap: 12px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.pointer-dropdown {
+    cursor: pointer;
+}
+
+.pointer-dropdown * {
+    cursor: pointer;
+}
+
+// Helper card widget
+// Clickable call-to-action card (e.g. "try with example data").
+// Usage: className="helper primary"
+.helper {
+    display: inline-grid;
+    grid-template-areas:
+        'content arrow'
+        'content arrow';
+    border-radius: 10px;
+    padding: 15px 10px;
+    text-align: left;
+    box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
+    width: auto;
+    margin: auto;
+
+    .content {
+        display: grid;
+        grid-area: content;
+        grid-template-areas:
+            'title title'
+            'description description';
+        width: 70%;
+
+        .title {
+            color: white !important;
+            grid-area: title;
+            font-size: 20px !important;
+            font-weight: bold;
+        }
+
+        .description {
+            grid-area: description;
+            font-weight: normal !important;
+            font-size: 15px !important;
+        }
+    }
+
+    .icon {
+        grid-area: arrow;
+        align-self: center;
+        width: 40px;
+        filter: var(--icon-filter);
+    }
+
+    &:hover {
+        cursor: pointer;
+        transition: ease-in-out 0.3s;
+        box-shadow: none;
+    }
+
+    &.primary {
+        background-color: #AD00FA;
+        font-size: 15px;
+        font-weight: bold;
+        color: white;
+
+        &:hover {
+            background-color: #8B00D1;
+        }
+    }
+}

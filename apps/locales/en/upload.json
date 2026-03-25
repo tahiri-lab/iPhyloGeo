@@ -1,0 +1,82 @@
+{
+  "title": "Upload data",
+  "upload-files": "Upload Files",
+  "drag-drop": "Drag & drop your file here",
+  "click-browse": "or click to browse",
+  "section-climatic-title": "Climatic Data",
+  "required-badge": "REQUIRED",
+  "section-additional-title": "Additional Data",
+  "choose-one-badge": "CHOOSE ONE",
+  "section-additional-description": "Select the type of data you'd like to include alongside the climatic dataset.",
+  "continue": "Continue",
+  "continue-tooltip": "Upload climatic and additional data to continue",
+  "demo-data-prefix": "Don't have data? ",
+  "demo-data-link": "Try with demo data →",
+  "file-error-csv-excel": "File must be .csv or Excel",
+  "file-error-fasta": "File must be .fasta",
+  "file-error-json": "File must be .json",
+  "errors": {
+    "number-of-columns": "You need to select at least one column",
+    "name-required": "You need to give a name to your dataset"
+  },
+  "email": {
+    "invalid": "Invalid email address",
+    "notify-on-ready": "An email will be sent when results are ready",
+    "placeholder": "Enter your email address",
+    "send": "Send Email"
+  },
+  "popup": {
+    "title": "Your results are on the way!",
+    "description-delay": "This may take a few minutes.",
+    "description-email": "Enter your email to receive a notification once your results are ready."
+  },
+  "popup-done": {
+    "title": "Results completed!",
+    "link-results": "Go to results page"
+  },
+  "submit": {
+    "analyse-data": "Analyse data",
+    "select-columns": "Select columns to analyze",
+    "enter-dataset-name": "Enter dataset name",
+    "placeholder-dataset-name": "Enter dataset Name",
+    "submit": "Submit"
+  },
+  "climatic": {
+    "data-preview": "Data Preview",
+    "table": {
+      "filter-placeholder": "Filter data..."
+    },
+    "generate-graph": "Generate your graph",
+    "insert-x-axis": "Insert X axis data",
+    "insert-y-axis": "Insert Y axis data",
+    "chart-type": "Chart type",
+    "chart-bar": "Bar graph",
+    "chart-scatter": "Scatter plot",
+    "chart-line": "Line plot",
+    "chart-pie": "Pie plot",
+    "select-placeholder": "Select...",
+    "select-map-data": "Select data for choropleth map",
+    "empty-graph-message": "Please select X and Y axis data and at least one chart type to generate a graph",
+    "no-map": "No map to display."
+  },
+  "genetic": {
+    "alignment-chart": "Alignment chart"
+  },
+  "data-type": {
+    "genetic": {
+      "label": "Genetic Data",
+      "description": "Sequence or variant data",
+      "upload-label": "Upload genetic data (.fasta)"
+    },
+    "aligned": {
+      "label": "Aligned Genetic Data",
+      "description": "Pre-aligned sequences",
+      "upload-label": "Upload aligned genetic data (.json)"
+    },
+    "tree": {
+      "label": "Genetic Tree",
+      "description": "Phylogenetic tree data",
+      "upload-label": "Upload genetic tree (.json)"
+    }
+  }
+}

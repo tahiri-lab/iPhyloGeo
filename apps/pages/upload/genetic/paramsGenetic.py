@@ -1,178 +1,192 @@
-from dash import dcc, html, Output, Input, callback, State
-import dash_bio as dashbio
-import dash
 import json
 
+import dash_bio as dashbio
+from dash import html
+from utils.i18n import t
 
-def get_layout(file):
+
+def build_alignment_chart(file, starting_position, window_size):
+    if not isinstance(file, dict) or not file:
+        return html.Div()
+
+    if starting_position is None:
+        return html.Div()
+
+    end_window = starting_position + window_size
+    genetic_values = ""
+    for key, value in file.items():
+        genetic_values += ">" + key + "\n"
+        genetic_values += str(value[int(starting_position):int(end_window)]) + "\n"
+
+    return html.Div(
+        [
+            dashbio.AlignmentChart(
+                id="my-alignment-viewer",
+                data=genetic_values,
+                tilewidth=20,
+                height=600,
+            ),
+            html.Div(id="alignment-viewer-output", className="alignment-chart"),
+        ]
+    )
+
+
+def get_layout(file, lang="en"):
 
     # Load saved settings from YAML file "genetic_settings_file" to populate the form
-    genetic_setting_file = json.load(open('genetic_settings_file.json', 'r'))
+    genetic_setting_file = json.load(open("genetic_settings_file.json", "r"))
     STARTING_POSITION_DEFAULT = 1
-    max_sequence_length = get_max_sequence_length(file)
+    # max_sequence_length = get_max_sequence_length(file)
     # first_quartile = int(0.25 * max_sequence_length)
     # second_quartile = int(0.5 * max_sequence_length)
     # third_quartile = int(0.75 * max_sequence_length)
     # print(max_sequence_length)
-    return html.Div(
-        children=[
-            html.Div([
-                dcc.Store(id="sync", data={"starting_position": STARTING_POSITION_DEFAULT, "window_size": genetic_setting_file['window_size']}),
-                html.Div([
-                    dcc.Store(id='stored-genetic-data', data=file),
-                    # html.Div('Genetic parameters', className="title"),
-                    # html.Div([
-                    #         # ----- Bootstrap value threshold -----
-                    #     html.Div([
-                    #         html.Div("Bootstrap threshold"),
-                    #         dcc.Input(id="bootstrap-threshold", type="number",
-                    #                     min=0, max=100,
-                    #                     value=genetic_setting_file['bootstrap-threshold'],
-                    #                     className="input-field"),
-                    #         html.Div(id='bootstrap-value-threshold-container'),
-                    #     ], className="manual-input"),
-                    #         # ----- Distance threshold -----
-                    #     html.Div([
-                    #         html.Div("Distance threshold"),
-                    #         dcc.Input(id="ls-threshold-slider", type="number",
-                    #                     min=0, max=100,
-                    #                     value=genetic_setting_file['distance-threshold'],
-                    #                     className="input-field"),
-                    #     ], className="manual-input"),
-                    #         # ----- Sliding window size -----
-                    #     html.Div([
-                    #         html.Div("Sliding Window Size"),
-                    #         dcc.Input(id="input-window-size", type="number",
-                    #                   min=0, max=max_sequence_length,
-                    #                   value=genetic_setting_file['window-size'],
-                    #                   className="input-field"),
-                    #         html.Div(id='input-window-size-container'),
-                    #     ], className="manual-input"),
-                    #         # ----- Step size ----- 
-                    #     html.Div([
-                    #         html.Div("Step Size"),
-                    #         dcc.Input(id="input-step-size", type="number",
-                    #                   min=0, max=max_sequence_length,
-                    #                   value=genetic_setting_file['step-size'],
-                    #                   className="input-field"),
-                    #         html.Div(id='input-step-size-container'),
-                    #     ], className="manual-input"),
-                    #         # ----- Bootstrap amount -----
-                    #     html.Div([
-                    #         html.Div("Bootstrap amount"),
-                    #         dcc.Input(id="bootstrap-amount", type="number",
-                    #                   min=1, max=100,
-                    #                   value=genetic_setting_file['bootstrap-amount'],
-                    #                   className="input-field"),
-                    #         html.Div(id='bootstrap-amount-container'),
-                    #     ], className="manual-input"),
-                    #         # ----- Starting position -----
-                    #     html.Div([
-                    #         html.Div("Starting position"),
-                    #         dcc.Input(id="input-starting-position", type="number",
-                    #                   min=0, max=max_sequence_length,
-                    #                   value=genetic_setting_file['starting-position'],
-                    #                   className="input-field"),
-                    #         html.Div(id='starting-position-container'),
-                    #     ], className="manual-input")
-                    # ], className="manual-input-container"),
-                    # html.Div([
-                    #     html.Div("Alignment method"),
-                    #     # ----- Alignement method -----
-                    #     dcc.RadioItems(
-                    #         [
-                    #             {
-                    #                 "label": html.Div(['Pairwise2']),
-                    #                 "value": "1",
-                    #             },
-                    #             {
-                    #                 "label": html.Div(['Muscle5']),
-                    #                 "value": "2",
-                    #             },
-                    #             {
-                    #                 "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)']),
-                    #                 "value": "3",
-                    #                 'disabled': True
-                    #             },
-                    #             {
-                    #                 "label": html.Div(['Clustal2']),
-                    #                 "value": "4",
-                    #                 'disabled': True
-                    #             },
-                    #         ], value=1, id='alignment-method'
-                    #     )
-                    # ], className="parameter-container-inside"),
-                    # html.Div([
-                    #     html.Div("Distance method"),
-                    #     # ----- Distance method -----
-                    #     dcc.RadioItems(
-                    #         [
-                    #             {
-                    #                 "label": html.Div(['Least Square'], style={'padding': 5, 'font-size': 14}),
-                    #                 "value": "1",
-                    #             },
-                    #             {
-                    #                 "label": html.Div(['Robinson-Foulds (RF)'], style={'padding': 5, 'font-size': 14}),
-                    #                 "value": "2",
-                    #                 'disabled': True
-                    #             },
-                    #             {
-                    #                 "label": html.Div(['Quartet and triplet'], style={'padding': 5, 'font-size': 14}),
-                    #                 "value": "3",
-                    #                 'disabled': True
-                    #             },
-                    #             {
-                    #                 "label": html.Div(['Bipartition'], style={'padding': 5, 'font-size': 14}),
-                    #                 "value": "4",
-                    #                 'disabled': True
-                    #             },
-                    #         ], value=1, id='distance-method'
-                    #     )
-                    # ], className="parameter-container-inside"),
-                    html.Div([
-                        html.Div([
-                            html.Div("Alignement chart", className='sub-title'),
-                            html.Div(id='alignment-chart'),
-                        ]),
-                    ]),
-                ], className="parameter-container", id="genetic-params-section",),
-            ], className="params-genetic"),
-        ], className="parameters-section", id="parameters-section"
+    alignment_chart = build_alignment_chart(
+        file,
+        STARTING_POSITION_DEFAULT,
+        genetic_setting_file["window_size"],
     )
 
+    return html.Div(
+        children=[
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            # html.Div('Genetic parameters', className="title"),
+                            # html.Div([
+                            #         # ----- Bootstrap value threshold -----
+                            #     html.Div([
+                            #         html.Div("Bootstrap threshold"),
+                            #         dcc.Input(id="bootstrap-threshold", type="number",
+                            #                     min=0, max=100,
+                            #                     value=genetic_setting_file['bootstrap-threshold'],
+                            #                     className="input-field"),
+                            #         html.Div(id='bootstrap-value-threshold-container'),
+                            #     ], className="manual-input"),
+                            #         # ----- Distance threshold -----
+                            #     html.Div([
+                            #         html.Div("Distance threshold"),
+                            #         dcc.Input(id="ls-threshold-slider", type="number",
+                            #                     min=0, max=100,
+                            #                     value=genetic_setting_file['distance-threshold'],
+                            #                     className="input-field"),
+                            #     ], className="manual-input"),
+                            #         # ----- Sliding window size -----
+                            #     html.Div([
+                            #         html.Div("Sliding Window Size"),
+                            #         dcc.Input(id="input-window-size", type="number",
+                            #                   min=0, max=max_sequence_length,
+                            #                   value=genetic_setting_file['window-size'],
+                            #                   className="input-field"),
+                            #         html.Div(id='input-window-size-container'),
+                            #     ], className="manual-input"),
+                            #         # ----- Step size -----
+                            #     html.Div([
+                            #         html.Div("Step Size"),
+                            #         dcc.Input(id="input-step-size", type="number",
+                            #                   min=0, max=max_sequence_length,
+                            #                   value=genetic_setting_file['step-size'],
+                            #                   className="input-field"),
+                            #         html.Div(id='input-step-size-container'),
+                            #     ], className="manual-input"),
+                            #         # ----- Bootstrap amount -----
+                            #     html.Div([
+                            #         html.Div("Bootstrap amount"),
+                            #         dcc.Input(id="bootstrap-amount", type="number",
+                            #                   min=1, max=100,
+                            #                   value=genetic_setting_file['bootstrap-amount'],
+                            #                   className="input-field"),
+                            #         html.Div(id='bootstrap-amount-container'),
+                            #     ], className="manual-input"),
+                            #         # ----- Starting position -----
+                            #     html.Div([
+                            #         html.Div("Starting position"),
+                            #         dcc.Input(id="input-starting-position", type="number",
+                            #                   min=0, max=max_sequence_length,
+                            #                   value=genetic_setting_file['starting-position'],
+                            #                   className="input-field"),
+                            #         html.Div(id='starting-position-container'),
+                            #     ], className="manual-input")
+                            # ], className="manual-input-container"),
+                            # html.Div([
+                            #     html.Div("Alignment method"),
+                            #     # ----- Alignement method -----
+                            #     dcc.RadioItems(
+                            #         [
+                            #             {
+                            #                 "label": html.Div(['Pairwise2']),
+                            #                 "value": "1",
+                            #             },
+                            #             {
+                            #                 "label": html.Div(['Muscle5']),
+                            #                 "value": "2",
+                            #             },
+                            #             {
+                            #                 "label": html.Div(['Multiple Alignment using fast fourier transform (MAFFT)']),
+                            #                 "value": "3",
+                            #                 'disabled': True
+                            #             },
+                            #             {
+                            #                 "label": html.Div(['Clustal2']),
+                            #                 "value": "4",
+                            #                 'disabled': True
+                            #             },
+                            #         ], value=1, id='alignment-method'
+                            #     )
+                            # ], className="parameter-container-inside"),
+                            # html.Div([
+                            #     html.Div("Distance method"),
+                            #     # ----- Distance method -----
+                            #     dcc.RadioItems(
+                            #         [
+                            #             {
+                            #                 "label": html.Div(['Least Square'], style={'padding': 5, 'font-size': 14}),
+                            #                 "value": "1",
+                            #             },
+                            #             {
+                            #                 "label": html.Div(['Robinson-Foulds (RF)'], style={'padding': 5, 'font-size': 14}),
+                            #                 "value": "2",
+                            #                 'disabled': True
+                            #             },
+                            #             {
+                            #                 "label": html.Div(['Quartet and triplet'], style={'padding': 5, 'font-size': 14}),
+                            #                 "value": "3",
+                            #                 'disabled': True
+                            #             },
+                            #             {
+                            #                 "label": html.Div(['Bipartition'], style={'padding': 5, 'font-size': 14}),
+                            #                 "value": "4",
+                            #                 'disabled': True
+                            #             },
+                            #         ], value=1, id='distance-method'
+                            #     )
+                            # ], className="parameter-container-inside"),
+                            html.Div(
+                                [
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                t("upload.genetic.alignment-chart", lang),
+                                                className="sub-title",
+                                            ),
+                                            html.Div(alignment_chart, id="alignment-chart"),
+                                        ]
+                                    ),
+                                ]
+                            ),
+                        ],
+                        className="parameter-container",
+                        id="genetic-params-section",
+                    ),
+                ],
+                className="params-genetic",
+            ),
+        ],
+        className="parameters-section",
+        id="parameters-section",
+    )
 
-@callback(
-    Output('alignment-chart', 'children'),
-    State('sync', 'data'),
-    Input('stored-genetic-data', 'data'),
-)
-def make_alignment_chart(sync_data, file):
-    """
-    This function creates the alignment chart
-    args:
-        starting_position (int): starting position of the alignment chart
-        window_size (int): size of the window
-        file (dict): dictionary containing the sequences
-    """
-    starting_position = sync_data['starting_position']
-    window_size = sync_data['window_size']
-
-    if starting_position is None:
-        return dash.no_update
-    end_window = starting_position + window_size
-    genetic_values = ""
-    for key, value in file.items():
-        genetic_values += '>' + key + '\n'
-        genetic_values += str(value[int(starting_position):int(end_window)]) + '\n'
-    return html.Div([
-        dashbio.AlignmentChart(
-            id='my-alignment-viewer',
-            data=genetic_values,
-            tilewidth=20,
-            height=600,
-        ),
-        html.Div(id='alignment-viewer-output', className='alignment-chart'),
-    ])
 
 # TODO: fix the bug with dash 2.9 and multiprocessing
 # the following callbacks are using allow_duplicate=True, which is a new feature in dash 2.9.0

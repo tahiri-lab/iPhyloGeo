@@ -1,4 +1,11 @@
+@use "utils/table";
+
 .params-climatic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px;
+  box-sizing: border-box;
   transition: all 0.3s ease-in-out;
 
   .title {
@@ -10,80 +17,129 @@
   }
 
   .params-climatic-table {
-    margin: auto;
-    width: 75%;
-  }
+    @extend .shared-table;
+    margin: 10px auto 30px;
+    width: 100%;
+    background-color: var(--primary);
+    padding: 24px;
+    border-radius: 15px;
+    box-sizing: border-box;
 
-  .dash-table-container {
-    border-collapse: collapse;
-    border-radius: 1em;
-    overflow: auto;
+    .table-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: left;
+    }
   }
 
   .params-climatic-parameters {
-    width: 75%;
-    margin: 10px auto auto auto;
-
-    .title {
-      font-weight: bold;
-      position: relative;
-      top: 15px;
-    }
-  }
-
-  .col-to-analyse-container {
-    width: 75%;
-    margin: 10px auto auto auto;
-    padding: 50px;
+    width: 100%;
+    padding: 30px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
-  }
+    background-color: var(--primary);
+    box-sizing: border-box;
 
-  .axis {
-    border-radius: 5px;
-    padding: 10px 0;
-    display: flex;
-    margin: auto ;
-    gap: 30px;
-    justify-content: space-evenly;
-
-    .sub-title {
-      color: var(--reverse-black-white-color);
+    .graph-section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: left;
     }
 
-    @media (max-width: 1080px) {
-      flex-direction: column;
-    }
-  }
-
-  .axis-field {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 50%;
-    padding: 50px;
-    border-radius: 15px;
-    background-color: var(--black-and-white);
-
-    @media (max-width: 1080px) {
-      width: 100%;
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+      margin-top: 16px;
+      text-align: left;
     }
 
-    .field {
-      margin-top: 10px;
+    // ── X / Y axis row ──
+    .axis-row {
+      display: flex;
+      gap: 20px;
 
-      &.graphType {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
+      @media (max-width: 768px) {
+        flex-direction: column;
       }
+    }
+
+    .axis-field-item {
+      flex: 1;
+    }
+
+    // ── Chart type cards ──
+    .chart-type-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 4px;
+
+      label {
+        flex: 0 0 auto;
+        width: fit-content;
+        max-width: 100%;
+        min-width: 0;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 10px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--text);
+        background: transparent;
+        white-space: normal;
+
+        &:hover {
+          border-color: var(--action-hover);
+        }
+
+        // Hide the default checkbox
+        input[type="checkbox"] {
+          display: none;
+        }
+
+        span {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-width: 0;
+          flex-wrap: nowrap;
+        }
+
+        .chart-icon {
+          width: 18px;
+          height: 18px;
+          filter: var(--icon-filter);
+          flex-shrink: 0;
+        }
+      }
+
+      // Checked state
+      label:has(input:checked) {
+        border-color: var(--action-hover);
+        background: var(--action-soft-bg);
+      }
+    }
+
+    // ── Map field ──
+    .map-field {
+      margin-top: 6px;
     }
   }
 
   .button {
-      margin: 10px auto auto auto;
+    margin: 10px auto auto auto;
   }
-
 
   .noMapAvailable {
     color: var(--reverse-black-white-color);
@@ -95,15 +151,14 @@
 
   .center-text {
     text-align: center;
-}
+  }
 
   .choropleth-map-container {
-    
-    width: 100%; /* Adjust as needed */
-    height: 500px; /* Adjust the height according to your preference */
+    width: 100%;
+    height: 500px;
     margin-top: 20px;
     border-radius: 15px;
-    background-color: var(--black-and-white);
+    background-color: var(--secondary);
 
     @media (max-width: 1080px) {
       width: 100%;
@@ -112,30 +167,50 @@
     .choropleth-map {
       width: 100%;
       height: 100%;
+
       .dash-graph {
-         height: 100%;
+        height: 100%;
       }
     }
   }
 
   .graph-generator-container {
     display: flex;
-    width: 75%;
+    justify-content: center;
+    width: 100%;
     margin: 10px auto auto auto;
     border-radius: 15px;
-    background-color: #dbdbdb;
+    background-color: var(--primary);
 
     .generated-graph {
       display: flex;
       flex-wrap: wrap;
-      width: 1000px;  /* Set the desired width */
-      height: 500px;
       justify-content: center;
+      align-items: center;
+
+      width: 100%;
+      min-height: 500px;
+      margin: auto;
+
+      // When containing only empty message, make it smaller
+      &:has(.empty-graph-message) {
+        min-height: 150px;
+      }
+    }
+
+    .empty-graph-message {
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.7;
+      text-align: center;
+      padding: 20px;
     }
 
     .dash-graph {
       color: white !important;
       width: 50%;
+
       @media (max-width: 1080px) {
         width: 100%;
       }
@@ -144,17 +219,146 @@
 
   .graph-and-map-container {
     display: flex;
-    justify-content: space-around; /* Distribute space around items */
-    align-items: flex-start;  /* Align items to the top */
+    justify-content: space-around;
+    align-items: flex-start;
+  }
+
+  .generated-graph,
+  .map-selection-container {
+    width: 48%;
+  }
 }
 
-.generated-graph, 
-.map-selection-container {
-    width: 48%; /* Adjust width as needed */
-} 
+// ── Submit section (analyse data + dataset name + submit button) ──
+// Rendered in #params-sections > #submit-button, outside .params-climatic
+.submit-section {
+  width: 100%;
+  padding: 30px;
+  border-radius: 15px;
+  background-color: var(--primary);
+  box-sizing: border-box;
+
+  .analyse-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-align: left;
+  }
+
+  .field-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+    margin-top: 16px;
+    text-align: left;
+  }
+
+  .field-error-message {
+    min-height: 20px;
+    margin-top: 6px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--error);
+    text-align: left;
+  }
+
+  .name-error-message {
+    margin-top: 6px;
+  }
+
+  // Column analyze checklist as cards
+  .col-analyze-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    label {
+      display: flex !important;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+
+      &:hover {
+        border-color: var(--action-hover);
+      }
+
+      input[type="checkbox"] {
+        accent-color: var(--action-hover);
+        width: 16px;
+        height: 16px;
+        margin: 0 !important;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+    }
+
+    label:has(input:checked) {
+      border-color: var(--action);
+      background: var(--action-soft-bg);
+    }
+  }
+
+  .dataset-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+
+    &::placeholder {
+      color: #aaa;
+    }
+
+    &:focus {
+      border-color: var(--action-hover);
+    }
+  }
+
+  .submit-btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  .submit-btn {
+    padding: 12px 36px;
+    border: none;
+    border-radius: 10px;
+    background: var(--action);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      opacity 0.25s,
+      transform 0.15s;
+
+    &:hover {
+      background: var(--action-hover);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
 }
 
 rect {
   fill: rgba(0, 0, 0, 0) !important;
 }
-
