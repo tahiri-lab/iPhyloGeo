@@ -59,9 +59,6 @@ def _load_result_from_path(path):
     return result_id, result
 
 
-
-
-
 def _missing_result_toast(lang):
     return {"message": t("result.errors.not-found-message", lang), "type": "error"}
 
