@@ -59,8 +59,7 @@ def _load_result_from_path(path):
     return result_id, result
 
 
-def _is_missing_result(result):
-    return result is None
+
 
 
 def _missing_result_toast(lang):
@@ -264,7 +263,7 @@ def share_result_link(n_clicks, pathname, href, language):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     _, result = _load_result_from_path(pathname)
-    if _is_missing_result(result):
+    if result is None:
         return _missing_result_toast(lang)
     return {"message": t("result.toast.link-copied", lang), "type": "success", "clipboard": href}
 
@@ -282,7 +281,7 @@ def handle_submit_click(pathname, n_clicks, user_email, language):
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
     _, result = _load_result_from_path(pathname)
-    if _is_missing_result(result):
+    if result is None:
         return _missing_result_toast(lang)
     if not validate_email(user_email):
         return {"message": t("result.email.invalid", lang), "type": "error"}
@@ -306,7 +305,7 @@ def show_result_name(path, _alive_tick, language):
     """
     lang = language if language in LANGUAGE_LIST else "en"
     _, result = _load_result_from_path(path)
-    if _is_missing_result(result):
+    if result is None:
         return t("result.errors.not-found-title", lang)
     title = result["name"]
     return t("result.title-of", lang).replace("{name}", title)
@@ -328,7 +327,7 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
     lang = language if language in LANGUAGE_LIST else "en"
     _, result = _load_result_from_path(path)
 
-    if _is_missing_result(result):
+    if result is None:
         message = html.Div(
             [
                 html.P(
@@ -393,7 +392,7 @@ def show_complete_results(path, generated_page, language):
     """
     lang = language if language in LANGUAGE_LIST else "en"
     _, result = _load_result_from_path(path)
-    if _is_missing_result(result):
+    if result is None:
         return "", "", "", ""
 
     if "genetic" not in result["result_type"] or "output" not in result:
@@ -473,7 +472,7 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, languag
         html.Div: the div containing the climatic trees
     """
     result_id, result = _load_result_from_path(path)
-    if _is_missing_result(result):
+    if result is None:
         return "", ""
     add_to_cookie(result_id)
     if "climatic" not in result["result_type"]:
@@ -536,7 +535,7 @@ def download_results(
     """
 
     _, result = _load_result_from_path(path)
-    if _is_missing_result(result):
+    if result is None:
         return dash.no_update, _missing_result_toast(lang)
 
     ctx = dash.callback_context
@@ -591,7 +590,7 @@ def create_genetic_trees(path, generated_results_header, is_dark_theme, language
         html.Div: the div containing the genetic trees
     """
     _, result = _load_result_from_path(path)
-    if _is_missing_result(result):
+    if result is None:
         return "", ""
     if "genetic" not in result["result_type"] or "genetic_trees" not in result:
         return "", ""
