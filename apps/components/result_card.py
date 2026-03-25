@@ -97,14 +97,6 @@ def create_result_card(
                         ],
                         className="result-card__header",
                     ),
-                    # Progress bar (only shown when computation is in progress)
-                    html.Div(
-                        html.Div(
-                            style={"width": f"{progress}%"},
-                            className="result-card__progress-fill",
-                        ),
-                        className="result-card__progress-bar",
-                    ) if progress is not None and status_lower not in ("complete", "error") else None,
                     # Dates row
                     html.Div(
                         date_info,

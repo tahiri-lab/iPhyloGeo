@@ -453,7 +453,7 @@
     border: none;
     border-radius: 10px;
     background: var(--action);
-    color: #fff;
+    color: var(--text);
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
@@ -462,12 +462,7 @@
       transform 0.15s;
 
     &:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    &:active {
-      transform: translateY(0);
+      background-color: var(--action-hover);
     }
 
     &.disabled {

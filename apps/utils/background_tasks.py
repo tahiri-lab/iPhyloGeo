@@ -194,7 +194,13 @@ def estimate_processing_time(
     elif aligned_genetic_file:
         try:
             aligned_data = json.loads(aligned_genetic_file)
-            num_sequences = len(aligned_data) if isinstance(aligned_data, (list, dict)) else 4
+            if isinstance(aligned_data, dict) and "msa" in aligned_data:
+                # Alignment JSON format: count ">" in first window's FASTA string
+                msa_windows = aligned_data.get("msa", {})
+                first_window = next(iter(msa_windows.values()), "")
+                num_sequences = first_window.count(">")
+            else:
+                num_sequences = len(aligned_data) if isinstance(aligned_data, (list, dict)) else 4
         except Exception:
             num_sequences = 4
 
@@ -210,8 +216,8 @@ def estimate_processing_time(
         # Based on observation: 107 ops / 256s = 2.4s per op effective
         sequence_time = num_operations * REFERENCE_TIME_PER_OPERATION
 
-        # Add alignment time (proportional to sequence count, not operations)
-        alignment_time = num_sequences * ALIGNMENT_TIME_PER_SEQ
+        # Add alignment time only for non-aligned data (pre-aligned skips this step)
+        alignment_time = (num_sequences * ALIGNMENT_TIME_PER_SEQ) if genetic_file else 0
 
         estimated_time += sequence_time + alignment_time
 

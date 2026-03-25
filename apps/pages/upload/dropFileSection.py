@@ -48,9 +48,9 @@ DATA_TYPES = [
         "key": "aligned",
         "label": "Aligned Genetic Data",
         "description": "Pre-aligned sequences",
-        "formats": ".json",
+        "formats": ".fasta, .json",
         "upload_id": "upload-aligned-genetic-data",
-        "upload_label": "Upload aligned genetic data (.json)",
+        "upload_label": "Upload aligned genetic data (.fasta, .json)",
     },
     {
         "key": "tree",

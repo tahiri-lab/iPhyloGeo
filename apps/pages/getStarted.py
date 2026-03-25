@@ -17,12 +17,14 @@ import pages.upload.dropFileSection as dropFileSection
 import pages.upload.genetic.paramsGenetic as paramsGenetic
 import pages.upload.submitButton as submitButton
 import pages.utils.popup as popup
+import pages.utils.result_ready_popup as result_ready_popup
 import pandas as pd
 import utils.mail as mail
 import utils.utils as utils
 import utils.background_tasks as background_tasks
 from aphylogeo.params import Params
-from Bio import SeqIO
+from Bio import AlignIO, SeqIO
+from aphylogeo.alignement import Alignment as AlignmentClass
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 from dotenv import dotenv_values
@@ -132,6 +134,7 @@ layout = html.Div(
             className="get-started",
             children=[
                 html.Div(children=[popup.layout]),
+                html.Div(children=[result_ready_popup.layout]),
                 html.Div(children=[dropFileSection.layout]),
                 html.Div(
                     [
@@ -160,6 +163,19 @@ def close_popup(n_clicks):
     raise PreventUpdate
 
 
+# Callback to close result ready popup when close button is clicked
+@callback(
+    Output("result-ready-popup", "className", allow_duplicate=True),
+    Input("close-result-ready-popup-btn", "n_clicks"),
+    prevent_initial_call=True,
+)
+def close_result_ready_popup(n_clicks):
+    """Close the result ready popup when user clicks the X button."""
+    if n_clicks:
+        return "popup hidden"
+    raise PreventUpdate
+
+
 # Callback to poll pipeline status and update UI
 @callback(
     Output("popup-status-message", "children"),
@@ -167,6 +183,8 @@ def close_popup(n_clicks):
     Output("popup-icon", "src"),
     Output("pipeline-status-interval", "disabled", allow_duplicate=True),
     Output("global-pipeline-status", "data", allow_duplicate=True),
+    Output("popup", "className", allow_duplicate=True),
+    Output("result-ready-popup", "className"),
     Input("pipeline-status-interval", "n_intervals"),
     State("current-result-id", "data"),
     State("pipeline-started", "data"),
@@ -223,11 +241,13 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started):
     if status.lower() == "complete":
         # Pipeline finished
         return (
+            "",
             "Analysis complete!",
-            "Results are ready! 🎉",
-            "../../assets/icons/check-circle.svg",
+            "",
             True,  # Disable interval
             status,  # Update global status
+            "popup hidden",  # hide old popup
+            "popup",         # show new popup
         )
     elif status.lower() == "error":
         error_msg = status_info.get("error", "Unknown error")
@@ -237,6 +257,8 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started):
             "../../assets/icons/error.svg",
             True,  # Disable interval
             status,  # Update global status
+            "popup",         # keep old popup
+            "popup hidden",  # keep new popup hidden
         )
     else:
         # Still processing - update status message with time estimate
@@ -246,6 +268,8 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started):
             "../../assets/img/coffee-cup.gif",
             False,  # Keep polling
             status,  # Update global status
+            "popup",         # keep old popup
+            "popup hidden",  # keep new popup hidden
         )
 
 
@@ -444,7 +468,7 @@ def uploaded_genetic_data(
         )
 
     genetic_default = default_upload_child(".fasta")
-    aligned_default = default_upload_child(".json")
+    aligned_default = default_upload_child(".fasta, .json")
     tree_default = default_upload_child(".json")
 
     upload_box = dash.callback_context.triggered_id
@@ -475,7 +499,7 @@ def uploaded_genetic_data(
                 tree_default,
             )
     elif upload_box == "upload-aligned-genetic-data":
-        if JSON_REGEX.fullmatch(aligned_genetic_data_filename or ""):
+        if JSON_REGEX.fullmatch(aligned_genetic_data_filename or "") or FASTA_REGEX.fullmatch(aligned_genetic_data_filename or ""):
             return (
                 None,
                 aligned_genetic_data_contents,
@@ -496,7 +520,7 @@ def uploaded_genetic_data(
                 None,
                 None,
                 genetic_default,
-                loaded_upload_child("File must be .json", is_error=True),
+                loaded_upload_child("File must be .fasta or .json", is_error=True),
                 tree_default,
             )
     elif upload_box == "upload-genetic-tree":
@@ -531,6 +555,7 @@ def uploaded_genetic_data(
     Output("climatic-params-layout", "children"),
     Output("submit-button", "children"),
     Output("input-data", "data"),
+    Output("toast-store", "data", allow_duplicate=True),
     Input("next-button", "n_clicks"),
     Input("upload-test-data", "n_clicks"),
     State("upload-genetic-data", "contents"),
@@ -683,11 +708,17 @@ def upload_data(
         elif aligned_genetic_data_is_present:
             # Won't show any graphs
             parsed_aligned_genetic_file = parse_uploaded_files(
-                aligned_genetic_data_contents, aligned_genetic_data_filename
+                aligned_genetic_data_contents, aligned_genetic_data_filename, is_aligned=True
             )
+            if parsed_aligned_genetic_file is None or "error" in parsed_aligned_genetic_file:
+                error_msg = (parsed_aligned_genetic_file or {}).get(
+                    "error", "Failed to parse aligned genetic file."
+                )
+                return "", "", "", current_data, {"message": error_msg, "type": "error"}
             current_data["aligned_genetic"]["file"] = parsed_aligned_genetic_file[
                 "dataframe"
             ]  # json object
+            current_data["aligned_genetic"]["type"] = parsed_aligned_genetic_file["type"]
             current_data["aligned_genetic"]["file_name"] = aligned_genetic_data_filename
             current_data["aligned_genetic"][
                 "last_modified_date"
@@ -709,6 +740,7 @@ def upload_data(
             current_data["genetic_tree"]["file"] = parsed_genetic_tree_file[
                 "dataframe"
             ]  # json object
+            current_data["genetic_tree"]["type"] = parsed_genetic_tree_file["type"]
             current_data["genetic_tree"]["file_name"] = genetic_tree_filename
             current_data["genetic_tree"][
                 "last_modified_date"
@@ -739,27 +771,23 @@ def upload_data(
             climatic_data_to_show = True
 
     if climatic_data_to_show and genetic_data_to_show:
-        return (
-            current_data["genetic"]["layout"],
-            current_data["climatic"]["layout"],
-            submit_button,
-            current_data,
-        )
+        return current_data["genetic"]["layout"], current_data["climatic"]["layout"], submit_button, current_data, None
     elif climatic_data_to_show:
-        return "", current_data["climatic"]["layout"], submit_button, current_data
+        return "", current_data["climatic"]["layout"], submit_button, current_data, None
     elif genetic_data_to_show:
-        return current_data["genetic"]["layout"], "", submit_button, current_data
+        return current_data["genetic"]["layout"], "", submit_button, current_data, None
     else:
-        return "", "", submit_button, current_data
+        return "", "", submit_button, current_data, None
 
 
-def parse_uploaded_files(content, file_name):
+def parse_uploaded_files(content, file_name, is_aligned=False):
     """
     Parse a base64 string into the proper format to pass through the aPhyloGeo pipeline
 
     Args:
         content (base64 string): uploaded content from Dash Upload Module
         file_name (string): file name
+        is_aligned (bool): True if the file is pre-aligned genetic data
 
     """
     results = {}
@@ -778,22 +806,35 @@ def parse_uploaded_files(content, file_name):
                 io.StringIO(decoded_content.decode("utf-8"))
             )
         elif EXCEL_REGEX.fullmatch(file_name):
-            # Assume that the user uploaded an excel f
-            # ile (climatic data)
+            # Assume that the user uploaded an excel file (climatic data)
             results["type"] = "excel"
             results["dataframe"] = pd.read_excel(io.BytesIO(decoded_content))
         elif FASTA_REGEX.fullmatch(file_name):
-            # Assume that the user uploaded a fasta file (genetic data)
-            fasta_file_string = decoded_content.decode("utf-8")
-            results["type"] = "fasta"
-            results["dataframe"] = files_ctrl.fasta_to_str(
-                SeqIO.parse(io.StringIO(fasta_file_string), "fasta")
-            )
-            # Save the fasta file (needed for aPhyloGeo Alignment)
-            with open("./temp/genetic_data.fasta", "w") as f:
-                f.write(fasta_file_string.replace("\r\n", "\n"))
+            fasta_file_string = decoded_content.decode("utf-8").replace("\r\n", "\n")
+            if is_aligned:
+                # Pre-aligned FASTA: convert to Alignment JSON so the pipeline
+                # can skip the alignment step and go straight to tree building.
+                # AlignIO.read requires all sequences to have the same length —
+                # if they don't, the file is not actually aligned.
+                try:
+                    msa = AlignIO.read(io.StringIO(fasta_file_string), "fasta")
+                except ValueError:
+                    results["error"] = "Sequences do not all have the same length. Make sure the file is aligned."
+                    return results
+                alignment_obj = AlignmentClass("0", {"0": msa})
+                results["type"] = "json"
+                results["dataframe"] = json.dumps(alignment_obj.to_dict())
+            else:
+                # Regular FASTA that needs alignment
+                results["type"] = "fasta"
+                results["dataframe"] = files_ctrl.fasta_to_str(
+                    SeqIO.parse(io.StringIO(fasta_file_string), "fasta")
+                )
+                # Save the fasta file (needed for aPhyloGeo Alignment)
+                with open("./temp/genetic_data.fasta", "w") as f:
+                    f.write(fasta_file_string)
         elif content_type == "data:application/json;base64":
-            # Assume  that the user uploaded a JSON file (aligned genetic data)
+            # Assume that the user uploaded a JSON file (aligned genetic data)
             results["type"] = "json"
             results["dataframe"] = decoded_content.decode("utf-8")
 
@@ -998,7 +1039,7 @@ def submit_button(
 
         # Return immediately - pipeline runs in background
         # Enable the intervals to poll for status updates
-        # Show progress bar at 5%
+        # Show progress bar at 0%
         return (
             "popup",           # popup className
             result_id,         # current-result-id
@@ -1008,7 +1049,7 @@ def submit_button(
             result_id,         # global-result-id
             False,             # global-pipeline-interval disabled
             "progress-bar",    # progress-bar className
-            {"width": "5%"},   # progress-bar-fill style
+            {"width": "0%"},   # progress-bar-fill style
         )
     except Exception as e:
         print("[Error]:", e)

@@ -150,29 +150,6 @@
         }
       }
 
-      .progressContainer {
-        grid-area: progress;
-
-        .label {
-          font-weight: bold;
-        }
-
-        .progressBar {
-          display: inline-block;
-          align-content: center;
-          width: 100%;
-          height: 100%;
-
-          .progress {
-            background-color: #b6a9e4;
-
-            .progress-bar {
-              background-color: #8B00D1;
-            }
-          }
-        }
-      }
-
       .arrowContainer {
         cursor: pointer;
         grid-area: arrow;

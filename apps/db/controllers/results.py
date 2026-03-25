@@ -109,6 +109,10 @@ def parse_result(result):
         document["climatic_files_id"] = ObjectId(result["climatic_files_id"])
     if "genetic_files_id" in result:
         document["genetic_files_id"] = ObjectId(result["genetic_files_id"])
+    if "aligned_genetic_files_id" in result:
+        document["aligned_genetic_files_id"] = ObjectId(result["aligned_genetic_files_id"])
+    if "genetic_tree_files_id" in result:
+        document["genetic_tree_files_id"] = ObjectId(result["genetic_tree_files_id"])
     if "climatic_params" in result:
         document["climatic_params"] = result["climatic_params"]
     if "climatic_trees" in result:
