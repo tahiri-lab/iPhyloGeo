@@ -19,7 +19,8 @@
     "number-of-columns": "Vous devez sélectionner au moins une colonne",
     "name-required": "Vous devez donner un nom à votre jeu de données",
     "consent-required": "Vous devez confirmer votre préférence de stockage des données avant la soumission",
-    "temporary-storage-unavailable": "Le stockage temporaire est indisponible pour le moment. Veuillez réessayer dans un instant."
+    "temporary-storage-unavailable": "Le stockage temporaire est indisponible pour le moment. Veuillez réessayer dans un instant.",
+    "submit-failed": "Impossible de terminer votre analyse. Veuillez réessayer."
   },
   "email": {
     "invalid": "Adresse e-mail invalide",

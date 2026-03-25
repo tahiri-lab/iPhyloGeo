@@ -67,9 +67,15 @@ def get_results(ids):
                 except FileNotFoundError:
                     continue
         else:
-            res = results_db.find({"_id": {"$in": [ObjectId(id) for id in persistent_ids]}})
-            for result_doc in res:
-                records_by_id[str(result_doc["_id"])] = result_doc
+            valid_object_ids = []
+            for result_id in persistent_ids:
+                if ObjectId.is_valid(str(result_id)):
+                    valid_object_ids.append(ObjectId(str(result_id)))
+
+            if valid_object_ids:
+                res = results_db.find({"_id": {"$in": valid_object_ids}})
+                for result_doc in res:
+                    records_by_id[str(result_doc["_id"])] = result_doc
 
     ordered_results = []
     for result_id in ids:

@@ -978,7 +978,7 @@ def submit_button(
             result_name,
             temporary=not has_storage_consent,
         )
-        if ENV_CONFIG["HOST"] != "local":
+        if ENV_CONFIG["HOST"] != "local" or not has_storage_consent:
             add_result_to_cookie(result_id)
 
         # Prepare climatic trees (pass selected column names to filter)
@@ -1044,7 +1044,7 @@ def submit_button(
             None,
             "/results",
             {
-                "message": t("upload.errors.temporary-storage-unavailable", lang),
+                "message": t("upload.errors.submit-failed", lang),
                 "type": "error",
             },
         )

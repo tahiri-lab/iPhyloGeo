@@ -101,7 +101,7 @@ def create_email_section(lang="en"):
 
 layout = html.Div(
     [
-        dcc.Interval(id="result-alive-check", interval=10000, n_intervals=0),
+        dcc.Interval(id="result-alive-check", interval=30000, n_intervals=0),
         html.Div(id="dummy-share-result-output", style={"display": "none"}),
         html.Div(id="dummy-table-collapse", style={"display": "none"}),
         html.Div(id="dummy-climatic-collapse", style={"display": "none"}),

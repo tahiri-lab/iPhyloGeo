@@ -35,17 +35,24 @@ def _format_card_date(value):
 
 
 def _to_datetime(value):
+    min_utc = datetime.min.replace(tzinfo=timezone.utc)
+
     if value is None:
-        return datetime.min
+        return min_utc
     if isinstance(value, datetime):
-        return value
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
     if isinstance(value, str):
         normalized = value.replace("Z", "+00:00")
         try:
-            return datetime.fromisoformat(normalized)
+            parsed = datetime.fromisoformat(normalized)
+            if parsed.tzinfo is None:
+                return parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
         except ValueError:
-            return datetime.min
-    return datetime.min
+            return min_utc
+    return min_utc
 
 
 def _temporary_remaining_label(result, lang="en"):
@@ -53,13 +60,10 @@ def _temporary_remaining_label(result, lang="en"):
         return None
 
     expires_at = _to_datetime(result.get("expired_at"))
-    if expires_at == datetime.min:
+    if expires_at == datetime.min.replace(tzinfo=timezone.utc):
         return t("results.card.temporary", lang)
 
-    if expires_at.tzinfo is not None:
-        now = datetime.now(expires_at.tzinfo)
-    else:
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = datetime.now(timezone.utc)
 
     delta_seconds = int((expires_at - now).total_seconds())
     if delta_seconds <= 0:
@@ -150,9 +154,30 @@ def generate_result_list(path, language):
     lang = language if language in LANGUAGE_LIST else "en"
 
     if ENV_CONFIG["HOST"] == "local":
-        results = utils.get_all_results()
+        local_results = utils.get_all_results() or []
+
+        temp_results = []
+        try:
+            cookie = request.cookies.get("AUTH")
+            if cookie:
+                temp_ids = [result_id for result_id in cookie.split(".") if result_id.startswith("tmp_")]
+                if temp_ids:
+                    temp_results = utils.get_results(temp_ids)
+        except Exception as e:
+            print(e)
+
+        combined = {str(result["_id"]): result for result in local_results}
+        for result in temp_results:
+            combined[str(result["_id"])] = result
+
+        results = sorted(
+            combined.values(),
+            key=lambda result: _to_datetime(result.get("created_at")),
+        )
+
         if not results:
             return get_no_results_html(lang)
+
         return [create_layout(result, lang) for result in results]
 
     try:

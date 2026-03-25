@@ -7,8 +7,8 @@
     "expired": "Expired",
     "temporary": "Temporary result",
     "expired-now": "Expired",
-    "expire-in-minutes": "Expire in {count}min",
-    "expire-in-hours-minutes": "Expire in {hours}h{minutes}min",
+    "expire-in-minutes": "Expires in {count}min",
+    "expire-in-hours-minutes": "Expires in {hours}h{minutes}min",
     "status": {
       "error": "ERROR",
       "success": "SUCCESS",
