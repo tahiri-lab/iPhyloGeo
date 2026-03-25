@@ -94,6 +94,26 @@ layout = html.Div(
                     className="processing-status-container",
                     style={"display": "none"},
                 ),
+                # Error banner (shown when result has errored)
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(t("result.error.title", "en"), className="error-banner__title", id="error-banner-title"),
+                                html.Div(t("result.error.description", "en"), className="error-banner__description", id="error-banner-description"),
+                            ],
+                            className="error-banner__body",
+                        ),
+                        html.A(
+                            t("result.error.back", "en"),
+                            href="/results",
+                            className="error-banner__back",
+                            id="error-banner-back",
+                        ),
+                    ],
+                    id="error-banner",
+                    className="error-banner hidden",
+                ),
                 # Top action buttons row
                 html.Div(
                     [
@@ -133,53 +153,60 @@ layout = html.Div(
                         ),
                     ],
                     className="result-actions",
+                    id="result-actions",
                 ),
-                # Results section card
+                # All result content — hidden on error
                 html.Div(
                     [
-                        html.Div(id="results-table-title"),
+                        # Results section card
                         html.Div(
                             [
-                                html.Div(id="main-results-table-container"),
-                                html.Div(id="statistical-results-table-container"),
-                                html.Div(id="output-results-graph", className="graph"),
+                                html.Div(id="results-table-title"),
+                                html.Div(
+                                    [
+                                        html.Div(id="main-results-table-container"),
+                                        html.Div(id="statistical-results-table-container"),
+                                        html.Div(id="output-results-graph", className="graph"),
+                                    ],
+                                    id="results-row",
+                                    className="results-row",
+                                ),
                             ],
-                            id="results-row",
-                            className="results-row",
+                            className="page-card result-section-card",
                         ),
-                    ],
-                    className="page-card result-section-card",
-                ),
-                dcc.Download(id="download-link-results"),
-                # Climatic trees section card
-                html.Div(
-                    [
-                        html.Div(id="climatic-tree-title"),
+                        dcc.Download(id="download-link-results"),
+                        # Climatic trees section card
                         html.Div(
-                            [html.Div(id="climatic-tree")],
-                            className="tree",
-                            id="climatic-tree-container",
+                            [
+                                html.Div(id="climatic-tree-title"),
+                                html.Div(
+                                    [html.Div(id="climatic-tree")],
+                                    className="tree",
+                                    id="climatic-tree-container",
+                                ),
+                            ],
+                            className="page-card result-section-card",
                         ),
-                    ],
-                    className="page-card result-section-card",
-                ),
-                # Genetic trees section card
-                html.Div(
-                    [
-                        html.Div(id="genetic-tree-title"),
+                        # Genetic trees section card
                         html.Div(
-                            [html.Div(id="genetic-tree")],
-                            className="tree",
-                            id="genetic-tree-container",
+                            [
+                                html.Div(id="genetic-tree-title"),
+                                html.Div(
+                                    [html.Div(id="genetic-tree")],
+                                    className="tree",
+                                    id="genetic-tree-container",
+                                ),
+                            ],
+                            className="page-card result-section-card",
+                        ),
+                        # Email section card
+                        html.Div(
+                            create_email_section(),
+                            id="email-section-card-content",
+                            className="page-card result-section-card-bottom",
                         ),
                     ],
-                    className="page-card result-section-card",
-                ),
-                # Email section card
-                html.Div(
-                    create_email_section(),
-                    id="email-section-card-content",
-                    className="page-card result-section-card-bottom",
+                    id="result-content-sections",
                 ),
             ],
             className="page-container result-page",
@@ -203,6 +230,9 @@ layout = html.Div(
     Output("processing-status-container", "style", allow_duplicate=True),
     Output("toast-store", "data", allow_duplicate=True),
     Output("refresh-trigger", "data"),
+    Output("error-banner", "className", allow_duplicate=True),
+    Output("result-content-sections", "style", allow_duplicate=True),
+    Output("result-actions", "style", allow_duplicate=True),
     Input("result-status-interval", "n_intervals"),
     State("url", "pathname"),
     State("result-processing-status", "data"),
@@ -237,11 +267,11 @@ def check_result_status(n_intervals, path, prev_status, current_refresh, languag
         title_str = t("result.title-of", lang).replace("{name}", title)
         if prev_status and prev_status.lower() != "complete":
             new_refresh = (current_refresh or 0) + 1
-            return status, True, title_str, [], {"display": "none"}, {"message": t("result.results-ready", lang), "type": "success"}, new_refresh
-        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update
+            return status, True, title_str, [], {"display": "none"}, {"message": t("result.results-ready", lang), "type": "success"}, new_refresh, "error-banner hidden", {}, {}
+        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update, "error-banner hidden", {}, {}
     elif status.lower() == "error":
         title_str = t("result.title-of-error", lang).replace("{name}", title)
-        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update
+        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update, "error-banner", {"display": "none"}, {"display": "none"}
     else:
         status_key = status_key_map.get(status.lower(), "results.card.status.in-progress")
         status_label = t(status_key, lang)
@@ -250,7 +280,7 @@ def check_result_status(n_intervals, path, prev_status, current_refresh, languag
             html.Span(t("result.in-progress", lang).replace("{status}", status_label), className="processing-text"),
         ]
         title_str = t("result.title-of", lang).replace("{name}", title)
-        return status, False, title_str, spinner_content, {"display": "flex"}, dash.no_update, dash.no_update
+        return status, False, title_str, spinner_content, {"display": "flex"}, dash.no_update, dash.no_update, "error-banner hidden", {}, {}
 
 
 @callback(
@@ -293,16 +323,13 @@ def handle_submit_click(pathname, n_clicks, user_email, language):
     Output("results-name", "children"),
     Output("processing-status-container", "children"),
     Output("processing-status-container", "style"),
+    Output("error-banner", "className"),
+    Output("result-content-sections", "style"),
+    Output("result-actions", "style"),
     Input("url", "pathname"),
     Input("language-store", "data"),
 )
 def show_result_name(path, language):
-    """
-    args:
-        path (str): the path of the page
-    returns:
-        tuple: the title, spinner content, and spinner style
-    """
     lang = language if language in LANGUAGE_LIST else "en"
     result_id = path.split("/")[-1]
     if not result_id or not ObjectId.is_valid(result_id):
@@ -322,9 +349,9 @@ def show_result_name(path, language):
     }
 
     if status.lower() == "complete":
-        return t("result.title-of", lang).replace("{name}", title), [], {"display": "none"}
+        return t("result.title-of", lang).replace("{name}", title), [], {"display": "none"}, "error-banner hidden", {}, {}
     elif status.lower() == "error":
-        return t("result.title-of-error", lang).replace("{name}", title), [], {"display": "none"}
+        return t("result.title-of-error", lang).replace("{name}", title), [], {"display": "none"}, "error-banner", {"display": "none"}, {"display": "none"}
     else:
         status_key = status_key_map.get(status.lower(), "results.card.status.in-progress")
         status_label = t(status_key, lang)
@@ -332,7 +359,7 @@ def show_result_name(path, language):
             html.Div(className="loading-spinner"),
             html.Span(t("result.in-progress", lang).replace("{status}", status_label), className="processing-text"),
         ]
-        return t("result.title-of", lang).replace("{name}", title), spinner_content, {"display": "flex"}
+        return t("result.title-of", lang).replace("{name}", title), spinner_content, {"display": "flex"}, "error-banner hidden", {}, {}
 
 
 @callback(
@@ -340,6 +367,9 @@ def show_result_name(path, language):
     Output("download-output-text", "children"),
     Output("download-sequences-text", "children"),
     Output("email-section-card-content", "children"),
+    Output("error-banner-title", "children"),
+    Output("error-banner-description", "children"),
+    Output("error-banner-back", "children"),
     Input("language-store", "data"),
 )
 def update_result_static_text(language):
@@ -349,6 +379,9 @@ def update_result_static_text(language):
         t("result.actions.download-output", lang),
         t("result.actions.download-sequences", lang),
         create_email_section(lang),
+        t("result.error.title", lang),
+        t("result.error.description", lang),
+        t("result.error.back", lang),
     )
 
 

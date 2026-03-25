@@ -235,7 +235,7 @@ def estimate_processing_time(
     # Log estimation details for debugging
     print(f"[Time Estimation] Available RAM: {available_ram:.2f} GB / {total_ram:.2f} GB")
     print(f"[Time Estimation] Sequences: {num_sequences}, Climatic columns: {num_climatic_cols}")
-    print(f"[Time Estimation] Total estimated time: {estimated_time:.1f} seconds ({estimated_time/60:.1f} minutes)")
+    print(f"[Time Estimation] Total estimated time: {estimated_time:.1f} seconds ({estimated_time / 60:.1f} minutes)")
 
     # No maximum cap - let it estimate the real time
     return max(5, estimated_time)
@@ -369,16 +369,16 @@ def run_pipeline_async(
     print(f"[Pipeline] Starting run_pipeline_async for result_id: {result_id}")
 
     # Estimate processing time based on file sizes
-    print(f"[Pipeline] Estimating processing time...")
+    print("[Pipeline] Estimating processing time...")
     estimated_time = estimate_processing_time(
         climatic_file, genetic_file, aligned_genetic_file, genetic_tree_file
     )
     print(f"[Pipeline] Estimated time: {estimated_time:.1f}s")
 
-    print(f"[Pipeline] Updating task status to 'queued'...")
+    print("[Pipeline] Updating task status to 'queued'...")
     update_task_status(result_id, "queued", estimated_time=estimated_time)
 
-    print(f"[Pipeline] Submitting task to executor...")
+    print("[Pipeline] Submitting task to executor...")
     _executor.submit(
         _run_pipeline_task,
         result_id,
@@ -408,11 +408,11 @@ def _run_pipeline_task(
     """
     print(f"[Pipeline Task] Starting _run_pipeline_task for result_id: {result_id}")
     try:
-        print(f"[Pipeline Task] Updating status to 'running'...")
+        print("[Pipeline Task] Updating status to 'running'...")
         update_task_status(result_id, "running")
 
         # Re-read latest settings from JSON and apply to Params
-        print(f"[Pipeline Task] Loading settings from genetic_settings_file.json...")
+        print("[Pipeline Task] Loading settings from genetic_settings_file.json...")
         try:
             with open("genetic_settings_file.json", "r") as _sf:
                 _latest_settings = json.load(_sf)
@@ -420,18 +420,18 @@ def _run_pipeline_task(
             Params.update_from_dict(
                 {k: v for k, v in _latest_codes.items() if k in Params.PARAMETER_KEYS}
             )
-            print(f"[Pipeline Task] Settings loaded successfully")
+            print("[Pipeline Task] Settings loaded successfully")
         except Exception as e:
             print(f"[Warning] Could not reload settings: {e}")
 
         # Prepare climatic trees
-        print(f"[Pipeline Task] Creating climatic trees...")
+        print("[Pipeline Task] Creating climatic trees...")
         update_task_status(result_id, "climatic_trees")
         selected_columns = params_climatic.get("names") if params_climatic else None
         climatic_trees = utils.create_climatic_trees(
             result_id, climatic_file, selected_columns
         )
-        print(f"[Pipeline Task] Climatic trees created successfully")
+        print("[Pipeline Task] Climatic trees created successfully")
 
         genetic_trees = None
 
@@ -529,4 +529,3 @@ def _run_pipeline_task(
             cleanup_task(result_id)
 
         threading.Thread(target=delayed_cleanup, daemon=True).start()
-

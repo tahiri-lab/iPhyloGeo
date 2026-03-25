@@ -1,6 +1,7 @@
 from dash import dcc, html
 from utils.i18n import t
 
+
 def get_layout(lang="en"):
     return html.Div(
         className="submit-section",

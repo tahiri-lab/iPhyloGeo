@@ -5,7 +5,6 @@ import re
 
 import dash
 import db.controllers.files as files_ctrl
-import db.controllers.results as results_ctrl
 from components.badge import create_badge
 from components.email_input import (
     get_button_id,
@@ -23,8 +22,6 @@ import utils.mail as mail
 import utils.utils as utils
 import utils.background_tasks as background_tasks
 from utils.i18n import LANGUAGE_LIST, t
-from aphylogeo.alignement import Alignment
-from aphylogeo.genetic_trees import GeneticTrees
 from aphylogeo.params import Params
 from Bio import AlignIO, SeqIO
 from aphylogeo.alignement import Alignment as AlignmentClass
@@ -1043,10 +1040,10 @@ def submit_button(
     print(f"[submit_button] Called with ready_for_pipeline={ready_for_pipeline}")
 
     if ready_for_pipeline is False:
-        print(f"[submit_button] ready_for_pipeline is False, returning dash.no_update")
+        print("[submit_button] ready_for_pipeline is False, returning dash.no_update")
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
-    print(f"[submit_button] Pipeline is ready, processing input_data...")
+    print("[submit_button] Pipeline is ready, processing input_data...")
     climatic_file = input_data["climatic"]["file"]
 
     genetic_file = input_data["genetic"]["file"]
@@ -1079,7 +1076,7 @@ def submit_button(
 
     try:
         # Create a new result in the database with 'pending' status
-        print(f"[submit_button] Creating result in database...")
+        print("[submit_button] Creating result in database...")
         result_id = utils.create_result(
             files_ids, result_type, params_climatic, params_genetic, result_name
         )
@@ -1089,7 +1086,7 @@ def submit_button(
             add_result_to_cookie(result_id)
 
         # Launch the pipeline asynchronously
-        print(f"[submit_button] Launching pipeline async...")
+        print("[submit_button] Launching pipeline async...")
         background_tasks.run_pipeline_async(
             result_id=result_id,
             climatic_file=climatic_file,
@@ -1099,7 +1096,7 @@ def submit_button(
             params_climatic=params_climatic,
             email=email,
         )
-        print(f"[submit_button] Pipeline launched successfully!")
+        print("[submit_button] Pipeline launched successfully!")
 
         # Return immediately - pipeline runs in background
         # Enable the intervals to poll for status updates

@@ -144,3 +144,37 @@ def parse_result(result):
 
 def parse_document(document):
     pass
+
+
+PENDING_STATUSES = {"pending", "queued", "running", "climatic_trees", "alignment", "genetic_trees", "output"}
+
+
+def mark_stuck_results_as_error():
+    """
+    On app startup, mark any results that are stuck in a non-terminal state
+    (pending, queued, running, or any processing step) as 'error'.
+    These results were interrupted by an app crash or restart.
+    """
+    if ENV_CONFIG["HOST"] == "local":
+        for file in os.listdir("result"):
+            filepath = Path("result") / file
+            try:
+                with open(filepath, "r") as f:
+                    data = json.load(f)
+                if data.get("status", "").lower() in PENDING_STATUSES:
+                    data["status"] = "error"
+                    with open(filepath, "w") as f:
+                        f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
+                    print(f"[Startup] Marked stuck result {file} as error")
+            except Exception as e:
+                print(f"[Startup] Could not process result file {file}: {e}")
+        return
+
+    try:
+        results_db.update_many(
+            {"status": {"$in": list(PENDING_STATUSES)}},
+            {"$set": {"status": "error"}},
+        )
+        print("[Startup] Marked all stuck results as error")
+    except Exception as e:
+        print(f"[Startup] Could not mark stuck results: {e}")

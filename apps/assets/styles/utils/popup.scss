@@ -15,8 +15,9 @@
         display: none !important;
     }
 
-    .icon {
+    .link .icon {
         width: 75px;
+        filter: var(--icon-filter);
     }
 
     .content {

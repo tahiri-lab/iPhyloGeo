@@ -41,24 +41,11 @@ def create_result_card(
     elif status_lower == "complete":
         status_class = "success"
         status_text = t("results.card.status.success", lang)
-    elif status_lower in ["pending", "queued", "running"]:
-        status_class = "pending"
-        status_text = t("results.card.status.in-progress", lang)
-    elif status_lower in ["climatic_trees", "alignment", "genetic_trees", "output"]:
-        status_keys = {
-            "climatic_trees": "results.card.status.climatic-trees",
-            "alignment": "results.card.status.alignment",
-            "genetic_trees": "results.card.status.genetic-trees",
-            "output": "results.card.status.output",
-        }
-        status_class = "pending"
-        status_text = t(status_keys[status_lower], lang)
     else:
         status_class = "pending"
-        status_text = t("results.card.status.unknown", lang)
+        status_text = t("results.card.status.in-progress", lang)
 
-
-    # Build date info if provided
+# Build date info if provided
     date_info = []
     if created_at:
         date_info.append(

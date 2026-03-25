@@ -6,7 +6,9 @@ from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 from utils.i18n import LANGUAGE_LIST, t
+import db.controllers.results as results_ctrl
 
+results_ctrl.mark_stuck_results_as_error()
 toast_container = create_toast_container()
 
 load_dotenv()

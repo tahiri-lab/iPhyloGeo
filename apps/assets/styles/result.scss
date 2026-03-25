@@ -44,6 +44,57 @@
   }
 }
 
+// Error banner
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 24px auto 32px;
+  max-width: 720px;
+  padding: 24px 28px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--error) 8%, var(--primary));
+  border: 1.5px solid color-mix(in srgb, var(--error) 30%, transparent);
+
+  &.hidden {
+    display: none;
+  }
+
+  &__body {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  &__description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  &__back {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: var(--error);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.85;
+      color: white;
+    }
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

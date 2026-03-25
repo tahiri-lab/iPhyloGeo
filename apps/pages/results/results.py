@@ -65,7 +65,7 @@ STEP_BASES = {
 STEP_ORDER = {
     "genetic": ["pending", "climatic_trees", "alignment", "genetic_trees", "output", "complete"],
     "aligned": ["pending", "climatic_trees", "genetic_trees", "output", "complete"],
-    "tree":    ["pending", "climatic_trees", "output", "complete"],
+    "tree": ["pending", "climatic_trees", "output", "complete"],
 }
 
 
