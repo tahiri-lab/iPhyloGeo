@@ -42,7 +42,7 @@ def build_temp_result_id(token):
 def extract_temp_token(result_id):
     if not is_temp_result_id(result_id):
         return None
-    return result_id[len(TEMP_RESULT_PREFIX) :]
+    return result_id[len(TEMP_RESULT_PREFIX):]
 
 
 def _key_for_result(result_id):

@@ -50,13 +50,21 @@ def _is_valid_result_id(result_id):
 def _load_result_from_path(path):
     result_id = _get_result_id_from_path(path)
     if not _is_valid_result_id(result_id):
-        raise dash.exceptions.PreventUpdate
+        return None, None
 
     result = utils.get_result(result_id)
     if not result:
-        raise dash.exceptions.PreventUpdate
+        return result_id, None
 
     return result_id, result
+
+
+def _is_missing_result(result):
+    return result is None
+
+
+def _missing_result_toast(lang):
+    return {"message": t("result.errors.not-found-message", lang), "type": "error"}
 
 
 def create_email_section(lang="en"):
@@ -94,6 +102,7 @@ def create_email_section(lang="en"):
 
 layout = html.Div(
     [
+        dcc.Interval(id="result-alive-check", interval=10000, n_intervals=0),
         html.Div(id="dummy-share-result-output", style={"display": "none"}),
         html.Div(id="dummy-table-collapse", style={"display": "none"}),
         html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
@@ -102,6 +111,7 @@ layout = html.Div(
         html.Div(
             [
                 html.H1(id="results-name", className="title"),
+                html.Div(id="unavailable-result-message", className="hidden"),
                 # Top action buttons row
                 html.Div(
                     [
@@ -141,11 +151,20 @@ layout = html.Div(
                         ),
                     ],
                     className="result-actions",
+                    id="result-actions-row",
                 ),
                 # Results section card
                 html.Div(
                     [
-                        html.Div(id="results-table-title"),
+                        html.Div(
+                            [
+                                html.Div(
+                                    id="results-table-collapse-button",
+                                    style={"display": "none"},
+                                )
+                            ],
+                            id="results-table-title",
+                        ),
                         html.Div(
                             [
                                 html.Div(id="main-results-table-container"),
@@ -157,12 +176,25 @@ layout = html.Div(
                         ),
                     ],
                     className="page-card result-section-card",
+                    id="results-section-card",
                 ),
                 dcc.Download(id="download-link-results"),
                 # Climatic trees section card
                 html.Div(
                     [
-                        html.Div(id="climatic-tree-title"),
+                        html.Div(
+                            [
+                                html.Div(
+                                    id="results-climatic-collapse-button",
+                                    style={"display": "none"},
+                                ),
+                                html.Div(
+                                    id="download-button-climatic",
+                                    style={"display": "none"},
+                                ),
+                            ],
+                            id="climatic-tree-title",
+                        ),
                         html.Div(
                             [html.Div(id="climatic-tree")],
                             className="tree",
@@ -170,11 +202,24 @@ layout = html.Div(
                         ),
                     ],
                     className="page-card result-section-card",
+                    id="climatic-section-card",
                 ),
                 # Genetic trees section card
                 html.Div(
                     [
-                        html.Div(id="genetic-tree-title"),
+                        html.Div(
+                            [
+                                html.Div(
+                                    id="results-genetic-collapse-button",
+                                    style={"display": "none"},
+                                ),
+                                html.Div(
+                                    id="download-button-genetic",
+                                    style={"display": "none"},
+                                ),
+                            ],
+                            id="genetic-tree-title",
+                        ),
                         html.Div(
                             [html.Div(id="genetic-tree")],
                             className="tree",
@@ -182,6 +227,7 @@ layout = html.Div(
                         ),
                     ],
                     className="page-card result-section-card",
+                    id="genetic-section-card",
                 ),
                 # Email section card
                 html.Div(
@@ -205,17 +251,21 @@ layout = html.Div(
 @callback(
     Output("toast-store", "data", allow_duplicate=True),
     Input("share-result-btn", "n_clicks"),
+    State("url", "pathname"),
     State("url", "href"),
     State("language-store", "data"),
     prevent_initial_call=True,
 )
-def share_result_link(n_clicks, href, language):
+def share_result_link(n_clicks, pathname, href, language):
     """
     Copy the result link to clipboard and show a toast notification.
     """
     lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
+    _, result = _load_result_from_path(pathname)
+    if _is_missing_result(result):
+        return _missing_result_toast(lang)
     return {"message": t("result.toast.link-copied", lang), "type": "success", "clipboard": href}
 
 
@@ -231,6 +281,9 @@ def handle_submit_click(pathname, n_clicks, user_email, language):
     lang = language if language in LANGUAGE_LIST else "en"
     if not n_clicks:
         raise dash.exceptions.PreventUpdate
+    _, result = _load_result_from_path(pathname)
+    if _is_missing_result(result):
+        return _missing_result_toast(lang)
     if not validate_email(user_email):
         return {"message": t("result.email.invalid", lang), "type": "error"}
     success = mail.send_results_ready_email(user_email, pathname, lang)
@@ -241,9 +294,10 @@ def handle_submit_click(pathname, n_clicks, user_email, language):
 @callback(
     Output("results-name", "children"),
     Input("url", "pathname"),
+    Input("result-alive-check", "n_intervals"),
     Input("language-store", "data"),
 )
-def show_result_name(path, language):
+def show_result_name(path, _alive_tick, language):
     """
     args:
         path (str): the path of the page
@@ -252,8 +306,48 @@ def show_result_name(path, language):
     """
     lang = language if language in LANGUAGE_LIST else "en"
     _, result = _load_result_from_path(path)
+    if _is_missing_result(result):
+        return t("result.errors.not-found-title", lang)
     title = result["name"]
     return t("result.title-of", lang).replace("{name}", title)
+
+
+@callback(
+    Output("unavailable-result-message", "children"),
+    Output("unavailable-result-message", "className"),
+    Output("result-actions-row", "style"),
+    Output("results-section-card", "style"),
+    Output("climatic-section-card", "style"),
+    Output("genetic-section-card", "style"),
+    Output("email-section-card-content", "style"),
+    Input("url", "pathname"),
+    Input("result-alive-check", "n_intervals"),
+    Input("language-store", "data"),
+)
+def toggle_unavailable_result_view(path, _alive_tick, language):
+    lang = language if language in LANGUAGE_LIST else "en"
+    _, result = _load_result_from_path(path)
+
+    if _is_missing_result(result):
+        message = html.Div(
+            [
+                html.P(
+                    t("result.errors.not-found-message", lang),
+                    className="email-description unavailable-result-description",
+                ),
+                dcc.Link(
+                    t("result.errors.back-to-results", lang),
+                    href="/results",
+                    className="button download unavailable-result-link",
+                ),
+            ],
+            className="page-card result-section-card unavailable-result-card",
+        )
+        hidden = {"display": "none"}
+        return message, "", hidden, hidden, hidden, hidden, hidden
+
+    shown = {}
+    return "", "hidden", shown, shown, shown, shown, shown
 
 
 @callback(
@@ -299,6 +393,8 @@ def show_complete_results(path, generated_page, language):
     """
     lang = language if language in LANGUAGE_LIST else "en"
     _, result = _load_result_from_path(path)
+    if _is_missing_result(result):
+        return "", "", "", ""
 
     if "genetic" not in result["result_type"] or "output" not in result:
         return "", "", "", ""
@@ -377,6 +473,8 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, languag
         html.Div: the div containing the climatic trees
     """
     result_id, result = _load_result_from_path(path)
+    if _is_missing_result(result):
+        return "", ""
     add_to_cookie(result_id)
     if "climatic" not in result["result_type"]:
         return "", ""
@@ -413,8 +511,8 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, languag
 )
 def download_results(
     path,
-    climatic_tree,
-    genetic_tree,
+    _climatic_tree,
+    _genetic_tree,
     btn_genetic,
     btn_climatic,
     btn_aligned,
@@ -423,20 +521,23 @@ def download_results(
 ):
     lang = language if language in LANGUAGE_LIST else "en"
     """
-    This function creates the list of divs containing the genetic trees
-    Because the buttons are not created in the initial layout, we need to use the suppress_callback_exceptions
+    Handles file download actions from the result page.
+    The climatic/genetic tree children inputs are lifecycle triggers so this callback
+    can bind safely when tree sections are rendered dynamically.
 
     args:
         path (str): the path of the page
-        climatic_tree: Climatic section previously generated, have to be generated for this callback to fire
-        genetic_tree: Genetic section previously generated, have to be generated for this callback to fire
-        btn_genetic : dummy inpput needed to trigger the callback
-        btn_climatic : dummy inpput needed to trigger the callback
-        btn_msa : dummy inpput needed to trigger the callback
-        btn_data : dummy inpput needed to trigger the callback
+        _climatic_tree: Climatic section lifecycle trigger (unused value).
+        _genetic_tree: Genetic section lifecycle trigger (unused value).
+        btn_genetic: Click count for downloading genetic trees.
+        btn_climatic: Click count for downloading climatic trees.
+        btn_aligned: Click count for downloading aligned sequences.
+        btn_complete: Click count for downloading full output.
     """
 
     _, result = _load_result_from_path(path)
+    if _is_missing_result(result):
+        return dash.no_update, _missing_result_toast(lang)
 
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -490,6 +591,8 @@ def create_genetic_trees(path, generated_results_header, is_dark_theme, language
         html.Div: the div containing the genetic trees
     """
     _, result = _load_result_from_path(path)
+    if _is_missing_result(result):
+        return "", ""
     if "genetic" not in result["result_type"] or "genetic_trees" not in result:
         return "", ""
 
