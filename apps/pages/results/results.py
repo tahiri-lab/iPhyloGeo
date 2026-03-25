@@ -17,49 +17,11 @@ for key, value in dotenv_values().items():
 dash.register_page(__name__, path_template="/results")
 
 
-def _format_card_date(value):
-    if value is None:
-        return None
-
-    if hasattr(value, "strftime"):
-        return value.strftime("%d/%m/%Y")
-
-    if isinstance(value, str):
-        normalized = value.replace("Z", "+00:00")
-        try:
-            return datetime.fromisoformat(normalized).strftime("%d/%m/%Y")
-        except ValueError:
-            return value
-
-    return str(value)
-
-
-def _to_datetime(value):
-    min_utc = datetime.min.replace(tzinfo=timezone.utc)
-
-    if value is None:
-        return min_utc
-    if isinstance(value, datetime):
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
-    if isinstance(value, str):
-        normalized = value.replace("Z", "+00:00")
-        try:
-            parsed = datetime.fromisoformat(normalized)
-            if parsed.tzinfo is None:
-                return parsed.replace(tzinfo=timezone.utc)
-            return parsed.astimezone(timezone.utc)
-        except ValueError:
-            return min_utc
-    return min_utc
-
-
 def _temporary_remaining_label(result, lang="en"):
     if not result.get("is_temporary"):
         return None
 
-    expires_at = _to_datetime(result.get("expired_at"))
+    expires_at = utils.to_datetime_utc(result.get("expired_at"))
     if expires_at == datetime.min.replace(tzinfo=timezone.utc):
         return t("results.card.temporary", lang)
 
@@ -172,7 +134,7 @@ def generate_result_list(path, language):
 
         results = sorted(
             combined.values(),
-            key=lambda result: _to_datetime(result.get("created_at")),
+            key=lambda result: utils.to_datetime_utc(result.get("created_at")),
         )
 
         if not results:
@@ -191,7 +153,7 @@ def generate_result_list(path, language):
 
     results_ids = cookie.split(".")
     results = utils.get_results(results_ids)
-    results = sorted(results, key=lambda result: _to_datetime(result.get("created_at")))
+    results = sorted(results, key=lambda result: utils.to_datetime_utc(result.get("created_at")))
 
     if not results:
         return get_no_results_html(lang)
@@ -220,8 +182,8 @@ def create_layout(result, lang="en"):
     expired_at = None
 
     if ENV_CONFIG["HOST"] != "local":
-        created_at = _format_card_date(result.get("created_at"))
-        expired_at = _format_card_date(result.get("expired_at"))
+        created_at = utils.format_card_date(result.get("created_at"))
+        expired_at = utils.format_card_date(result.get("expired_at"))
 
     remaining_time = _temporary_remaining_label(result, lang)
 

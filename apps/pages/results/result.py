@@ -99,137 +99,142 @@ def create_email_section(lang="en"):
 layout = html.Div(
     [
         dcc.Interval(id="result-alive-check", interval=30000, n_intervals=0),
-        html.Div(id="dummy-share-result-output", style={"display": "none"}),
-        html.Div(id="dummy-table-collapse", style={"display": "none"}),
-        html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
-        html.Div(id="dummy-genetic-collapse", style={"display": "none"}),
-        html.Div(id="dummy-email-collapse", style={"display": "none"}),
+        html.Div(id="dummy-share-result-output", className="hidden"),
+        html.Div(id="dummy-table-collapse", className="hidden"),
+        html.Div(id="dummy-climatic-collapse", className="hidden"),
+        html.Div(id="dummy-genetic-collapse", className="hidden"),
+        html.Div(id="dummy-email-collapse", className="hidden"),
         html.Div(
             [
                 html.H1(id="results-name", className="title"),
                 html.Div(id="unavailable-result-message", className="hidden"),
-                # Top action buttons row
                 html.Div(
                     [
+                        # Top action buttons row
                         html.Div(
                             [
-                                html.Span(t("result.actions.share", "en"), className="text", id="share-action-text"),
-                                html.Img(
-                                    src="../../assets/icons/share.svg",
-                                    id="share_result",
-                                    className="icon",
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.share", "en"), className="text", id="share-action-text"),
+                                        html.Img(
+                                            src="../../assets/icons/share.svg",
+                                            id="share_result",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="share-result-btn",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.download-output", "en"), className="text", id="download-output-text"),
+                                        html.Img(
+                                            src="../../assets/icons/download.svg",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="download-button-complete",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.download-sequences", "en"), className="text", id="download-sequences-text"),
+                                        html.Img(
+                                            src="../../assets/icons/download.svg",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="download-button-aligned",
                                 ),
                             ],
-                            className="button download",
-                            id="share-result-btn",
+                            className="result-actions",
+                            id="result-actions-row",
                         ),
+                        # Results section card
                         html.Div(
                             [
-                                html.Span(t("result.actions.download-output", "en"), className="text", id="download-output-text"),
-                                html.Img(
-                                    src="../../assets/icons/download.svg",
-                                    className="icon",
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            id="results-table-collapse-button",
+                                            className="hidden",
+                                        )
+                                    ],
+                                    id="results-table-title",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Div(id="main-results-table-container"),
+                                        html.Div(id="statistical-results-table-container"),
+                                        html.Div(id="output-results-graph", className="graph"),
+                                    ],
+                                    id="results-row",
+                                    className="results-row",
                                 ),
                             ],
-                            className="button download",
-                            id="download-button-complete",
+                            className="page-card result-section-card",
+                            id="results-section-card",
                         ),
+                        dcc.Download(id="download-link-results"),
+                        # Climatic trees section card
                         html.Div(
                             [
-                                html.Span(t("result.actions.download-sequences", "en"), className="text", id="download-sequences-text"),
-                                html.Img(
-                                    src="../../assets/icons/download.svg",
-                                    className="icon",
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            id="results-climatic-collapse-button",
+                                            className="hidden",
+                                        ),
+                                        html.Div(
+                                            id="download-button-climatic",
+                                            className="hidden",
+                                        ),
+                                    ],
+                                    id="climatic-tree-title",
+                                ),
+                                html.Div(
+                                    [html.Div(id="climatic-tree")],
+                                    className="tree",
+                                    id="climatic-tree-container",
                                 ),
                             ],
-                            className="button download",
-                            id="download-button-aligned",
+                            className="page-card result-section-card",
+                            id="climatic-section-card",
+                        ),
+                        # Genetic trees section card
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            id="results-genetic-collapse-button",
+                                            className="hidden",
+                                        ),
+                                        html.Div(
+                                            id="download-button-genetic",
+                                            className="hidden",
+                                        ),
+                                    ],
+                                    id="genetic-tree-title",
+                                ),
+                                html.Div(
+                                    [html.Div(id="genetic-tree")],
+                                    className="tree",
+                                    id="genetic-tree-container",
+                                ),
+                            ],
+                            className="page-card result-section-card",
+                            id="genetic-section-card",
+                        ),
+                        # Email section card
+                        html.Div(
+                            create_email_section(),
+                            id="email-section-card-content",
+                            className="page-card result-section-card-bottom",
                         ),
                     ],
-                    className="result-actions",
-                    id="result-actions-row",
-                ),
-                # Results section card
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    id="results-table-collapse-button",
-                                    style={"display": "none"},
-                                )
-                            ],
-                            id="results-table-title",
-                        ),
-                        html.Div(
-                            [
-                                html.Div(id="main-results-table-container"),
-                                html.Div(id="statistical-results-table-container"),
-                                html.Div(id="output-results-graph", className="graph"),
-                            ],
-                            id="results-row",
-                            className="results-row",
-                        ),
-                    ],
-                    className="page-card result-section-card",
-                    id="results-section-card",
-                ),
-                dcc.Download(id="download-link-results"),
-                # Climatic trees section card
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    id="results-climatic-collapse-button",
-                                    style={"display": "none"},
-                                ),
-                                html.Div(
-                                    id="download-button-climatic",
-                                    style={"display": "none"},
-                                ),
-                            ],
-                            id="climatic-tree-title",
-                        ),
-                        html.Div(
-                            [html.Div(id="climatic-tree")],
-                            className="tree",
-                            id="climatic-tree-container",
-                        ),
-                    ],
-                    className="page-card result-section-card",
-                    id="climatic-section-card",
-                ),
-                # Genetic trees section card
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    id="results-genetic-collapse-button",
-                                    style={"display": "none"},
-                                ),
-                                html.Div(
-                                    id="download-button-genetic",
-                                    style={"display": "none"},
-                                ),
-                            ],
-                            id="genetic-tree-title",
-                        ),
-                        html.Div(
-                            [html.Div(id="genetic-tree")],
-                            className="tree",
-                            id="genetic-tree-container",
-                        ),
-                    ],
-                    className="page-card result-section-card",
-                    id="genetic-section-card",
-                ),
-                # Email section card
-                html.Div(
-                    create_email_section(),
-                    id="email-section-card-content",
-                    className="page-card result-section-card-bottom",
+                    id="result-content-sections",
                 ),
             ],
             className="page-container result-page",
@@ -311,11 +316,7 @@ def show_result_name(path, _alive_tick, language):
 @callback(
     Output("unavailable-result-message", "children"),
     Output("unavailable-result-message", "className"),
-    Output("result-actions-row", "style"),
-    Output("results-section-card", "style"),
-    Output("climatic-section-card", "style"),
-    Output("genetic-section-card", "style"),
-    Output("email-section-card-content", "style"),
+    Output("result-content-sections", "style"),
     Input("url", "pathname"),
     Input("result-alive-check", "n_intervals"),
     Input("language-store", "data"),
@@ -340,10 +341,10 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
             className="page-card result-section-card unavailable-result-card",
         )
         hidden = {"display": "none"}
-        return message, "", hidden, hidden, hidden, hidden, hidden
+        return message, "", hidden
 
     shown = {}
-    return "", "hidden", shown, shown, shown, shown, shown
+    return "", "hidden", shown
 
 
 @callback(
