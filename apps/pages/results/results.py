@@ -1,5 +1,5 @@
 import dash
-from datetime import datetime
+from datetime import datetime, timezone
 import utils.utils as utils
 from components.result_card import create_result_card
 from dash import callback, html
@@ -59,7 +59,7 @@ def _temporary_remaining_label(result, lang="en"):
     if expires_at.tzinfo is not None:
         now = datetime.now(expires_at.tzinfo)
     else:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     delta_seconds = int((expires_at - now).total_seconds())
     if delta_seconds <= 0:

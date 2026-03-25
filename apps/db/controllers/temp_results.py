@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from dotenv import dotenv_values, load_dotenv
 from redis import Redis
@@ -54,7 +54,7 @@ def create_temp_result(result_id, document, ttl_seconds=DEFAULT_TTL_SECONDS):
     doc_to_store = dict(document)
     doc_to_store["_id"] = result_id
     doc_to_store["is_temporary"] = True
-    doc_to_store["stored_at"] = datetime.utcnow().isoformat()
+    doc_to_store["stored_at"] = datetime.now(timezone.utc).isoformat()
     redis_client.setex(
         _key_for_result(result_id),
         int(ttl_seconds),

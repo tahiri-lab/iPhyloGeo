@@ -1,7 +1,7 @@
 import json
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from bson.objectid import ObjectId
@@ -29,7 +29,7 @@ def is_temp_storage_available():
 
 
 def _build_temp_result_document(result):
-    created_at = datetime.utcnow()
+    created_at = datetime.now(timezone.utc)
     ttl_seconds = temp_results.get_default_ttl_seconds()
     document = {
         "status": result["status"],
@@ -118,8 +118,9 @@ def create_result(result):
 
     document = parse_result(result)
     document["status"] = result["status"]
-    document["created_at"] = datetime.utcnow()
-    document["expired_at"] = datetime.utcnow() + timedelta(days=14)
+    now_utc = datetime.now(timezone.utc)
+    document["created_at"] = now_utc
+    document["expired_at"] = now_utc + timedelta(days=14)
     document["name"] = result["name"]
     document["result_type"] = result["result_type"]
 
