@@ -170,6 +170,7 @@ def save_email_on_click(n_clicks, email, language):
     return email, toast_data
 
 
+# Callback to send email when results are ready (result_id is set)
 @callback(
     Output("consent-choice-store", "data"),
     Input("consent-save-data", "value"),
@@ -179,7 +180,6 @@ def sync_consent_choice(consent_choice):
     return consent_choice
 
 
-# Callback to send email when results are ready (result_id is set)
 @callback(
     Output("email-store", "data", allow_duplicate=True),
     Input("current-result-id", "data"),
@@ -877,7 +877,7 @@ def clear_column_error_when_valid(column_names):
 
 @callback(
     Output("consent-error-message", "children", allow_duplicate=True),
-    Input("consent-save-data", "value"),
+    Input("consent-choice-store", "data"),
     prevent_initial_call=True,
 )
 def clear_consent_error_when_selected(consent_value):

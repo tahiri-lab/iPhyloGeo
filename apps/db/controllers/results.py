@@ -48,14 +48,20 @@ def _build_temp_result_document(result):
 def get_results(ids):
     records_by_id = {}
     persistent_ids = []
+    temp_ids = []
 
     for result_id in ids:
         if _is_temp_result_id(result_id):
-            temp_record = temp_results.get_temp_result(result_id)
-            if temp_record:
-                records_by_id[str(temp_record.get("_id", result_id))] = temp_record
+            temp_ids.append(result_id)
         else:
             persistent_ids.append(result_id)
+
+    if temp_ids:
+        temp_records = temp_results.get_temp_results(temp_ids)
+        for result_id in temp_ids:
+            temp_record = temp_records.get(result_id)
+            if temp_record:
+                records_by_id[str(temp_record.get("_id", result_id))] = temp_record
 
     if persistent_ids:
         if ENV_CONFIG["HOST"] == "local":

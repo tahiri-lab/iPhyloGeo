@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from dotenv import dotenv_values, load_dotenv
 from redis import Redis
+from redis.exceptions import RedisError
 
 load_dotenv()
 
@@ -55,39 +56,85 @@ def create_temp_result(result_id, document, ttl_seconds=DEFAULT_TTL_SECONDS):
     doc_to_store["_id"] = result_id
     doc_to_store["is_temporary"] = True
     doc_to_store["stored_at"] = datetime.now(timezone.utc).isoformat()
-    redis_client.setex(
-        _key_for_result(result_id),
-        int(ttl_seconds),
-        json.dumps(doc_to_store, default=str),
-    )
+    try:
+        redis_client.setex(
+            _key_for_result(result_id),
+            int(ttl_seconds),
+            json.dumps(doc_to_store, default=str),
+        )
+    except RedisError:
+        return None
     return result_id
 
 
 def get_temp_result(result_id):
     redis_client = _get_redis_client()
-    raw = redis_client.get(_key_for_result(result_id))
+    try:
+        raw = redis_client.get(_key_for_result(result_id))
+    except RedisError:
+        return None
     if raw is None:
         return None
-    return json.loads(raw)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+
+
+def get_temp_results(result_ids):
+    if not result_ids:
+        return {}
+
+    redis_client = _get_redis_client()
+    keys = [_key_for_result(result_id) for result_id in result_ids]
+    try:
+        raw_values = redis_client.mget(keys)
+    except RedisError:
+        return {}
+
+    records_by_id = {}
+    for result_id, raw in zip(result_ids, raw_values):
+        if raw is None:
+            continue
+        try:
+            records_by_id[result_id] = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+
+    return records_by_id
 
 
 def update_temp_result(result_id, updates, ttl_seconds=DEFAULT_TTL_SECONDS):
     redis_client = _get_redis_client()
     key = _key_for_result(result_id)
-    existing = redis_client.get(key)
+    try:
+        existing = redis_client.get(key)
+    except RedisError:
+        return None
     if existing is None:
         return None
 
-    current = json.loads(existing)
+    try:
+        current = json.loads(existing)
+    except json.JSONDecodeError:
+        return None
+
     for key_name, value in updates.items():
         current[key_name] = value
 
-    remaining_ttl = redis_client.ttl(key)
-    ttl_to_use = remaining_ttl if remaining_ttl and remaining_ttl > 0 else int(ttl_seconds)
-    redis_client.setex(key, int(ttl_to_use), json.dumps(current, default=str))
+    try:
+        remaining_ttl = redis_client.ttl(key)
+        ttl_to_use = remaining_ttl if remaining_ttl and remaining_ttl > 0 else int(ttl_seconds)
+        redis_client.setex(key, int(ttl_to_use), json.dumps(current, default=str))
+    except RedisError:
+        return None
+
     return result_id
 
 
 def delete_temp_result(result_id):
     redis_client = _get_redis_client()
-    return redis_client.delete(_key_for_result(result_id))
+    try:
+        return redis_client.delete(_key_for_result(result_id))
+    except RedisError:
+        return 0
