@@ -146,7 +146,7 @@ def parse_document(document):
     pass
 
 
-PENDING_STATUSES = {"pending", "queued", "running", "climatic_trees", "alignment", "genetic_trees", "output"}
+PENDING_STATUSES = {"pending"}
 
 
 def mark_stuck_results_as_error():

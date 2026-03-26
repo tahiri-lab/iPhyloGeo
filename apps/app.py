@@ -7,6 +7,7 @@ from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 from utils.i18n import LANGUAGE_LIST, t
 import db.controllers.results as results_ctrl
+import utils.background_tasks as background_tasks
 
 results_ctrl.mark_stuck_results_as_error()
 toast_container = create_toast_container()
@@ -46,6 +47,7 @@ LIGHT_THEME = {
     "--success": "#2DD4BF",
     "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
+    "--error-hover": "#E54444",
     "--pending": "#FFC107",
     "--border": "#e0d8ee",
 }
@@ -79,6 +81,7 @@ DARK_THEME = {
     "--success": "#1FA391",
     "--success-soft-bg": "color-mix(in srgb, var(--success) 10%, transparent)",
     "--error": "#FF6262",
+    "--error-hover": "#E54444",
     "--pending": "#E6AD06",
     "--border": "#2F343D",
 }
@@ -487,7 +490,6 @@ def update_global_progress_bar(n_intervals, pipeline_status, result_id):
     """
     Update the global progress bar based on estimated time and elapsed time.
     """
-    import utils.background_tasks as background_tasks
 
     if not result_id or not pipeline_status:
         return "progress-bar hidden", {"width": "0%"}, True, dash.no_update

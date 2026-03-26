@@ -107,7 +107,7 @@ layout = html.Div(
                         html.A(
                             t("result.error.back", "en"),
                             href="/results",
-                            className="error-banner__back",
+                            className="button error",
                             id="error-banner-back",
                         ),
                     ],

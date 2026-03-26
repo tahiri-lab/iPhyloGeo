@@ -15,7 +15,6 @@ def create_result_card(
     created_at=None,
     expired_at=None,
     result_id=None,
-    progress=None,
     lang="en",
 ):
     """

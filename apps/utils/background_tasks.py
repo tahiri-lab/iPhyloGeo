@@ -375,8 +375,7 @@ def run_pipeline_async(
     )
     print(f"[Pipeline] Estimated time: {estimated_time:.1f}s")
 
-    print("[Pipeline] Updating task status to 'queued'...")
-    update_task_status(result_id, "queued", estimated_time=estimated_time)
+    update_task_status(result_id, "pending", estimated_time=estimated_time)
 
     print("[Pipeline] Submitting task to executor...")
     _executor.submit(
@@ -408,9 +407,6 @@ def _run_pipeline_task(
     """
     print(f"[Pipeline Task] Starting _run_pipeline_task for result_id: {result_id}")
     try:
-        print("[Pipeline Task] Updating status to 'running'...")
-        update_task_status(result_id, "running")
-
         # Re-read latest settings from JSON and apply to Params
         print("[Pipeline Task] Loading settings from genetic_settings_file.json...")
         try:
@@ -426,7 +422,6 @@ def _run_pipeline_task(
 
         # Prepare climatic trees
         print("[Pipeline Task] Creating climatic trees...")
-        update_task_status(result_id, "climatic_trees")
         selected_columns = params_climatic.get("names") if params_climatic else None
         climatic_trees = utils.create_climatic_trees(
             result_id, climatic_file, selected_columns
@@ -438,7 +433,6 @@ def _run_pipeline_task(
         # Process genetic data based on input type
         if genetic_file is not None:
             # Run full genetic pipeline (alignment + trees + output)
-            update_task_status(result_id, "alignment")
             reference_gene_file = {
                 "reference_gene_dir": os.getcwd() + "\\temp",
                 "reference_gene_file": "genetic_data.fasta",
@@ -457,12 +451,11 @@ def _run_pipeline_task(
 
         elif aligned_genetic_file is not None:
             # Process pre-aligned genetic data
-            update_task_status(result_id, "genetic_trees")
             loaded_seq_alignment = Alignment.from_json_string(aligned_genetic_file)
             msaSet = loaded_seq_alignment.msa
 
             results_ctrl.update_result(
-                {"_id": result_id, "msaSet": msaSet, "status": "alignment"}
+                {"_id": result_id, "msaSet": msaSet}
             )
 
             # Capture multiProcessor stdout to track sub-step progress
@@ -473,7 +466,6 @@ def _run_pipeline_task(
             finally:
                 sys.stdout = _orig_stdout
 
-            update_task_status(result_id, "output")
             utils.create_output(
                 result_id,
                 climatic_trees,
@@ -483,7 +475,6 @@ def _run_pipeline_task(
 
         elif genetic_tree_file is not None:
             # Process pre-computed genetic trees
-            update_task_status(result_id, "output")
             loaded_genetic_trees = GeneticTrees.load_trees_from_json(genetic_tree_file)
             genetic_trees = loaded_genetic_trees.trees
 
@@ -491,7 +482,6 @@ def _run_pipeline_task(
                 {
                     "_id": result_id,
                     "genetic_trees": genetic_trees,
-                    "status": "genetic_trees",
                 }
             )
 

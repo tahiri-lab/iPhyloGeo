@@ -22,6 +22,7 @@ import utils.mail as mail
 import utils.utils as utils
 import utils.background_tasks as background_tasks
 from utils.i18n import LANGUAGE_LIST, t
+from utils.time import format_remaining_time
 from aphylogeo.params import Params
 from Bio import AlignIO, SeqIO
 from aphylogeo.alignement import Alignment as AlignmentClass
@@ -205,26 +206,17 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
     elapsed_time = status_info.get("elapsed_time", 0)
 
     status_key_map = {
-        "queued": "upload.popup.status.queued",
-        "running": "upload.popup.status.running",
-        "climatic_trees": "upload.popup.status.climatic-trees",
-        "alignment": "upload.popup.status.alignment",
-        "genetic_trees": "upload.popup.status.genetic-trees",
-        "output": "upload.popup.status.output",
+        "pending": "upload.popup.status.pending",
         "complete": "upload.popup.status.complete",
         "error": "upload.popup.status.error",
     }
-    key = status_key_map.get(status.lower(), "upload.popup.status.running")
+    key = status_key_map.get(status.lower(), "upload.popup.status.pending")
     base_message = t(key, lang)
 
     # Add time estimate to message
     if estimated_time > 0 and elapsed_time >= 0:
         remaining_time = max(0, estimated_time - elapsed_time)
-        if remaining_time > 60:
-            time_str = t("upload.popup.time-remaining-min", lang).replace("{n}", str(int(remaining_time / 60)))
-        else:
-            time_str = t("upload.popup.time-remaining-sec", lang).replace("{n}", str(int(remaining_time)))
-        message = f"{base_message} ({time_str})"
+        message = f"{base_message} ({format_remaining_time(remaining_time, lang)})"
     else:
         message = base_message
 
@@ -744,7 +736,7 @@ def upload_data(
         elif aligned_genetic_data_is_present:
             # Won't show any graphs
             parsed_aligned_genetic_file = parse_uploaded_files(
-                aligned_genetic_data_contents, aligned_genetic_data_filename, is_aligned=True
+                aligned_genetic_data_contents, aligned_genetic_data_filename, is_aligned=True, lang=lang
             )
             if parsed_aligned_genetic_file is None or "error" in parsed_aligned_genetic_file:
                 error_msg = (parsed_aligned_genetic_file or {}).get(
@@ -815,7 +807,7 @@ def upload_data(
         return "", "", submit_button, current_data, None
 
 
-def parse_uploaded_files(content, file_name, is_aligned=False):
+def parse_uploaded_files(content, file_name, is_aligned=False, lang="en"):
     """
     Parse a base64 string into the proper format to pass through the aPhyloGeo pipeline
 
@@ -854,7 +846,7 @@ def parse_uploaded_files(content, file_name, is_aligned=False):
                 try:
                     msa = AlignIO.read(io.StringIO(fasta_file_string), "fasta")
                 except ValueError:
-                    results["error"] = "Sequences do not all have the same length. Make sure the file is aligned."
+                    results["error"] = t("upload.file-error-not-aligned", lang)
                     return results
                 alignment_obj = AlignmentClass("0", {"0": msa})
                 results["type"] = "json"

@@ -311,7 +311,8 @@
     transition: border-color 0.25s;
     background: transparent;
 
-    &:hover {
+    &:hover,
+    &.upload-drop-area--active {
       border-color: var(--action-hover);
       background: var(--action-soft-bg);
     }

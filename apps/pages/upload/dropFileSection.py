@@ -13,7 +13,7 @@ def _make_upload_zone(upload_id, file_types, lang="en"):
     return dcc.Upload(
         id=upload_id,
         className="upload-drop-area",
-        style_active={"backgroundColor": "var(--action-soft-bg)", "borderColor": "var(--action-hover)"},
+        className_active="upload-drop-area--active",
         children=html.Div(
             [
                 html.Img(

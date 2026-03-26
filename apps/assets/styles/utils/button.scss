@@ -84,6 +84,21 @@
     }
   }
 
+  &.error {
+    background-color: var(--error);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+
+    &:hover {
+      background-color: var(--error-hover);
+    }
+  }
+
   .icon {
     filter: var(--icon-filter);
   }
