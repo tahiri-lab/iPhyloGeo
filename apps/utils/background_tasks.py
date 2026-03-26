@@ -58,6 +58,13 @@ ALIGNMENT_TIME_PER_SEQ = 1.0         # Additional time for alignment per sequenc
 RAM_PER_PROCESS_GB = 0.15            # Conservative: ~0.15 GB per process
 MAX_EFFECTIVE_PARALLELISM = 3        # Observed effective parallelism (conservative)
 
+# All phases (alignment + tree sub-steps) emit "Started/Finished: X / N" logs.
+# Observed: 4 steps total for a genetic run — 1 alignment (large N) + 3 tree sub-steps.
+# Steps are identified by N changing; Time elapsed: T lines give actual step durations.
+TOTAL_STEPS_GENETIC = 4   # alignment + 3 tree sub-steps (observed)
+TOTAL_STEPS_ALIGNED = 3   # no alignment, 3 tree sub-steps
+OUTPUT_OVERHEAD = 5        # seconds reserved for output generation after logs stop
+
 
 def get_available_memory_gb() -> float:
     """
@@ -278,18 +285,26 @@ def get_task_status(result_id: str) -> dict:
     return {"status": "not_found", "progress": 0}
 
 
-def update_task_status(result_id: str, status: str, error: str = None, estimated_time: float = None):
+def update_task_status(
+    result_id: str,
+    status: str,
+    error: str = None,
+    estimated_time: float = None,
+    pipeline_mode: str = None,
+):
     """Update the status of a background task."""
     with _task_lock:
         if result_id not in _task_store:
             _task_store[result_id] = {}
 
         _task_store[result_id]["status"] = status
-        # Reset sub-progress when moving to a new step
         _task_store[result_id]["sub_progress"] = None
 
         if error:
             _task_store[result_id]["error"] = error
+
+        if pipeline_mode is not None:
+            _task_store[result_id]["pipeline_mode"] = pipeline_mode
 
         if estimated_time is not None:
             _task_store[result_id]["estimated_time"] = estimated_time
@@ -301,34 +316,128 @@ def update_task_status(result_id: str, status: str, error: str = None, estimated
             _task_store[result_id]["progress"] = 0
 
 
+def _recalculate_estimate(task: dict, done: int, total: int):
+    """
+    Called inside _task_lock. Corrects estimated_time using real console progress.
+
+    All pipeline phases emit "Started/Finished: X / N" logs:
+      - Alignment phase:    large N (e.g. 595 pairwise ops)
+      - Tree sub-steps 1-3: small N (e.g. 4, 7, 10 ops)
+    A step boundary is detected when N (total) changes.
+    "Time elapsed: T seconds" lines (captured separately) give actual step durations.
+
+    Formula at every tick:
+      remaining = remaining_ops_in_current_step / rate
+                + steps_still_to_come * avg_actual_step_time
+                + OUTPUT_OVERHEAD
+      new_estimated_time = elapsed_so_far + remaining
+    """
+    now = time.time()
+    pipeline_start = task["start_time"]
+
+    # ── Initialise on first progress event ───────────────────────────────────
+    if "mp_step_start" not in task:
+        task["mp_step_start"] = now
+        task["mp_step_total"] = total
+        task["mp_completed"] = []   # list of actual durations from "Time elapsed:" lines
+        task["mp_step_count"] = 0   # how many steps have fully completed
+        task["mp_prev_total"] = total
+
+    # ── Detect step boundary when N changes ──────────────────────────────────
+    if total != task["mp_prev_total"]:
+        task["mp_step_start"] = now
+        task["mp_step_total"] = total
+        task["mp_step_count"] += 1
+        task["mp_prev_total"] = total
+        print(f"[Progress] Step {task['mp_step_count'] + 1} started (N={total})")
+
+    # ── Rate for current step ─────────────────────────────────────────────────
+    step_elapsed = now - task["mp_step_start"]
+    if done > 0 and step_elapsed > 0.5:
+        rate = done / step_elapsed
+        remaining_current = max(0, total - done) / rate
+    else:
+        # Not enough data yet — extrapolate from initial estimate
+        remaining_current = max(0, task.get("estimated_time", 60.0) - (now - pipeline_start))
+
+    # ── Future steps — use avg actual durations when available ───────────────
+    completed_durations = task.get("mp_completed", [])
+    steps_done = task["mp_step_count"]
+    mode = task.get("pipeline_mode", "genetic")
+    total_steps = TOTAL_STEPS_GENETIC if mode == "genetic" else TOTAL_STEPS_ALIGNED
+    steps_remaining_after_current = max(0, total_steps - steps_done - 1)
+
+    if completed_durations:
+        avg_step_time = sum(completed_durations) / len(completed_durations)
+    elif step_elapsed > 0.5 and done > 0:
+        # Extrapolate full step duration from current rate
+        avg_step_time = total * step_elapsed / done
+    else:
+        avg_step_time = task.get("estimated_time", 60.0) / total_steps
+
+    remaining_future = steps_remaining_after_current * avg_step_time
+
+    # ── Update estimated_time so that (estimated - elapsed) = remaining ───────
+    total_elapsed = now - pipeline_start
+    remaining = remaining_current + remaining_future + OUTPUT_OVERHEAD
+    task["estimated_time"] = total_elapsed + remaining
+    task["sub_progress"] = round(done / total * 100)
+
+    print(f"[Progress] Step {steps_done + 1}/{total_steps}  {done}/{total}  "
+          f"rate={done / step_elapsed:.3f} ops/s  remaining_current={remaining_current:.1f}s  "
+          f"avg_step={avg_step_time:.1f}s  future_steps={steps_remaining_after_current}  "
+          f"remaining≈{remaining:.1f}s")
+
+
+def record_step_elapsed(result_id: str, elapsed_seconds: float):
+    """
+    Store the actual step duration from aphylogeo's 'Time elapsed: T seconds' line.
+    This is more accurate than wall-clock because it comes from aphylogeo itself.
+    """
+    with _task_lock:
+        if result_id not in _task_store:
+            return
+        task = _task_store[result_id]
+        task.setdefault("mp_completed", []).append(elapsed_seconds)
+        # Advance step counter — the step that just logged Time elapsed is now done
+        task["mp_step_count"] = task.get("mp_step_count", 0) + 1
+        print(f"[Progress] Step completed in {elapsed_seconds:.1f}s "
+              f"({len(task['mp_completed'])} steps done)")
+
+
 def update_task_sub_progress(result_id: str, done: int, total: int):
-    """Update within-step sub-progress (0–100) from aphylogeo multiProcessor output."""
+    """Update within-step sub-progress (0–100) and adaptively correct estimated_time."""
     if total <= 0:
         return
     with _task_lock:
         if result_id in _task_store:
-            _task_store[result_id]["sub_progress"] = round(done / total * 100)
+            _recalculate_estimate(_task_store[result_id], done, total)
 
 
 class ProgressCapture(io.TextIOBase):
     """
-    A stdout wrapper that intercepts aphylogeo multiProcessor progress lines
-    such as "Started:           1 / 4     25 %" and records the sub-progress
-    into the _task_store for the given result_id.
+    Intercepts aphylogeo multiProcessor stdout lines:
+      - "Finished/Started:  X / N"  → progress update + adaptive estimate correction
+      - "Time elapsed:      T  seconds" → records actual sub-step duration
     """
 
-    # Pattern: "Started:   <done> / <total>"
-    _PATTERN = re.compile(r"Started:\s+(\d+)\s*/\s*(\d+)")
+    _PROGRESS_PATTERN = re.compile(r"(?:Started|Finished):\s+(\d+)\s*/\s*(\d+)")
+    _ELAPSED_PATTERN = re.compile(r"Time elapsed:\s+([\d.]+)\s+seconds")
 
     def __init__(self, result_id: str, inner):
         self.result_id = result_id
         self.inner = inner
 
     def write(self, s: str) -> int:
-        m = self._PATTERN.search(s)
+        m = self._PROGRESS_PATTERN.search(s)
         if m:
             done, total = int(m.group(1)), int(m.group(2))
             update_task_sub_progress(self.result_id, done, total)
+
+        e = self._ELAPSED_PATTERN.search(s)
+        if e:
+            record_step_elapsed(self.result_id, float(e.group(1)))
+
         return self.inner.write(s)
 
     def flush(self):
@@ -375,7 +484,14 @@ def run_pipeline_async(
     )
     print(f"[Pipeline] Estimated time: {estimated_time:.1f}s")
 
-    update_task_status(result_id, "pending", estimated_time=estimated_time)
+    if genetic_file is not None:
+        pipeline_mode = "genetic"
+    elif aligned_genetic_file is not None:
+        pipeline_mode = "aligned"
+    else:
+        pipeline_mode = "tree"
+
+    update_task_status(result_id, "pending", estimated_time=estimated_time, pipeline_mode=pipeline_mode)
 
     print("[Pipeline] Submitting task to executor...")
     _executor.submit(
