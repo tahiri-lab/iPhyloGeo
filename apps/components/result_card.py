@@ -44,7 +44,7 @@ def create_result_card(
         status_class = "pending"
         status_text = t("results.card.status.in-progress", lang)
 
-# Build date info if provided
+    # Build date info if provided
     date_info = []
     if created_at:
         date_info.append(

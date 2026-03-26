@@ -36,6 +36,12 @@ _executor = ThreadPoolExecutor(max_workers=4)
 _task_store = {}
 _task_lock = threading.Lock()
 
+# sys.stdout is process-global. Redirecting it inside a thread is not thread-safe:
+# concurrent tasks would overwrite each other's patch and mis-attribute progress lines.
+# This lock serializes the stdout-redirect section so only one pipeline holds it at a
+# time. Other workers proceed normally but wait before patching stdout.
+_stdout_lock = threading.Lock()
+
 # Calibration constants based on observed performance
 # Reference: observed from terminal output
 # - 35 sequences -> 595 operations (pairwise comparisons: n*(n-1)/2 = 35*34/2 = 595)
@@ -550,20 +556,23 @@ def _run_pipeline_task(
         if genetic_file is not None:
             # Run full genetic pipeline (alignment + trees + output)
             reference_gene_file = {
-                "reference_gene_dir": os.getcwd() + "\\temp",
+                "reference_gene_dir": os.path.join(os.getcwd(), "temp"),
                 "reference_gene_file": "genetic_data.fasta",
             }
             Params.update_from_dict(reference_gene_file)
 
-            # Capture multiProcessor stdout to track sub-step progress
-            _orig_stdout = sys.stdout
-            sys.stdout = ProgressCapture(result_id, _orig_stdout)
-            try:
-                utils.run_genetic_pipeline(
-                    result_id, climatic_file, genetic_file, climatic_trees
-                )
-            finally:
-                sys.stdout = _orig_stdout
+            # Capture multiProcessor stdout to track sub-step progress.
+            # _stdout_lock serializes this section across threads so that concurrent
+            # pipeline tasks cannot overwrite each other's sys.stdout patch.
+            with _stdout_lock:
+                _orig_stdout = sys.stdout
+                sys.stdout = ProgressCapture(result_id, _orig_stdout)
+                try:
+                    utils.run_genetic_pipeline(
+                        result_id, climatic_file, genetic_file, climatic_trees
+                    )
+                finally:
+                    sys.stdout = _orig_stdout
 
         elif aligned_genetic_file is not None:
             # Process pre-aligned genetic data
@@ -574,13 +583,16 @@ def _run_pipeline_task(
                 {"_id": result_id, "msaSet": msaSet}
             )
 
-            # Capture multiProcessor stdout to track sub-step progress
-            _orig_stdout = sys.stdout
-            sys.stdout = ProgressCapture(result_id, _orig_stdout)
-            try:
-                genetic_trees = utils.create_genetic_trees(result_id, msaSet)
-            finally:
-                sys.stdout = _orig_stdout
+            # Capture multiProcessor stdout to track sub-step progress.
+            # _stdout_lock serializes this section across threads so that concurrent
+            # pipeline tasks cannot overwrite each other's sys.stdout patch.
+            with _stdout_lock:
+                _orig_stdout = sys.stdout
+                sys.stdout = ProgressCapture(result_id, _orig_stdout)
+                try:
+                    genetic_trees = utils.create_genetic_trees(result_id, msaSet)
+                finally:
+                    sys.stdout = _orig_stdout
 
             utils.create_output(
                 result_id,
