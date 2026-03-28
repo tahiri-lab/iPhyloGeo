@@ -1,29 +1,29 @@
-# iPhyloGeo
+# 🌳 iPhyloGeo
 
-- Lien vers la version anglaise : [version anglaise](README.md)
+- 🇬🇧 Lien vers la version anglaise : [version anglaise](README.md)
 
-## Description
-### Interface de visualisation de données en Python à l'aide de Dash
+## 📝 Description
+### 🔎 Interface de visualisation de données en Python à l'aide de Dash
 
 Le but de cette application est la simplification et la visualisation du projet Phylotree.
 
 https://github.com/tahiri-lab/phylogeography-algo
 
-L'application nécessite une base de données pour fonctionner.
+> ⚠️ L'application nécessite une base de données pour fonctionner.
 
-## Pour commencer
+## 🚀 Pour commencer
 
-### Prérequis
+### 📋 Prérequis
 
-- [Git](https://git-scm.com/)
-- Python 3.12 (voir étapes ci-dessous)
-- [Node.js / npm](https://nodejs.org/) (version npm 11.11.0 recommandée)
-- [Docker Desktop](https://docs.docker.com/get-docker/)
-- Microsoft C++ Build Tools
+- 🐙 [Git](https://git-scm.com/)
+- 🐍 Python 3.12 (voir étapes ci-dessous)
+- 📦 [Node.js / npm](https://nodejs.org/) (version npm 11.11.0 recommandée)
+- 🐳 [Docker Desktop](https://docs.docker.com/get-docker/)
+- 🔧 Microsoft C++ Build Tools
 
-### Installation (Windows)
+### 💻 Installation (Windows)
 
-#### 1. Cloner le dépôt
+#### 1. 🐙 Cloner le dépôt
 
 Installez [Git](https://git-scm.com/), puis exécutez :
 ```bash
@@ -31,7 +31,7 @@ git clone https://github.com/tahiri-lab/iPhylogeo
 cd iPhylogeo
 ```
 
-#### 2. Installer Python 3.12
+#### 2. 🐍 Installer Python 3.12
 
 Téléchargez et installez le gestionnaire Python (Python Manager) :
 ```
@@ -43,7 +43,7 @@ Ensuite, installez Python 3.12.10 via le gestionnaire :
 py install 3.12.10
 ```
 
-#### 3. Créer et activer l'environnement virtuel
+#### 3. 🏠 Créer et activer l'environnement virtuel
 
 ```bash
 py -3.12 -m venv venv
@@ -51,21 +51,21 @@ venv\Scripts\activate
 python --version
 ```
 
-#### 4. Installer Microsoft C++ Build Tools
+#### 4. 🔧 Installer Microsoft C++ Build Tools
 
 Certaines dépendances Python requièrent les outils de compilation C++.
 Téléchargez-les ici : https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 Lors de l'installation, assurez-vous de cocher **"Développement Desktop en C++"**.
 
-#### 5. Installer les dépendances Python
+#### 5. 📚 Installer les dépendances Python
 
 Assurez-vous que l'environnement virtuel est activé, puis :
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 6. Installer les dépendances npm
+#### 6. 📦 Installer les dépendances npm
 
 Si npm n'est pas installé, téléchargez Node.js ici : https://nodejs.org/ (version npm 11.11.0 recommandée).
 
@@ -73,14 +73,14 @@ Si npm n'est pas installé, téléchargez Node.js ici : https://nodejs.org/ (ver
 npm install
 ```
 
-#### 7. Démarrer la base de données avec Docker
+#### 7. 🐳 Démarrer la base de données avec Docker
 
 Installez [Docker Desktop](https://docs.docker.com/get-docker/), puis lancez les conteneurs en arrière-plan :
 ```bash
 docker compose up -d
 ```
 
-### Configuration du programme
+### ⚙️ Configuration du programme
 
 Modifiez le fichier `.env` à la racine du projet avec vos paramètres :
 ```
@@ -97,9 +97,9 @@ Si vous souhaitez que la fonctionnalité d'envoi d'e-mail fonctionne, créez un 
 GMAIL_PASSWORD=(mot de passe d'application de aphylogeotest@gmail.com ou de l'adresse e-mail souhaitée)
 ```
 
-### Exécution
+### ▶️ Exécution
 
-Sur Window, dans la racine du projet
+Sur Windows, dans la racine du projet :
 ```bash
 venv\Scripts\activate
 ```
@@ -109,7 +109,7 @@ npm start
 
 ---
 
-## Utilisation de la tâche planifiée (cronJob)
+## 🕐 Utilisation de la tâche planifiée (cronJob)
 
 Si la base de données est déployée sur un serveur Linux, un script est inclus pour supprimer les fichiers de plus de 14 jours. Exemple de fichier `cronjob` :
 ```bash
@@ -121,7 +121,7 @@ Pour enregistrer la tâche :
 crontab /chemin/vers/iPhyloGeo/scripts/cronjob
 ```
 
-Outil utile pour la syntaxe cron : https://crontab.guru/
+🛠️ Outil utile pour la syntaxe cron : https://crontab.guru/
 
 Pour lister les tâches planifiées actives :
 ```bash
@@ -130,7 +130,7 @@ crontab -l
 
 ---
 
-## Générer un fichier CSS à partir de SCSS
+## 🎨 Générer un fichier CSS à partir de SCSS
 
 Le projet utilise des fichiers SCSS compilés en CSS. Les fichiers SCSS doivent être placés dans :
 ```
@@ -157,4 +157,4 @@ watch: {
 }
 ```
 
-Le fichier CSS doit être généré dans le dossier `assets`, sinon Dash ne le chargera pas.
+> ⚠️ Le fichier CSS doit être généré dans le dossier `assets`, sinon Dash ne le chargera pas.
