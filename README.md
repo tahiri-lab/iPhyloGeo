@@ -1,77 +1,89 @@
 # iPhyloGeo
-## 🌳 Web application for analyzing phylogenetic trees with climatic parameters 🌳
-- Link for the french version : [french version](README.fr.md)
+## Web application for analyzing phylogenetic trees with climatic parameters
 
-## 📝 Description:
-### 🔎 Data Visualization Interfaces in Python With Dash
+- Link for the French version: [version française](README.fr.md)
 
-The purpose of this application is to visualize the pipeline of Phylotree and to simplify its use.
+## Description
+### Data Visualization Interface in Python with Dash
+
+The purpose of this application is to visualize the Phylotree pipeline and simplify its use.
 
 https://github.com/tahiri-lab/phylogeography-algo
 
+The application requires a database to run.
 
-The project can be used in two ways:
-1. Using the filesystem to store the files and results
-2. Using a database to store the files and results
+## Getting started
 
-The first option is the default option. If you want to use the database, you need to change the .env file. See the section "Setting up the program" for more details.
+### Prerequisites
 
-## ⚒️ Getting started
+- [Git](https://git-scm.com/)
+- Python 3.12 (see steps below)
+- [Node.js / npm](https://nodejs.org/) (npm version 11.11.0 recommended)
+- [Docker Desktop](https://docs.docker.com/get-docker/)
+- Microsoft C++ Build Tools
 
-### 💻 Installing:
+### Installation (Windows)
 
-* First the programm need to be downloaded with Github(git clone command).
-```
+#### 1. Clone the repository
+
+Install [Git](https://git-scm.com/), then run:
+```bash
 git clone https://github.com/tahiri-lab/iPhylogeo
+cd iPhylogeo
 ```
 
-To download the project simply type one of the command above in a terminal.
-* You can also download the zip file with the Github link above.
+#### 2. Install Python 3.12
 
-## 📊 How to use?
-### 📚 Prerequisites,library etc.
-Before using this program make sure that you have installed all the necessary libraries for it to work properly.
-First, you need to install the aPhyloGeo package. Depending on your OS, the specific commands will be slightly
-diffrent. Fof a linux based system, you can use the following commands:
-
-1. git clone https://github.com/tahiri-lab/aPhylogeo
-2. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
-3. Create a new virtual environment (venv) in your terminal using `python3 -m venv venv`.
-4. Still in the terminal, enter the new venv using `source venv/bin/activate`.
-
-For a windows based system, you can use the following commands:
-1. git clone https://github.com/tahiri-lab/aPhylogeo
-2. If you do not have `virtualenv` installed, run `python3 -m pip install --user virtualenv`
-3. Create a new virtual environment (venv) in your terminal using `python3 -m venv venv`.
-4. Still in the terminal, activate the new venv using `venv/Scripts/activate`.
-
-N.B. You'll need Microsoft C++ Build Tools to build some of the requirements, you can find it here: https://visualstudio.microsoft.com/visual-cpp-build-tools/ . Make sure to include the C++ build tools.
-
-Then you can install the other requirements. Make sure you are using the same venv as above. Make sure you are in the iPhyloGeo directory.
-Then run the following commands :
+Download and install the Python Manager:
 ```
+https://www.python.org/ftp/python/pymanager/python-manager-26.0.msix
+```
+
+Then install Python 3.12.10 through the manager:
+```bash
+py install 3.12.10
+```
+
+#### 3. Create and activate the virtual environment
+
+```bash
+py -3.12 -m venv venv
+venv\Scripts\activate
+python --version
+```
+
+#### 4. Install Microsoft C++ Build Tools
+
+Some Python dependencies require C++ build tools.
+Download them here: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+During installation, make sure to select **"Desktop development with C++"**.
+
+#### 5. Install Python dependencies
+
+Make sure the virtual environment is activated, then run:
+```bash
 pip install -r requirements.txt
+```
+
+#### 6. Install npm dependencies
+
+If npm is not installed, download Node.js here: https://nodejs.org/ (npm version 11.11.0 recommended).
+
+```bash
 npm install
 ```
 
-Finally, if want to run the programm with a database, you need to install docker. You can find the installation guide here : https://docs.docker.com/get-docker/
+#### 7. Start the database with Docker
 
-- Folder apps: template for each web page
-- Folder assets: images utilised in template and css file
-
-
-### 🧾 Setting up the programm
-- To set up the programm, you need to change the .env file with your own data.
-Here is an example of the .env file if you want to run the programm locally :
+Install [Docker Desktop](https://docs.docker.com/get-docker/), then start the containers in the background:
+```bash
+docker compose up -d
 ```
-APP_ENV='dev'
-HOST='local'
-MONGO_URI=
-DB_NAME=
-URL='http://localhost'
-PORT='8050'
-```
-- If you want to run the programm with a database, you need to change the .env. For example :
+
+### Setting up the program
+
+Edit the `.env` file at the root of the project:
 ```
 APP_ENV='dev'
 HOST='server'
@@ -80,85 +92,70 @@ DB_NAME='iPhyloGeo'
 URL='http://localhost'
 PORT='8050'
 ```
--If you wish for the email address function to operate correctly, you need to generate a `"password.env"` file within the directory path `"iPhyloGeo\apps\pages\results\password.env"` with the following format: 
-```
-GMAIL_PASSWORD=(insert application password of aphylogeo@gmail.com here or the e-mail you want to use).
-```
-The current email setup is functioning correctly. However, if you wish to send emails from a different address, you can modify the credentials accordingly.
 
-
-### ▶️ Running
-- To run the programm locally, you can use the following command :
+If you want the email feature to work, create a `password.env` file in `iPhyloGeo\apps\pages\results\`:
 ```
+GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com or the email you want to use)
+```
+
+### Running
+
+On Window, in the root of the projet
+```bash
+venv\Scripts\activate
+```
+```bash
 npm start
 ```
-- To run the programm with a database, you need to run the following commands :
-```
-docker compose up
-npm start
-```
 
-### 🕐 Using the cronJob
+---
 
-If the database is deployed on a linux server, we've included a script to delete the files that are older than 14 days. To do so, you need to create a cronjob.
-To create a cron job, you can use the `cronjob` as a template.
-For exemple create a file named `cronjob` and add the following line:
+## Using the cronJob
+
+If the database is deployed on a Linux server, a script is included to delete files older than 14 days. Example `cronjob` file:
 ```bash
-00 00 * * * /home/local/USHERBROOKE/belm1207/miniconda3/envs/geo/bin/python /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/delete_files.py >> /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cron.log 2>&1
+00 00 * * * /path/to/python /path/to/iPhyloGeo/scripts/delete_files.py >> /path/to/iPhyloGeo/scripts/cron.log 2>&1
 ```
-To create the cronjob with the file, you can use the following command:
+
+To register the cron job:
 ```bash
-crontab /home/local/USHERBROOKE/belm1207/iPhyloGeo/scripts/cronjob
+crontab /path/to/iPhyloGeo/scripts/cronjob
 ```
 
-This will run the script every day at 00:00 am.
+Useful tool for cron syntax: https://crontab.guru/
 
-1. The first element of the cronjob is the time. [Usefull tools](https://crontab.guru/)
-2. The second element is the path of the python executable. In this case, we use geo environment from conda
-3. The third element is the full path of the script file
-4. The fourth element is the full path of the log file. This is optional, but it is a good practice to log the output of the script
-
-
-If you want to see the list of cronjobs, you can use the following command:
+To list active cron jobs:
 ```bash
 crontab -l
 ```
 
-## 🔰 How to generate CSS file?
-### 📰 Understanding the structure of the project
+---
 
-* The project use SCSS files witch need to be created in the styles folder.
+## Generating a CSS file from SCSS
+
+The project uses SCSS files compiled to CSS. SCSS files should be placed in:
 ```
 apps/assets/styles/your_file.scss
 ```
-* Dash dosen't use SCSS files directly, so you need to generate a CSS file from the SCSS file. To do so, you need to include it in the Gruntfile.js file.
-```
-./Gruntfile.js
-```
-* In the Gruntfile.js file, you need to add the following code in the dist section. `the desire output` : `the SCSS file location`
 
-*The CSS files need to be generated in the **assets** folder, otherwise it won't work*
+Add an entry in the `dist` section of [Gruntfile.js](Gruntfile.js):
+```js
+dist: {
+    files: {
+        'apps/assets/your_file.css': 'apps/assets/styles/your_file.scss'
+    }
+}
 ```
- [...]
 
- dist: {
-                files: {
-                    'apps/assets/your_file.css': 'apps/assets/styles/your_file.scss'
-                }
- [...]
+And in the `watch/sass/files` section:
+```js
+watch: {
+    sass: {
+        files: [
+            'apps/assets/your_file.css'
+        ],
+    }
+}
 ```
-* In the Gruntfile.js file, you also need to add the following code in the watch/sass/files section. `the desire output`
 
-*The watch section is necessary to regenerate the CSS file when is detected change in the SCSS files, it will also regenerate all CSS files on `npm start`*
-
-```
- [...]
-        watch: {
-            sass: {
-                files: [
-                    'apps/assets/your_file.css'
-                ],
-            }
-        }
-  [...]
-```
+The CSS file must be generated in the `assets` folder, otherwise Dash will not load it.
