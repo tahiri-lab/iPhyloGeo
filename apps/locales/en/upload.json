@@ -14,7 +14,8 @@
   "demo-data-link": "Try with demo data →",
   "file-error-csv-excel": "File must be .csv or Excel",
   "file-error-fasta": "File must be .fasta",
-  "file-error-json": "File must be .json",
+  "file-error-json": "File must be .json or .fasta",
+  "file-error-not-aligned": "Sequences do not all have the same length. Make sure the file is aligned.",
   "errors": {
     "number-of-columns": "You need to select at least one column",
     "name-required": "You need to give a name to your dataset",
@@ -31,7 +32,18 @@
   "popup": {
     "title": "Your results are on the way!",
     "description-delay": "This may take a few minutes.",
-    "description-email": "Enter your email to receive a notification once your results are ready."
+    "description-email": "Enter your email to receive a notification once your results are ready.",
+    "status": {
+      "pending": "Processing...",
+      "complete": "Analysis complete!",
+      "error": "An error occurred"
+    },
+    "time-remaining-hr": "~{n} hr remaining",
+    "time-remaining-min": "~{n} min remaining",
+    "time-remaining-sec": "~{n} sec remaining",
+    "title-complete": "Analysis complete!",
+    "title-error": "An error occurred",
+    "error-prefix": "Error: "
   },
   "popup-done": {
     "title": "Results completed!",
@@ -77,7 +89,7 @@
     "aligned": {
       "label": "Aligned Genetic Data",
       "description": "Pre-aligned sequences",
-      "upload-label": "Upload aligned genetic data (.json)"
+      "upload-label": "Upload aligned genetic data (.fasta, .json)"
     },
     "tree": {
       "label": "Genetic Tree",

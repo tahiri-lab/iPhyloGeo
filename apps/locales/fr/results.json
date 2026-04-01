@@ -13,7 +13,11 @@
       "error": "ERREUR",
       "success": "SUCCÈS",
       "in-progress": "EN COURS",
-      "unknown": "INCONNU"
+      "unknown": "INCONNU",
+      "climatic-trees": "Construction des arbres climatiques",
+      "alignment": "Alignement des séquences",
+      "genetic-trees": "Construction des arbres génétiques",
+      "output": "Génération des résultats"
     }
   }
 }

@@ -174,7 +174,7 @@
 }
 
 .VirtualizedSelectFocusedOption {
-    background-color: color-mix(in srgb, var(--action) 50%, transparent) !important;
+    background-color:  var(--action) !important;
     color: var(--text) !important;
 }
 

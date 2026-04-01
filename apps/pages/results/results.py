@@ -2,7 +2,7 @@ import dash
 from datetime import datetime, timezone
 import utils.utils as utils
 from components.result_card import create_result_card
-from dash import callback, html
+from dash import callback, dcc, html
 from dash.dependencies import Input, Output
 from dotenv import dotenv_values, load_dotenv
 from flask import request
@@ -65,26 +65,21 @@ def get_no_results_html(lang="en"):
     )
 
 
-PROGRESS = {
-    "pending": 0,
-    "climatic_trees": 10,
-    "alignement": 66,
-    "genetic_trees": 90,
-    "complete": 100,
-    "error": 100,
-}
-
-
+# ---------------------------------------------------------------------------
+# Layout
+# ---------------------------------------------------------------------------
 def get_layout(lang="en"):
     return html.Div(
         [
+            # Poll every 3 s to refresh in-progress cards
+            dcc.Interval(id="results-poll", interval=3000, n_intervals=0),
             html.Div(
                 [
                     html.Div(
                         children=[
                             html.Div(
                                 [
-                                    html.Div(t("results.title", lang), className="title"),
+                                    html.Div(t("results.title", lang), className="title", id="results-title"),
                                     html.Div(
                                         id="results-list", className="results-row"
                                     ),
@@ -100,18 +95,19 @@ def get_layout(lang="en"):
     )
 
 
+# ---------------------------------------------------------------------------
+# Callbacks
+# ---------------------------------------------------------------------------
 @callback(
     Output("results-list", "children"),
     Input("url", "pathname"),
+    Input("results-poll", "n_intervals"),
     Input("language-store", "data"),
 )
-def generate_result_list(path, language):
+def generate_result_list(path, _n, language):
     """
-    This function generates the list of layout of the results.
-    args :
-        path : unused
-    returns :
-        layout : layout containing NO_RESULTS_HTML if no results are found, or a list of the results layout otherwise
+    Generates the list of result cards.
+    Triggered on page load (url change) and every 3 s (Interval).
     """
     lang = language if language in LANGUAGE_LIST else "en"
 
@@ -170,13 +166,7 @@ def generate_result_list(path, language):
 
 
 def create_layout(result, lang="en"):
-    """
-    This function creates the layout for a result.
-    args :
-        result (dict) : result object
-    returns :
-        layout : layout containing the result
-    """
+    """Creates the card layout for a single result."""
     # Determine dates based on environment
     created_at = None
     expired_at = None
@@ -187,9 +177,11 @@ def create_layout(result, lang="en"):
 
     remaining_time = _temporary_remaining_label(result, lang)
 
+    status = result.get("status", "pending")
+
     return create_result_card(
         name=result["name"],
-        status=result["status"],
+        status=status,
         created_at=created_at,
         expired_at=expired_at,
         remaining_time=remaining_time,
@@ -201,7 +193,10 @@ def create_layout(result, lang="en"):
 layout = html.Div(id="results-page-content", children=get_layout())
 
 
-@callback(Output("results-page-content", "children"), Input("language-store", "data"))
+@callback(
+    Output("results-title", "children"),
+    Input("language-store", "data"),
+)
 def update_results_language(language):
     lang = language if language in LANGUAGE_LIST else "en"
-    return get_layout(lang)
+    return t("results.title", lang)
