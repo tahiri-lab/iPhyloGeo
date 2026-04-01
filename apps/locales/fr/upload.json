@@ -47,7 +47,8 @@
   },
   "popup-done": {
     "title": "Résultats terminés !",
-    "link-results": "Aller à la page des résultats"
+    "link-results": "Tous les résultats",
+    "link-result": "Voir le résultat"
   },
   "submit": {
     "analyse-data": "Analyser les données",

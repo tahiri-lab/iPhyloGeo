@@ -182,7 +182,7 @@ def test_full_demo_data_journey_home_to_result(dash_server, page):
     _select_all_analysis_columns(page)
 
     # Section 7: Enter dataset name
-    page.locator("#input-dataset").fill("E2E demo dataset")
+    page.locator("#input-dataset-visible").fill("E2E demo dataset")
 
     # Section 8: Validate consent is required, then provide consent
     page.locator("#submit-dataset").click()

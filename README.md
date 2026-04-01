@@ -180,3 +180,37 @@ watch: {
 ```
 
 > ⚠️ The CSS file must be generated in the `assets` folder, otherwise Dash will not load it.
+
+---
+
+## 🧪 Running the tests
+
+Make sure the virtual environment is activated, then install the Playwright browser binaries (required for e2e tests):
+
+```bash
+venv\Scripts\playwright install chromium
+```
+
+Then run all tests from the root of the project:
+
+```bash
+venv\Scripts\python -m pytest tests/
+```
+
+To run only unit tests:
+
+```bash
+venv\Scripts\python -m pytest tests/unit/
+```
+
+To run a specific test file:
+
+```bash
+venv\Scripts\python -m pytest tests/unit/test_enums.py
+```
+
+To run a single test:
+
+```bash
+venv\Scripts\python -m pytest tests/unit/test_enums.py::test_get_code_returns_expected_code
+```
