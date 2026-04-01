@@ -17,7 +17,7 @@ https://github.com/tahiri-lab/phylogeography-algo
 ### 📋 Prerequisites
 
 - 🐙 [Git](https://git-scm.com/)
-- 🐍 Python 3.12 (see steps below)
+- 🐍 Python 3.10 (see steps below)
 - 📦 [Node.js / npm](https://nodejs.org/) (npm version 11.11.0 recommended)
 - 🐳 [Docker Desktop](https://docs.docker.com/get-docker/)
 - 🔧 Microsoft C++ Build Tools
