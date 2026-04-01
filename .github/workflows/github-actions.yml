@@ -158,6 +158,9 @@ jobs:
           REDIS_URL=redis://localhost:6379/0
           EOF
 
+      - name: Install Playwright browsers
+        run: python -m playwright install --with-deps chromium
+
       - name: Run e2e smoke tests
         env:
           PYTHONPATH: .
