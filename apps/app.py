@@ -8,7 +8,6 @@ from dash.dependencies import ClientsideFunction, Input, Output, State
 from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 from utils.i18n import LANGUAGE_LIST, t
-import db.controllers.results as results_ctrl
 import utils.background_tasks as background_tasks
 
 # On Windows, ProcessPoolExecutor spawns workers by reimporting __main__ (this file).
@@ -16,7 +15,6 @@ import utils.background_tasks as background_tasks
 _IS_MAIN_PROCESS = _mp.current_process().name == 'MainProcess'
 
 if _IS_MAIN_PROCESS:
-    results_ctrl.mark_stuck_results_as_error()
     toast_container = create_toast_container()
 
     load_dotenv()

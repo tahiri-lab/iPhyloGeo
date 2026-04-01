@@ -1,7 +1,5 @@
 import json
 import os
-import tempfile
-from datetime import datetime, timedelta
 import secrets
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -230,38 +228,3 @@ def parse_document(document):
 
 
 PENDING_STATUSES = {"pending", "running", "queued", "climatic_trees", "alignement", "alignment", "genetic_trees", "output"}
-
-
-def mark_stuck_results_as_error():
-    """
-    On app startup, mark any results stuck in a non-terminal state as 'error'.
-    These were interrupted by an app crash or restart.
-    """
-    _STARTUP_SENTINEL = Path(tempfile.gettempdir()) / "iphylogeo_startup_done"
-
-    if _STARTUP_SENTINEL.exists():
-        return
-    _STARTUP_SENTINEL.touch()
-    if ENV_CONFIG["HOST"] == "local":
-        for file in os.listdir(RESULT_DIR):
-            filepath = RESULT_DIR / file
-            try:
-                with open(filepath, "r") as f:
-                    data = json.load(f)
-                if data.get("status", "").lower() in PENDING_STATUSES:
-                    data["status"] = "error"
-                    with open(filepath, "w") as f:
-                        f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
-                    print(f"[Startup] Marked stuck result {file} as error")
-            except Exception as e:
-                print(f"[Startup] Could not process result file {file}: {e}")
-        return
-
-    try:
-        results_db.update_many(
-            {"status": {"$in": list(PENDING_STATUSES)}},
-            {"$set": {"status": "error"}},
-        )
-        print("[Startup] Marked all stuck results as error")
-    except Exception as e:
-        print(f"[Startup] Could not mark stuck results: {e}")

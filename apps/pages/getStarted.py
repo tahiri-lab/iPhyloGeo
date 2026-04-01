@@ -5,6 +5,7 @@ import re
 
 import dash
 import db.controllers.files as files_ctrl
+import db.controllers.results as results_ctrl
 from components.badge import create_badge
 from components.email_input import (
     get_button_id,
@@ -56,7 +57,6 @@ JSON_REGEX = re.compile(r".*\.json")
 layout = html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
-<<<<<<< HEAD
         dcc.Store(id="pipeline-started", data=False),
         dcc.Store(id="popup-dismissed", data=False),
         dcc.Interval(
@@ -65,9 +65,7 @@ layout = html.Div(
             n_intervals=0,
             disabled=True,  # Disabled by default
         ),
-=======
         dcc.Store(id="consent-choice-store", storage_type="memory", data=None),
->>>>>>> dev
         dcc.Store(
             id="input-data",
             data={
@@ -914,11 +912,7 @@ def rebuild_params_sections_from_store(current_data, lang):
     Output("name-error-message", "children"),
     Output("consent-error-message", "children"),
     Output("ready-for-pipeline", "data"),
-<<<<<<< HEAD
-    Output("input-dataset", "data"),
-=======
     Output("result-name-store", "data"),
->>>>>>> dev
     [
         Input("submit-dataset", "n_clicks"),
         Input("input-dataset-visible", "value"),
@@ -995,32 +989,6 @@ def ready_for_pipeline(
     if column_error or name_error or consent_error:
         return (
             "popup hidden",
-<<<<<<< HEAD
-            t("upload.errors.number-of-columns", lang),
-            "",
-            False,
-            result_name,
-        )
-    elif (
-        climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid
-    ):
-        return "popup hidden", "", t("upload.errors.name-required", lang), False, result_name
-    elif (
-        climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid
-    ):
-        return (
-            "popup hidden",
-            t("upload.errors.number-of-columns", lang),
-            t("upload.errors.name-required", lang),
-            False,
-            result_name,
-        )
-
-    if trigger_id != "submit-dataset":
-        return "", "", "", False, result_name
-
-    return "popup", "", "", True, result_name
-=======
             column_error,
             name_error,
             consent_error,
@@ -1032,7 +1000,6 @@ def ready_for_pipeline(
         return "", "", "", "", False, dash.no_update
 
     return "popup", "", "", "", True, result_name
->>>>>>> dev
 
 
 @callback(
@@ -1048,18 +1015,6 @@ def clear_column_error_when_valid(column_names):
 
 
 @callback(
-<<<<<<< HEAD
-    Output("popup", "className", allow_duplicate=True),
-    Output("current-result-id", "data"),
-    Output("pipeline-started", "data"),
-    Output("pipeline-status-interval", "disabled"),
-    Output("global-pipeline-status", "data", allow_duplicate=True),
-    Output("global-result-id", "data", allow_duplicate=True),
-    Output("global-pipeline-interval", "disabled", allow_duplicate=True),
-    Output("progress-bar", "className", allow_duplicate=True),
-    Output("progress-bar-fill", "style", allow_duplicate=True),
-    Output("popup-dismissed", "data", allow_duplicate=True),
-=======
     Output("consent-error-message", "children", allow_duplicate=True),
     Input("consent-choice-store", "data"),
     prevent_initial_call=True,
@@ -1071,22 +1026,29 @@ def clear_consent_error_when_selected(consent_value):
 
 
 @callback(
-    Output("popupDone", "className"),
+    Output("popup", "className", allow_duplicate=True),
     Output("current-result-id", "data"),
-    Output("popup-done-link", "href"),
-    Output("toast-store", "data", allow_duplicate=True),
->>>>>>> dev
+    Output("pipeline-started", "data"),
+    Output("pipeline-status-interval", "disabled"),
+    Output("global-pipeline-status", "data", allow_duplicate=True),
+    Output("global-result-id", "data", allow_duplicate=True),
+    Output("global-pipeline-interval", "disabled", allow_duplicate=True),
+    Output("progress-bar", "className", allow_duplicate=True),
+    Output("progress-bar-fill", "style", allow_duplicate=True),
+    Output("popup-dismissed", "data", allow_duplicate=True),
+    Output("ready-for-pipeline", "data", allow_duplicate=True),
     Input("ready-for-pipeline", "data"),
     State("input-data", "data"),
     State("params-climatic", "data"),
     State("params-genetic", "data"),
-<<<<<<< HEAD
-    State("input-dataset", "data"),
+    State("result-name-store", "data"),
     State("email-store", "data"),
+    State("consent-choice-store", "data"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
 def submit_button(
-    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name, email
+    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name, email, consent_save_data, language
 ):
     """
     Starts the pipeline asynchronously when all prerequisites are met.
@@ -1095,40 +1057,24 @@ def submit_button(
     _NO_UPDATE = (
         dash.no_update, dash.no_update, dash.no_update, dash.no_update,
         dash.no_update, dash.no_update, dash.no_update, dash.no_update,
-        dash.no_update, dash.no_update,
+        dash.no_update, dash.no_update, dash.no_update,
     )
     _ERROR_RETURN = (
         "popup",
         dash.no_update, dash.no_update, dash.no_update,
         dash.no_update, dash.no_update, dash.no_update,
         dash.no_update, dash.no_update,
-        False,
+        False, False,
     )
-=======
-    State("result-name-store", "data"),
-    State("consent-choice-store", "data"),
-    State("language-store", "data"),
-    prevent_initial_call=True,
-)
-def submit_button(
-    ready_for_pipeline,
-    input_data,
-    params_climatic,
-    params_genetic,
-    result_name,
-    consent_save_data,
-    language,
-):
-    lang = language if language in LANGUAGE_LIST else "en"
-
-    if ready_for_pipeline is False:
-        return "popup hidden", None, "/results", dash.no_update
->>>>>>> dev
 
     if not ready_for_pipeline:
         return _NO_UPDATE
 
-<<<<<<< HEAD
+    has_storage_consent = consent_save_data == "granted"
+
+    if not has_storage_consent and not results_ctrl.is_temp_storage_available():
+        return _ERROR_RETURN
+
     # Map each input key → (files_ids key, result_type label)
     FILE_SLOTS = [
         ("climatic", "climatic_files_id", "climatic"),
@@ -1136,64 +1082,18 @@ def submit_button(
         ("aligned_genetic", "aligned_genetic_files_id", "genetic"),
         ("genetic_tree", "genetic_tree_files_id", "genetic"),
     ]
-=======
-    genetic_file = input_data["genetic"]["file"]
-    aligned_genetic_file = input_data["aligned_genetic"]["file"]
-    genetic_tree_file = input_data["genetic_tree"]["file"]
-
-    result_type = []
-    files_ids = {}
-    has_storage_consent = consent_save_data == "granted"
-
-    if not has_storage_consent and not results_ctrl.is_temp_storage_available():
-        return (
-            "popup hidden",
-            None,
-            "/results",
-            {
-                "message": t("upload.errors.temporary-storage-unavailable", lang),
-                "type": "error",
-            },
-        )
-
-    if climatic_file is not None:
-        result_type.append("climatic")
-        if has_storage_consent:
-            climatic_file_id = utils.save_files(input_data["climatic"])
-            files_ids["climatic_files_id"] = climatic_file_id
-
-    if genetic_file is not None:
-        result_type.append("genetic")
-        if has_storage_consent:
-            genetic_file_id = utils.save_files(input_data["genetic"])
-            files_ids["genetic_files_id"] = genetic_file_id
-
-    if aligned_genetic_file is not None:
-        result_type.append("genetic")
-        if has_storage_consent:
-            aligned_genetic_file_id = utils.save_files(input_data["aligned_genetic"])
-            files_ids["aligned_genetic_files_id"] = aligned_genetic_file_id
-
-    if genetic_tree_file is not None:
-        result_type.append("genetic")
-        if has_storage_consent:
-            genetic_tree_file_id = utils.save_files(input_data["genetic_tree"])
-            files_ids["genetic_tree_files_id"] = genetic_tree_file_id
->>>>>>> dev
 
     try:
         result_type = []
         files_ids = {}
         for slot_key, files_key, type_label in FILE_SLOTS:
             if input_data[slot_key]["file"] is not None:
-                files_ids[files_key] = utils.save_files(input_data[slot_key])
+                if has_storage_consent:
+                    files_ids[files_key] = utils.save_files(input_data[slot_key])
                 if type_label not in result_type:
                     result_type.append(type_label)
 
-<<<<<<< HEAD
-=======
         # Create either a persisted result or a temporary Redis-backed result.
->>>>>>> dev
         result_id = utils.create_result(
             files_ids,
             result_type,
@@ -1202,12 +1102,8 @@ def submit_button(
             result_name,
             temporary=not has_storage_consent,
         )
-<<<<<<< HEAD
 
-        if ENV_CONFIG["HOST"] != "local":
-=======
         if ENV_CONFIG["HOST"] != "local" or not has_storage_consent:
->>>>>>> dev
             add_result_to_cookie(result_id)
 
         background_tasks.run_pipeline_async(
@@ -1220,7 +1116,6 @@ def submit_button(
             email=email,
         )
 
-<<<<<<< HEAD
         return (
             "popup",          # popup className
             result_id,        # current-result-id
@@ -1232,70 +1127,8 @@ def submit_button(
             "progress-bar",   # progress-bar className
             {"width": "0%"},  # progress-bar-fill style
             False,            # popup-dismissed reset
+            False,            # ready-for-pipeline reset
         )
     except Exception as e:
         print(f"[submit_button] Error: {e}")
         return _ERROR_RETURN
-=======
-        genetic_trees = None
-
-        # Prepare genetic trees
-        if genetic_file is not None:
-            reference_gene_file = {
-                "reference_gene_dir": os.getcwd() + "\\temp",
-                "reference_gene_file": "genetic_data.fasta",
-            }
-            Params.update_from_dict(reference_gene_file)
-
-            utils.run_genetic_pipeline(
-                result_id, climatic_file, genetic_file, climatic_trees
-            )
-        elif aligned_genetic_file is not None:
-
-            loaded_seq_alignment = Alignment.from_json_string(aligned_genetic_file)
-            msaSet = loaded_seq_alignment.msa
-
-            results_ctrl.update_result(
-                {"_id": result_id, "msaSet": msaSet, "status": "alignment"}
-            )
-
-            genetic_trees = utils.create_genetic_trees(result_id, msaSet)
-            utils.create_output(
-                result_id,
-                climatic_trees,
-                genetic_trees,
-                pd.read_json(io.StringIO(climatic_file)),
-            )
-        elif genetic_tree_file is not None:
-
-            loaded_genetic_trees = GeneticTrees.load_trees_from_json(genetic_tree_file)
-            genetic_trees = loaded_genetic_trees.trees
-
-            results_ctrl.update_result(
-                {
-                    "_id": result_id,
-                    "genetic_trees": genetic_trees,
-                    "status": "genetic_trees",
-                }
-            )
-
-            utils.create_output(
-                result_id,
-                climatic_trees,
-                genetic_trees,
-                pd.read_json(io.StringIO(climatic_file)),
-            )
-
-        return "popup", result_id, f"/result/{result_id}", dash.no_update
-    except Exception as e:
-        print("[Error]:", e)
-        return (
-            "popup hidden",
-            None,
-            "/results",
-            {
-                "message": t("upload.errors.submit-failed", lang),
-                "type": "error",
-            },
-        )
->>>>>>> dev
