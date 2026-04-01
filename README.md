@@ -1,9 +1,11 @@
 # 🌳 iPhyloGeo
+
 ## Web application for analyzing phylogenetic trees with climatic parameters
 
 - 🇫🇷 Link for the French version: [version française](README.fr.md)
 
 ## 📝 Description
+
 ### 🔎 Data Visualization Interface in Python with Dash
 
 The purpose of this application is to visualize the Phylotree pipeline and simplify its use.
@@ -27,6 +29,7 @@ https://github.com/tahiri-lab/phylogeography-algo
 #### 1. 🐙 Clone the repository
 
 Install [Git](https://git-scm.com/), then run:
+
 ```bash
 git clone https://github.com/tahiri-lab/iPhylogeo
 cd iPhylogeo
@@ -35,11 +38,13 @@ cd iPhylogeo
 #### 2. 🐍 Install Python 3.10
 
 Download and install the Python Manager:
+
 ```
 https://www.python.org/ftp/python/pymanager/python-manager-26.0.msix
 ```
 
 Then install Python 3.10.11 through the manager:
+
 ```bash
 py install 3.10.11
 ```
@@ -62,6 +67,7 @@ During installation, make sure to select **"Desktop development with C++"**.
 #### 5. 📚 Install Python dependencies
 
 Make sure the virtual environment is activated, then run:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -74,16 +80,22 @@ If npm is not installed, download Node.js here: https://nodejs.org/ (npm version
 npm install
 ```
 
-#### 7. 🐳 Start the database with Docker
+#### 7. 🐳 Start the database and the Redis with Docker
 
 Install [Docker Desktop](https://docs.docker.com/get-docker/), then start the containers in the background:
+
 ```bash
 docker compose up -d
+```
+
+```
+docker run -d --name redis -p 6379:6379 redis:alpine
 ```
 
 ### ⚙️ Setting up the program
 
 Edit the `.env` file at the root of the project:
+
 ```
 APP_ENV='dev'
 HOST='server'
@@ -94,6 +106,7 @@ PORT='8050'
 ```
 
 If you want the email feature to work, create a `password.env` file in `iPhyloGeo\apps\pages\results\`:
+
 ```
 GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com or the email you want to use)
 ```
@@ -101,9 +114,11 @@ GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com or the em
 ### ▶️ Running
 
 On Windows, in the root of the project:
+
 ```bash
 venv\Scripts\activate
 ```
+
 ```bash
 npm start
 ```
@@ -113,11 +128,13 @@ npm start
 ## 🕐 Using the cronJob
 
 If the database is deployed on a Linux server, a script is included to delete files older than 14 days. Example `cronjob` file:
+
 ```bash
 00 00 * * * /path/to/python /path/to/iPhyloGeo/scripts/delete_files.py >> /path/to/iPhyloGeo/scripts/cron.log 2>&1
 ```
 
 To register the cron job:
+
 ```bash
 crontab /path/to/iPhyloGeo/scripts/cronjob
 ```
@@ -125,6 +142,7 @@ crontab /path/to/iPhyloGeo/scripts/cronjob
 🛠️ Useful tool for cron syntax: https://crontab.guru/
 
 To list active cron jobs:
+
 ```bash
 crontab -l
 ```
@@ -134,11 +152,13 @@ crontab -l
 ## 🎨 Generating a CSS file from SCSS
 
 The project uses SCSS files compiled to CSS. SCSS files should be placed in:
+
 ```
 apps/assets/styles/your_file.scss
 ```
 
 Add an entry in the `dist` section of [Gruntfile.js](Gruntfile.js):
+
 ```js
 dist: {
     files: {
@@ -148,6 +168,7 @@ dist: {
 ```
 
 And in the `watch/sass/files` section:
+
 ```js
 watch: {
     sass: {

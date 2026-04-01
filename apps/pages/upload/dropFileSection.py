@@ -13,6 +13,7 @@ def _make_upload_zone(upload_id, file_types, lang="en"):
     return dcc.Upload(
         id=upload_id,
         className="upload-drop-area",
+        className_active="upload-drop-area--active",
         children=html.Div(
             [
                 html.Img(
@@ -49,7 +50,7 @@ def get_data_types(lang="en"):
             "key": "aligned",
             "label": t("upload.data-type.aligned.label", lang),
             "description": t("upload.data-type.aligned.description", lang),
-            "formats": ".json",
+            "formats": ".fasta, .json",
             "upload_id": "upload-aligned-genetic-data",
             "upload_label": t("upload.data-type.aligned.upload-label", lang),
         },
@@ -77,9 +78,9 @@ DATA_TYPES = [
         "key": "aligned",
         "label": "Aligned Genetic Data",
         "description": "Pre-aligned sequences",
-        "formats": ".json",
+        "formats": ".fasta, .json",
         "upload_id": "upload-aligned-genetic-data",
-        "upload_label": "Upload aligned genetic data (.json)",
+        "upload_label": "Upload aligned genetic data (.fasta, .json)",
     },
     {
         "key": "tree",

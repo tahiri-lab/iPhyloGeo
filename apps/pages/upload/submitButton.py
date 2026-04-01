@@ -28,7 +28,7 @@ def get_layout(lang="en"):
             ),
             html.P(t("upload.submit.enter-dataset-name", lang), className="field-label"),
             dcc.Input(
-                id="input-dataset",
+                id="input-dataset-visible",
                 type="text",
                 placeholder=t("upload.submit.placeholder-dataset-name", lang),
                 className="dataset-input",

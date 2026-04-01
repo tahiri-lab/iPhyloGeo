@@ -98,7 +98,7 @@ def parse_file(file):
     """
     result = {
         "file_name": file["file_name"],
-        "type": file["type"],
+        "type": file["type"] or "unknown",
         "created_at": datetime.now(),
         "expired_at": datetime.now() + timedelta(days=14),
     }

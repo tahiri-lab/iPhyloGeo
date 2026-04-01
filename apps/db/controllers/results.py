@@ -15,9 +15,11 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
+RESULT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "result"
+
 if ENV_CONFIG["HOST"] == "local":
-    if not os.path.exists("result"):
-        os.makedirs("result")
+    if not RESULT_DIR.exists():
+        RESULT_DIR.mkdir(parents=True)
 
 
 def _is_temp_result_id(result_id):
@@ -97,7 +99,7 @@ def get_result(id):
 
     if ENV_CONFIG["HOST"] == "local":
         # look for id in the results directory
-        with open(Path("result") / (str(id) + ".json")) as f:
+        with open(RESULT_DIR / (str(id) + ".json")) as f:
             return json.load(f)
 
     res = results_db.find_one({"_id": ObjectId(id)})
@@ -108,8 +110,8 @@ def get_all_results():
     if ENV_CONFIG["HOST"] != "local":
         return
     results = []
-    for file in os.listdir("result"):
-        with open(Path("result") / file) as f:
+    for file in os.listdir(RESULT_DIR):
+        with open(RESULT_DIR / file) as f:
             results.append(json.load(f))
     return results
 
@@ -120,7 +122,7 @@ def delete_result(id):
 
     if ENV_CONFIG["HOST"] == "local":
         # look for id in the results directory
-        os.remove(Path("result") / (str(id) + ".json"))
+        os.remove(RESULT_DIR / (str(id) + ".json"))
         return
 
     return results_db.delete_one({"_id": ObjectId(id)})
@@ -140,7 +142,7 @@ def create_result(result):
         # save the file to the results directory and return the id
         id = ObjectId()
         document["_id"] = id
-        with open(Path("result") / (str(id) + ".json"), "w") as f:
+        with open(RESULT_DIR / (str(id) + ".json"), "w") as f:
             f.write(json.dumps(document, indent=4, sort_keys=True, default=str))
         return str(id)
 
@@ -164,13 +166,13 @@ def update_result(result):
 
     if ENV_CONFIG["HOST"] == "local":
         # save the file to the results directory and return the id
-        with open(Path("result") / (str(document["_id"]) + ".json"), "r+") as f:
+        with open(RESULT_DIR / (str(document["_id"]) + ".json"), "r+") as f:
             data = json.load(f)
             f.close()
 
         for key, value in document.items():
             data[key] = value
-        with open(Path("result") / (str(document["_id"]) + ".json"), "w") as f:
+        with open(RESULT_DIR / (str(document["_id"]) + ".json"), "w") as f:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
         return str(document["_id"])
 
@@ -188,6 +190,10 @@ def parse_result(result):
         document["climatic_files_id"] = ObjectId(result["climatic_files_id"])
     if "genetic_files_id" in result:
         document["genetic_files_id"] = ObjectId(result["genetic_files_id"])
+    if "aligned_genetic_files_id" in result:
+        document["aligned_genetic_files_id"] = ObjectId(result["aligned_genetic_files_id"])
+    if "genetic_tree_files_id" in result:
+        document["genetic_tree_files_id"] = ObjectId(result["genetic_tree_files_id"])
     if "climatic_params" in result:
         document["climatic_params"] = result["climatic_params"]
     if "climatic_trees" in result:
@@ -219,3 +225,6 @@ def parse_result(result):
 
 def parse_document(document):
     pass
+
+
+PENDING_STATUSES = {"pending", "running", "queued", "climatic_trees", "alignement", "alignment", "genetic_trees", "output"}

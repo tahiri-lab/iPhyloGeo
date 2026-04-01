@@ -1,6 +1,9 @@
 {
   "title": "Result",
   "title-of": "Result of {name}",
+  "title-of-error": "Result of {name}",
+  "in-progress": "In progress – {status}...",
+  "results-ready": "Results are ready!",
   "actions": {
     "share": "share",
     "download-output": "download output.csv",
@@ -51,5 +54,10 @@
     "title-bootstrap-distance": "Bootstrap mean and {distance_method}",
     "x-axis-position": "Position in ASM",
     "y-axis-bootstrap": "<b>Bootstrap mean</b>"
+  },
+  "error": {
+    "title": "Analysis Failed",
+    "description": "An error occurred during the analysis. This could be due to an issue with your input data or an unexpected problem. Please try again.",
+    "back": "Back to results"
   }
 }
