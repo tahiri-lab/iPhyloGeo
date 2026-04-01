@@ -32,22 +32,22 @@ git clone https://github.com/tahiri-lab/iPhylogeo
 cd iPhylogeo
 ```
 
-#### 2. 🐍 Install Python 3.12
+#### 2. 🐍 Install Python 3.10
 
 Download and install the Python Manager:
 ```
 https://www.python.org/ftp/python/pymanager/python-manager-26.0.msix
 ```
 
-Then install Python 3.12.10 through the manager:
+Then install Python 3.10.11 through the manager:
 ```bash
-py install 3.12.10
+py install 3.10.11
 ```
 
 #### 3. 🏠 Create and activate the virtual environment
 
 ```bash
-py -3.12 -m venv venv
+py -3.10 -m venv venv
 venv\Scripts\activate
 python --version
 ```
