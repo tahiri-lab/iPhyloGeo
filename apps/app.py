@@ -251,7 +251,7 @@ app.layout = html.Div(
                                 ),
                                 dcc.Store(id="theme-store", storage_type="local", data=True),
                                 dcc.Store(id="language-store", storage_type="local", data="en"),
-                                html.Div(id="theme-switch-output", style={"display": "none"}),
+                                html.Div(id="theme-switch-output", className="hidden"),
                                 dcc.Link(
                                     [
                                         html.Div(

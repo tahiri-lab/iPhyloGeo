@@ -57,6 +57,7 @@ JSON_REGEX = re.compile(r".*\.json")
 layout = html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
+        dcc.Store(id="consent-choice-store", storage_type="memory", data=None),
         dcc.Store(
             id="input-data",
             data={
@@ -88,6 +89,7 @@ layout = html.Div(
             },
         ),
         dcc.Store(id="params-climatic", data={"names": None}),
+        dcc.Store(id="result-name-store", storage_type="memory", data=""),
         dcc.Store(
             id="params-genetic",
             data={
@@ -169,6 +171,15 @@ def save_email_on_click(n_clicks, email, language):
 
 
 # Callback to send email when results are ready (result_id is set)
+@callback(
+    Output("consent-choice-store", "data"),
+    Input("consent-save-data", "value"),
+    prevent_initial_call=True,
+)
+def sync_consent_choice(consent_choice):
+    return consent_choice
+
+
 @callback(
     Output("email-store", "data", allow_duplicate=True),
     Input("current-result-id", "data"),
@@ -759,7 +770,9 @@ def rebuild_params_sections_from_store(current_data, lang):
     Output("popup", "className"),
     Output("column-error-message", "children"),
     Output("name-error-message", "children"),
+    Output("consent-error-message", "children"),
     Output("ready-for-pipeline", "data"),
+    Output("result-name-store", "data"),
     [
         Input("submit-dataset", "n_clicks"),
         # Input("close_popup", "n_clicks"),
@@ -767,10 +780,13 @@ def rebuild_params_sections_from_store(current_data, lang):
     ],
     State("input-data", "data"),
     State("params-climatic", "data"),
+    State("consent-choice-store", "data"),
     State("language-store", "data"),
     prevent_initial_call=True,
 )
-def ready_for_pipeline(open, result_name, input_data, params_climatic, language):
+def ready_for_pipeline(
+    open, result_name, input_data, params_climatic, consent_save_data, language
+):
     """
     Verify the following prerequisites needed for aPhyloGeo pipeline to start:
     - At least one column is selected from the climatic data file.
@@ -819,34 +835,32 @@ def ready_for_pipeline(open, result_name, input_data, params_climatic, language)
         params_climatic["names"] is not None and len(params_climatic["names"]) >= 2
     )
 
-    # Assure that at least one climatic column is selected
-    if (
-        climatic_data_is_present and not params_climatic_is_complete and result_name_is_valid
-    ):
+    column_error = (
+        t("upload.errors.number-of-columns", lang)
+        if climatic_data_is_present and not params_climatic_is_complete
+        else ""
+    )
+    name_error = (
+        t("upload.errors.name-required", lang) if not result_name_is_valid else ""
+    )
+    consent_error = (
+        "" if consent_save_data in {"granted", "declined"} else t("upload.errors.consent-required", lang)
+    )
+
+    if column_error or name_error or consent_error:
         return (
             "popup hidden",
-            t("upload.errors.number-of-columns", lang),
-            "",
+            column_error,
+            name_error,
+            consent_error,
             False,
-        )
-    elif (
-        climatic_data_is_present and params_climatic_is_complete and not result_name_is_valid
-    ):
-        return "popup hidden", "", t("upload.errors.name-required", lang), False
-    elif (
-        climatic_data_is_present and not params_climatic_is_complete and not result_name_is_valid
-    ):
-        return (
-            "popup hidden",
-            t("upload.errors.number-of-columns", lang),
-            t("upload.errors.name-required", lang),
-            False,
+            dash.no_update,
         )
 
     if trigger_id != "submit-dataset":
-        return "", "", "", False
+        return "", "", "", "", False, dash.no_update
 
-    return "popup", "", "", True
+    return "popup", "", "", "", True, result_name
 
 
 @callback(
@@ -862,20 +876,43 @@ def clear_column_error_when_valid(column_names):
 
 
 @callback(
+    Output("consent-error-message", "children", allow_duplicate=True),
+    Input("consent-choice-store", "data"),
+    prevent_initial_call=True,
+)
+def clear_consent_error_when_selected(consent_value):
+    if consent_value in {"granted", "declined"}:
+        return ""
+    return dash.no_update
+
+
+@callback(
     Output("popupDone", "className"),
     Output("current-result-id", "data"),
+    Output("popup-done-link", "href"),
+    Output("toast-store", "data", allow_duplicate=True),
     Input("ready-for-pipeline", "data"),
     State("input-data", "data"),
     State("params-climatic", "data"),
     State("params-genetic", "data"),
-    State("input-dataset", "value"),
+    State("result-name-store", "data"),
+    State("consent-choice-store", "data"),
+    State("language-store", "data"),
     prevent_initial_call=True,
 )
 def submit_button(
-    ready_for_pipeline, input_data, params_climatic, params_genetic, result_name
+    ready_for_pipeline,
+    input_data,
+    params_climatic,
+    params_genetic,
+    result_name,
+    consent_save_data,
+    language,
 ):
+    lang = language if language in LANGUAGE_LIST else "en"
+
     if ready_for_pipeline is False:
-        return "popup hidden", None
+        return "popup hidden", None, "/results", dash.no_update
 
     climatic_file = input_data["climatic"]["file"]
 
@@ -885,25 +922,42 @@ def submit_button(
 
     result_type = []
     files_ids = {}
+    has_storage_consent = consent_save_data == "granted"
+
+    if not has_storage_consent and not results_ctrl.is_temp_storage_available():
+        return (
+            "popup hidden",
+            None,
+            "/results",
+            {
+                "message": t("upload.errors.temporary-storage-unavailable", lang),
+                "type": "error",
+            },
+        )
+
     if climatic_file is not None:
         result_type.append("climatic")
-        climatic_file_id = utils.save_files(input_data["climatic"])
-        files_ids["climatic_files_id"] = climatic_file_id
+        if has_storage_consent:
+            climatic_file_id = utils.save_files(input_data["climatic"])
+            files_ids["climatic_files_id"] = climatic_file_id
 
     if genetic_file is not None:
         result_type.append("genetic")
-        genetic_file_id = utils.save_files(input_data["genetic"])
-        files_ids["genetic_files_id"] = genetic_file_id
+        if has_storage_consent:
+            genetic_file_id = utils.save_files(input_data["genetic"])
+            files_ids["genetic_files_id"] = genetic_file_id
 
     if aligned_genetic_file is not None:
         result_type.append("genetic")
-        aligned_genetic_file_id = utils.save_files(input_data["aligned_genetic"])
-        files_ids["aligned_genetic_files_id"] = aligned_genetic_file_id
+        if has_storage_consent:
+            aligned_genetic_file_id = utils.save_files(input_data["aligned_genetic"])
+            files_ids["aligned_genetic_files_id"] = aligned_genetic_file_id
 
     if genetic_tree_file is not None:
         result_type.append("genetic")
-        genetic_tree_file_id = utils.save_files(input_data["genetic_tree"])
-        files_ids["genetic_tree_files_id"] = genetic_tree_file_id
+        if has_storage_consent:
+            genetic_tree_file_id = utils.save_files(input_data["genetic_tree"])
+            files_ids["genetic_tree_files_id"] = genetic_tree_file_id
 
     try:
         # Re-read latest settings from JSON and apply to Params so that the
@@ -915,11 +969,16 @@ def submit_button(
             {k: v for k, v in _latest_codes.items() if k in Params.PARAMETER_KEYS}
         )
 
-        # create a new result in the database
+        # Create either a persisted result or a temporary Redis-backed result.
         result_id = utils.create_result(
-            files_ids, result_type, params_climatic, params_genetic, result_name
+            files_ids,
+            result_type,
+            params_climatic,
+            params_genetic,
+            result_name,
+            temporary=not has_storage_consent,
         )
-        if ENV_CONFIG["HOST"] != "local":
+        if ENV_CONFIG["HOST"] != "local" or not has_storage_consent:
             add_result_to_cookie(result_id)
 
         # Prepare climatic trees (pass selected column names to filter)
@@ -977,7 +1036,15 @@ def submit_button(
                 pd.read_json(io.StringIO(climatic_file)),
             )
 
-        return "popup", result_id
+        return "popup", result_id, f"/result/{result_id}", dash.no_update
     except Exception as e:
         print("[Error]:", e)
-        return "popup", None
+        return (
+            "popup hidden",
+            None,
+            "/results",
+            {
+                "message": t("upload.errors.submit-failed", lang),
+                "type": "error",
+            },
+        )

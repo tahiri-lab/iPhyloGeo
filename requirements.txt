@@ -16,3 +16,4 @@ python-dotenv==1.0.1
 Flask-PyMongo==2.3.0
 aphylogeo==2.0.0
 flake8>=7.0.0
+redis==5.2.1

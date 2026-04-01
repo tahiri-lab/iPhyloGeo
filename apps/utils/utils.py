@@ -2,6 +2,7 @@ import base64
 import io
 import json
 import os
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -22,6 +23,44 @@ from aphylogeo.utils import run_procrustes_analysis, run_protest_test
 FILES_PATH = "files/"
 COOKIE_NAME = "AUTH"
 COOKIE_MAX_AGE = 8640000  # 100 days
+
+
+def format_card_date(value):
+    if value is None:
+        return None
+
+    if hasattr(value, "strftime"):
+        return value.strftime("%d/%m/%Y")
+
+    if isinstance(value, str):
+        normalized = value.replace("Z", "+00:00")
+        try:
+            return datetime.fromisoformat(normalized).strftime("%d/%m/%Y")
+        except ValueError:
+            return value
+
+    return str(value)
+
+
+def to_datetime_utc(value):
+    min_utc = datetime.min.replace(tzinfo=timezone.utc)
+
+    if value is None:
+        return min_utc
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+    if isinstance(value, str):
+        normalized = value.replace("Z", "+00:00")
+        try:
+            parsed = datetime.fromisoformat(normalized)
+            if parsed.tzinfo is None:
+                return parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
+        except ValueError:
+            return min_utc
+    return min_utc
 
 
 def get_all_files():
@@ -219,6 +258,7 @@ def create_result(
     genetic_params=None,
     name="result",
     status="pending",
+    temporary=False,
 ):
     """
     Creates a result in the database.
@@ -251,6 +291,9 @@ def create_result(
             result["genetic_params"] = genetic_params
         if climatic_params and "climatic" in result_type:
             result["climatic_params"] = climatic_params
+
+        if temporary:
+            return results_ctrl.create_temp_result(result)
 
         return results_ctrl.create_result(result)
 

@@ -1,4 +1,5 @@
 import dash
+from datetime import datetime, timezone
 import utils.utils as utils
 from components.result_card import create_result_card
 from dash import callback, html
@@ -14,6 +15,36 @@ for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
 dash.register_page(__name__, path_template="/results")
+
+
+def _temporary_remaining_label(result, lang="en"):
+    if not result.get("is_temporary"):
+        return None
+
+    expires_at = utils.to_datetime_utc(result.get("expired_at"))
+    if expires_at == datetime.min.replace(tzinfo=timezone.utc):
+        return t("results.card.temporary", lang)
+
+    now = datetime.now(timezone.utc)
+
+    delta_seconds = int((expires_at - now).total_seconds())
+    if delta_seconds <= 0:
+        return t("results.card.expired-now", lang)
+
+    total_minutes = max(1, delta_seconds // 60)
+    hours = total_minutes // 60
+    minutes = total_minutes % 60
+
+    if hours > 0:
+        return (
+            t("results.card.expire-in-hours-minutes", lang)
+            .replace("{hours}", str(hours))
+            .replace("{minutes}", str(minutes))
+        )
+
+    return t("results.card.expire-in-minutes", lang).replace(
+        "{count}", str(total_minutes)
+    )
 
 
 def get_no_results_html(lang="en"):
@@ -85,9 +116,30 @@ def generate_result_list(path, language):
     lang = language if language in LANGUAGE_LIST else "en"
 
     if ENV_CONFIG["HOST"] == "local":
-        results = utils.get_all_results()
+        local_results = utils.get_all_results() or []
+
+        temp_results = []
+        try:
+            cookie = request.cookies.get("AUTH")
+            if cookie:
+                temp_ids = [result_id for result_id in cookie.split(".") if result_id.startswith("tmp_")]
+                if temp_ids:
+                    temp_results = utils.get_results(temp_ids)
+        except Exception as e:
+            print(e)
+
+        combined = {str(result["_id"]): result for result in local_results}
+        for result in temp_results:
+            combined[str(result["_id"])] = result
+
+        results = sorted(
+            combined.values(),
+            key=lambda result: utils.to_datetime_utc(result.get("created_at")),
+        )
+
         if not results:
             return get_no_results_html(lang)
+
         return [create_layout(result, lang) for result in results]
 
     try:
@@ -101,6 +153,7 @@ def generate_result_list(path, language):
 
     results_ids = cookie.split(".")
     results = utils.get_results(results_ids)
+    results = sorted(results, key=lambda result: utils.to_datetime_utc(result.get("created_at")))
 
     if not results:
         return get_no_results_html(lang)
@@ -129,14 +182,17 @@ def create_layout(result, lang="en"):
     expired_at = None
 
     if ENV_CONFIG["HOST"] != "local":
-        created_at = result["created_at"].strftime("%d/%m/%Y")
-        expired_at = result["expired_at"].strftime("%d/%m/%Y")
+        created_at = utils.format_card_date(result.get("created_at"))
+        expired_at = utils.format_card_date(result.get("expired_at"))
+
+    remaining_time = _temporary_remaining_label(result, lang)
 
     return create_result_card(
         name=result["name"],
         status=result["status"],
         created_at=created_at,
         expired_at=expired_at,
+        remaining_time=remaining_time,
         result_id=str(result["_id"]),
         lang=lang,
     )

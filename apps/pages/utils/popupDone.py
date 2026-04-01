@@ -17,6 +17,7 @@ def get_layout(lang="en"):
                                 html.A(
                                     t("upload.popup-done.link-results", lang),
                                     href="/results",
+                                    id="popup-done-link",
                                     className="description",
                                 ),
                             ],

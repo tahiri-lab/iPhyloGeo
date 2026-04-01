@@ -17,7 +17,10 @@
   "file-error-json": "File must be .json",
   "errors": {
     "number-of-columns": "You need to select at least one column",
-    "name-required": "You need to give a name to your dataset"
+    "name-required": "You need to give a name to your dataset",
+    "consent-required": "You must confirm your data storage preference before submitting",
+    "temporary-storage-unavailable": "Temporary storage is unavailable right now. Please try again in a moment.",
+    "submit-failed": "Could not complete your analysis. Please try again."
   },
   "email": {
     "invalid": "Invalid email address",
@@ -39,6 +42,9 @@
     "select-columns": "Select columns to analyze",
     "enter-dataset-name": "Enter dataset name",
     "placeholder-dataset-name": "Enter dataset Name",
+    "consent-question": "Do you consent to storing your uploaded data in the database?",
+    "consent-save-data-yes": "Yes, you can store my uploaded data and generated results",
+    "consent-save-data-no": "No, keep my data only temporarily",
     "submit": "Submit"
   },
   "climatic": {

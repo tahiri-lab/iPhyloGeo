@@ -39,6 +39,27 @@ def get_layout(lang="en"):
                 className="field-error-message name-error-message",
                 children=[],
             ),
+            html.P(t("upload.submit.consent-question", lang), className="field-label"),
+            dcc.RadioItems(
+                id="consent-save-data",
+                options=[
+                    {
+                        "label": t("upload.submit.consent-save-data-yes", lang),
+                        "value": "granted",
+                    },
+                    {
+                        "label": t("upload.submit.consent-save-data-no", lang),
+                        "value": "declined",
+                    },
+                ],
+                value=None,
+                className="consent-checklist",
+            ),
+            html.Div(
+                id="consent-error-message",
+                className="field-error-message",
+                children=[],
+            ),
             html.Div(
                 [
                     html.Div(

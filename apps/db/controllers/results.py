@@ -1,10 +1,12 @@
 import json
 import os
-from datetime import datetime, timedelta
+import secrets
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from bson.objectid import ObjectId
 from db.db_validator import results_db
+from db.controllers import temp_results
 from dotenv import dotenv_values, load_dotenv
 
 load_dotenv()
@@ -18,22 +20,81 @@ if ENV_CONFIG["HOST"] == "local":
         os.makedirs("result")
 
 
-def get_results(ids):
-    if ENV_CONFIG["HOST"] == "local":
-        # look for ids in the results directory
-        results = []
-        for id in ids:
-            with open(Path("result") / (str(id) + ".json")) as f:
-                results.append(json.load(f))
-        return results
+def _is_temp_result_id(result_id):
+    return temp_results.is_temp_result_id(result_id)
 
-    res = results_db.find({"_id": {"$in": [ObjectId(id) for id in ids]}})
-    return list(
-        res
-    )  # return a list of dictionaries to force convert the pymongo cursor to a list
+
+def is_temp_storage_available():
+    return temp_results.is_available()
+
+
+def _build_temp_result_document(result):
+    created_at = datetime.now(timezone.utc)
+    ttl_seconds = temp_results.get_default_ttl_seconds()
+    document = {
+        "status": result["status"],
+        "created_at": created_at,
+        "expired_at": created_at + timedelta(seconds=ttl_seconds),
+        "name": result["name"],
+        "result_type": result["result_type"],
+    }
+    if "climatic_params" in result:
+        document["climatic_params"] = result["climatic_params"]
+    if "genetic_params" in result:
+        document["genetic_params"] = result["genetic_params"]
+    return document
+
+
+def get_results(ids):
+    records_by_id = {}
+    persistent_ids = []
+    temp_ids = []
+
+    for result_id in ids:
+        if _is_temp_result_id(result_id):
+            temp_ids.append(result_id)
+        else:
+            persistent_ids.append(result_id)
+
+    if temp_ids:
+        temp_records = temp_results.get_temp_results(temp_ids)
+        for result_id in temp_ids:
+            temp_record = temp_records.get(result_id)
+            if temp_record:
+                records_by_id[str(temp_record.get("_id", result_id))] = temp_record
+
+    if persistent_ids:
+        if ENV_CONFIG["HOST"] == "local":
+            for result_id in persistent_ids:
+                try:
+                    with open(Path("result") / (str(result_id) + ".json")) as f:
+                        result_doc = json.load(f)
+                    records_by_id[str(result_doc.get("_id", result_id))] = result_doc
+                except FileNotFoundError:
+                    continue
+        else:
+            valid_object_ids = []
+            for result_id in persistent_ids:
+                if ObjectId.is_valid(str(result_id)):
+                    valid_object_ids.append(ObjectId(str(result_id)))
+
+            if valid_object_ids:
+                res = results_db.find({"_id": {"$in": valid_object_ids}})
+                for result_doc in res:
+                    records_by_id[str(result_doc["_id"])] = result_doc
+
+    ordered_results = []
+    for result_id in ids:
+        if result_id in records_by_id:
+            ordered_results.append(records_by_id[result_id])
+
+    return ordered_results
 
 
 def get_result(id):
+    if _is_temp_result_id(id):
+        return temp_results.get_temp_result(id)
+
     if ENV_CONFIG["HOST"] == "local":
         # look for id in the results directory
         with open(Path("result") / (str(id) + ".json")) as f:
@@ -54,6 +115,9 @@ def get_all_results():
 
 
 def delete_result(id):
+    if _is_temp_result_id(id):
+        return temp_results.delete_temp_result(id)
+
     if ENV_CONFIG["HOST"] == "local":
         # look for id in the results directory
         os.remove(Path("result") / (str(id) + ".json"))
@@ -66,8 +130,9 @@ def create_result(result):
 
     document = parse_result(result)
     document["status"] = result["status"]
-    document["created_at"] = datetime.utcnow()
-    document["expired_at"] = datetime.utcnow() + timedelta(days=14)
+    now_utc = datetime.now(timezone.utc)
+    document["created_at"] = now_utc
+    document["expired_at"] = now_utc + timedelta(days=14)
     document["name"] = result["name"]
     document["result_type"] = result["result_type"]
 
@@ -83,7 +148,18 @@ def create_result(result):
     return str(res.inserted_id)
 
 
+def create_temp_result(result):
+    document = _build_temp_result_document(result)
+    token = secrets.token_urlsafe(18)
+    temp_id = temp_results.build_temp_result_id(token)
+    return temp_results.create_temp_result(temp_id, document)
+
+
 def update_result(result):
+    if _is_temp_result_id(result.get("_id")):
+        document = parse_result(result)
+        return temp_results.update_temp_result(document["_id"], document)
+
     document = parse_result(result)
 
     if ENV_CONFIG["HOST"] == "local":
@@ -104,7 +180,10 @@ def update_result(result):
 def parse_result(result):
     document = {}
     if "_id" in result:
-        document["_id"] = ObjectId(result["_id"])
+        if _is_temp_result_id(result["_id"]):
+            document["_id"] = result["_id"]
+        else:
+            document["_id"] = ObjectId(result["_id"])
     if "climatic_files_id" in result:
         document["climatic_files_id"] = ObjectId(result["climatic_files_id"])
     if "genetic_files_id" in result:

@@ -41,6 +41,11 @@
     "sequences-downloaded": "Séquences génétiques téléchargées !",
     "output-downloaded": "Résultats téléchargés !"
   },
+  "errors": {
+    "not-found-title": "Résultat indisponible",
+    "not-found-message": "Ce résultat n'existe plus ou a expiré.",
+    "back-to-results": "Retour aux résultats"
+  },
   "graph": {
     "bootstrap-mean": "moyenne bootstrap",
     "title-bootstrap-distance": "Moyenne bootstrap et {distance_method}",
