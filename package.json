@@ -6,7 +6,11 @@
   "scripts": {
     "start": "concurrently --kill-others \"python apps/app.py\" \"electron main.js\" \"grunt\"",
     "server": "concurrently --kill-others \"python apps/app.py\" \"grunt\"",
-    "lint": "flake8 apps"
+    "lint": "flake8 apps",
+    "test": "pytest",
+    "test:unit": "pytest -m unit",
+    "test:integration": "pytest -m integration",
+    "test:e2e": "pytest -m e2e"
   },
   "author": "",
   "license": "ISC",
