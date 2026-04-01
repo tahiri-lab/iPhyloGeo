@@ -44,6 +44,11 @@
     "sequences-downloaded": "Genetic sequences downloaded!",
     "output-downloaded": "Output downloaded!"
   },
+  "errors": {
+    "not-found-title": "Result unavailable",
+    "not-found-message": "This result no longer exists or has expired.",
+    "back-to-results": "Back to results"
+  },
   "graph": {
     "bootstrap-mean": "bootstrap mean",
     "title-bootstrap-distance": "Bootstrap mean and {distance_method}",

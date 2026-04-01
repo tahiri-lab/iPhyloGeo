@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   mongo:
@@ -9,5 +9,7 @@ services:
       - ./db/data:/data/db
       # - ./db/backup.agz:/database_backup/backup.agz # eventually restore from backup
 
-
-
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379

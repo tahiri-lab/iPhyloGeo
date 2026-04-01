@@ -18,7 +18,10 @@
   "file-error-not-aligned": "Les séquences n'ont pas toutes la même longueur. Assurez-vous que le fichier est aligné.",
   "errors": {
     "number-of-columns": "Vous devez sélectionner au moins une colonne",
-    "name-required": "Vous devez donner un nom à votre jeu de données"
+    "name-required": "Vous devez donner un nom à votre jeu de données",
+    "consent-required": "Vous devez confirmer votre préférence de stockage des données avant la soumission",
+    "temporary-storage-unavailable": "Le stockage temporaire est indisponible pour le moment. Veuillez réessayer dans un instant.",
+    "submit-failed": "Impossible de terminer votre analyse. Veuillez réessayer."
   },
   "email": {
     "invalid": "Adresse e-mail invalide",
@@ -51,6 +54,9 @@
     "select-columns": "Sélectionnez les colonnes à analyser",
     "enter-dataset-name": "Entrez le nom du jeu de données",
     "placeholder-dataset-name": "Entrez le nom du jeu de données",
+    "consent-question": "Consentez-vous au stockage de vos données téléversées dans la base de données ?",
+    "consent-save-data-yes": "Oui, vous pouvez stocker mes données téléversées et les résultats générés",
+    "consent-save-data-no": "Non, conservez mes données temporairement seulement",
     "submit": "Soumettre"
   },
   "climatic": {

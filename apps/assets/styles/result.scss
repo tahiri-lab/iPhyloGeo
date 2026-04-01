@@ -138,6 +138,51 @@
   padding: 20px 24px;
 }
 
+#unavailable-result-message {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.unavailable-result-card {
+  width: min(92vw, 760px);
+  margin: 8px auto 16px;
+  padding: 34px 38px;
+  border-radius: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.unavailable-result-description {
+  margin: 0;
+  max-width: 620px;
+  font-size: 18px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--text);
+}
+
+.unavailable-result-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 240px;
+  margin: 0;
+  text-decoration: none;
+  color: var(--text);
+
+  &:hover,
+  &:focus,
+  &:active,
+  &:visited {
+    text-decoration: none;
+    color: var(--text);
+  }
+}
+
 .result-section-header {
   display: flex;
   align-items: center;
