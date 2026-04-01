@@ -1046,10 +1046,10 @@ def submit_button(
 
     # Map each input key → (files_ids key, result_type label)
     FILE_SLOTS = [
-        ("climatic",        "climatic_files_id",       "climatic"),
-        ("genetic",         "genetic_files_id",         "genetic"),
+        ("climatic", "climatic_files_id", "climatic"),
+        ("genetic", "genetic_files_id", "genetic"),
         ("aligned_genetic", "aligned_genetic_files_id", "genetic"),
-        ("genetic_tree",    "genetic_tree_files_id",    "genetic"),
+        ("genetic_tree", "genetic_tree_files_id", "genetic"),
     ]
 
     try:
@@ -1079,16 +1079,16 @@ def submit_button(
         )
 
         return (
-            "popup",         # popup className
-            result_id,       # current-result-id
-            True,            # pipeline-started
-            False,           # pipeline-status-interval disabled
-            "running",       # global-pipeline-status
-            result_id,       # global-result-id
-            False,           # global-pipeline-interval disabled
-            "progress-bar",  # progress-bar className
-            {"width": "0%"}, # progress-bar-fill style
-            False,           # popup-dismissed reset
+            "popup",          # popup className
+            result_id,        # current-result-id
+            True,             # pipeline-started
+            False,            # pipeline-status-interval disabled
+            "running",        # global-pipeline-status
+            result_id,        # global-result-id
+            False,            # global-pipeline-interval disabled
+            "progress-bar",   # progress-bar className
+            {"width": "0%"},  # progress-bar-fill style
+            False,            # popup-dismissed reset
         )
     except Exception as e:
         print(f"[submit_button] Error: {e}")

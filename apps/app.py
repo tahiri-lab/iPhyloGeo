@@ -1,9 +1,5 @@
 import multiprocessing as _mp
 
-# On Windows, ProcessPoolExecutor spawns workers by reimporting __main__ (this file).
-# Guard all Dash/Flask setup so workers skip it — they only need background_tasks.
-_IS_MAIN_PROCESS = _mp.current_process().name == 'MainProcess'
-
 import dash
 import dash_bootstrap_components as dbc
 from components.toast import create_toast_container
@@ -14,6 +10,10 @@ from flask import Flask
 from utils.i18n import LANGUAGE_LIST, t
 import db.controllers.results as results_ctrl
 import utils.background_tasks as background_tasks
+
+# On Windows, ProcessPoolExecutor spawns workers by reimporting __main__ (this file).
+# Guard all Dash/Flask setup so workers skip it — they only need background_tasks.
+_IS_MAIN_PROCESS = _mp.current_process().name == 'MainProcess'
 
 if _IS_MAIN_PROCESS:
     results_ctrl.mark_stuck_results_as_error()
@@ -115,10 +115,8 @@ if _IS_MAIN_PROCESS:
         use_pages=True,
     )
 
-
     def NavbarComponent(children):
         return html.Div(children=children, className="nav-bar-container", id="nav-bar")
-
 
     app.layout = html.Div(
         [
@@ -350,7 +348,6 @@ if _IS_MAIN_PROCESS:
         prevent_initial_call=True,
     )
 
-
     @app.callback(
         Output("theme-store", "data"),
         Output("theme-switch-output", "children"),
@@ -371,7 +368,6 @@ if _IS_MAIN_PROCESS:
         new_theme = not current_theme if current_theme is not None else False
         return new_theme, str(new_theme)
 
-
     @app.callback(
         Output("language-store", "data"),
         Input("language-selector", "value"),
@@ -381,7 +377,6 @@ if _IS_MAIN_PROCESS:
         if selected_language in ["en", "fr"]:
             return selected_language
         return "en"
-
 
     @app.callback(
         Output("themer", "style"),
@@ -400,7 +395,6 @@ if _IS_MAIN_PROCESS:
             return DARK_THEME, "/assets/icons/sun.svg"
         else:
             return LIGHT_THEME, "/assets/icons/moon.svg"
-
 
     @app.callback(
         Output("language-flag", "children"),
@@ -457,7 +451,6 @@ if _IS_MAIN_PROCESS:
             t(theme_text_key, lang),
         )
 
-
     @app.callback(
         Output("toast-container", "children"),
         Output("toast-interval", "disabled"),
@@ -481,7 +474,6 @@ if _IS_MAIN_PROCESS:
             ], className=f"toast-message {toast_type}")
             return [toast_element], False
         return [], True
-
 
     @app.callback(
         Output("progress-bar", "className"),
@@ -517,7 +509,6 @@ if _IS_MAIN_PROCESS:
         else:
             return "progress-bar", progress_style, False, dash.no_update
 
-
     # Clientside callback to copy to clipboard when share button is clicked
     app.clientside_callback(
         """
@@ -533,7 +524,6 @@ if _IS_MAIN_PROCESS:
         State("url", "href"),
         prevent_initial_call=True,
     )
-
 
     if __name__ == "__main__":
         host = ENV_CONFIG["URL"]
