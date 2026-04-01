@@ -10,9 +10,10 @@ import json
 import os
 import re
 import sys
+import multiprocessing
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
 import db.controllers.results as results_ctrl
@@ -29,18 +30,20 @@ try:
 except ImportError:
     PSUTIL_AVAILABLE = False
 
-# Thread pool for background tasks (max 4 concurrent tasks)
-_executor = ThreadPoolExecutor(max_workers=4)
+# Process pool for background tasks — lazily created by _get_executor().
+# Lazy init avoids the Windows-spawn problem where imported modules would
+# re-execute module-level code in every worker process.
+_executor: "ProcessPoolExecutor | None" = None
+
+# Queue used for worker → main-process IPC (progress updates, status changes).
+# Set to the real Queue by _get_executor(); overridden by _init_worker in each
+# spawned worker process so they share the same underlying queue.
+_progress_queue: multiprocessing.Queue = None  # type: ignore[assignment]
 
 # Store for tracking tasks (in production, use Redis or similar)
+# Lives in the main process only; workers send updates via _progress_queue.
 _task_store = {}
 _task_lock = threading.Lock()
-
-# sys.stdout is process-global. Redirecting it inside a thread is not thread-safe:
-# concurrent tasks would overwrite each other's patch and mis-attribute progress lines.
-# This lock serializes the stdout-redirect section so only one pipeline holds it at a
-# time. Other workers proceed normally but wait before patching stdout.
-_stdout_lock = threading.Lock()
 
 # Calibration constants based on observed performance
 # Reference: observed from terminal output
@@ -438,11 +441,11 @@ class ProgressCapture(io.TextIOBase):
         m = self._PROGRESS_PATTERN.search(s)
         if m:
             done, total = int(m.group(1)), int(m.group(2))
-            update_task_sub_progress(self.result_id, done, total)
+            _progress_queue.put({"type": "sub_progress", "result_id": self.result_id, "done": done, "total": total})
 
         e = self._ELAPSED_PATTERN.search(s)
         if e:
-            record_step_elapsed(self.result_id, float(e.group(1)))
+            _progress_queue.put({"type": "elapsed", "result_id": self.result_id, "elapsed": float(e.group(1))})
 
         return self.inner.write(s)
 
@@ -455,6 +458,48 @@ def cleanup_task(result_id: str):
     with _task_lock:
         if result_id in _task_store:
             del _task_store[result_id]
+
+
+# ---------------------------------------------------------------------------
+# Process-pool IPC infrastructure
+# ---------------------------------------------------------------------------
+
+def _init_worker(queue):
+    """Called once in each worker process at startup. Wires up the shared queue."""
+    global _progress_queue
+    _progress_queue = queue
+
+
+def _progress_listener(queue):
+    """Daemon thread in the main process. Dispatches worker IPC messages to _task_store."""
+    while True:
+        msg = queue.get()
+        if msg is None:
+            break
+        mtype, result_id = msg["type"], msg["result_id"]
+        if mtype == "status":
+            update_task_status(result_id, msg["status"], msg.get("error"))
+        elif mtype == "sub_progress":
+            update_task_sub_progress(result_id, msg["done"], msg["total"])
+        elif mtype == "elapsed":
+            record_step_elapsed(result_id, msg["elapsed"])
+        elif mtype == "cleanup":
+            cleanup_task(result_id)
+
+
+def _get_executor() -> ProcessPoolExecutor:
+    """Return the process-pool executor, creating it (and the listener thread) on first call."""
+    global _executor, _progress_queue
+    if _executor is None:
+        q = multiprocessing.Queue()
+        _progress_queue = q
+        _executor = ProcessPoolExecutor(
+            max_workers=4,
+            initializer=_init_worker,
+            initargs=(q,),
+        )
+        threading.Thread(target=_progress_listener, args=(q,), daemon=True).start()
+    return _executor
 
 
 def run_pipeline_async(
@@ -500,7 +545,7 @@ def run_pipeline_async(
     update_task_status(result_id, "pending", estimated_time=estimated_time, pipeline_mode=pipeline_mode)
 
     print("[Pipeline] Submitting task to executor...")
-    _executor.submit(
+    _get_executor().submit(
         _run_pipeline_task,
         result_id,
         climatic_file,
@@ -557,22 +602,24 @@ def _run_pipeline_task(
             # Run full genetic pipeline (alignment + trees + output)
             reference_gene_file = {
                 "reference_gene_dir": os.path.join(os.getcwd(), "temp"),
-                "reference_gene_file": "genetic_data.fasta",
+                "reference_gene_file": f"genetic_data_{result_id}.fasta",
             }
             Params.update_from_dict(reference_gene_file)
 
-            # Capture multiProcessor stdout to track sub-step progress.
-            # _stdout_lock serializes this section across threads so that concurrent
-            # pipeline tasks cannot overwrite each other's sys.stdout patch.
-            with _stdout_lock:
-                _orig_stdout = sys.stdout
-                sys.stdout = ProgressCapture(result_id, _orig_stdout)
+            # Each process has its own sys.stdout — no lock needed.
+            _orig_stdout = sys.stdout
+            sys.stdout = ProgressCapture(result_id, _orig_stdout)
+            try:
+                utils.run_genetic_pipeline(
+                    result_id, climatic_file, genetic_file, climatic_trees
+                )
+            finally:
+                sys.stdout = _orig_stdout
+                fasta_path = os.path.join(os.getcwd(), "temp", f"genetic_data_{result_id}.fasta")
                 try:
-                    utils.run_genetic_pipeline(
-                        result_id, climatic_file, genetic_file, climatic_trees
-                    )
-                finally:
-                    sys.stdout = _orig_stdout
+                    os.remove(fasta_path)
+                except OSError:
+                    pass
 
         elif aligned_genetic_file is not None:
             # Process pre-aligned genetic data
@@ -583,16 +630,13 @@ def _run_pipeline_task(
                 {"_id": result_id, "msaSet": msaSet}
             )
 
-            # Capture multiProcessor stdout to track sub-step progress.
-            # _stdout_lock serializes this section across threads so that concurrent
-            # pipeline tasks cannot overwrite each other's sys.stdout patch.
-            with _stdout_lock:
-                _orig_stdout = sys.stdout
-                sys.stdout = ProgressCapture(result_id, _orig_stdout)
-                try:
-                    genetic_trees = utils.create_genetic_trees(result_id, msaSet)
-                finally:
-                    sys.stdout = _orig_stdout
+            # Each process has its own sys.stdout — no lock needed.
+            _orig_stdout = sys.stdout
+            sys.stdout = ProgressCapture(result_id, _orig_stdout)
+            try:
+                genetic_trees = utils.create_genetic_trees(result_id, msaSet)
+            finally:
+                sys.stdout = _orig_stdout
 
             utils.create_output(
                 result_id,
@@ -620,7 +664,7 @@ def _run_pipeline_task(
                 pd.read_json(io.StringIO(climatic_file)),
             )
 
-        update_task_status(result_id, "complete")
+        _progress_queue.put({"type": "status", "result_id": result_id, "status": "complete"})
 
         # Send email notification if provided
         if email:
@@ -632,7 +676,7 @@ def _run_pipeline_task(
 
     except Exception as e:
         print(f"[Error in background pipeline]: {e}")
-        update_task_status(result_id, "error", str(e))
+        _progress_queue.put({"type": "status", "result_id": result_id, "status": "error", "error": str(e)})
         results_ctrl.update_result(
             {
                 "_id": result_id,
@@ -644,6 +688,6 @@ def _run_pipeline_task(
         def delayed_cleanup():
             import time
             time.sleep(60)  # Keep status for 1 minute after completion
-            cleanup_task(result_id)
+            _progress_queue.put({"type": "cleanup", "result_id": result_id})
 
         threading.Thread(target=delayed_cleanup, daemon=True).start()

@@ -174,7 +174,6 @@ def close_result_ready_popup(n_clicks):
 
 
 # Callback to poll pipeline status and update UI
-# Callback to poll pipeline status and update UI
 @callback(
     Output("popup-status-message", "children"),
     Output("popup-title", "children"),
@@ -1029,93 +1028,68 @@ def submit_button(
     Starts the pipeline asynchronously when all prerequisites are met.
     Returns immediately so the user can navigate elsewhere.
     """
-    print(f"[submit_button] Called with ready_for_pipeline={ready_for_pipeline}")
+    _NO_UPDATE = (
+        dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+        dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+        dash.no_update, dash.no_update,
+    )
+    _ERROR_RETURN = (
+        "popup",
+        dash.no_update, dash.no_update, dash.no_update,
+        dash.no_update, dash.no_update, dash.no_update,
+        dash.no_update, dash.no_update,
+        False,
+    )
 
-    if ready_for_pipeline is False:
-        print("[submit_button] ready_for_pipeline is False, returning dash.no_update")
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+    if not ready_for_pipeline:
+        return _NO_UPDATE
 
-    print("[submit_button] Pipeline is ready, processing input_data...")
-    climatic_file = input_data["climatic"]["file"]
-
-    genetic_file = input_data["genetic"]["file"]
-    aligned_genetic_file = input_data["aligned_genetic"]["file"]
-    genetic_tree_file = input_data["genetic_tree"]["file"]
-
-    print(f"[submit_button] Files: climatic={climatic_file is not None}, genetic={genetic_file is not None}, aligned={aligned_genetic_file is not None}, tree={genetic_tree_file is not None}")
-
-    result_type = []
-    files_ids = {}
-    if climatic_file is not None:
-        result_type.append("climatic")
-        climatic_file_id = utils.save_files(input_data["climatic"])
-        files_ids["climatic_files_id"] = climatic_file_id
-
-    if genetic_file is not None:
-        result_type.append("genetic")
-        genetic_file_id = utils.save_files(input_data["genetic"])
-        files_ids["genetic_files_id"] = genetic_file_id
-
-    if aligned_genetic_file is not None:
-        result_type.append("genetic")
-        aligned_genetic_file_id = utils.save_files(input_data["aligned_genetic"])
-        files_ids["aligned_genetic_files_id"] = aligned_genetic_file_id
-
-    if genetic_tree_file is not None:
-        result_type.append("genetic")
-        genetic_tree_file_id = utils.save_files(input_data["genetic_tree"])
-        files_ids["genetic_tree_files_id"] = genetic_tree_file_id
+    # Map each input key → (files_ids key, result_type label)
+    FILE_SLOTS = [
+        ("climatic",        "climatic_files_id",       "climatic"),
+        ("genetic",         "genetic_files_id",         "genetic"),
+        ("aligned_genetic", "aligned_genetic_files_id", "genetic"),
+        ("genetic_tree",    "genetic_tree_files_id",    "genetic"),
+    ]
 
     try:
-        # Create a new result in the database with 'pending' status
-        print("[submit_button] Creating result in database...")
+        result_type = []
+        files_ids = {}
+        for slot_key, files_key, type_label in FILE_SLOTS:
+            if input_data[slot_key]["file"] is not None:
+                files_ids[files_key] = utils.save_files(input_data[slot_key])
+                if type_label not in result_type:
+                    result_type.append(type_label)
+
         result_id = utils.create_result(
             files_ids, result_type, params_climatic, params_genetic, result_name
         )
-        print(f"[submit_button] Result created with id: {result_id}")
 
         if ENV_CONFIG["HOST"] != "local":
             add_result_to_cookie(result_id)
 
-        # Launch the pipeline asynchronously
-        print("[submit_button] Launching pipeline async...")
         background_tasks.run_pipeline_async(
             result_id=result_id,
-            climatic_file=climatic_file,
-            genetic_file=genetic_file,
-            aligned_genetic_file=aligned_genetic_file,
-            genetic_tree_file=genetic_tree_file,
+            climatic_file=input_data["climatic"]["file"],
+            genetic_file=input_data["genetic"]["file"],
+            aligned_genetic_file=input_data["aligned_genetic"]["file"],
+            genetic_tree_file=input_data["genetic_tree"]["file"],
             params_climatic=params_climatic,
             email=email,
         )
-        print("[submit_button] Pipeline launched successfully!")
 
-        # Return immediately - pipeline runs in background
-        # Enable the intervals to poll for status updates
-        # Show progress bar at 0%
         return (
-            "popup",           # popup className
-            result_id,         # current-result-id
-            True,              # pipeline-started
-            False,             # pipeline-status-interval disabled
-            "running",         # global-pipeline-status
-            result_id,         # global-result-id
-            False,             # global-pipeline-interval disabled
-            "progress-bar",    # progress-bar className
-            {"width": "0%"},   # progress-bar-fill style
-            False,             # popup-dismissed reset
+            "popup",         # popup className
+            result_id,       # current-result-id
+            True,            # pipeline-started
+            False,           # pipeline-status-interval disabled
+            "running",       # global-pipeline-status
+            result_id,       # global-result-id
+            False,           # global-pipeline-interval disabled
+            "progress-bar",  # progress-bar className
+            {"width": "0%"}, # progress-bar-fill style
+            False,           # popup-dismissed reset
         )
     except Exception as e:
-        print("[Error]:", e)
-        return (
-            "popup",
-            dash.no_update,
-            dash.no_update,
-            dash.no_update,
-            dash.no_update,
-            dash.no_update,
-            dash.no_update,
-            dash.no_update,
-            dash.no_update,
-            False,
-        )
+        print(f"[submit_button] Error: {e}")
+        return _ERROR_RETURN

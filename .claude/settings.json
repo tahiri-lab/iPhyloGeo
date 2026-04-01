@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c \"c:\\\\Users\\\\natha\\\\Programmation\\\\Universite\\\\Phylogeo\\\\iPhyloGeo\\\\.venv\\\\Scripts\\\\python.exe -m pip show aphylogeo\")",
+      "Bash(cmd /c \"c:\\\\Users\\\\natha\\\\Programmation\\\\Universite\\\\Phylogeo\\\\iPhyloGeo\\\\.venv\\\\Scripts\\\\python.exe -c \"\"import aphylogeo; print\\(aphylogeo.__version__, aphylogeo.__file__\\)\"\"\")",
+      "Bash(cmd /c \"c:\\\\Users\\\\natha\\\\Programmation\\\\Universite\\\\Phylogeo\\\\iPhyloGeo\\\\.venv\\\\Scripts\\\\python.exe -c \"\"import aphylogeo; print\\(aphylogeo.__version__\\); print\\(aphylogeo.__file__\\)\"\" 2>&1\")",
+      "Bash(cmd /c \"c:\\\\Users\\\\natha\\\\Programmation\\\\Universite\\\\Phylogeo\\\\iPhyloGeo\\\\.venv\\\\Scripts\\\\python.exe -c \"\"import aphylogeo; print\\(aphylogeo.__version__\\); print\\(aphylogeo.__file__\\)\"\" > C:\\\\Users\\\\natha\\\\AppData\\\\Local\\\\Temp\\\\aphylogeo_check.txt 2>&1\")",
+      "Read(//c/Users/natha/AppData/Local/Temp/**)"
+    ]
+  }
+}

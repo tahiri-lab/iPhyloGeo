@@ -14,7 +14,7 @@
   "demo-data-link": "Try with demo data →",
   "file-error-csv-excel": "File must be .csv or Excel",
   "file-error-fasta": "File must be .fasta",
-  "file-error-json": "File must be .json",
+  "file-error-json": "File must be .json or .fasta",
   "file-error-not-aligned": "Sequences do not all have the same length. Make sure the file is aligned.",
   "errors": {
     "number-of-columns": "You need to select at least one column",

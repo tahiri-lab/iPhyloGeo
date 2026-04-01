@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -156,6 +157,11 @@ def mark_stuck_results_as_error():
     On app startup, mark any results stuck in a non-terminal state as 'error'.
     These were interrupted by an app crash or restart.
     """
+    _STARTUP_SENTINEL = Path(tempfile.gettempdir()) / "iphylogeo_startup_done"
+
+    if _STARTUP_SENTINEL.exists():
+        return
+    _STARTUP_SENTINEL.touch()
     if ENV_CONFIG["HOST"] == "local":
         for file in os.listdir(RESULT_DIR):
             filepath = RESULT_DIR / file
