@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(c:/Users/natha/Programmation/Universite/Phylogeo/iPhyloGeo/.venv/Scripts/pip.exe show:*)",
-      "Bash(cmd /c \"c:\\\\Users\\\\natha\\\\Programmation\\\\Universite\\\\Phylogeo\\\\iPhyloGeo\\\\.venv\\\\Scripts\\\\pip.exe show aphylogeo\")"
-    ]
-  }
-}
