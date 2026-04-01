@@ -7,10 +7,10 @@
     "start": "concurrently --kill-others \"python apps/app.py\" \"electron main.js\" \"grunt\"",
     "server": "concurrently --kill-others \"python apps/app.py\" \"grunt\"",
     "lint": "flake8 apps",
-    "test": "pytest",
-    "test:unit": "pytest -m unit",
-    "test:integration": "pytest -m integration",
-    "test:e2e": "pytest -m e2e"
+    "test": "python -m pytest",
+    "test:unit": "python -m pytest tests/unit -m unit",
+    "test:integration": "python -m pytest tests/integration -m integration",
+    "test:e2e": "python -m pytest tests/e2e -m e2e"
   },
   "author": "",
   "license": "ISC",
