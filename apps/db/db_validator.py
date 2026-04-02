@@ -7,9 +7,7 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-ENV_CONFIG = {}
-for key, value in dotenv_values().items():
-    ENV_CONFIG[key] = value
+ENV_CONFIG = {**os.environ, **dotenv_values()}
 
 
 def connect_db():

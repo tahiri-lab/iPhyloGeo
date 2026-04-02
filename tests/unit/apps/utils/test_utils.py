@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 # Prevent heavy dependencies from connecting/importing at module level
 sys.modules.setdefault("db", MagicMock())
 sys.modules.setdefault("db.db_validator", MagicMock())
+sys.modules.setdefault("db.controllers", MagicMock())
 sys.modules.setdefault("db.controllers.files", MagicMock())
 sys.modules.setdefault("db.controllers.results", MagicMock())
 sys.modules.setdefault("Bio", MagicMock())

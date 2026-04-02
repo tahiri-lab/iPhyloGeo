@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../apps"))
 # Prevent DB and aphylogeo imports from running at module level
 sys.modules.setdefault("db", MagicMock())
 sys.modules.setdefault("db.db_validator", MagicMock())
+sys.modules.setdefault("db.controllers", MagicMock())
 sys.modules.setdefault("db.controllers.results", MagicMock())
 sys.modules.setdefault("aphylogeo", MagicMock())
 sys.modules.setdefault("aphylogeo.alignement", MagicMock())
