@@ -9,6 +9,7 @@ from apps.enums import (
     MantelTestMethod,
     convert_settings_to_codes,
 )
+from apps.utils.i18n import t
 import pytest
 
 
@@ -206,3 +207,115 @@ def test_convert_settings_to_codes_does_not_mutate_input():
 
 def test_convert_settings_to_codes_empty_dict():
     assert convert_settings_to_codes({}) == {}
+
+
+# --- Language / locale tests ---
+# Verify that locale strings for each enum option exist in both EN and FR
+# and that the English locale matches the expected label.
+
+def test_alignment_method_locale_en():
+    assert t("setting.options.alignment.no-alignment", "en") == "No alignment"
+    assert t("setting.options.alignment.pairwise-align", "en") == "Pairwise alignment"
+    assert t("setting.options.alignment.muscle", "en") == "MUSCLE"
+    assert t("setting.options.alignment.clustalw", "en") == "CLUSTALW"
+    assert t("setting.options.alignment.mafft", "en") == "MAFFT"
+
+
+def test_alignment_method_locale_fr():
+    assert t("setting.options.alignment.no-alignment", "fr") == "Sans alignement"
+    assert t("setting.options.alignment.pairwise-align", "fr") == "Alignement pair à pair"
+    assert t("setting.options.alignment.muscle", "fr") == "MUSCLE"
+    assert t("setting.options.alignment.clustalw", "fr") == "CLUSTALW"
+    assert t("setting.options.alignment.mafft", "fr") == "MAFFT"
+
+
+def test_distance_method_locale_en():
+    assert t("setting.options.distance.all", "en") == "All distance methods"
+    assert t("setting.options.distance.least-square", "en") == "Least Square"
+    assert t("setting.options.distance.robinson-foulds", "en") == "Robinson-Foulds (RF)"
+    assert t("setting.options.distance.bipartition", "en") == "Bipartition (Dendropy)"
+
+
+def test_distance_method_locale_fr():
+    assert t("setting.options.distance.all", "fr") == "Toutes les méthodes de distance"
+    assert t("setting.options.distance.least-square", "fr") == "Moindres carrés"
+    assert t("setting.options.distance.robinson-foulds", "fr") == "Robinson-Foulds (RF)"
+    assert t("setting.options.distance.bipartition", "fr") == "Bipartition (Dendropy)"
+
+
+def test_fit_method_locale_en():
+    assert t("setting.options.fit.wider-fit", "en") == "Wider fit (pad with gaps)"
+    assert t("setting.options.fit.narrow-fit", "en") == "Narrow fit (avoid extra gaps)"
+
+
+def test_fit_method_locale_fr():
+    assert t("setting.options.fit.wider-fit", "fr") == "Ajustement large (ajout de gaps)"
+    assert t("setting.options.fit.narrow-fit", "fr") == "Ajustement étroit (évite les gaps supplémentaires)"
+
+
+def test_tree_type_locale_en():
+    assert t("setting.options.tree.biopython", "en") == "BioPython consensus tree"
+    assert t("setting.options.tree.fast-tree", "en") == "FastTree application"
+
+
+def test_tree_type_locale_fr():
+    assert t("setting.options.tree.biopython", "fr") == "Arbre consensus BioPython"
+    assert t("setting.options.tree.fast-tree", "fr") == "Application FastTree"
+
+
+def test_similarity_method_locale_en():
+    assert t("setting.options.similarity.hamming", "en") == "Hamming distance"
+    assert t("setting.options.similarity.levenshtein", "en") == "Levenshtein distance"
+    assert t("setting.options.similarity.damerau-levenshtein", "en") == "Damerau-Levenshtein distance"
+    assert t("setting.options.similarity.jaro", "en") == "Jaro similarity"
+    assert t("setting.options.similarity.jaro-winkler", "en") == "Jaro-Winkler similarity"
+    assert t("setting.options.similarity.smith-waterman", "en") == "Smith-Waterman similarity"
+    assert t("setting.options.similarity.jaccard", "en") == "Jaccard similarity"
+    assert t("setting.options.similarity.sorensen-dice", "en") == "Sørensen-Dice similarity"
+
+
+def test_similarity_method_locale_fr():
+    assert t("setting.options.similarity.hamming", "fr") == "Distance de Hamming"
+    assert t("setting.options.similarity.levenshtein", "fr") == "Distance de Levenshtein"
+    assert t("setting.options.similarity.damerau-levenshtein", "fr") == "Distance de Damerau-Levenshtein"
+    assert t("setting.options.similarity.jaro", "fr") == "Similarité de Jaro"
+    assert t("setting.options.similarity.jaro-winkler", "fr") == "Similarité de Jaro-Winkler"
+    assert t("setting.options.similarity.smith-waterman", "fr") == "Similarité de Smith-Waterman"
+    assert t("setting.options.similarity.jaccard", "fr") == "Similarité de Jaccard"
+    assert t("setting.options.similarity.sorensen-dice", "fr") == "Similarité de Sørensen-Dice"
+
+
+def test_preprocessing_toggle_locale_en():
+    assert t("setting.options.preprocessing.disabled", "en") == "Disabled"
+    assert t("setting.options.preprocessing.enabled", "en") == "Enabled"
+
+
+def test_preprocessing_toggle_locale_fr():
+    assert t("setting.options.preprocessing.disabled", "fr") == "Désactivé"
+    assert t("setting.options.preprocessing.enabled", "fr") == "Activé"
+
+
+def test_statistical_test_locale_en():
+    assert t("setting.options.statistical.both", "en") == "Both (Mantel + PROTEST)"
+    assert t("setting.options.statistical.mantel", "en") == "Mantel test only"
+    assert t("setting.options.statistical.procrustes", "en") == "PROTEST only"
+    assert t("setting.options.statistical.none", "en") == "None"
+
+
+def test_statistical_test_locale_fr():
+    assert t("setting.options.statistical.both", "fr") == "Les deux (Mantel + PROTEST)"
+    assert t("setting.options.statistical.mantel", "fr") == "Test de Mantel uniquement"
+    assert t("setting.options.statistical.procrustes", "fr") == "PROTEST uniquement"
+    assert t("setting.options.statistical.none", "fr") == "Aucun"
+
+
+def test_mantel_test_method_locale_en():
+    assert t("setting.options.mantel.pearson", "en") == "Pearson correlation"
+    assert t("setting.options.mantel.spearman", "en") == "Spearman correlation"
+    assert t("setting.options.mantel.kendall-tau", "en") == "Kendall Tau correlation"
+
+
+def test_mantel_test_method_locale_fr():
+    assert t("setting.options.mantel.pearson", "fr") == "Corrélation de Pearson"
+    assert t("setting.options.mantel.spearman", "fr") == "Corrélation de Spearman"
+    assert t("setting.options.mantel.kendall-tau", "fr") == "Corrélation de Kendall Tau"
