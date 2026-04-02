@@ -1,17 +1,16 @@
-import os
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
-
-# Ensure HOST is set before files.py is imported — it reads ENV_CONFIG at module level
-os.environ.setdefault("HOST", "localhost")
 
 # Mock db.db_validator before importing files.py (it connects to MongoDB at import time)
 sys.modules.setdefault("db", MagicMock())
 sys.modules.setdefault("db.db_validator", MagicMock())
 
-from apps.db.controllers.files import str_csv_to_df, df_to_str_csv, parse_file  # noqa: E402
+# files.py reads dotenv_values() at module level — patch it before import so ENV_CONFIG
+# is populated and the HOST key exists (avoids KeyError in CI where .env is absent)
+with patch("dotenv.dotenv_values", return_value={"HOST": "localhost"}):
+    from apps.db.controllers.files import str_csv_to_df, df_to_str_csv, parse_file  # noqa: E402
 
 
 pytestmark = pytest.mark.unit
