@@ -1,12 +1,11 @@
 import pytest
-from apps.db.controllers import results as results_ctrl
-from db.db_validator import results_db
 
 pytestmark = pytest.mark.integration
 
 
 def _mongo_available():
     try:
+        from db.db_validator import results_db
         results_db.find_one({})
         return True
     except Exception:
@@ -26,6 +25,8 @@ def _minimal_result(**kwargs):
 def test_create_and_get_result_roundtrip():
     if not _mongo_available():
         pytest.skip("MongoDB is not available")
+
+    from apps.db.controllers import results as results_ctrl
 
     result_id = None
     try:
@@ -52,6 +53,8 @@ def test_update_result_persists_to_mongodb():
     if not _mongo_available():
         pytest.skip("MongoDB is not available")
 
+    from apps.db.controllers import results as results_ctrl
+
     result_id = None
     try:
         result_id = results_ctrl.create_result(_minimal_result())
@@ -60,7 +63,6 @@ def test_update_result_persists_to_mongodb():
 
         fetched = results_ctrl.get_result(result_id)
         assert fetched["status"] == "complete"
-        # name and result_type must still be there (update must not wipe other fields)
         assert fetched["name"] == "integration-test"
     finally:
         if result_id:
@@ -73,6 +75,8 @@ def test_update_result_persists_to_mongodb():
 def test_get_results_returns_ordered():
     if not _mongo_available():
         pytest.skip("MongoDB is not available")
+
+    from apps.db.controllers import results as results_ctrl
 
     id1 = id2 = None
     try:
@@ -93,14 +97,15 @@ def test_get_results_returns_ordered():
 
 
 def test_get_results_skips_nonexistent_id():
-    """A valid-format but non-existent ObjectId must be silently skipped."""
     if not _mongo_available():
         pytest.skip("MongoDB is not available")
+
+    from apps.db.controllers import results as results_ctrl
 
     result_id = None
     try:
         result_id = results_ctrl.create_result(_minimal_result())
-        ghost_id = "000000000000000000000000"  # valid format, no matching doc
+        ghost_id = "000000000000000000000000"
 
         results = results_ctrl.get_results([result_id, ghost_id])
         assert len(results) == 1

@@ -114,6 +114,10 @@ def test_settings_save_shows_success_toast(dash_server, page):
     toast = page.locator("#toast-container .toast-message.success")
     _expect(toast).to_be_visible(timeout=10000)
 
+    # Restore default so the JSON file is left in a clean state
+    _change_bootstrap_threshold(page, "10")
+    page.locator("#save-settings-button").click()
+
 
 # ---------------------------------------------------------------------------
 # Settings — reset to default
@@ -122,11 +126,11 @@ def test_settings_save_shows_success_toast(dash_server, page):
 @pytest.mark.e2e
 @pytest.mark.skipif(not PLAYWRIGHT_AVAILABLE, reason="playwright not installed")
 def test_settings_reset_restores_default(dash_server, page):
-    """After changing a value and resetting, the field must return to default."""
+    """After changing a value in-memory and resetting, the field must return to default."""
     _go_to_settings(page, dash_server)
 
-    _change_bootstrap_threshold(page, "99")
-    page.locator("#save-settings-button").click()
+    # Change value in the UI only — do NOT save so the JSON file is not modified
+    _change_bootstrap_threshold(page, "55")
 
     page.locator("#reset-button").click()
 

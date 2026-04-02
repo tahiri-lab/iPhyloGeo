@@ -5,7 +5,6 @@ card with the correct dataset name.
 import importlib
 import importlib.util
 import os
-import re
 import socket
 import subprocess
 import sys
@@ -132,7 +131,7 @@ def test_submitted_result_appears_in_results_list(dash_server, page):
 
     # Close the popup so it no longer intercepts pointer events on the sidebar
     page.locator("#close-popup-btn").click()
-    _expect(page.locator("#popup")).to_have_class(re.compile(r"hidden"), timeout=5000)
+    _expect(page.locator("#popup")).not_to_be_visible(timeout=5000)
 
     # --- Step 6: navigate to /results via sidebar ---
     page.locator("#nav-link-results").click()

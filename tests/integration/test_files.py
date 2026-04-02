@@ -1,13 +1,12 @@
 import pytest
 from bson.objectid import ObjectId
-from db.db_validator import files_db
-from apps.db.controllers.files import save_files
 
 pytestmark = pytest.mark.integration
 
 
 def _mongo_available():
     try:
+        from db.db_validator import files_db
         files_db.find_one({})
         return True
     except Exception:
@@ -29,6 +28,9 @@ def test_save_file_inserts_into_mongodb():
     if not _mongo_available():
         pytest.skip("MongoDB is not available")
 
+    from apps.db.controllers.files import save_files
+    from db.db_validator import files_db
+
     file_id = None
     try:
         file_id = save_files(_minimal_csv_file())
@@ -44,7 +46,8 @@ def test_save_file_inserts_into_mongodb():
     finally:
         if file_id:
             try:
-                files_db.delete_one({"_id": ObjectId(file_id)})
+                from db.db_validator import files_db as fdb
+                fdb.delete_one({"_id": ObjectId(file_id)})
             except Exception:
                 pass
 
@@ -53,6 +56,9 @@ def test_save_multiple_files_returns_list_of_ids():
     """save_files() with a list of 2 files must return a list of 2 IDs."""
     if not _mongo_available():
         pytest.skip("MongoDB is not available")
+
+    from apps.db.controllers.files import save_files
+    from db.db_validator import files_db
 
     ids = []
     try:
@@ -69,6 +75,7 @@ def test_save_multiple_files_returns_list_of_ids():
     finally:
         for file_id in ids:
             try:
-                files_db.delete_one({"_id": ObjectId(file_id)})
+                from db.db_validator import files_db as fdb
+                fdb.delete_one({"_id": ObjectId(file_id)})
             except Exception:
                 pass
