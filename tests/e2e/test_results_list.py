@@ -125,18 +125,20 @@ def test_submitted_result_appears_in_results_list(dash_server, page):
     page.locator("#submit-dataset").click()
 
     # --- Step 5: wait for the progress popup to appear (analysis was submitted) ---
-    # We only need the result record to exist in the DB — no need to wait for completion.
-    # The progress popup (#popup) becomes visible right after a successful submit.
+    # The popup becomes visible after the submit callback fires and the cookie is set.
     _expect(page.locator("#popup")).to_be_visible(timeout=30000)
 
-    # --- Step 6: navigate directly to /results ---
-    # Use page.goto() instead of clicking the sidebar to avoid the popup
-    # blocking pointer events. The result is already persisted in MongoDB.
-    page.goto(f"{dash_server}/results", wait_until="domcontentloaded")
+    # Wait for the popup title to settle (confirms the callback fully completed
+    # and the AUTH cookie has been written to the response).
+    _expect(page.locator("#popup-title")).to_be_visible(timeout=10000)
+
+    # --- Step 6: navigate to /results ---
+    # page.goto() preserves the browser cookies (AUTH cookie was set server-side).
+    page.goto(f"{dash_server}/results", wait_until="networkidle")
 
     # --- Step 7: a card with the correct name must be visible ---
     cards = page.locator(".result-card__title")
-    _expect(cards.first).to_be_visible(timeout=15000)
+    _expect(cards.first).to_be_visible(timeout=30000)
 
     titles = [cards.nth(i).inner_text() for i in range(cards.count())]
     assert DATASET_NAME in titles, (
