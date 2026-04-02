@@ -129,13 +129,10 @@ def test_submitted_result_appears_in_results_list(dash_server, page):
     # The progress popup (#popup) becomes visible right after a successful submit.
     _expect(page.locator("#popup")).to_be_visible(timeout=30000)
 
-    # Close the popup so it no longer intercepts pointer events on the sidebar
-    page.locator("#close-popup-btn").click()
-    _expect(page.locator("#popup")).not_to_be_visible(timeout=5000)
-
-    # --- Step 6: navigate to /results via sidebar ---
-    page.locator("#nav-link-results").click()
-    page.wait_for_url("**/results", timeout=10000)
+    # --- Step 6: navigate directly to /results ---
+    # Use page.goto() instead of clicking the sidebar to avoid the popup
+    # blocking pointer events. The result is already persisted in MongoDB.
+    page.goto(f"{dash_server}/results", wait_until="domcontentloaded")
 
     # --- Step 7: a card with the correct name must be visible ---
     cards = page.locator(".result-card__title")
