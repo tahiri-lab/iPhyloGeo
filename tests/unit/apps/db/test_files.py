@@ -1,7 +1,11 @@
+import os
 import sys
 from unittest.mock import MagicMock
 import pandas as pd
 import pytest
+
+# Ensure HOST is set before files.py is imported — it reads ENV_CONFIG at module level
+os.environ.setdefault("HOST", "localhost")
 
 # Mock db.db_validator before importing files.py (it connects to MongoDB at import time)
 sys.modules.setdefault("db", MagicMock())
