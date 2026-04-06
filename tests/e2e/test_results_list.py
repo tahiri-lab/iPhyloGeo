@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import pytest
+import requests
 
 try:
     PLAYWRIGHT_AVAILABLE = importlib.util.find_spec("playwright") is not None
@@ -18,7 +19,6 @@ except ModuleNotFoundError:
 
 pytestmark = pytest.mark.e2e
 
-PORT = 8053
 DATASET_NAME = "E2E results list test"
 
 
@@ -38,20 +38,41 @@ def _wait_for_port(host, port, timeout=30):
     return False
 
 
+def _find_free_port(host="127.0.0.1"):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind((host, 0))
+        return sock.getsockname()[1]
+
+
+def _wait_for_http_ready(base_url, timeout=45):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            response = requests.get(f"{base_url}/", timeout=2)
+            if response.status_code < 500:
+                return True
+        except Exception:
+            pass
+        time.sleep(0.5)
+    return False
+
+
 @pytest.fixture(scope="module")
 def dash_server():
     if not _wait_for_port("127.0.0.1", 27018, timeout=15):
         pytest.fail("MongoDB is required for e2e tests at localhost:27018")
 
+    port = _find_free_port()
+
     env = os.environ.copy()
     env.update(
         {
-            "APP_ENV": "ci",
+            "APP_ENV": "prod",
             "HOST": "localhost",
             "MONGO_URI": "mongodb://localhost:27018",
             "DB_NAME": "iPhyloGeo",
             "URL": "http://127.0.0.1",
-            "PORT": str(PORT),
+            "PORT": str(port),
             "TEMP_RESULT_TTL_SECONDS": "7200",
             "REDIS_URL": "redis://localhost:6379/0",
         }
@@ -59,22 +80,19 @@ def dash_server():
 
     server = subprocess.Popen(
         [sys.executable, "apps/app.py"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
         text=True,
         env=env,
     )
 
-    if not _wait_for_port("127.0.0.1", PORT, timeout=45):
-        stderr = ""
-        try:
-            _, stderr = server.communicate(timeout=3)
-        except Exception:
-            pass
-        server.terminate()
-        pytest.fail(f"Dash server did not start in time. stderr:\n{stderr}")
+    base_url = f"http://127.0.0.1:{port}"
 
-    yield f"http://127.0.0.1:{PORT}"
+    if not _wait_for_port("127.0.0.1", port, timeout=45) or not _wait_for_http_ready(base_url, timeout=45):
+        server.terminate()
+        pytest.fail("Dash server did not start in time.")
+
+    yield base_url
 
     server.terminate()
     try:
@@ -99,6 +117,18 @@ def _grant_consent(page):
         granted_input.first.check(force=True)
     else:
         consent_group.locator("label").first.click(force=True)
+
+
+def _wait_for_auth_cookie(page, timeout=30000):
+    """Wait until the AUTH cookie exists and contains at least one result id."""
+    deadline = time.time() + (timeout / 1000)
+    while time.time() < deadline:
+        cookies = page.context.cookies()
+        auth_cookie = next((c for c in cookies if c.get("name") == "AUTH"), None)
+        if auth_cookie and auth_cookie.get("value"):
+            return auth_cookie["value"]
+        time.sleep(0.2)
+    pytest.fail("AUTH cookie was not set after submission")
 
 
 @pytest.mark.e2e
@@ -131,6 +161,10 @@ def test_submitted_result_appears_in_results_list(dash_server, page):
     # Wait for the popup title to settle (confirms the callback fully completed
     # and the AUTH cookie has been written to the response).
     _expect(page.locator("#popup-title")).to_be_visible(timeout=10000)
+
+    # CI runners can be slower; ensure the submit callback wrote AUTH before
+    # navigating away, otherwise /results may render the empty state.
+    _wait_for_auth_cookie(page, timeout=30000)
 
     # --- Step 6: navigate to /results ---
     # page.goto() preserves the browser cookies (AUTH cookie was set server-side).

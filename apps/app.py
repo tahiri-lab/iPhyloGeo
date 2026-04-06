@@ -531,10 +531,11 @@ if _IS_MAIN_PROCESS:
 
         print("Starting server... on ", host + ":" + port)
 
-        app_dev = ENV_CONFIG["APP_ENV"]
+        app_env = str(ENV_CONFIG.get("APP_ENV", "prod")).strip().lower()
+        debug_enabled = app_env in {"dev", "development", "local"}
 
         app.run(
-            debug=False if app_dev == "prod" else True,
+            debug=debug_enabled,
             port=port,
             host=host,
             exclude_patterns=["result/*", "temp/*"],
