@@ -26,14 +26,14 @@ from utils.i18n import LANGUAGE_LIST, t
 from utils.time import format_remaining_time
 from aphylogeo.params import Params
 from Bio import AlignIO, SeqIO
-from aphylogeo.alignement import Alignment as AlignmentClass
 from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 from dotenv import dotenv_values
 from flask import request
 
-# Load genetic settings from genetic settings file (YAML)
-genetic_setting_file = json.load(open("genetic_settings_file.json", "r"))
+# Load genetic settings from genetic settings file (JSON)
+with open("genetic_settings_file.json", "r", encoding="utf-8") as genetic_settings_fp:
+    genetic_setting_file = json.load(genetic_settings_fp)
 
 
 # Update Params for aPhyloGeo (convert readable names to codes)
@@ -859,6 +859,9 @@ def parse_uploaded_files(content, file_name, is_aligned=False, lang="en"):
                 except ValueError:
                     results["error"] = t("upload.file-error-not-aligned", lang)
                     return results
+                # Import lazily to avoid loading deprecated Bio.Application wrappers at startup.
+                from aphylogeo.alignement import Alignment as AlignmentClass
+
                 alignment_obj = AlignmentClass("0", {"0": msa})
                 results["type"] = "json"
                 results["dataframe"] = json.dumps(alignment_obj.to_dict())

@@ -4,22 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently --kill-others \"python apps/app.py\" \"electron main.js\" \"grunt\"",
-    "server": "concurrently --kill-others \"python apps/app.py\" \"grunt\"",
+    "build:css": "node scripts/sass_css.js",
+    "watch:css": "node scripts/sass_css.js --watch",
+    "watch:locales": "chokidar \"apps/locales/**/*.json\" -c \"node scripts/touch_app_on_locale_change.js\"",
+    "dev:assets": "concurrently --raw --kill-others \"npm run --silent watch:css\" \"npm run --silent watch:locales\"",
+    "start": "concurrently --raw --kill-others \"python apps/app.py\" \"GTK_IM_MODULE=xim electron main.js\" \"npm run --silent dev:assets\"",
+    "server": "concurrently --raw --kill-others \"python apps/app.py\" \"npm run --silent dev:assets\"",
     "lint": "flake8 apps"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "concurrently": "^9.1.2",
-    "cytoscape-panzoom": "^2.5.3",
-    "grunt-contrib-watch": "^1.1.0"
+    "cytoscape-panzoom": "^2.5.3"
   },
   "devDependencies": {
+    "chokidar-cli": "^3.0.0",
     "dotenv": "^16.4.7",
-    "electron": "^35.0.0",
-    "grunt": "^1.6.1",
-    "grunt-sass": "^4.0.1",
+    "electron": "^41.1.1",
     "sass": "^1.97.2"
   }
 }
