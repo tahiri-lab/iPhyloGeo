@@ -7,101 +7,14 @@ E2E tests for:
 - Sidebar navigation links
 """
 import importlib
-import importlib.util
-import os
 import re
-import socket
-import subprocess
-import sys
-import time
 import pytest
-import requests
-
-try:
-    PLAYWRIGHT_AVAILABLE = importlib.util.find_spec("playwright") is not None
-except ModuleNotFoundError:
-    PLAYWRIGHT_AVAILABLE = False
+from tests.e2e.helpers import (
+    PLAYWRIGHT_AVAILABLE,
+    _expect,
+)
 
 pytestmark = pytest.mark.e2e
-
-
-def _expect(locator):
-    sync_api = importlib.import_module("playwright.sync_api")
-    return sync_api.expect(locator)
-
-
-def _wait_for_port(host, port, timeout=30):
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.settimeout(1)
-            if sock.connect_ex((host, port)) == 0:
-                return True
-        time.sleep(0.5)
-    return False
-
-
-def _find_free_port(host="127.0.0.1"):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((host, 0))
-        return sock.getsockname()[1]
-
-
-def _wait_for_http_ready(base_url, timeout=45):
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        try:
-            response = requests.get(f"{base_url}/", timeout=2)
-            if response.status_code < 500:
-                return True
-        except Exception:
-            pass
-        time.sleep(0.5)
-    return False
-
-
-@pytest.fixture(scope="module")
-def dash_server():
-    if not _wait_for_port("127.0.0.1", 27018, timeout=15):
-        pytest.fail("MongoDB is required for e2e tests at localhost:27018")
-
-    port = _find_free_port()
-
-    env = os.environ.copy()
-    env.update(
-        {
-            "APP_ENV": "prod",
-            "HOST": "localhost",
-            "MONGO_URI": "mongodb://localhost:27018",
-            "DB_NAME": "iPhyloGeo",
-            "URL": "http://127.0.0.1",
-            "PORT": str(port),
-            "TEMP_RESULT_TTL_SECONDS": "7200",
-            "REDIS_URL": "redis://localhost:6379/0",
-        }
-    )
-
-    server = subprocess.Popen(
-        [sys.executable, "apps/app.py"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.STDOUT,
-        text=True,
-        env=env,
-    )
-
-    base_url = f"http://127.0.0.1:{port}"
-
-    if not _wait_for_port("127.0.0.1", port, timeout=45) or not _wait_for_http_ready(base_url, timeout=45):
-        server.terminate()
-        pytest.fail("Dash server did not start in time.")
-
-    yield base_url
-
-    server.terminate()
-    try:
-        server.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        server.kill()
 
 
 def _go_to_settings(page, base_url):
