@@ -536,6 +536,7 @@ if _IS_MAIN_PROCESS:
 
         app.run(
             debug=debug_enabled,
+            use_reloader=False,
             port=port,
             host=host,
             exclude_patterns=["result/*", "temp/*"],
