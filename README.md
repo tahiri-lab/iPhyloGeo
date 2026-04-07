@@ -1,7 +1,5 @@
 # 🌳 iPhyloGeo
 
-## Web application for analyzing phylogenetic trees with climatic parameters
-
 - 🇫🇷 Link for the French version: [version française](README.fr.md)
 
 ## 📝 Description
@@ -80,7 +78,7 @@ If npm is not installed, download Node.js here: https://nodejs.org/ (npm version
 npm install
 ```
 
-#### 7. 🐳 Start the database and the Redis with Docker
+#### 7. 🐳 Start the database with Docker
 
 Install [Docker Desktop](https://docs.docker.com/get-docker/), then start the containers in the background:
 
@@ -88,17 +86,62 @@ Install [Docker Desktop](https://docs.docker.com/get-docker/), then start the co
 docker compose up -d
 ```
 
+### 🐧 Installation (Linux / Ubuntu)
+
+The following procedure is intended for desktop Linux users.
+
+#### 1. 🐙 Clone the repository
+
+```bash
+git clone https://github.com/tahiri-lab/iPhylogeo
+cd iPhylogeo
 ```
-docker run -d --name redis -p 6379:6379 redis:alpine
+
+#### 2. 📦 Install system prerequisites
+
+On Debian/Ubuntu-based distributions, install the base tools (Python, C++ compilers, Node.js, and Docker):
+
+```bash
+sudo apt update
+sudo apt install python3-venv python3-dev build-essential nodejs npm docker.io docker-compose-v2 -y
 ```
+
+#### 3. 🏠 Create and activate the virtual environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### 4. 📚 Install dependencies (Python and npm)
+
+Make sure the virtual environment is activated in the iPhylogeo folder, then run:
+
+```bash
+pip install -r requirements.txt
+npm install
+```
+
+#### 5. 🐳 Start the database with Docker
+
+Start the containers in the background (add sudo if your user is not in the docker group):
+
+```bash
+sudo docker compose up -d
+```
+
+> ✅ Installation complete (Windows or Linux).
+> Move to the next section to configure the project.
+
+---
 
 ### ⚙️ Setting up the program
 
-Edit the `.env` file at the root of the project:
+Edit or create the `.env` file at the project root with your settings:
 
 ```
 APP_ENV='dev'
-HOST='server'
+HOST='localhost'
 MONGO_URI='mongodb://localhost:27017'
 DB_NAME='iPhyloGeo'
 URL='http://localhost'
@@ -113,13 +156,19 @@ GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com or the em
 
 ### ▶️ Running
 
-On Windows, in the root of the project:
+Make sure you are at the project root (iPhylogeo) and your virtual environment is activated.
+
+On Windows:
 
 ```bash
 venv\Scripts\activate
+npm start
 ```
 
+On Linux:
+
 ```bash
+source venv/bin/activate
 npm start
 ```
 
