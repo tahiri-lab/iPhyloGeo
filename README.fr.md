@@ -207,7 +207,7 @@ crontab -l
 
 ## 🎨 Générer un fichier CSS à partir de SCSS
 
-Le projet utilise des fichiers SCSS compilés en CSS avec la CLI Sass Node (sans Grunt).
+Le projet utilise des fichiers SCSS compilés en CSS avec Dart Sass (le paquet npm `sass`).
 
 Les fichiers SCSS doivent être placés dans :
 
@@ -233,6 +233,6 @@ Surveillez les changements SCSS et recompilation automatique :
 npm run watch:css
 ```
 
-Si vous lancez `npm start`, la surveillance CSS est deja incluse via `dev:assets`.
+Si vous lancez `npm start`, la surveillance CSS est déjà incluse via `dev:assets`.
 
 > ⚠️ Le fichier CSS de sortie doit être généré dans le dossier `apps/assets`, sinon Dash ne le chargera pas.

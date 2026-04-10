@@ -207,7 +207,7 @@ crontab -l
 
 ## 🎨 Generating a CSS file from SCSS
 
-The project uses SCSS files compiled to CSS with the Node Sass CLI (no Grunt).
+The project uses SCSS files compiled to CSS with Dart Sass (the `sass` npm package).
 
 SCSS files should be placed in:
 
