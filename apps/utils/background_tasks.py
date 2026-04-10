@@ -19,7 +19,6 @@ import pandas as pd
 import db.controllers.results as results_ctrl
 import utils.utils as utils
 import utils.mail as mail
-from aphylogeo.alignement import Alignment
 from aphylogeo.genetic_trees import GeneticTrees
 from aphylogeo.params import Params
 from enums import convert_settings_to_codes
@@ -623,6 +622,9 @@ def _run_pipeline_task(
 
         elif aligned_genetic_file is not None:
             # Process pre-aligned genetic data
+            # Import lazily to avoid loading Bio.Align.Applications wrappers at app startup.
+            from aphylogeo.alignement import Alignment
+
             loaded_seq_alignment = Alignment.from_json_string(aligned_genetic_file)
             msaSet = loaded_seq_alignment.msa
 

@@ -17,7 +17,7 @@ https://github.com/tahiri-lab/phylogeography-algo
 ### 📋 Prérequis
 
 - 🐙 [Git](https://git-scm.com/)
-- 🐍 Python 3.12 (voir étapes ci-dessous)
+- 🐍 Python 3.10 (voir étapes ci-dessous)
 - 📦 [Node.js / npm](https://nodejs.org/) (version npm 11.11.0 recommandée)
 - 🐳 [Docker Desktop](https://docs.docker.com/get-docker/)
 - 🔧 Microsoft C++ Build Tools
@@ -33,7 +33,7 @@ git clone https://github.com/tahiri-lab/iPhylogeo
 cd iPhylogeo
 ```
 
-#### 2. 🐍 Installer Python 3.12
+#### 2. 🐍 Installer Python 3.10
 
 Téléchargez et installez le gestionnaire Python (Python Manager) :
 
@@ -41,16 +41,18 @@ Téléchargez et installez le gestionnaire Python (Python Manager) :
 https://www.python.org/ftp/python/pymanager/python-manager-26.0.msix
 ```
 
-Ensuite, installez Python 3.12.10 via le gestionnaire :
+> **Note :** Si vous obtenez une erreur du type `'install' command is unavailable`, vous avez l'ancien lanceur Python (Python Launcher) installé. Allez dans **Paramètres > Applications installées**, recherchez **"Python Launcher"** et désinstallez-le avant d'exécuter la commande ci-dessous.
+
+Ensuite, installez Python 3.10.11 via le gestionnaire :
 
 ```bash
-py install 3.12.10
+py install 3.10.11
 ```
 
 #### 3. 🏠 Créer et activer l'environnement virtuel
 
 ```bash
-py -3.12 -m venv venv
+py -3.10 -m venv venv
 venv\Scripts\activate
 python --version
 ```
@@ -80,7 +82,7 @@ npm install
 
 #### 7. 🐳 Démarrer la base de données avec Docker
 
-Installez [Docker Desktop](https://docs.docker.com/get-docker/), puis lancez les conteneurs en arrière-plan :
+Installez [Docker Desktop](https://docs.docker.com/get-docker/), ouvrez-le, puis lancez les conteneurs en arrière-plan :
 
 ```bash
 docker compose up -d
@@ -205,32 +207,32 @@ crontab -l
 
 ## 🎨 Générer un fichier CSS à partir de SCSS
 
-Le projet utilise des fichiers SCSS compilés en CSS. Les fichiers SCSS doivent être placés dans :
+Le projet utilise des fichiers SCSS compilés en CSS avec Dart Sass (le paquet npm `sass`).
+
+Les fichiers SCSS doivent être placés dans :
 
 ```
 apps/assets/styles/votre_fichier.scss
 ```
 
-Ajoutez une entrée dans la section `dist` du fichier [Gruntfile.js](Gruntfile.js) :
+Ajoutez ensuite la paire source/sortie dans [scripts/sass_css.js](scripts/sass_css.js), dans le tableau `PAIRS` :
 
 ```js
-dist: {
-    files: {
-        'apps/assets/votre_fichier.css': 'apps/assets/styles/votre_fichier.scss'
-    }
-}
+["apps/assets/styles/votre_fichier.scss", "apps/assets/votre_fichier.css"];
 ```
 
-Et dans la section `watch/sass/files` :
+Compilez une fois les fichiers CSS :
 
-```js
-watch: {
-    sass: {
-        files: [
-            'apps/assets/votre_fichier.css'
-        ],
-    }
-}
+```bash
+npm run build:css
 ```
 
-> ⚠️ Le fichier CSS doit être généré dans le dossier `assets`, sinon Dash ne le chargera pas.
+Surveillez les changements SCSS et recompilation automatique :
+
+```bash
+npm run watch:css
+```
+
+Si vous lancez `npm start`, la surveillance CSS est déjà incluse via `dev:assets`.
+
+> ⚠️ Le fichier CSS de sortie doit être généré dans le dossier `apps/assets`, sinon Dash ne le chargera pas.

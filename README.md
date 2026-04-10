@@ -207,32 +207,32 @@ crontab -l
 
 ## 🎨 Generating a CSS file from SCSS
 
-The project uses SCSS files compiled to CSS. SCSS files should be placed in:
+The project uses SCSS files compiled to CSS with Dart Sass (the `sass` npm package).
+
+SCSS files should be placed in:
 
 ```
 apps/assets/styles/your_file.scss
 ```
 
-Add an entry in the `dist` section of [Gruntfile.js](Gruntfile.js):
+Then add the source/output pair in [scripts/sass_css.js](scripts/sass_css.js), inside the `PAIRS` array:
 
 ```js
-dist: {
-    files: {
-        'apps/assets/your_file.css': 'apps/assets/styles/your_file.scss'
-    }
-}
+["apps/assets/styles/your_file.scss", "apps/assets/your_file.css"];
 ```
 
-And in the `watch/sass/files` section:
+Build CSS once:
 
-```js
-watch: {
-    sass: {
-        files: [
-            'apps/assets/your_file.css'
-        ],
-    }
-}
+```bash
+npm run build:css
 ```
 
-> ⚠️ The CSS file must be generated in the `assets` folder, otherwise Dash will not load it.
+Watch SCSS changes and recompile automatically:
+
+```bash
+npm run watch:css
+```
+
+If you run `npm start`, CSS watching is already included via `dev:assets`.
+
+> ⚠️ The CSS output file must be generated in the `apps/assets` folder, otherwise Dash will not load it.
