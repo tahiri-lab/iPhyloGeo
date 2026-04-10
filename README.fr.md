@@ -241,32 +241,32 @@ Si vous lancez `npm start`, la surveillance CSS est déjà incluse via `dev:asse
 
 ## 🧪 Exécuter les tests
 
-Assurez-vous que l'environnement virtuel est activé, puis installez les navigateurs Playwright (requis pour les tests e2e) :
+Assurez-vous que l'environnement virtuel est activé, puis installez Playwright et ses navigateurs (requis pour les tests e2e) :
 
 ```bash
-venv\Scripts\playwright install chromium
+python -m playwright install chromium
 ```
 
 Ensuite, lancez tous les tests depuis la racine du projet :
 
 ```bash
-venv\Scripts\python -m pytest tests/
+python -m pytest tests/
 ```
 
 Pour lancer uniquement les tests unitaires :
 
 ```bash
-venv\Scripts\python -m pytest tests/unit/
+python -m pytest tests/unit/
 ```
 
 Pour lancer un fichier de tests spécifique :
 
 ```bash
-venv\Scripts\python -m pytest tests/unit/test_enums.py
+python -m pytest tests/unit/test_enums.py
 ```
 
 Pour lancer un seul test :
 
 ```bash
-venv\Scripts\python -m pytest tests/unit/test_enums.py::test_get_code_returns_expected_code
+python -m pytest tests/unit/test_enums.py::test_get_code_returns_expected_code
 ```
