@@ -14,10 +14,14 @@
   "demo-data-link": "Try with demo data →",
   "file-error-csv-excel": "File must be .csv or Excel",
   "file-error-fasta": "File must be .fasta",
-  "file-error-json": "File must be .json",
+  "file-error-json": "File must be .json or .fasta",
+  "file-error-not-aligned": "Sequences do not all have the same length. Make sure the file is aligned.",
   "errors": {
     "number-of-columns": "You need to select at least one column",
-    "name-required": "You need to give a name to your dataset"
+    "name-required": "You need to give a name to your dataset",
+    "consent-required": "You must confirm your data storage preference before submitting",
+    "temporary-storage-unavailable": "Temporary storage is unavailable right now. Please try again in a moment.",
+    "submit-failed": "Could not complete your analysis. Please try again."
   },
   "email": {
     "invalid": "Invalid email address",
@@ -28,17 +32,32 @@
   "popup": {
     "title": "Your results are on the way!",
     "description-delay": "This may take a few minutes.",
-    "description-email": "Enter your email to receive a notification once your results are ready."
+    "description-email": "Enter your email to receive a notification once your results are ready.",
+    "status": {
+      "pending": "Processing...",
+      "complete": "Analysis complete!",
+      "error": "An error occurred"
+    },
+    "time-remaining-hr": "~{n} hr remaining",
+    "time-remaining-min": "~{n} min remaining",
+    "time-remaining-sec": "~{n} sec remaining",
+    "title-complete": "Analysis complete!",
+    "title-error": "An error occurred",
+    "error-prefix": "Error: "
   },
   "popup-done": {
     "title": "Results completed!",
-    "link-results": "Go to results page"
+    "link-results": "All results",
+    "link-result": "View result"
   },
   "submit": {
     "analyse-data": "Analyse data",
     "select-columns": "Select columns to analyze",
     "enter-dataset-name": "Enter dataset name",
     "placeholder-dataset-name": "Enter dataset Name",
+    "consent-question": "Do you consent to storing your uploaded data in the database?",
+    "consent-save-data-yes": "Yes, you can store my uploaded data and generated results",
+    "consent-save-data-no": "No, keep my data only temporarily",
     "submit": "Submit"
   },
   "climatic": {
@@ -71,7 +90,7 @@
     "aligned": {
       "label": "Aligned Genetic Data",
       "description": "Pre-aligned sequences",
-      "upload-label": "Upload aligned genetic data (.json)"
+      "upload-label": "Upload aligned genetic data (.fasta, .json)"
     },
     "tree": {
       "label": "Genetic Tree",

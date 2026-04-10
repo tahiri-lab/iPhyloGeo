@@ -28,7 +28,7 @@ def get_layout(lang="en"):
             ),
             html.P(t("upload.submit.enter-dataset-name", lang), className="field-label"),
             dcc.Input(
-                id="input-dataset",
+                id="input-dataset-visible",
                 type="text",
                 placeholder=t("upload.submit.placeholder-dataset-name", lang),
                 className="dataset-input",
@@ -37,6 +37,27 @@ def get_layout(lang="en"):
             html.Div(
                 id="name-error-message",
                 className="field-error-message name-error-message",
+                children=[],
+            ),
+            html.P(t("upload.submit.consent-question", lang), className="field-label"),
+            dcc.RadioItems(
+                id="consent-save-data",
+                options=[
+                    {
+                        "label": t("upload.submit.consent-save-data-yes", lang),
+                        "value": "granted",
+                    },
+                    {
+                        "label": t("upload.submit.consent-save-data-no", lang),
+                        "value": "declined",
+                    },
+                ],
+                value=None,
+                className="consent-checklist",
+            ),
+            html.Div(
+                id="consent-error-message",
+                className="field-error-message",
                 children=[],
             ),
             html.Div(

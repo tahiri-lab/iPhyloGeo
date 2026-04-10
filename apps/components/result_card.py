@@ -14,6 +14,7 @@ def create_result_card(
     status,
     created_at=None,
     expired_at=None,
+    remaining_time=None,
     result_id=None,
     lang="en",
 ):
@@ -31,20 +32,18 @@ def create_result_card(
         html.Div: Result card component
     """
     # Determine badge class based on status
-    # Possible statuses: pending, complete, error
-    if status == "error":
+    # Possible statuses: pending, complete, error, climatic_trees, alignment, genetic_trees, output
+    status_lower = status.lower() if status else ""
+
+    if status_lower == "error":
         status_class = "error"
         status_text = t("results.card.status.error", lang)
-    elif status == "complete":
+    elif status_lower == "complete":
         status_class = "success"
         status_text = t("results.card.status.success", lang)
-    elif status in ["pending"]:
+    else:
         status_class = "pending"
         status_text = t("results.card.status.in-progress", lang)
-    else:
-        # Fallback for unknown status
-        status_class = "pending"
-        status_text = status.upper() if status else t("results.card.status.unknown", lang)
 
     # Build date info if provided
     date_info = []
@@ -58,7 +57,17 @@ def create_result_card(
                 className="result-card__date",
             )
         )
-    if expired_at:
+    if remaining_time:
+        date_info.append(
+            html.Div(
+                [
+                    html.Img(src="/assets/icons/clock.svg", className="result-card__date-icon"),
+                    html.Span(remaining_time),
+                ],
+                className="result-card__date",
+            )
+        )
+    elif expired_at:
         date_info.append(
             html.Div(
                 [
@@ -74,7 +83,7 @@ def create_result_card(
             # Left section with title, badge and dates
             html.Div(
                 [
-                    # Title and badge row
+                    # Title, badge, and progress bar
                     html.Div(
                         [
                             html.Div(name, className="result-card__title"),

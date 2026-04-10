@@ -1,6 +1,9 @@
 {
   "title": "Résultat",
   "title-of": "Résultat de {name}",
+  "title-of-error": "Résultat de {name}",
+  "in-progress": "En cours – {status}...",
+  "results-ready": "Les résultats sont prêts !",
   "actions": {
     "share": "partager",
     "download-output": "télécharger output.csv",
@@ -41,10 +44,20 @@
     "sequences-downloaded": "Séquences génétiques téléchargées !",
     "output-downloaded": "Résultats téléchargés !"
   },
+  "errors": {
+    "not-found-title": "Résultat indisponible",
+    "not-found-message": "Ce résultat n'existe plus ou a expiré.",
+    "back-to-results": "Retour aux résultats"
+  },
   "graph": {
     "bootstrap-mean": "moyenne bootstrap",
     "title-bootstrap-distance": "Moyenne bootstrap et {distance_method}",
     "x-axis-position": "Position dans ASM",
     "y-axis-bootstrap": "<b>Moyenne bootstrap</b>"
+  },
+  "error": {
+    "title": "Analyse échouée",
+    "description": "Une erreur s'est produite lors de l'analyse. Cela peut être dû à un problème avec vos données d'entrée ou à un problème inattendu. Veuillez réessayer.",
+    "back": "Retour aux résultats"
   }
 }

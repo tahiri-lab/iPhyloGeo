@@ -5,11 +5,19 @@
     "access": "Ouvrir",
     "created": "Créé",
     "expired": "Expire",
+    "temporary": "Résultat temporaire",
+    "expired-now": "Expiré",
+    "expire-in-minutes": "Expire dans {count}min",
+    "expire-in-hours-minutes": "Expire dans {hours}h{minutes}min",
     "status": {
       "error": "ERREUR",
       "success": "SUCCÈS",
       "in-progress": "EN COURS",
-      "unknown": "INCONNU"
+      "unknown": "INCONNU",
+      "climatic-trees": "Construction des arbres climatiques",
+      "alignment": "Alignement des séquences",
+      "genetic-trees": "Construction des arbres génétiques",
+      "output": "Génération des résultats"
     }
   }
 }
