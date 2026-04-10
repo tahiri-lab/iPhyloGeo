@@ -142,16 +142,21 @@ Modifiez ou créez le fichier `.env` à la racine du projet avec vos paramètres
 ```
 APP_ENV='dev'
 HOST='localhost'
-MONGO_URI='mongodb://localhost:27017'
-DB_NAME='iPhyloGeo'
+MONGO_URI='mongodb://localhost:27018'
+DB_NAME='iphylogeo'
 URL='http://localhost'
 PORT='8050'
+REDIS_URL='redis://localhost:6379/0'
+TEMP_RESULT_TTL_SECONDS='7200'
 ```
 
-Si vous souhaitez que la fonctionnalité d'envoi d'e-mail fonctionne, créez un fichier `password.env` dans `iPhyloGeo\apps\pages\results\` :
+> **Note :** Le port MongoDB est `27018` (et non le port par défaut `27017`) car `docker-compose.yml` effectue le mappage `27018:27017`.
+
+Si vous souhaitez que la fonctionnalité d'envoi d'e-mail fonctionne, ajoutez ces variables à votre `.env` :
 
 ```
-GMAIL_PASSWORD=(mot de passe d'application de aphylogeotest@gmail.com ou de l'adresse e-mail souhaitée)
+EMAIL_USER='iphylogeo@gmail.com'
+EMAIL_PASSWORD='rogo lqhi fldu mwml'
 ```
 
 ### ▶️ Exécution

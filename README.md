@@ -41,6 +41,8 @@ Download and install the Python Manager:
 https://www.python.org/ftp/python/pymanager/python-manager-26.0.msix
 ```
 
+> **Note:** If you get an error like `'install' command is unavailable`, you have the legacy Python Launcher installed. Go to **Settings > Installed Apps**, search for **"Python Launcher"**, and uninstall it before running the command below.
+
 Then install Python 3.10.11 through the manager:
 
 ```bash
@@ -80,7 +82,7 @@ npm install
 
 #### 7. 🐳 Start the database with Docker
 
-Install [Docker Desktop](https://docs.docker.com/get-docker/), then start the containers in the background:
+Install [Docker Desktop](https://docs.docker.com/get-docker/), open it, then start the containers in the background:
 
 ```bash
 docker compose up -d
@@ -142,16 +144,21 @@ Edit or create the `.env` file at the project root with your settings:
 ```
 APP_ENV='dev'
 HOST='localhost'
-MONGO_URI='mongodb://localhost:27017'
-DB_NAME='iPhyloGeo'
+MONGO_URI='mongodb://localhost:27018'
+DB_NAME='iphylogeo'
 URL='http://localhost'
 PORT='8050'
+REDIS_URL='redis://localhost:6379/0'
+TEMP_RESULT_TTL_SECONDS='7200'
 ```
 
-If you want the email feature to work, create a `password.env` file in `iPhyloGeo\apps\pages\results\`:
+> **Note:** The MongoDB port is `27018` (not the default `27017`) because `docker-compose.yml` maps `27018:27017`.
+
+If you want the email notification feature to work, add these to your `.env`:
 
 ```
-GMAIL_PASSWORD=(insert application password of aphylogeotest@gmail.com or the email you want to use)
+EMAIL_USER='iphylogeo@gmail.com'
+EMAIL_PASSWORD='rogo lqhi fldu mwml'
 ```
 
 ### ▶️ Running
