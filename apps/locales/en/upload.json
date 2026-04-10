@@ -47,7 +47,8 @@
   },
   "popup-done": {
     "title": "Results completed!",
-    "link-results": "Go to results page"
+    "link-results": "All results",
+    "link-result": "View result"
   },
   "submit": {
     "analyse-data": "Analyse data",

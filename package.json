@@ -10,7 +10,11 @@
     "dev:assets": "concurrently --raw --kill-others \"npm run --silent watch:css\" \"npm run --silent watch:locales\"",
     "start": "concurrently --raw --kill-others \"python apps/app.py\" \"cross-env GTK_IM_MODULE=xim electron main.js\" \"npm run --silent dev:assets\"",
     "server": "concurrently --raw --kill-others \"python apps/app.py\" \"npm run --silent dev:assets\"",
-    "lint": "flake8 apps"
+    "lint": "flake8 apps",
+    "test": "python -m pytest",
+    "test:unit": "python -m pytest tests/unit -m unit",
+    "test:integration": "python -m pytest tests/integration -m integration",
+    "test:e2e": "python -m pytest tests/e2e -m e2e"
   },
   "author": "",
   "license": "ISC",

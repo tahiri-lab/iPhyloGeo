@@ -24,7 +24,7 @@ def get_layout(lang="en"):
                                 html.Div(t("upload.popup-done.title", lang), className="title"),
                                 html.Div(
                                     [
-                                        html.A(t("upload.popup-done.link-results", lang), href="/results", className="button actions", id="ready-popup-results-btn"),
+                                        html.A(t("upload.popup-done.link-result", lang), href="#", className="button actions", id="popup-done-link"),
                                     ],
                                     className="popup-actions",
                                 ),

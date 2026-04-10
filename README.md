@@ -236,3 +236,38 @@ npm run watch:css
 If you run `npm start`, CSS watching is already included via `dev:assets`.
 
 > ⚠️ The CSS output file must be generated in the `apps/assets` folder, otherwise Dash will not load it.
+
+---
+
+## 🧪 Running the tests
+
+Make sure the virtual environment is activated, then install Playwright and its browser binaries (required for e2e tests):
+
+```bash
+pip install playwright
+python -m playwright install chromium
+```
+
+Then run all tests from the root of the project:
+
+```bash
+python -m pytest tests/
+```
+
+To run only unit tests:
+
+```bash
+python -m pytest tests/unit/
+```
+
+To run a specific test file:
+
+```bash
+python -m pytest tests/unit/test_enums.py
+```
+
+To run a single test:
+
+```bash
+python -m pytest tests/unit/test_enums.py::test_get_code_returns_expected_code
+```

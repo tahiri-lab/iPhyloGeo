@@ -185,6 +185,7 @@ def close_result_ready_popup(n_clicks):
     Output("global-pipeline-status", "data", allow_duplicate=True),
     Output("popup", "className", allow_duplicate=True),
     Output("result-ready-popup", "className"),
+    Output("popup-done-link", "href"),
     Input("pipeline-status-interval", "n_intervals"),
     State("current-result-id", "data"),
     State("pipeline-started", "data"),
@@ -227,10 +228,11 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             "",
             t("upload.popup.title-complete", lang),
             "",
-            True,            # Disable interval
-            status,          # Update global status
-            "popup hidden",  # hide progress popup
-            "popup",         # show result-ready popup
+            True,                        # Disable interval
+            status,                      # Update global status
+            "popup hidden",              # hide progress popup
+            "popup",                     # show result-ready popup
+            f"/result/{result_id}",      # popup-done-link href
         )
     elif status.lower() == "error":
         error_msg = status_info.get("error", "Unknown error")
@@ -243,6 +245,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             status,          # Update global status
             popup_class,
             "popup hidden",
+            dash.no_update,  # popup-done-link href
         )
     else:
         popup_class = "popup hidden" if popup_dismissed else "popup"
@@ -254,6 +257,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             status,          # Update global status
             popup_class,
             "popup hidden",
+            dash.no_update,  # popup-done-link href
         )
 
 
