@@ -1,4 +1,5 @@
 const { spawn } = require("child_process");
+const path = require("path");
 
 const PAIRS = [
   ["apps/assets/styles/main.scss", "apps/assets/main.css"],
@@ -34,8 +35,8 @@ for (const [src, dest] of PAIRS) {
   args.push(`${src}:${dest}`);
 }
 
-const command = process.platform === "win32" ? "npx.cmd" : "npx";
-const child = spawn(command, ["sass", ...args], { stdio: "inherit" });
+const sassBin = path.join(__dirname, "..", "node_modules", ".bin", process.platform === "win32" ? "sass.cmd" : "sass");
+const child = spawn(sassBin, args, { stdio: "inherit" });
 
 child.on("exit", (code, signal) => {
   if (signal) {
