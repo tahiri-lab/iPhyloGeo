@@ -36,7 +36,7 @@ for (const [src, dest] of PAIRS) {
 }
 
 const sassBin = path.join(__dirname, "..", "node_modules", ".bin", process.platform === "win32" ? "sass.cmd" : "sass");
-const child = spawn(sassBin, args, { stdio: "inherit" });
+const child = spawn(sassBin, args, { stdio: "inherit", shell: process.platform === "win32" });
 
 child.on("error", (err) => {
   console.error(`[sass_css] Failed to start sass binary: ${err.message}`);
