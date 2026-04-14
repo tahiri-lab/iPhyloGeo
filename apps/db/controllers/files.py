@@ -98,7 +98,7 @@ def parse_file(file):
     """
     result = {
         "file_name": file["file_name"],
-        "type": file["type"],
+        "type": file["type"] or "unknown",
         "created_at": datetime.now(),
         "expired_at": datetime.now() + timedelta(days=14),
     }
@@ -174,6 +174,15 @@ def str_csv_to_df(str_csv):
     """
     df = pd.DataFrame.from_dict(str_csv)
     df = df[1:]
-    df = df.apply(pd.to_numeric, errors="ignore")
+
+    # Convert columns that are fully numeric while keeping mixed/text columns
+    # unchanged. This avoids the deprecated errors="ignore" path in pandas.
+    def _to_numeric_or_keep(series):
+        try:
+            return pd.to_numeric(series)
+        except (ValueError, TypeError):
+            return series
+
+    df = df.apply(_to_numeric_or_keep)
 
     return df

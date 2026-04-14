@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python-env
+
+      - name: Run flake8
+        run: flake8 apps
+
+  unit:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    needs: lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python-env
+
+      - name: Run unit tests
+        env:
+          PYTHONPATH: .
+        run: pytest -m unit --cov=apps --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  integration:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    needs: lint
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      mongo:
+        image: mongo:6.0
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 27018:27017
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          write-ci-env: "true"
+
+      - name: Run integration tests
+        env:
+          PYTHONPATH: .
+        run: pytest -m integration
+
+  e2e:
+    runs-on: ubuntu-latest
+    name: E2E Smoke
+    needs: lint
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      mongo:
+        image: mongo:6.0
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 27018:27017
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          write-ci-env: "true"
+
+      - name: Install Playwright browsers
+        run: python -m playwright install --with-deps chromium
+
+      - name: Run e2e smoke tests
+        env:
+          PYTHONPATH: .
+        run: pytest tests/e2e -m e2e

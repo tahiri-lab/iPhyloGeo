@@ -1,0 +1,45 @@
+name: Setup Python CI Environment
+description: Set up Python, install dependencies, and optionally write CI .env
+
+inputs:
+  python-version:
+    description: Python version to install
+    required: false
+    default: "3.10"
+  requirements-file:
+    description: Requirements file path
+    required: false
+    default: "requirements.txt"
+  write-ci-env:
+    description: Whether to write the standard CI .env file
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r "${{ inputs.requirements-file }}"
+
+    - name: Write CI .env
+      if: ${{ inputs.write-ci-env == 'true' }}
+      shell: bash
+      run: |
+        cat > .env << 'EOF'
+        APP_ENV=dev
+        HOST=localhost
+        MONGO_URI=mongodb://localhost:27018
+        DB_NAME=iPhyloGeo
+        URL=http://127.0.0.1
+        PORT=8050
+        TEMP_RESULT_TTL_SECONDS=7200
+        REDIS_URL=redis://localhost:6379/0
+        EOF

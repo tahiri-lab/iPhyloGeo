@@ -1,13 +1,13 @@
 {
     "bootstrap_threshold": 10,
-    "dist_threshold": 50,
+    "dist_threshold": 10000,
     "window_size": 200,
     "step_size": 100,
     "alignment_method": "PairwiseAlign",
     "distance_method": "LeastSquare",
     "fit_method": "WiderFit",
     "tree_type": "BioPython",
-    "rate_similarity": 90,
+    "rate_similarity": 50,
     "method_similarity": "Hamming",
     "preprocessing_genetic": "Disabled",
     "preprocessing_climatic": "Disabled",
@@ -18,5 +18,5 @@
     "permutations_mantel_test": 999,
     "permutations_protest": 999,
     "mantel_test_method": "Pearson",
-    "statistical_test": "Both"
+    "statistical_test": "None"
 }

@@ -32,20 +32,18 @@ def create_result_card(
         html.Div: Result card component
     """
     # Determine badge class based on status
-    # Possible statuses: pending, complete, error
-    if status == "error":
+    # Possible statuses: pending, complete, error, climatic_trees, alignment, genetic_trees, output
+    status_lower = status.lower() if status else ""
+
+    if status_lower == "error":
         status_class = "error"
         status_text = t("results.card.status.error", lang)
-    elif status == "complete":
+    elif status_lower == "complete":
         status_class = "success"
         status_text = t("results.card.status.success", lang)
-    elif status in ["pending"]:
+    else:
         status_class = "pending"
         status_text = t("results.card.status.in-progress", lang)
-    else:
-        # Fallback for unknown status
-        status_class = "pending"
-        status_text = status.upper() if status else t("results.card.status.unknown", lang)
 
     # Build date info if provided
     date_info = []
@@ -85,7 +83,7 @@ def create_result_card(
             # Left section with title, badge and dates
             html.Div(
                 [
-                    # Title and badge row
+                    # Title, badge, and progress bar
                     html.Div(
                         [
                             html.Div(name, className="result-card__title"),

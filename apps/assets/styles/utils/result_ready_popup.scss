@@ -1,0 +1,13 @@
+#result-ready-popup {
+    .result-ready-content {
+        padding: 24px;
+        text-align: center;
+        background: var(--primary);
+
+        .title {
+            font-size: 28px;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+    }
+}

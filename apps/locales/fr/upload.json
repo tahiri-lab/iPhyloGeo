@@ -14,7 +14,8 @@
   "demo-data-link": "Essayer avec des données de démonstration →",
   "file-error-csv-excel": "Le fichier doit être .csv ou Excel",
   "file-error-fasta": "Le fichier doit être .fasta",
-  "file-error-json": "Le fichier doit être .json",
+  "file-error-json": "Le fichier doit être .json ou .fasta",
+  "file-error-not-aligned": "Les séquences n'ont pas toutes la même longueur. Assurez-vous que le fichier est aligné.",
   "errors": {
     "number-of-columns": "Vous devez sélectionner au moins une colonne",
     "name-required": "Vous devez donner un nom à votre jeu de données",
@@ -31,11 +32,23 @@
   "popup": {
     "title": "Vos résultats sont en cours de préparation !",
     "description-delay": "Cela peut prendre quelques minutes.",
-    "description-email": "Entrez votre e-mail pour recevoir une notification lorsque vos résultats seront prêts."
+    "description-email": "Entrez votre e-mail pour recevoir une notification lorsque vos résultats seront prêts.",
+    "status": {
+      "pending": "Traitement en cours...",
+      "complete": "Analyse terminée !",
+      "error": "Une erreur est survenue"
+    },
+    "time-remaining-hr": "~{n} h restantes",
+    "time-remaining-min": "~{n} min restantes",
+    "time-remaining-sec": "~{n} sec restantes",
+    "title-complete": "Analyse terminée !",
+    "title-error": "Une erreur est survenue",
+    "error-prefix": "Erreur : "
   },
   "popup-done": {
     "title": "Résultats terminés !",
-    "link-results": "Aller à la page des résultats"
+    "link-results": "Tous les résultats",
+    "link-result": "Voir le résultat"
   },
   "submit": {
     "analyse-data": "Analyser les données",
@@ -77,7 +90,7 @@
     "aligned": {
       "label": "Données génétiques alignées",
       "description": "Séquences pré-alignées",
-      "upload-label": "Téléverser des données génétiques alignées (.json)"
+      "upload-label": "Téléverser des données génétiques alignées (.fasta, .json)"
     },
     "tree": {
       "label": "Arbre génétique",

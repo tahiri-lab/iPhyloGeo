@@ -42,13 +42,14 @@
   }
 
   &.actions {
-    background-color: #EA46FF;
+    background-color: var(--action);
     font-size: 15px;
     font-weight: bold;
-    color: white;
+    color: var(--text);
+    border: none;
 
     &:hover {
-      background-color: #8B00D1;
+      background-color: var(--action-hover);
     }
   }
 
@@ -80,6 +81,21 @@
 
     &:hover {
       background-color: var(--action-hover);
+    }
+  }
+
+  &.error {
+    background-color: var(--error);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+
+    &:hover {
+      background-color: var(--error-hover);
     }
   }
 

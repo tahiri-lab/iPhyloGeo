@@ -99,137 +99,152 @@ def create_email_section(lang="en"):
 layout = html.Div(
     [
         dcc.Interval(id="result-alive-check", interval=30000, n_intervals=0),
-        html.Div(id="dummy-share-result-output", style={"display": "none"}),
-        html.Div(id="dummy-table-collapse", style={"display": "none"}),
-        html.Div(id="dummy-climatic-collapse", style={"display": "none"}),
-        html.Div(id="dummy-genetic-collapse", style={"display": "none"}),
-        html.Div(id="dummy-email-collapse", style={"display": "none"}),
+        # Interval for auto-refreshing while result is processing
+        dcc.Interval(
+            id="result-status-interval",
+            interval=3000,  # Poll every 3 seconds
+            n_intervals=0,
+        ),
+        dcc.Store(id="result-processing-status", data=None),
+        dcc.Store(id="refresh-trigger", data=0),  # Trigger to force component refresh
+        # Hidden placeholder buttons for dynamic download buttons (suppress callback exceptions)
+        html.Button(id="download-btn-genetic", style={"display": "none"}),
+        html.Button(id="download-btn-climatic", style={"display": "none"}),
+        html.Div(id="dummy-share-result-output", className="hidden"),
+        html.Div(id="dummy-table-collapse", className="hidden"),
+        html.Div(id="dummy-climatic-collapse", className="hidden"),
+        html.Div(id="dummy-genetic-collapse", className="hidden"),
+        html.Div(id="dummy-email-collapse", className="hidden"),
         html.Div(
             [
                 html.H1(id="results-name", className="title"),
                 html.Div(id="unavailable-result-message", className="hidden"),
+                # Processing status with spinner (shown when not complete)
+                html.Div(
+                    id="processing-status-container",
+                    className="processing-status-container",
+                    style={"display": "none"},
+                ),
+                # Error banner (shown when result has errored)
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.Div(t("result.error.title", "en"), className="error-banner__title", id="error-banner-title"),
+                                html.Div(t("result.error.description", "en"), className="error-banner__description", id="error-banner-description"),
+                            ],
+                            className="error-banner__body",
+                        ),
+                        html.A(
+                            t("result.error.back", "en"),
+                            href="/results",
+                            className="button error",
+                            id="error-banner-back",
+                        ),
+                    ],
+                    id="error-banner",
+                    className="error-banner hidden",
+                ),
                 # Top action buttons row
                 html.Div(
                     [
+                        # Top action buttons row
                         html.Div(
                             [
-                                html.Span(t("result.actions.share", "en"), className="text", id="share-action-text"),
-                                html.Img(
-                                    src="../../assets/icons/share.svg",
-                                    id="share_result",
-                                    className="icon",
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.share", "en"), className="text", id="share-action-text"),
+                                        html.Img(
+                                            src="../../assets/icons/share.svg",
+                                            id="share_result",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="share-result-btn",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.download-output", "en"), className="text", id="download-output-text"),
+                                        html.Img(
+                                            src="../../assets/icons/download.svg",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="download-button-complete",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.download-sequences", "en"), className="text", id="download-sequences-text"),
+                                        html.Img(
+                                            src="../../assets/icons/download.svg",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="download-button-aligned",
                                 ),
                             ],
-                            className="button download",
-                            id="share-result-btn",
-                        ),
-                        html.Div(
-                            [
-                                html.Span(t("result.actions.download-output", "en"), className="text", id="download-output-text"),
-                                html.Img(
-                                    src="../../assets/icons/download.svg",
-                                    className="icon",
-                                ),
-                            ],
-                            className="button download",
-                            id="download-button-complete",
-                        ),
-                        html.Div(
-                            [
-                                html.Span(t("result.actions.download-sequences", "en"), className="text", id="download-sequences-text"),
-                                html.Img(
-                                    src="../../assets/icons/download.svg",
-                                    className="icon",
-                                ),
-                            ],
-                            className="button download",
-                            id="download-button-aligned",
+                            className="result-actions",
+                            id="result-actions-row",
                         ),
                     ],
-                    className="result-actions",
-                    id="result-actions-row",
+                    id="result-actions",
                 ),
-                # Results section card
+                # All result content — hidden on error
                 html.Div(
                     [
+                        # Results section card
                         html.Div(
                             [
+                                html.Div(id="results-table-title"),
                                 html.Div(
-                                    id="results-table-collapse-button",
-                                    style={"display": "none"},
-                                )
+                                    [
+                                        html.Div(id="main-results-table-container"),
+                                        html.Div(id="statistical-results-table-container"),
+                                        html.Div(id="output-results-graph", className="graph"),
+                                    ],
+                                    id="results-row",
+                                    className="results-row",
+                                ),
                             ],
-                            id="results-table-title",
+                            className="page-card result-section-card",
                         ),
+                        dcc.Download(id="download-link-results"),
+                        # Climatic trees section card
                         html.Div(
                             [
-                                html.Div(id="main-results-table-container"),
-                                html.Div(id="statistical-results-table-container"),
-                                html.Div(id="output-results-graph", className="graph"),
+                                html.Div(id="climatic-tree-title"),
+                                html.Div(
+                                    [html.Div(id="climatic-tree")],
+                                    className="tree",
+                                    id="climatic-tree-container",
+                                ),
                             ],
-                            id="results-row",
-                            className="results-row",
+                            className="page-card result-section-card",
+                        ),
+                        # Genetic trees section card
+                        html.Div(
+                            [
+                                html.Div(id="genetic-tree-title"),
+                                html.Div(
+                                    [html.Div(id="genetic-tree")],
+                                    className="tree",
+                                    id="genetic-tree-container",
+                                ),
+                            ],
+                            className="page-card result-section-card",
+                            id="genetic-section-card",
+                        ),
+                        # Email section card
+                        html.Div(
+                            create_email_section(),
+                            id="email-section-card-content",
+                            className="page-card result-section-card-bottom",
                         ),
                     ],
-                    className="page-card result-section-card",
-                    id="results-section-card",
-                ),
-                dcc.Download(id="download-link-results"),
-                # Climatic trees section card
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    id="results-climatic-collapse-button",
-                                    style={"display": "none"},
-                                ),
-                                html.Div(
-                                    id="download-button-climatic",
-                                    style={"display": "none"},
-                                ),
-                            ],
-                            id="climatic-tree-title",
-                        ),
-                        html.Div(
-                            [html.Div(id="climatic-tree")],
-                            className="tree",
-                            id="climatic-tree-container",
-                        ),
-                    ],
-                    className="page-card result-section-card",
-                    id="climatic-section-card",
-                ),
-                # Genetic trees section card
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    id="results-genetic-collapse-button",
-                                    style={"display": "none"},
-                                ),
-                                html.Div(
-                                    id="download-button-genetic",
-                                    style={"display": "none"},
-                                ),
-                            ],
-                            id="genetic-tree-title",
-                        ),
-                        html.Div(
-                            [html.Div(id="genetic-tree")],
-                            className="tree",
-                            id="genetic-tree-container",
-                        ),
-                    ],
-                    className="page-card result-section-card",
-                    id="genetic-section-card",
-                ),
-                # Email section card
-                html.Div(
-                    create_email_section(),
-                    id="email-section-card-content",
-                    className="page-card result-section-card-bottom",
+                    id="result-content-sections",
                 ),
                 html.Div(
                     [
@@ -299,6 +314,68 @@ layout = html.Div(
     className="resultContainer",
     id="all-results",
 )
+
+
+# Callback to check result status and refresh when complete
+@callback(
+    Output("result-processing-status", "data"),
+    Output("result-status-interval", "disabled"),
+    Output("results-name", "children", allow_duplicate=True),
+    Output("processing-status-container", "children", allow_duplicate=True),
+    Output("processing-status-container", "style", allow_duplicate=True),
+    Output("toast-store", "data", allow_duplicate=True),
+    Output("refresh-trigger", "data"),
+    Output("error-banner", "className", allow_duplicate=True),
+    Output("result-content-sections", "style", allow_duplicate=True),
+    Output("result-actions", "style", allow_duplicate=True),
+    Input("result-status-interval", "n_intervals"),
+    State("url", "pathname"),
+    State("result-processing-status", "data"),
+    State("refresh-trigger", "data"),
+    State("language-store", "data"),
+    prevent_initial_call=True,
+)
+def check_result_status(n_intervals, path, prev_status, current_refresh, language):
+    """
+    Check if a processing result has completed and refresh the page.
+    """
+    lang = language if language in LANGUAGE_LIST else "en"
+    result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
+
+    result = utils.get_result(result_id)
+    status = result.get("status", "pending")
+    title = result["name"]
+
+    status_key_map = {
+        "pending": "results.card.status.in-progress",
+        "queued": "results.card.status.in-progress",
+        "running": "results.card.status.in-progress",
+        "climatic_trees": "results.card.status.climatic-trees",
+        "alignment": "results.card.status.alignment",
+        "genetic_trees": "results.card.status.genetic-trees",
+        "output": "results.card.status.output",
+    }
+
+    if status.lower() == "complete":
+        title_str = t("result.title-of", lang).replace("{name}", title)
+        if prev_status and prev_status.lower() != "complete":
+            new_refresh = (current_refresh or 0) + 1
+            return status, True, title_str, [], {"display": "none"}, {"message": t("result.results-ready", lang), "type": "success"}, new_refresh, "error-banner hidden", {}, {}
+        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update, "error-banner hidden", {}, {}
+    elif status.lower() == "error":
+        title_str = t("result.title-of-error", lang).replace("{name}", title)
+        return status, True, title_str, [], {"display": "none"}, dash.no_update, dash.no_update, "error-banner", {"display": "none"}, {"display": "none"}
+    else:
+        status_key = status_key_map.get(status.lower(), "results.card.status.in-progress")
+        status_label = t(status_key, lang)
+        spinner_content = [
+            html.Div(className="loading-spinner"),
+            html.Span(t("result.in-progress", lang).replace("{status}", status_label), className="processing-text"),
+        ]
+        title_str = t("result.title-of", lang).replace("{name}", title)
+        return status, False, title_str, spinner_content, {"display": "flex"}, dash.no_update, dash.no_update, "error-banner hidden", {}, {}
 
 
 @callback(
@@ -405,37 +482,58 @@ def handle_submit_click(pathname, n_clicks, user_email, language):
 
 @callback(
     Output("results-name", "children"),
+    Output("processing-status-container", "children"),
+    Output("processing-status-container", "style"),
+    Output("error-banner", "className"),
+    Output("result-content-sections", "style"),
+    Output("result-actions", "style"),
     Input("url", "pathname"),
     Input("result-alive-check", "n_intervals"),
     Input("language-store", "data"),
 )
 def show_result_name(path, _alive_tick, language):
-    """
-    args:
-        path (str): the path of the page
-    returns:
-        html.Div: the div containing the name of the result
-    """
     lang = language if language in LANGUAGE_LIST else "en"
-    _, result = _load_result_from_path(path)
+    result_id = path.split("/")[-1]
+    if not result_id or not ObjectId.is_valid(result_id):
+        raise dash.exceptions.PreventUpdate
+    result = utils.get_result(result_id)
     if result is None:
-        return t("result.errors.not-found-title", lang)
+        return t("result.errors.not-found-title", lang), [], {"display": "none"}, "error-banner hidden", {}, {}
     title = result["name"]
-    return t("result.title-of", lang).replace("{name}", title)
+    status = result.get("status", "pending")
+
+    status_key_map = {
+        "pending": "results.card.status.in-progress",
+        "queued": "results.card.status.in-progress",
+        "running": "results.card.status.in-progress",
+        "climatic_trees": "results.card.status.climatic-trees",
+        "alignment": "results.card.status.alignment",
+        "genetic_trees": "results.card.status.genetic-trees",
+        "output": "results.card.status.output",
+    }
+
+    if status.lower() == "complete":
+        return t("result.title-of", lang).replace("{name}", title), [], {"display": "none"}, "error-banner hidden", {}, {}
+    elif status.lower() == "error":
+        return t("result.title-of-error", lang).replace("{name}", title), [], {"display": "none"}, "error-banner", {"display": "none"}, {"display": "none"}
+    else:
+        status_key = status_key_map.get(status.lower(), "results.card.status.in-progress")
+        status_label = t(status_key, lang)
+        spinner_content = [
+            html.Div(className="loading-spinner"),
+            html.Span(t("result.in-progress", lang).replace("{status}", status_label), className="processing-text"),
+        ]
+        return t("result.title-of", lang).replace("{name}", title), spinner_content, {"display": "flex"}, "error-banner hidden", {}, {}
 
 
 @callback(
     Output("unavailable-result-message", "children"),
     Output("unavailable-result-message", "className"),
-    Output("result-actions-row", "style"),
-    Output("results-section-card", "style"),
-    Output("climatic-section-card", "style"),
-    Output("genetic-section-card", "style"),
-    Output("email-section-card-content", "style"),
-    Output("result-delete-action", "style"),
+    Output("result-content-sections", "style", allow_duplicate=True),
     Input("url", "pathname"),
     Input("result-alive-check", "n_intervals"),
     Input("language-store", "data"),
+    prevent_initial_call=True,
 )
 def toggle_unavailable_result_view(path, _alive_tick, language):
     lang = language if language in LANGUAGE_LIST else "en"
@@ -457,10 +555,10 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
             className="page-card result-section-card unavailable-result-card",
         )
         hidden = {"display": "none"}
-        return message, "", hidden, hidden, hidden, hidden, hidden, hidden
+        return message, "", hidden
 
     shown = {}
-    return "", "hidden", shown, shown, shown, shown, shown, shown
+    return "", "hidden", shown
 
 
 @callback(
@@ -473,6 +571,9 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
     Output("delete-result-cancel-btn", "children"),
     Output("delete-result-confirm-btn", "children"),
     Output("email-section-card-content", "children"),
+    Output("error-banner-title", "children"),
+    Output("error-banner-description", "children"),
+    Output("error-banner-back", "children"),
     Input("language-store", "data"),
 )
 def update_result_static_text(language):
@@ -487,6 +588,9 @@ def update_result_static_text(language):
         t("result.confirm.cancel", lang),
         t("result.confirm.confirm-delete", lang),
         create_email_section(lang),
+        t("result.error.title", lang),
+        t("result.error.description", lang),
+        t("result.error.back", lang),
     )
 
 
@@ -497,9 +601,10 @@ def update_result_static_text(language):
     Output("output-results-graph", "children"),
     State("url", "pathname"),
     Input("all-results", "children"),
+    Input("refresh-trigger", "data"),
     Input("language-store", "data"),
 )
-def show_complete_results(path, generated_page, language):
+def show_complete_results(path, generated_page, refresh_trigger, language):
     """
 
       This function creates the header (title & download button) of the results,
@@ -508,6 +613,7 @@ def show_complete_results(path, generated_page, language):
     Args:
         path (str): The path of the page.
         generated_page: (Not used in this function, but required for the callback trigger)
+        refresh_trigger: Trigger to force refresh when processing completes
 
     Returns:
         html.Div: The div containing the header of the results table.
@@ -579,9 +685,10 @@ def show_complete_results(path, generated_page, language):
     State("url", "pathname"),
     Input("output-results-graph", "children"),
     Input("theme-store", "data"),
+    Input("refresh-trigger", "data"),
     Input("language-store", "data"),
 )
-def create_climatic_trees(path, generated_results_header, is_dark_theme, language):
+def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh_trigger, language):
     lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the climatic trees
@@ -619,43 +726,37 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, languag
     )
 
 
+# Callback for static download buttons (aligned and complete) - these always exist in layout
 @callback(
     Output("download-link-results", "data"),
     Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
-    Input("climatic-tree", "children"),
-    Input("genetic-tree", "children"),
-    Input("download-button-genetic", "n_clicks"),
-    Input("download-button-climatic", "n_clicks"),
     Input("download-button-aligned", "n_clicks"),
     Input("download-button-complete", "n_clicks"),
+    Input("download-btn-genetic", "n_clicks"),
+    Input("download-btn-climatic", "n_clicks"),
     State("language-store", "data"),
     prevent_initial_call=True,
 )
 def download_results(
     path,
-    _climatic_tree,
-    _genetic_tree,
-    btn_genetic,
-    btn_climatic,
     btn_aligned,
     btn_complete,
+    btn_genetic,
+    btn_climatic,
     language,
 ):
     lang = language if language in LANGUAGE_LIST else "en"
     """
-    Handles file download actions from the result page.
-    The climatic/genetic tree children inputs are lifecycle triggers so this callback
-    can bind safely when tree sections are rendered dynamically.
+    This function handles all download buttons.
+    The genetic and climatic buttons are hidden placeholders that get clicked via JS.
 
     args:
         path (str): the path of the page
-        _climatic_tree: Climatic section lifecycle trigger (unused value).
-        _genetic_tree: Genetic section lifecycle trigger (unused value).
-        btn_genetic: Click count for downloading genetic trees.
-        btn_climatic: Click count for downloading climatic trees.
-        btn_aligned: Click count for downloading aligned sequences.
-        btn_complete: Click count for downloading full output.
+        btn_aligned : aligned sequences download button
+        btn_complete : complete results download button
+        btn_genetic : genetic trees download button (hidden placeholder)
+        btn_climatic : climatic trees download button (hidden placeholder)
     """
 
     _, result = _load_result_from_path(path)
@@ -665,25 +766,33 @@ def download_results(
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "download-button-genetic" and btn_genetic:
+    if trigger_id == "download-btn-genetic" and btn_genetic:
+        if "genetic_trees" not in result:
+            raise dash.exceptions.PreventUpdate
         result_genetic_trees = result["genetic_trees"]
         data_genetic = "".join(list(result_genetic_trees.values()))
         return dict(
             content=data_genetic, filename=result["name"] + "_genetic_trees.newick"
         ), {"message": t("result.toast.genetic-downloaded", lang), "type": "success"}
-    if trigger_id == "download-button-climatic" and btn_climatic:
+    if trigger_id == "download-btn-climatic" and btn_climatic:
+        if "climatic_trees" not in result:
+            raise dash.exceptions.PreventUpdate
         result_climatic_trees = result["climatic_trees"]
         data_climatic = "".join(list(result_climatic_trees.values()))
         return dict(
             content=data_climatic, filename=result["name"] + "_climatic_trees.newick"
         ), {"message": t("result.toast.climatic-downloaded", lang), "type": "success"}
     if trigger_id == "download-button-aligned" and btn_aligned:
+        if "msaSet" not in result:
+            raise dash.exceptions.PreventUpdate
         result_msa = result["msaSet"]
         data_msa = json.dumps(result_msa)
         return dict(
             content=data_msa, filename=result["name"] + "_msa.json"
         ), {"message": t("result.toast.sequences-downloaded", lang), "type": "success"}
     if trigger_id == "download-button-complete" and btn_complete:
+        if "output" not in result:
+            raise dash.exceptions.PreventUpdate
         data_results = str_csv_to_df(result["output"])
         return dict(
             content=data_results.to_csv(header=True, index=False),
@@ -699,9 +808,10 @@ def download_results(
     State("url", "pathname"),
     Input("output-results-graph", "children"),
     Input("theme-store", "data"),
+    Input("refresh-trigger", "data"),
     Input("language-store", "data"),
 )
-def create_genetic_trees(path, generated_results_header, is_dark_theme, language):
+def create_genetic_trees(path, generated_results_header, is_dark_theme, refresh_trigger, language):
     lang = language if language in LANGUAGE_LIST else "en"
     """
     This function creates the list of divs containing the genetic trees
@@ -953,8 +1063,7 @@ def create_climatic_trees_header(lang="en"):
                         src="../../assets/icons/download.svg", className="icon"
                     ),
                 ],
-                className="button download",
-                id="download-button-climatic",
+                className="button download download-climatic-trigger",
             ),
         ],
         className="result-section-header result-section-header--with-action",
@@ -985,8 +1094,7 @@ def create_genetic_trees_header(lang="en"):
                         src="../../assets/icons/download.svg", className="icon"
                     ),
                 ],
-                className="button download",
-                id="download-button-genetic",
+                className="button download download-genetic-trigger",
             ),
         ],
         className="result-section-header result-section-header--with-action",
@@ -995,15 +1103,46 @@ def create_genetic_trees_header(lang="en"):
 
 # the following code is taken from https://dash.plotly.com/cytoscape/biopython
 def generate_tree(elem, name, is_dark_theme=True):
+    # Create a unique ID for the cytoscape element
+    cyto_id = f"cyto-{name.replace(' ', '-').replace('_', '-')}"
     return html.Div(
         [
             html.H3(name, className="treeTitle"),
-            cyto.Cytoscape(
-                elements=elem,
-                stylesheet=get_cytoscape_stylesheet(is_dark_theme),
-                layout={"name": "preset", "fit": True, "padding": 20},
-                style={"height": "400px", "width": "100%", "cursor": "pointer"},
-                userZoomingEnabled=False,
+            html.Div(
+                [
+                    cyto.Cytoscape(
+                        id=cyto_id,
+                        elements=elem,
+                        stylesheet=get_cytoscape_stylesheet(is_dark_theme),
+                        layout={"name": "preset", "fit": True, "padding": 20},
+                        style={"height": "400px", "width": "100%", "cursor": "grab"},
+                        userZoomingEnabled=False,
+                        userPanningEnabled=True,
+                        minZoom=0.2,
+                        maxZoom=3,
+                    ),
+                    html.Div(
+                        [
+                            html.Button(
+                                "+",
+                                className="tree-zoom-btn tree-zoom-in",
+                                **{"data-cyto-id": cyto_id},
+                            ),
+                            html.Button(
+                                "−",
+                                className="tree-zoom-btn tree-zoom-out",
+                                **{"data-cyto-id": cyto_id},
+                            ),
+                            html.Button(
+                                "⟲",
+                                className="tree-zoom-btn tree-zoom-reset",
+                                **{"data-cyto-id": cyto_id},
+                            ),
+                        ],
+                        className="tree-zoom-controls",
+                    ),
+                ],
+                className="tree-cytoscape-wrapper",
             ),
         ],
         id=name,

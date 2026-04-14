@@ -2,14 +2,14 @@ import base64
 import io
 import json
 import os
+from datetime import datetime, timezone
+from importlib import import_module
 
 import numpy as np
 
-import aphylogeo.utils as aPhyloGeo
 import db.controllers.files as files_ctrl
 import db.controllers.results as results_ctrl
 import pandas as pd
-from aphylogeo.alignement import AlignSequences
 from aphylogeo.params import Params
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -17,11 +17,57 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
 from dash import dcc, html
 from scipy.spatial.distance import pdist, squareform
-from aphylogeo.utils import run_procrustes_analysis, run_protest_test
 
 FILES_PATH = "files/"
 COOKIE_NAME = "AUTH"
 COOKIE_MAX_AGE = 8640000  # 100 days
+
+_APHYLOGEO_UTILS = None
+
+
+def _get_aphylogeo_utils():
+    global _APHYLOGEO_UTILS
+    if _APHYLOGEO_UTILS is None:
+        _APHYLOGEO_UTILS = import_module("aphylogeo.utils")
+    return _APHYLOGEO_UTILS
+
+
+def format_card_date(value):
+    if value is None:
+        return None
+
+    if hasattr(value, "strftime"):
+        return value.strftime("%d/%m/%Y")
+
+    if isinstance(value, str):
+        normalized = value.replace("Z", "+00:00")
+        try:
+            return datetime.fromisoformat(normalized).strftime("%d/%m/%Y")
+        except ValueError:
+            return value
+
+    return str(value)
+
+
+def to_datetime_utc(value):
+    min_utc = datetime.min.replace(tzinfo=timezone.utc)
+
+    if value is None:
+        return min_utc
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+    if isinstance(value, str):
+        normalized = value.replace("Z", "+00:00")
+        try:
+            parsed = datetime.fromisoformat(normalized)
+            if parsed.tzinfo is None:
+                return parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
+        except ValueError:
+            return min_utc
+    return min_utc
 
 
 def get_all_files():
@@ -345,7 +391,7 @@ def create_climatic_trees(
                     break
             df = df[[id_col] + feature_cols]
 
-        climatic_trees = aPhyloGeo.climaticPipeline(df)
+        climatic_trees = _get_aphylogeo_utils().climaticPipeline(df)
         results_ctrl.update_result(
             {
                 "_id": result_id,
@@ -407,6 +453,9 @@ def create_alignement(result_id, genetic_data, status="alignement"):
         msaSet: the alignement
     """
     try:
+        # Import lazily to avoid loading deprecated Bio.Application wrappers at app startup.
+        from aphylogeo.alignement import AlignSequences
+
         alignmentObject = AlignSequences(genetic_data).align()
         msaSet = alignmentObject.msa
 
@@ -447,7 +496,7 @@ def create_genetic_trees(result_id, msaSet, status="genetic_trees"):
         genetic_trees: a dictionary with the genetic trees
     """
     try:
-        genetic_trees = aPhyloGeo.geneticPipeline(msaSet)
+        genetic_trees = _get_aphylogeo_utils().geneticPipeline(msaSet)
         results_ctrl.update_result(
             {"_id": result_id, "genetic_trees": genetic_trees, "status": status}
         )
@@ -484,10 +533,16 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
     """
 
     try:
-        output_list = aPhyloGeo.filterResults(
+        aphylogeo_utils = _get_aphylogeo_utils()
+        output_list = aphylogeo_utils.filterResults(
             climatic_trees, genetic_trees, climatic_df, create_file=False
         )
-        output = aPhyloGeo.format_to_csv(output_list)
+        none_count = sum(1 for row in output_list if row is None)
+        if none_count:
+            print(f"[Warning create_output] {none_count} / {len(output_list)} rows from "
+                  f"filterResults were None (specimen ID mismatch) — skipping them.")
+        output_list = [row for row in output_list if row is not None]
+        output = aphylogeo_utils.format_to_csv(output_list)
         df_output = pd.DataFrame(output)
 
         # Clean Gene column: truncate file paths to basename
@@ -501,7 +556,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
             try:
                 climatic_matrix = climatic_df.drop(columns=[climatic_df.columns[0]])
                 climatic_dist = squareform(pdist(climatic_matrix, metric="euclidean"))
-                genetic_dist = aPhyloGeo.get_patristic_distance_matrix(genetic_trees)
+                genetic_dist = aphylogeo_utils.get_patristic_distance_matrix(genetic_trees)
                 genetic_matrix = pd.DataFrame(genetic_dist)
 
                 mantel_r = None
@@ -510,7 +565,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 protest_p = None
 
                 if Params.statistical_test == '0' or Params.statistical_test == '1':
-                    r, p, n = aPhyloGeo.run_mantel_test(
+                    r, p, n = aphylogeo_utils.run_mantel_test(
                         genetic_dist, climatic_dist,
                         Params.permutations_mantel_test,
                         Params.mantel_test_method
@@ -519,8 +574,8 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                     mantel_p = p
 
                 if Params.statistical_test == '0' or Params.statistical_test == '2':
-                    m2, _, _ = run_procrustes_analysis(genetic_matrix, climatic_matrix)
-                    _, protest_p = run_protest_test(
+                    m2, _, _ = aphylogeo_utils.run_procrustes_analysis(genetic_matrix, climatic_matrix)
+                    _, protest_p = aphylogeo_utils.run_protest_test(
                         climatic_matrix, genetic_matrix,
                         n_permutations=Params.permutations_protest
                     )

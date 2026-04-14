@@ -15,9 +15,11 @@ ENV_CONFIG = {}
 for key, value in dotenv_values().items():
     ENV_CONFIG[key] = value
 
+RESULT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "result"
+
 if ENV_CONFIG["HOST"] == "local":
-    if not os.path.exists("result"):
-        os.makedirs("result")
+    if not RESULT_DIR.exists():
+        RESULT_DIR.mkdir(parents=True)
 
 
 def _is_temp_result_id(result_id):
@@ -48,14 +50,20 @@ def _build_temp_result_document(result):
 def get_results(ids):
     records_by_id = {}
     persistent_ids = []
+    temp_ids = []
 
     for result_id in ids:
         if _is_temp_result_id(result_id):
-            temp_record = temp_results.get_temp_result(result_id)
-            if temp_record:
-                records_by_id[str(temp_record.get("_id", result_id))] = temp_record
+            temp_ids.append(result_id)
         else:
             persistent_ids.append(result_id)
+
+    if temp_ids:
+        temp_records = temp_results.get_temp_results(temp_ids)
+        for result_id in temp_ids:
+            temp_record = temp_records.get(result_id)
+            if temp_record:
+                records_by_id[str(temp_record.get("_id", result_id))] = temp_record
 
     if persistent_ids:
         if ENV_CONFIG["HOST"] == "local":
@@ -92,7 +100,7 @@ def get_result(id):
     if ENV_CONFIG["HOST"] == "local":
         # look for id in the results directory
         try:
-            with open(Path("result") / (str(id) + ".json")) as f:
+            with open(RESULT_DIR / (str(id) + ".json")) as f:
                 return json.load(f)
         except FileNotFoundError:
             return None
@@ -105,8 +113,8 @@ def get_all_results():
     if ENV_CONFIG["HOST"] != "local":
         return
     results = []
-    for file in os.listdir("result"):
-        with open(Path("result") / file) as f:
+    for file in os.listdir(RESULT_DIR):
+        with open(RESULT_DIR / file) as f:
             results.append(json.load(f))
     return results
 
@@ -116,7 +124,7 @@ def delete_result(id):
         return temp_results.delete_temp_result(id) > 0
 
     if ENV_CONFIG["HOST"] == "local":
-        result_path = Path("result") / (str(id) + ".json")
+        result_path = RESULT_DIR / (str(id) + ".json")
         if not result_path.exists():
             return False
         result_path.unlink()
@@ -143,7 +151,7 @@ def create_result(result):
         # save the file to the results directory and return the id
         id = ObjectId()
         document["_id"] = id
-        with open(Path("result") / (str(id) + ".json"), "w") as f:
+        with open(RESULT_DIR / (str(id) + ".json"), "w") as f:
             f.write(json.dumps(document, indent=4, sort_keys=True, default=str))
         return str(id)
 
@@ -167,13 +175,13 @@ def update_result(result):
 
     if ENV_CONFIG["HOST"] == "local":
         # save the file to the results directory and return the id
-        with open(Path("result") / (str(document["_id"]) + ".json"), "r+") as f:
+        with open(RESULT_DIR / (str(document["_id"]) + ".json"), "r+") as f:
             data = json.load(f)
             f.close()
 
         for key, value in document.items():
             data[key] = value
-        with open(Path("result") / (str(document["_id"]) + ".json"), "w") as f:
+        with open(RESULT_DIR / (str(document["_id"]) + ".json"), "w") as f:
             f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
         return str(document["_id"])
 
@@ -191,6 +199,10 @@ def parse_result(result):
         document["climatic_files_id"] = ObjectId(result["climatic_files_id"])
     if "genetic_files_id" in result:
         document["genetic_files_id"] = ObjectId(result["genetic_files_id"])
+    if "aligned_genetic_files_id" in result:
+        document["aligned_genetic_files_id"] = ObjectId(result["aligned_genetic_files_id"])
+    if "genetic_tree_files_id" in result:
+        document["genetic_tree_files_id"] = ObjectId(result["genetic_tree_files_id"])
     if "climatic_params" in result:
         document["climatic_params"] = result["climatic_params"]
     if "climatic_trees" in result:
@@ -222,3 +234,6 @@ def parse_result(result):
 
 def parse_document(document):
     pass
+
+
+PENDING_STATUSES = {"pending", "running", "queued", "climatic_trees", "alignement", "alignment", "genetic_trees", "output"}

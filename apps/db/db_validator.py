@@ -7,9 +7,7 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-ENV_CONFIG = {}
-for key, value in dotenv_values().items():
-    ENV_CONFIG[key] = value
+ENV_CONFIG = {**os.environ, **dotenv_values()}
 
 
 def connect_db():
@@ -32,7 +30,7 @@ def db_schema_validator(db):
     db.command("collMod", "Results", validator=schema_results)
 
 
-HOST_TYPE = ENV_CONFIG["HOST"]
+HOST_TYPE = ENV_CONFIG.get("HOST", "localhost")
 
 mongo_client = connect_db() if HOST_TYPE != "local" else None
 db_name = os.environ.get("DB_NAME") if HOST_TYPE != "local" else None
