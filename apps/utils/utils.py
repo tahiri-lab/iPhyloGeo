@@ -17,6 +17,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
 from dash import dcc, html
 from scipy.spatial.distance import pdist, squareform
+from utils.time import to_utc_datetime
 
 FILES_PATH = "files/"
 COOKIE_NAME = "AUTH"
@@ -52,22 +53,8 @@ def format_card_date(value):
 def to_datetime_utc(value):
     min_utc = datetime.min.replace(tzinfo=timezone.utc)
 
-    if value is None:
-        return min_utc
-    if isinstance(value, datetime):
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
-    if isinstance(value, str):
-        normalized = value.replace("Z", "+00:00")
-        try:
-            parsed = datetime.fromisoformat(normalized)
-            if parsed.tzinfo is None:
-                return parsed.replace(tzinfo=timezone.utc)
-            return parsed.astimezone(timezone.utc)
-        except ValueError:
-            return min_utc
-    return min_utc
+    parsed = to_utc_datetime(value)
+    return parsed if parsed is not None else min_utc
 
 
 def get_all_files():

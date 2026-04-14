@@ -185,6 +185,21 @@ layout = html.Div(
                                     className="button download",
                                     id="download-button-aligned",
                                 ),
+                                html.Div(
+                                    [
+                                        html.Span(
+                                            t("result.actions.delete", "en"),
+                                            className="text",
+                                            id="delete-action-text",
+                                        ),
+                                        html.Img(
+                                            src="../../assets/icons/close.svg",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download delete-result",
+                                    id="delete-result-btn",
+                                ),
                             ],
                             className="result-actions",
                             id="result-actions-row",
@@ -250,35 +265,14 @@ layout = html.Div(
                     [
                         html.Div(
                             [
-                                html.Span(
-                                    t("result.actions.delete", "en"),
-                                    className="text",
-                                    id="delete-action-text",
-                                ),
-                                html.Img(
-                                    src="../../assets/icons/close.svg",
-                                    className="icon",
-                                ),
-                            ],
-                            className="button delete-result",
-                            id="delete-result-btn",
-                        )
-                    ],
-                    className="result-delete-action",
-                    id="result-delete-action",
-                ),
-                html.Div(
-                    [
-                        html.Div(
-                            [
                                 html.Div(
                                     t("result.confirm.delete-title", "en"),
-                                    className="title",
+                                    className="result-delete-popup-title",
                                     id="result-delete-popup-title",
                                 ),
                                 html.Div(
                                     t("result.confirm.delete-message", "en"),
-                                    className="description",
+                                    className="result-delete-popup-description",
                                     id="result-delete-popup-message",
                                 ),
                                 html.Div(
@@ -297,7 +291,7 @@ layout = html.Div(
                                     className="result-delete-popup-actions",
                                 ),
                             ],
-                            className="content page-card",
+                            className="result-delete-popup-content page-card",
                         )
                     ],
                     className="result-delete-popup hidden",
@@ -340,11 +334,25 @@ def check_result_status(n_intervals, path, prev_status, current_refresh, languag
     Check if a processing result has completed and refresh the page.
     """
     lang = language if language in LANGUAGE_LIST else "en"
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
+    result_id = _get_result_id_from_path(path)
+    if not _is_valid_result_id(result_id):
         raise dash.exceptions.PreventUpdate
 
     result = utils.get_result(result_id)
+    if result is None:
+        return (
+            None,
+            True,
+            t("result.errors.not-found-title", lang),
+            [],
+            {"display": "none"},
+            dash.no_update,
+            dash.no_update,
+            "error-banner hidden",
+            {"display": "none"},
+            {"display": "none"},
+        )
+
     status = result.get("status", "pending")
     title = result["name"]
 
@@ -493,12 +501,12 @@ def handle_submit_click(pathname, n_clicks, user_email, language):
 )
 def show_result_name(path, _alive_tick, language):
     lang = language if language in LANGUAGE_LIST else "en"
-    result_id = path.split("/")[-1]
-    if not result_id or not ObjectId.is_valid(result_id):
+    result_id, result = _load_result_from_path(path)
+    if not _is_valid_result_id(result_id):
         raise dash.exceptions.PreventUpdate
-    result = utils.get_result(result_id)
     if result is None:
-        return t("result.errors.not-found-title", lang), [], {"display": "none"}, "error-banner hidden", {}, {}
+        hidden = {"display": "none"}
+        return t("result.errors.not-found-title", lang), [], {"display": "none"}, "error-banner hidden", hidden, hidden
     title = result["name"]
     status = result.get("status", "pending")
 
@@ -530,6 +538,7 @@ def show_result_name(path, _alive_tick, language):
     Output("unavailable-result-message", "children"),
     Output("unavailable-result-message", "className"),
     Output("result-content-sections", "style", allow_duplicate=True),
+    Output("result-actions", "style", allow_duplicate=True),
     Input("url", "pathname"),
     Input("result-alive-check", "n_intervals"),
     Input("language-store", "data"),
@@ -555,10 +564,10 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
             className="page-card result-section-card unavailable-result-card",
         )
         hidden = {"display": "none"}
-        return message, "", hidden
+        return message, "", hidden, hidden
 
     shown = {}
-    return "", "hidden", shown
+    return "", "hidden", shown, shown
 
 
 @callback(

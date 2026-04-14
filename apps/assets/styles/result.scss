@@ -31,7 +31,7 @@
       width: 20px;
       height: 20px;
       border: 3px solid var(--secondary);
-      border-top-color: var(--action, #9F74D0);
+      border-top-color: var(--action, #9f74d0);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -93,36 +93,51 @@
 }
 
 // Top action buttons row
+#result-actions {
+  width: 100%;
+}
+
+@mixin result-actions-button-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  flex: 1 1 220px;
+  min-width: 220px;
+
+  .text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .result-actions {
-  display: grid;
-  grid-template-columns: 1fr 3fr 3fr;
-  gap: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-bottom: 12px;
   width: 100%;
   box-sizing: border-box;
 
   .button.download {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin: 0;
+    @include result-actions-button-base;
+  }
 
-    &:nth-child(1) {
-      grid-column: 1;
-    }
+  .button.delete-result {
+    @include result-actions-button-base;
+    background-color: var(--error);
 
-    &:nth-child(2) {
-      grid-column: 2;
-    }
-
-    &:nth-child(3) {
-      grid-column: 3;
-    }
-
-    .icon {
-      width: 18px;
-      height: 18px;
+    &:hover {
+      background-color: var(--error-hover);
     }
   }
 }
@@ -133,40 +148,22 @@
   padding: 20px 24px;
 }
 
+// Bottom section card (Email)
 .result-section-card-bottom {
   margin-bottom: 0px;
   padding: 20px 24px;
 }
 
-.result-delete-action {
+// Result content sections wrapper
+#result-content-sections {
   width: 100%;
+  min-width: 0;
   display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-
-  .button.delete-result {
-    margin: 0;
-    border: none;
-    background-color: var(--error);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-
-    .icon {
-      width: 16px;
-      height: 16px;
-      filter: invert(100%);
-    }
-
-    &:hover {
-      background-color: var(--error);
-      filter: brightness(0.94);
-    }
-  }
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
+// Delete confirmation popup overlay
 .result-delete-popup {
   position: fixed;
   inset: 0;
@@ -181,7 +178,7 @@
     display: none !important;
   }
 
-  .content {
+  .result-delete-popup-content {
     width: min(92vw, 540px);
     padding: 24px;
     display: flex;
@@ -191,14 +188,14 @@
     border: 1px solid var(--border);
     color: var(--text);
 
-    .title {
+    .result-delete-popup-title {
       font-size: 24px;
       font-weight: 700;
       margin: 0;
       color: var(--text);
     }
 
-    .description {
+    .result-delete-popup-description {
       font-size: 16px;
       line-height: 1.4;
       margin: 0;
@@ -207,6 +204,7 @@
   }
 }
 
+// Delete popup action buttons
 .result-delete-popup-actions {
   margin-top: 6px;
   display: flex;
@@ -236,7 +234,6 @@
 
   .button.delete-result {
     background-color: var(--error);
-    color: white;
     border: none;
 
     &:hover {
@@ -246,6 +243,7 @@
   }
 }
 
+// Unavailable result state
 #unavailable-result-message {
   width: 100%;
   display: flex;
@@ -291,6 +289,7 @@
   }
 }
 
+// Result section header row
 .result-section-header {
   display: flex;
   align-items: center;
@@ -369,6 +368,7 @@
   }
 }
 
+// Tree visualization layout
 .tree {
   width: 100%;
   max-height: 10000px;
@@ -443,7 +443,7 @@
         opacity: 0.85;
 
         &:hover {
-          background-color: var(--action, #9F74D0);
+          background-color: var(--action, #9f74d0);
           color: white;
           opacity: 1;
         }
@@ -466,17 +466,19 @@
   margin-top: 16px;
 }
 
+// Mobile responsive adjustments
 @media (max-width: 760px) {
-  .result-delete-action {
-    justify-content: stretch;
+  .result-actions {
+    gap: 10px;
 
+    .button.download,
     .button.delete-result {
-      width: 100%;
+      flex: 1 1 calc(50% - 5px);
     }
   }
 
   .result-delete-popup {
-    .content {
+    .result-delete-popup-content {
       width: min(94vw, 540px);
       padding: 20px;
     }

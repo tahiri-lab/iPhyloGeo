@@ -1,11 +1,12 @@
 import sys
 import os
+from datetime import datetime, timedelta, timezone
 
 # apps/ uses relative imports like `from utils.i18n import t`
 # so apps/ must be in sys.path when running from the repo root
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../apps"))
 
-from apps.utils.time import format_remaining_time
+from apps.utils.time import format_remaining_time, to_utc_datetime
 import pytest
 
 
@@ -80,3 +81,34 @@ def test_format_remaining_time_negative_clamps_to_zero():
 
 def test_format_remaining_time_one_second():
     assert format_remaining_time(1, "en") == "~1 sec remaining"
+
+
+# --- to_utc_datetime ---
+
+def test_to_utc_datetime_none_returns_none():
+    assert to_utc_datetime(None) is None
+
+
+def test_to_utc_datetime_naive_datetime_gets_utc():
+    dt = datetime(2024, 6, 1, 12, 0, 0)
+    result = to_utc_datetime(dt)
+    assert result.tzinfo == timezone.utc
+    assert result.year == 2024
+
+
+def test_to_utc_datetime_aware_datetime_converted():
+    tz_plus2 = timezone(timedelta(hours=2))
+    dt = datetime(2024, 6, 1, 14, 0, 0, tzinfo=tz_plus2)
+    result = to_utc_datetime(dt)
+    assert result.tzinfo == timezone.utc
+    assert result.hour == 12
+
+
+def test_to_utc_datetime_iso_string_with_z():
+    result = to_utc_datetime("2024-06-01T12:00:00Z")
+    assert result.year == 2024
+    assert result.tzinfo == timezone.utc
+
+
+def test_to_utc_datetime_invalid_string_returns_none():
+    assert to_utc_datetime("not-a-date") is None

@@ -1,10 +1,17 @@
 # Cron job to delete files from the server when they are expired
 import json
+import sys
 from pathlib import Path
 from datetime import datetime, timezone
 
 from dotenv import dotenv_values, load_dotenv
 from pymongo import MongoClient
+
+APPS_DIR = Path(__file__).resolve().parents[1]
+if str(APPS_DIR) not in sys.path:
+    sys.path.insert(0, str(APPS_DIR))
+
+from utils.time import to_utc_datetime
 
 load_dotenv()
 
@@ -14,29 +21,6 @@ for key, value in dotenv_values().items():
 
 COLLECTION_NAMES = ["Files", "Results"]
 LOCAL_COLLECTION_PATHS = {"Files": Path("files"), "Results": Path("result")}
-
-
-def _to_utc_datetime(value):
-    if value is None:
-        return None
-
-    if isinstance(value, datetime):
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
-
-    if isinstance(value, str):
-        normalized = value.replace("Z", "+00:00")
-        try:
-            parsed = datetime.fromisoformat(normalized)
-        except ValueError:
-            return None
-
-        if parsed.tzinfo is None:
-            return parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
-
-    return None
 
 
 def _cleanup_local_collection(path, now_utc):
@@ -51,7 +35,7 @@ def _cleanup_local_collection(path, now_utc):
         except (json.JSONDecodeError, OSError):
             continue
 
-        expired_at = _to_utc_datetime(payload.get("expired_at"))
+        expired_at = to_utc_datetime(payload.get("expired_at"))
         if expired_at and expired_at < now_utc:
             item.unlink(missing_ok=True)
             deleted_count += 1
