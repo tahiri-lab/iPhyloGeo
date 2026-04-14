@@ -6,12 +6,11 @@ from datetime import datetime, timezone
 
 from dotenv import dotenv_values, load_dotenv
 from pymongo import MongoClient
+from utils.time import to_utc_datetime
 
 APPS_DIR = Path(__file__).resolve().parents[1]
 if str(APPS_DIR) not in sys.path:
     sys.path.insert(0, str(APPS_DIR))
-
-from utils.time import to_utc_datetime
 
 load_dotenv()
 
