@@ -465,31 +465,3 @@
     max-height 0.3s ease-in-out;
   margin-top: 16px;
 }
-
-// Mobile responsive adjustments
-@media (max-width: 760px) {
-  .result-actions {
-    gap: 10px;
-
-    .button.download,
-    .button.delete-result {
-      flex: 1 1 calc(50% - 5px);
-    }
-  }
-
-  .result-delete-popup {
-    .result-delete-popup-content {
-      width: min(94vw, 540px);
-      padding: 20px;
-    }
-  }
-
-  .result-delete-popup-actions {
-    flex-direction: column;
-
-    .button.download,
-    .button.delete-result {
-      width: 100%;
-    }
-  }
-}
