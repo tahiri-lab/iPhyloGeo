@@ -18,7 +18,6 @@ from Bio.Align import MultipleSeqAlignment
 from dash import dcc, html
 from scipy.spatial.distance import pdist, squareform
 
-FILES_PATH = "files/"
 COOKIE_NAME = "AUTH"
 COOKIE_MAX_AGE = 8640000  # 100 days
 
@@ -129,30 +128,14 @@ def save_files(results):
     return files_ctrl.save_files(results)
 
 
-def get_file(id, options={}):
-    """
-    Get the file with the given id.
-    If the app is running in local mode, the file is read from the local file system.
-    Otherwise, the file is read from database.
-    """
-    if "mongo" in options and options["mongo"]:
-        return get_file_from_db(id)
-
-    return read_local_file(FILES_PATH + id, options)
-
-
-def read_local_file(path, options={}):
-    """Read the file from the local file system.
+def get_file(id, options=None):
+    """Get the file with the given id from MongoDB.
 
     Args:
-        path (string): The path of the file.
+        id (string): The id of the file.
+        options (dict, optional): Deprecated. Kept for backward compatibility.
     """
-    # check if the file exists
-    if not os.path.isfile(path):
-        return None
-    # read the file
-    if "pd" in options:
-        return pd.read_csv(path)
+    return get_file_from_db(id)
 
 
 def get_file_from_db(id):
@@ -191,7 +174,7 @@ def download_file_from_db(id, root_path="./"):
     Args:
         id (string): The id of the file.
     """
-    res = get_file(id, {"mongo": True})
+    res = get_file_from_db(id)
 
     with open(root_path + res["file_name"], "wb") as f:
         if res["file_name"].endswith(".xlsx"):
