@@ -421,7 +421,10 @@ def get_layout(lang="en"):
     )
 
 
-layout = html.Div(id="settings-page-content", children=get_layout())
+def layout():
+    from flask import request
+    lang = request.cookies.get("lang", "en")
+    return html.Div(id="settings-page-content", children=get_layout(lang))
 
 
 @callback(Output("settings-page-content", "children"), Input("language-store", "data"))

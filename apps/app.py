@@ -349,6 +349,25 @@ if _IS_MAIN_PROCESS:
         prevent_initial_call=True,
     )
 
+    app.clientside_callback(
+        """
+        function(language) {
+            var pageContent = document.querySelector('.page-content');
+            if (!pageContent) return '';
+            pageContent.style.transition = 'none';
+            pageContent.style.opacity = '0';
+            setTimeout(function() {
+                pageContent.style.transition = 'opacity 0.12s ease-in';
+                pageContent.style.opacity = '1';
+            }, 120);
+            return '';
+        }
+        """,
+        Output("dummy-output", "children", allow_duplicate=True),
+        Input("language-store", "data"),
+        prevent_initial_call=True,
+    )
+
     @app.callback(
         Output("theme-store", "data"),
         Output("theme-switch-output", "children"),
@@ -376,6 +395,9 @@ if _IS_MAIN_PROCESS:
     )
     def update_language(selected_language):
         if selected_language in ["en", "fr"]:
+            response = dash.callback_context.response
+            if response:
+                response.set_cookie("lang", selected_language, max_age=365 * 24 * 3600)
             return selected_language
         return "en"
 

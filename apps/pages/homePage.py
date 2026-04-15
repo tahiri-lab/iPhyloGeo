@@ -14,50 +14,53 @@ external_stylesheets = [
     }
 ]
 
-layout = html.Div(
-    [
-        html.Div(
-            className="home-page",
-            children=[
-                html.Div(id="background-video"),
-                html.Div(
-                    className="main-text",
-                    children=[
-                        html.Div(t("home.title", "en"), className="title", id="home-title"),
-                        html.Div(
-                            [
-                                html.Span(
-                                    "We are a dynamic research group at the Sherbrooke University, Department of Computer Science. ",
-                                    id="home-subtitle-prefix",
-                                ),
-                                html.A(
-                                    [
-                                        html.Span(t("home.learn-more", "en"), id="home-learn-more"),
-                                        html.Img(
-                                            src="../assets/icons/up-right-from-square-solid.svg",
-                                            className="icon",
-                                        ),
-                                    ],
-                                    target="_blank",
-                                    href="https://tahirinadia.github.io/",
-                                    className="url",
-                                ),
-                            ],
-                            className="sub-title",
-                        ),
-                        dbc.NavLink(
-                            "Get Started",
-                            href="/getStarted",
-                            id="themes",
-                            className="button primary",
-                            active="exact",
-                        ),
-                    ],
-                ),
-            ],
-        ),
-    ]
-)
+def layout():
+    from flask import request
+    lang = request.cookies.get("lang", "en")
+    return html.Div(
+        [
+            html.Div(
+                className="home-page",
+                children=[
+                    html.Div(id="background-video"),
+                    html.Div(
+                        className="main-text",
+                        children=[
+                            html.Div(t("home.title", lang), className="title", id="home-title"),
+                            html.Div(
+                                [
+                                    html.Span(
+                                        t("home.subtitle-prefix", lang),
+                                        id="home-subtitle-prefix",
+                                    ),
+                                    html.A(
+                                        [
+                                            html.Span(t("home.learn-more", lang), id="home-learn-more"),
+                                            html.Img(
+                                                src="../assets/icons/up-right-from-square-solid.svg",
+                                                className="icon",
+                                            ),
+                                        ],
+                                        target="_blank",
+                                        href="https://tahirinadia.github.io/",
+                                        className="url",
+                                    ),
+                                ],
+                                className="sub-title",
+                            ),
+                            dbc.NavLink(
+                                t("home.get-started", lang),
+                                href="/getStarted",
+                                id="themes",
+                                className="button primary",
+                                active="exact",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ]
+    )
 
 
 @callback(

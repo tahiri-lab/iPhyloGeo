@@ -51,7 +51,14 @@ FASTA_REGEX = re.compile(r".*\.fasta$")
 JSON_REGEX = re.compile(r".*\.json")
 
 
-layout = html.Div(
+def layout():
+    from flask import request
+    _lang = request.cookies.get("lang", "en")
+    return _build_layout(_lang)
+
+
+def _build_layout(lang="en"):
+    return html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
         dcc.Store(id="pipeline-started", data=False),
@@ -129,9 +136,9 @@ layout = html.Div(
         html.Div(
             className="get-started",
             children=[
-                html.Div(id="popup-container", children=[popup.get_layout("en")]),
-                html.Div(id="popup-done-container", children=[result_ready_popup.get_layout("en")]),
-                html.Div(id="drop-file-section-container", children=[dropFileSection.get_layout("en")]),
+                html.Div(id="popup-container", children=[popup.get_layout(lang)]),
+                html.Div(id="popup-done-container", children=[result_ready_popup.get_layout(lang)]),
+                html.Div(id="drop-file-section-container", children=[dropFileSection.get_layout(lang)]),
                 html.Div(
                     [
                         html.Div(id="climatic-params-layout"),
@@ -270,7 +277,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
     Output("submit-button", "children", allow_duplicate=True),
     Input("language-store", "data"),
     State("input-data", "data"),
-    prevent_initial_call=True,
+    prevent_initial_call='initial_duplicate',
 )
 def update_drop_file_section_language(language, input_data):
     lang = language if language in LANGUAGE_LIST else "en"

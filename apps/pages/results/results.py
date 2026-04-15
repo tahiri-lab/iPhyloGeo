@@ -151,7 +151,10 @@ def create_layout(result, lang="en"):
     )
 
 
-layout = html.Div(id="results-page-content", children=get_layout())
+def layout():
+    from flask import request
+    lang = request.cookies.get("lang", "en")
+    return html.Div(id="results-page-content", children=get_layout(lang))
 
 
 @callback(
