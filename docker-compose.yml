@@ -12,22 +12,6 @@ services:
     ports:
       - 6379:6379
 
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile   # reuse the same image as the web app
-    command: python worker.py
-    environment:
-      - REDIS_URL=redis://redis:6379
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - mongo
-    volumes:
-      - .:/app
-      - ./temp:/app/temp
-      - ./result:/app/result
 
 volumes:
   mongo_data:
