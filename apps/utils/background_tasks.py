@@ -36,9 +36,10 @@ try:
 except ImportError:
     PSUTIL_AVAILABLE = False
 
-# Suppress repetitive deprecation warnings that flood the worker terminal
-# (e.g. BiopythonDeprecationWarning emitted on every Bio.Application call).
-warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"Bio\.")
+# Suppress repetitive warnings that flood the worker terminal.
+# BiopythonDeprecationWarning inherits from BiopythonWarning(Warning), NOT
+# DeprecationWarning, so we must filter by module only (no category restriction).
+warnings.filterwarnings("ignore", module=r"Bio\.Application")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # apps/utils/background_tasks.py → project root is three levels up.
@@ -80,15 +81,11 @@ PHASE_PROGRESS_FLOOR = {
 }
 
 
-def _smoothed_time_progress(elapsed: float, estimated: float) -> float:
-    """Return time-based progress with a gentle early acceleration."""
+def _time_based_progress(elapsed: float, estimated: float) -> float:
+    """Return linear time-based progress capped at 95%."""
     if estimated <= 0:
         return 0.0
-
-    ratio = max(0.0, min(1.0, elapsed / estimated))
-    linear_progress = ratio * 100.0
-    eased_progress = (ratio**0.5) * 100.0
-    return min(95.0, max(linear_progress, eased_progress))
+    return min(95.0, elapsed / estimated * 100.0)
 
 
 def _count_pairwise_operations(genetic_file=None, aligned_genetic_file: str = None) -> tuple[int, int]:
@@ -318,11 +315,9 @@ def get_task_status(result_id: str) -> dict:
         if "start_time" in meta and estimated_time > 0:
             elapsed_time = max(0.0, time.time() - float(meta["start_time"]))
             if status not in {"complete", "error"}:
-                progress = max(
-                    progress,
-                    _smoothed_time_progress(elapsed_time, estimated_time),
-                    phase_floor,
-                )
+                # Pure linear time-based progress — no phase jumps, no easing.
+                # Phase floors are only a fallback when we have no timing data.
+                progress = max(progress, _time_based_progress(elapsed_time, estimated_time))
         else:
             progress = max(progress, phase_floor)
 
