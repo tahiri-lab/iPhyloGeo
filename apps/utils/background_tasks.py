@@ -12,6 +12,8 @@ import re
 import sys
 import tempfile
 import time
+import warnings
+from pathlib import Path
 
 import pandas as pd
 from redis import Redis
@@ -34,9 +36,19 @@ try:
 except ImportError:
     PSUTIL_AVAILABLE = False
 
+# Suppress repetitive deprecation warnings that flood the worker terminal
+# (e.g. BiopythonDeprecationWarning emitted on every Bio.Application call).
+warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"Bio\.")
 
-# Redis / RQ primitives
-redis_conn = Redis()
+# ── Paths ─────────────────────────────────────────────────────────────────────
+# apps/utils/background_tasks.py → project root is three levels up.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+SETTINGS_FILE = _PROJECT_ROOT / "genetic_settings_file.json"
+TEMP_DIR = _PROJECT_ROOT / "temp"
+
+# ── Redis / RQ primitives ─────────────────────────────────────────────────────
+_redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
+redis_conn = Redis.from_url(_redis_url)
 task_queue = Queue(connection=redis_conn)
 
 # Persistent calibration key (seconds per operation)
@@ -547,10 +559,19 @@ class ProgressCapture(io.TextIOBase):
     Intercepts aphylogeo multiProcessor stdout lines:
       - "Finished/Started: X / N" -> progress update + estimate correction
       - "Time elapsed: T seconds" -> actual sub-step duration
+
+    Noisy aphylogeo stats lines (memory, %, counters) are parsed for metadata
+    but not forwarded to the terminal to keep worker output readable.
     """
 
     _PROGRESS_PATTERN = re.compile(r"(?:Started|Finished):\s+(\d+)\s*/\s*(\d+)")
     _ELAPSED_PATTERN = re.compile(r"Time elapsed:\s+([\d.]+)\s+seconds")
+    # Lines to capture silently — they repeat hundreds of times per run.
+    _NOISY_PATTERN = re.compile(
+        r"(?:Started:|Finished:|Available memory:|Active processes:|"
+        r"Min memory per:|Time for one:|Time elapsed:|Completed with|"
+        r"Creating bootstrap|---|\d+\s*%)"
+    )
 
     def __init__(self, result_id: str, inner):
         self.result_id = result_id
@@ -566,7 +587,10 @@ class ProgressCapture(io.TextIOBase):
         if e:
             record_step_elapsed(self.result_id, float(e.group(1)))
 
-        return self.inner.write(s)
+        # Only forward lines that aren't repetitive aphylogeo stats noise.
+        if not self._NOISY_PATTERN.search(s):
+            return self.inner.write(s)
+        return len(s)
 
     def flush(self):
         self.inner.flush()
@@ -601,7 +625,7 @@ def run_pipeline_async(
         pipeline_mode = "tree"
 
     job = task_queue.enqueue(
-        _run_pipeline_task,
+        run_pipeline_task,
         result_id,
         climatic_file,
         genetic_file,
@@ -610,6 +634,7 @@ def run_pipeline_async(
         params_climatic,
         email,
         job_id=str(result_id),
+        job_timeout=7200,          # 2 h hard cap; avoids zombie jobs
         result_ttl=RQ_RESULT_TTL_SECONDS,
         failure_ttl=RQ_FAILURE_TTL_SECONDS,
     )
@@ -643,7 +668,7 @@ def _write_genetic_temp_fasta(path: str, genetic_file):
             handle.write(genetic_file)
 
 
-def _run_pipeline_task(
+def run_pipeline_task(
     result_id: str,
     climatic_file: str,
     genetic_file: dict = None,
@@ -655,14 +680,14 @@ def _run_pipeline_task(
     """
     RQ worker function that executes the phylogeo pipeline.
     """
-    print(f"[Pipeline Task] Starting _run_pipeline_task for result_id: {result_id}")
+    print(f"[Pipeline Task] Starting run_pipeline_task for result_id: {result_id}")
 
     temp_fasta_path = None
     try:
         # Re-read latest settings from JSON and apply to Params
-        print("[Pipeline Task] Loading settings from genetic_settings_file.json...")
+        print(f"[Pipeline Task] Loading settings from {SETTINGS_FILE}...")
         try:
-            with open("genetic_settings_file.json", "r", encoding="utf-8") as settings_file:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as settings_file:
                 latest_settings = json.load(settings_file)
             latest_codes = convert_settings_to_codes(latest_settings)
             Params.update_from_dict(
@@ -685,7 +710,7 @@ def _run_pipeline_task(
 
         if genetic_file is not None:
             # Run full genetic pipeline (alignment + trees + output)
-            temp_dir = os.path.join(os.getcwd(), "temp")
+            temp_dir = str(TEMP_DIR)
             os.makedirs(temp_dir, exist_ok=True)
             with tempfile.NamedTemporaryFile(
                 mode="w",
