@@ -422,7 +422,11 @@ def update_task_status(
     else:
         floor = PHASE_PROGRESS_FLOOR.get(status_lower, 0)
         current_progress = float(meta.get("progress", 0) or 0)
-        meta["progress"] = max(current_progress, floor)
+        # Only apply the phase floor when time-based tracking hasn't started yet.
+        # Once start_time is set, progress is driven purely by elapsed/estimated
+        # ratio — writing a large floor here would cause the bar to jump mid-run.
+        if "start_time" not in meta:
+            meta["progress"] = max(current_progress, floor)
 
     if "start_time" in meta:
         meta["elapsed_time"] = max(0.0, time.time() - float(meta["start_time"]))
