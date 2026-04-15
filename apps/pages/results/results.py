@@ -4,15 +4,8 @@ import utils.utils as utils
 from components.result_card import create_result_card
 from dash import callback, dcc, html
 from dash.dependencies import Input, Output
-from dotenv import dotenv_values, load_dotenv
 from flask import request
 from utils.i18n import LANGUAGE_LIST, t
-
-load_dotenv()
-
-ENV_CONFIG = {}
-for key, value in dotenv_values().items():
-    ENV_CONFIG[key] = value
 
 dash.register_page(__name__, path_template="/results")
 
@@ -111,33 +104,6 @@ def generate_result_list(path, _n, language):
     """
     lang = language if language in LANGUAGE_LIST else "en"
 
-    if ENV_CONFIG["HOST"] == "local":
-        local_results = utils.get_all_results() or []
-
-        temp_results = []
-        try:
-            cookie = request.cookies.get("AUTH")
-            if cookie:
-                temp_ids = [result_id for result_id in cookie.split(".") if result_id.startswith("tmp_")]
-                if temp_ids:
-                    temp_results = utils.get_results(temp_ids)
-        except Exception as e:
-            print(e)
-
-        combined = {str(result["_id"]): result for result in local_results}
-        for result in temp_results:
-            combined[str(result["_id"])] = result
-
-        results = sorted(
-            combined.values(),
-            key=lambda result: utils.to_datetime_utc(result.get("created_at")),
-        )
-
-        if not results:
-            return get_no_results_html(lang)
-
-        return [create_layout(result, lang) for result in results]
-
     try:
         cookie = request.cookies.get("AUTH")
     except Exception as e:
@@ -167,13 +133,8 @@ def generate_result_list(path, _n, language):
 
 def create_layout(result, lang="en"):
     """Creates the card layout for a single result."""
-    # Determine dates based on environment
-    created_at = None
-    expired_at = None
-
-    if ENV_CONFIG["HOST"] != "local":
-        created_at = utils.format_card_date(result.get("created_at"))
-        expired_at = utils.format_card_date(result.get("expired_at"))
+    created_at = utils.format_card_date(result.get("created_at"))
+    expired_at = utils.format_card_date(result.get("expired_at"))
 
     remaining_time = _temporary_remaining_label(result, lang)
 

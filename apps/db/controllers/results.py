@@ -1,25 +1,9 @@
-import json
-import os
 import secrets
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
 from bson.objectid import ObjectId
 from db.db_validator import results_db
 from db.controllers import temp_results
-from dotenv import dotenv_values, load_dotenv
-
-load_dotenv()
-
-ENV_CONFIG = {}
-for key, value in dotenv_values().items():
-    ENV_CONFIG[key] = value
-
-RESULT_DIR = Path(__file__).resolve().parent.parent.parent.parent / "result"
-
-if ENV_CONFIG["HOST"] == "local":
-    if not RESULT_DIR.exists():
-        RESULT_DIR.mkdir(parents=True)
 
 
 def _is_temp_result_id(result_id):
@@ -66,29 +50,20 @@ def get_results(ids):
                 records_by_id[str(temp_record.get("_id", result_id))] = temp_record
 
     if persistent_ids:
-        if ENV_CONFIG["HOST"] == "local":
-            for result_id in persistent_ids:
-                try:
-                    with open(Path("result") / (str(result_id) + ".json")) as f:
-                        result_doc = json.load(f)
-                    records_by_id[str(result_doc.get("_id", result_id))] = result_doc
-                except FileNotFoundError:
-                    continue
-        else:
-            valid_object_ids = []
-            for result_id in persistent_ids:
-                if ObjectId.is_valid(str(result_id)):
-                    valid_object_ids.append(ObjectId(str(result_id)))
+        valid_object_ids = []
+        for result_id in persistent_ids:
+            if ObjectId.is_valid(str(result_id)):
+                valid_object_ids.append(ObjectId(str(result_id)))
 
-            if valid_object_ids:
-                res = results_db.find({"_id": {"$in": valid_object_ids}})
-                for result_doc in res:
-                    records_by_id[str(result_doc["_id"])] = result_doc
+        if valid_object_ids:
+            res = results_db.find({"_id": {"$in": valid_object_ids}})
+            for result_doc in res:
+                records_by_id[str(result_doc["_id"])] = result_doc
 
     ordered_results = []
     for result_id in ids:
-        if result_id in records_by_id:
-            ordered_results.append(records_by_id[result_id])
+        if str(result_id) in records_by_id:
+            ordered_results.append(records_by_id[str(result_id)])
 
     return ordered_results
 
@@ -97,33 +72,17 @@ def get_result(id):
     if _is_temp_result_id(id):
         return temp_results.get_temp_result(id)
 
-    if ENV_CONFIG["HOST"] == "local":
-        # look for id in the results directory
-        with open(RESULT_DIR / (str(id) + ".json")) as f:
-            return json.load(f)
-
     res = results_db.find_one({"_id": ObjectId(id)})
     return res
 
 
 def get_all_results():
-    if ENV_CONFIG["HOST"] != "local":
-        return
-    results = []
-    for file in os.listdir(RESULT_DIR):
-        with open(RESULT_DIR / file) as f:
-            results.append(json.load(f))
-    return results
+    return list(results_db.find())
 
 
 def delete_result(id):
     if _is_temp_result_id(id):
         return temp_results.delete_temp_result(id)
-
-    if ENV_CONFIG["HOST"] == "local":
-        # look for id in the results directory
-        os.remove(RESULT_DIR / (str(id) + ".json"))
-        return
 
     return results_db.delete_one({"_id": ObjectId(id)})
 
@@ -137,14 +96,6 @@ def create_result(result):
     document["expired_at"] = now_utc + timedelta(days=14)
     document["name"] = result["name"]
     document["result_type"] = result["result_type"]
-
-    if ENV_CONFIG["HOST"] == "local":
-        # save the file to the results directory and return the id
-        id = ObjectId()
-        document["_id"] = id
-        with open(RESULT_DIR / (str(id) + ".json"), "w") as f:
-            f.write(json.dumps(document, indent=4, sort_keys=True, default=str))
-        return str(id)
 
     res = results_db.insert_one(document)
     return str(res.inserted_id)
@@ -163,18 +114,6 @@ def update_result(result):
         return temp_results.update_temp_result(document["_id"], document)
 
     document = parse_result(result)
-
-    if ENV_CONFIG["HOST"] == "local":
-        # save the file to the results directory and return the id
-        with open(RESULT_DIR / (str(document["_id"]) + ".json"), "r+") as f:
-            data = json.load(f)
-            f.close()
-
-        for key, value in document.items():
-            data[key] = value
-        with open(RESULT_DIR / (str(document["_id"]) + ".json"), "w") as f:
-            f.write(json.dumps(data, indent=4, sort_keys=True, default=str))
-        return str(document["_id"])
 
     return results_db.update_one({"_id": document["_id"]}, {"$set": document})
 
