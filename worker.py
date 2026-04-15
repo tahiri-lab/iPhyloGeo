@@ -15,6 +15,9 @@ Usage:
     python worker.py
 """
 
+import warnings
+warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
+
 import os
 import sys
 from pathlib import Path

@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
+
 import multiprocessing as _mp
 
 import dash

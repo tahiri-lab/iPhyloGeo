@@ -15,10 +15,10 @@ import time
 import warnings
 from pathlib import Path
 
-# Suppress Bio.Application deprecation warnings BEFORE importing aphylogeo,
-# which triggers Bio.Application at import time — filtering after the import
-# is too late and the warnings fire anyway.
-warnings.filterwarnings("ignore", module=r"Bio\.")
+# Belt-and-suspenders: suppress Bio.Application deprecation warning in case
+# this module is imported directly (e.g. in tests) without going through the
+# app.py / worker.py entry points that set the filter first.
+warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
 
 import pandas as pd
 from redis import Redis
