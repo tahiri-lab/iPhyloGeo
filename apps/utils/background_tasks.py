@@ -15,6 +15,11 @@ import time
 import warnings
 from pathlib import Path
 
+# Suppress Bio.Application deprecation warnings BEFORE importing aphylogeo,
+# which triggers Bio.Application at import time — filtering after the import
+# is too late and the warnings fire anyway.
+warnings.filterwarnings("ignore", module=r"Bio\.")
+
 import pandas as pd
 from redis import Redis
 from redis.exceptions import RedisError
@@ -35,11 +40,6 @@ try:
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
-
-# Suppress repetitive warnings that flood the worker terminal.
-# BiopythonDeprecationWarning inherits from BiopythonWarning(Warning), NOT
-# DeprecationWarning, so we must filter by module only (no category restriction).
-warnings.filterwarnings("ignore", module=r"Bio\.Application")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # apps/utils/background_tasks.py → project root is three levels up.
@@ -635,13 +635,16 @@ def run_pipeline_async(
     )
 
     # Seed metadata immediately so UI can poll before worker starts.
+    # NOTE: start_time is intentionally NOT set here — it is set at the
+    # beginning of run_pipeline_task so elapsed time only counts actual
+    # execution time, not queue-wait time. Setting it here would cause the
+    # progress bar to jump when the worker finally picks up the job.
     job.meta = dict(job.meta or {})
     job.meta.update(
         {
             "status": "pending",
             "progress": PHASE_PROGRESS_FLOOR["pending"],
             "estimated_time": estimated_time,
-            "start_time": time.time(),
             "pipeline_mode": pipeline_mode,
             "num_operations": int(num_operations),
             "sub_progress": None,
@@ -679,6 +682,20 @@ def run_pipeline_task(
 
     temp_fasta_path = None
     try:
+        # Record the moment the worker actually begins so elapsed/progress tracking
+        # starts from real execution time, not queue-wait time.
+        task_start_time = time.time()
+        job = _resolve_job_for_result(result_id)
+        if job is not None:
+            meta = dict(job.meta or {})
+            meta["start_time"] = task_start_time
+            meta["elapsed_time"] = 0.0
+            job.meta = meta
+            try:
+                job.save_meta()
+            except Exception:
+                pass
+
         # Re-read latest settings from JSON and apply to Params
         print(f"[Pipeline Task] Loading settings from {SETTINGS_FILE}...")
         try:
