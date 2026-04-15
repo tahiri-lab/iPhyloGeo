@@ -190,9 +190,110 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
     },
 
     next_option_function: function (nextClicks, testClicks, desireDiv) {
-      document
-        .getElementById(desireDiv)
-        .scrollIntoView({ behavior: "smooth", block: "start" });
+      var callbackContext = window.dash_clientside.callback_context;
+      if (!callbackContext || !callbackContext.triggered.length) {
+        return "";
+      }
+
+      var triggeredProp = callbackContext.triggered[0].prop_id || "";
+      var isNextTrigger = triggeredProp.indexOf("next-button.") === 0;
+      var isDemoTrigger = triggeredProp.indexOf("upload-test-data.") === 0;
+
+      // Ignore non-user triggers and stale n_clicks updates.
+      if (!isNextTrigger && !isDemoTrigger) {
+        return "";
+      }
+      if (isNextTrigger && (!nextClicks || nextClicks < 1)) {
+        return "";
+      }
+      if (isDemoTrigger && (!testClicks || testClicks < 1)) {
+        return "";
+      }
+
+      var targetId = desireDiv || "params-sections";
+      var maxWaitMs = 2200;
+      var startAt = Date.now();
+      var observer = null;
+      var fallbackTimer = null;
+      var didScroll = false;
+
+      function cleanup() {
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+        if (fallbackTimer) {
+          clearTimeout(fallbackTimer);
+          fallbackTimer = null;
+        }
+      }
+
+      function tryScrollWhenReady() {
+        if (didScroll) {
+          return true;
+        }
+
+        var target = document.getElementById(targetId);
+
+        if (!target) {
+          return false;
+        }
+
+        // Wait until the params section has actually been rendered by Dash.
+        var hasRenderedParams =
+          !!document.getElementById("submit-dataset") ||
+          !!target.querySelector(".parameters-section, .submit-section");
+
+        if (!hasRenderedParams) {
+          return false;
+        }
+
+        didScroll = true;
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        // Re-apply once after layout settles to avoid ending above target.
+        setTimeout(function () {
+          var refreshedTarget = document.getElementById(targetId);
+          if (refreshedTarget) {
+            refreshedTarget.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        }, 220);
+
+        return true;
+      }
+
+      // Let the click-driven server callback patch the DOM before scrolling.
+      requestAnimationFrame(function () {
+        setTimeout(function () {
+          if (tryScrollWhenReady()) {
+            cleanup();
+            return;
+          }
+
+          // React to actual DOM insertions/updates instead of fixed retry counts.
+          observer = new MutationObserver(function () {
+            if (tryScrollWhenReady()) {
+              cleanup();
+              return;
+            }
+
+            if (Date.now() - startAt > maxWaitMs) {
+              cleanup();
+            }
+          });
+
+          if (document.body) {
+            observer.observe(document.body, { childList: true, subtree: true });
+          }
+
+          // Safety net to avoid leaving observers alive indefinitely.
+          fallbackTimer = setTimeout(cleanup, maxWaitMs + 100);
+        }, 0);
+      });
+
       return "";
     },
 
@@ -205,13 +306,13 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
 });
 
 // Tree zoom controls event handler using event delegation
-document.addEventListener('click', function(e) {
+document.addEventListener("click", function (e) {
   var target = e.target;
 
   // Check if clicked element is a zoom button
-  if (!target.classList.contains('tree-zoom-btn')) return;
+  if (!target.classList.contains("tree-zoom-btn")) return;
 
-  var cytoId = target.getAttribute('data-cyto-id');
+  var cytoId = target.getAttribute("data-cyto-id");
   if (!cytoId) return;
 
   // Find the cytoscape element
@@ -223,38 +324,38 @@ document.addEventListener('click', function(e) {
   var zoomFactor = 1.3;
   var newZoom;
 
-  if (target.classList.contains('tree-zoom-in')) {
+  if (target.classList.contains("tree-zoom-in")) {
     // Zoom in
     newZoom = Math.min(currentZoom * zoomFactor, cy.maxZoom());
     cy.zoom({
       level: newZoom,
-      renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 }
+      renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 },
     });
-  } else if (target.classList.contains('tree-zoom-out')) {
+  } else if (target.classList.contains("tree-zoom-out")) {
     // Zoom out
     newZoom = Math.max(currentZoom / zoomFactor, cy.minZoom());
     cy.zoom({
       level: newZoom,
-      renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 }
+      renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 },
     });
-  } else if (target.classList.contains('tree-zoom-reset')) {
+  } else if (target.classList.contains("tree-zoom-reset")) {
     // Reset zoom and pan to fit
     cy.fit(undefined, 20);
   }
 });
 
 // Download trigger buttons - click the hidden placeholder buttons
-document.addEventListener('click', function(e) {
-  var target = e.target.closest('.download-climatic-trigger');
+document.addEventListener("click", function (e) {
+  var target = e.target.closest(".download-climatic-trigger");
   if (target) {
-    var hiddenBtn = document.getElementById('download-btn-climatic');
+    var hiddenBtn = document.getElementById("download-btn-climatic");
     if (hiddenBtn) hiddenBtn.click();
     return;
   }
 
-  target = e.target.closest('.download-genetic-trigger');
+  target = e.target.closest(".download-genetic-trigger");
   if (target) {
-    var hiddenBtn = document.getElementById('download-btn-genetic');
+    var hiddenBtn = document.getElementById("download-btn-genetic");
     if (hiddenBtn) hiddenBtn.click();
     return;
   }
