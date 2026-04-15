@@ -165,6 +165,18 @@ EMAIL_PASSWORD='rogo lqhi fldu mwml'
 
 Make sure you are at the project root (iPhylogeo) and your virtual environment is activated.
 
+Open 2 terminals:
+
+1. Terminal A (database services):
+
+```bash
+docker compose up
+```
+
+2. Terminal B (application):
+
+`npm start` now launches the Dash app, Electron UI, asset watchers, and the RQ worker process.
+
 On Windows:
 
 ```bash

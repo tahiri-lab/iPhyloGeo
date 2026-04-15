@@ -130,7 +130,7 @@ if _IS_MAIN_PROCESS:
             # Interval for polling pipeline status globally
             dcc.Interval(
                 id="global-pipeline-interval",
-                interval=2000,
+                interval=1000,
                 n_intervals=0,
                 disabled=True,
             ),

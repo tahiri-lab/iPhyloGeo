@@ -35,6 +35,7 @@
     "description-email": "Entrez votre e-mail pour recevoir une notification lorsque vos résultats seront prêts.",
     "status": {
       "pending": "Traitement en cours...",
+      "finalizing": "Finalisation des résultats...",
       "complete": "Analyse terminée !",
       "error": "Une erreur est survenue"
     },

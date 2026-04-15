@@ -58,7 +58,7 @@ layout = html.Div(
         dcc.Store(id="popup-dismissed", data=False),
         dcc.Interval(
             id="pipeline-status-interval",
-            interval=2000,  # Poll every 2 seconds
+            interval=1000,  # Poll every 1 second
             n_intervals=0,
             disabled=True,  # Disabled by default
         ),
@@ -213,10 +213,13 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
     key = status_key_map.get(status.lower(), "upload.popup.status.pending")
     base_message = t(key, lang)
 
-    # Add time estimate to message
+    # Add ETA only while it is meaningful; avoid showing "0 sec" before completion.
     if estimated_time > 0 and elapsed_time >= 0:
-        remaining_time = max(0, estimated_time - elapsed_time)
-        message = f"{base_message} ({format_remaining_time(remaining_time, lang)})"
+        remaining_time = estimated_time - elapsed_time
+        if remaining_time > 0:
+            message = f"{base_message} ({format_remaining_time(remaining_time, lang)})"
+        else:
+            message = t("upload.popup.status.finalizing", lang)
     else:
         message = base_message
 
