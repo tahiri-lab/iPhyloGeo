@@ -504,6 +504,25 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
 
     try:
         aphylogeo_utils = _get_aphylogeo_utils()
+
+        # Pre-flight: validate that genetic tree leaf names match climatic
+        # specimen IDs.  A mismatch causes a cryptic ValueError inside
+        # leastSquare() when find_any() returns None.
+        if genetic_trees:
+            first_tree = next(iter(genetic_trees.values()))
+            genetic_leaf_names = {
+                t.name for t in first_tree.get_terminals() if t.name
+            }
+            climatic_ids = set(climatic_df.iloc[:, 0].astype(str).tolist())
+            missing = genetic_leaf_names - climatic_ids
+            if missing:
+                print(
+                    f"[Specimen ID mismatch] Genetic leaves not in climatic data: "
+                    f"{sorted(missing)}. "
+                    f"Climatic IDs: {sorted(climatic_ids)}"
+                )
+                raise ValueError("SPECIMEN_ID_MISMATCH")
+
         output_list = aphylogeo_utils.filterResults(
             climatic_trees, genetic_trees, climatic_df, create_file=False
         )
@@ -599,7 +618,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 "status": "error",
             }
         )
-        raise Exception("Error creating the output")
+        raise Exception(f"Error creating the output: {e}")
 
 
 def run_genetic_pipeline(result_id, climatic_data, genetic_data, climatic_trees):
