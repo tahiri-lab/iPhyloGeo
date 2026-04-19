@@ -92,7 +92,13 @@
   }
 }
 
-// Top action buttons row
+// Top action buttons row container
+#result-actions {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .result-actions {
   display: grid;
   grid-template-columns: 1fr 3fr 3fr;
@@ -227,6 +233,11 @@
       }
     }
   }
+}
+
+.genetic-header-actions {
+  display: flex;
+  gap: 8px;
 }
 
 // Collapsible utility class

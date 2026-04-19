@@ -1,8 +1,8 @@
 {
     "bootstrap_threshold": 10,
     "dist_threshold": 10000,
-    "window_size": 200,
-    "step_size": 100,
+    "window_size": 400,
+    "step_size": 200,
     "alignment_method": "PairwiseAlign",
     "distance_method": "LeastSquare",
     "fit_method": "WiderFit",
