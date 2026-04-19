@@ -22,18 +22,15 @@ import os
 import sys
 from pathlib import Path
 
-# ── Python path ───────────────────────────────────────────────────────────────
 # Must happen before any app imports so every module resolves under `apps/`.
 APPS_DIR = Path(__file__).parent / "apps"
 if str(APPS_DIR) not in sys.path:
     sys.path.insert(0, str(APPS_DIR))
 
-# ── Environment ───────────────────────────────────────────────────────────────
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# ── Worker ────────────────────────────────────────────────────────────────────
 from redis import Redis
 from rq import Queue
 from rq.worker import SimpleWorker, Worker
