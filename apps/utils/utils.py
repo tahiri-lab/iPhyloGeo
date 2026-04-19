@@ -466,6 +466,12 @@ def create_genetic_trees(result_id, msaSet, status="genetic_trees"):
         genetic_trees: a dictionary with the genetic trees
     """
     try:
+        # Workaround for aphylogeo Linux/macOS path bug:
+        # createTmpFasta()/fasttree() use cwd-relative "aphylogeo/bin/tmp".
+        # Upstream fix should resolve temp paths from the package location
+        # (e.g., Path(__file__).resolve().parent / "bin" / "tmp") and
+        # ensure that directory exists before write/read/cleanup.
+        os.makedirs(os.path.join("aphylogeo", "bin", "tmp"), exist_ok=True)
         genetic_trees = _get_aphylogeo_utils().geneticPipeline(msaSet)
         results_ctrl.update_result(
             {"_id": result_id, "genetic_trees": genetic_trees, "status": status}
