@@ -15,11 +15,6 @@ import time
 import warnings
 from pathlib import Path
 
-# Belt-and-suspenders: suppress Bio.Application deprecation warning in case
-# this module is imported directly (e.g. in tests) without going through the
-# app.py / worker.py entry points that set the filter first.
-warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
-
 import pandas as pd
 from redis import Redis
 from redis.exceptions import RedisError
@@ -40,6 +35,11 @@ try:
     PSUTIL_AVAILABLE = True
 except ImportError:
     PSUTIL_AVAILABLE = False
+
+# Belt-and-suspenders: suppress Bio.Application deprecation warning in case
+# this module is imported directly (e.g. in tests) without going through the
+# app.py / worker.py entry points that set the filter first.
+warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # apps/utils/background_tasks.py → project root is three levels up.

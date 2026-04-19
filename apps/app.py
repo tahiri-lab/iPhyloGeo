@@ -1,6 +1,4 @@
 import warnings
-warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
-
 import multiprocessing as _mp
 
 import dash
@@ -12,6 +10,8 @@ from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 from utils.i18n import LANGUAGE_LIST, t
 import utils.background_tasks as background_tasks
+
+warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
 
 # On Windows, ProcessPoolExecutor spawns workers by reimporting __main__ (this file).
 # Guard all Dash/Flask setup so workers skip it — they only need background_tasks.

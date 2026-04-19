@@ -69,8 +69,7 @@ def layout():
 
 def _build_layout(lang="en"):
     settings = _read_genetic_settings()
-    return html.Div(
-    [
+    return html.Div([
         dcc.Store(id="ready-for-pipeline", data=False),
         dcc.Store(id="pipeline-started", data=False),
         dcc.Store(id="popup-dismissed", data=False),
@@ -160,8 +159,7 @@ def _build_layout(lang="en"):
                 ),
             ],
         ),
-    ]
-)
+    ])
 
 
 # Callback to close popup when close button is clicked

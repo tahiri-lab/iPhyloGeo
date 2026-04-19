@@ -14,6 +14,7 @@ external_stylesheets = [
     }
 ]
 
+
 def layout():
     from flask import request
     lang = request.cookies.get("lang", "en")
