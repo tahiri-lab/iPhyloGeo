@@ -359,4 +359,18 @@ document.addEventListener("click", function (e) {
     if (hiddenBtn) hiddenBtn.click();
     return;
   }
+
+  target = e.target.closest(".download-genetic-json-trigger");
+  if (target) {
+    var hiddenBtn = document.getElementById("download-btn-genetic-json");
+    if (hiddenBtn) hiddenBtn.click();
+    return;
+  }
+
+  target = e.target.closest(".download-complete-trigger");
+  if (target) {
+    var hiddenBtn = document.getElementById("download-btn-complete");
+    if (hiddenBtn) hiddenBtn.click();
+    return;
+  }
 });

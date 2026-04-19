@@ -8,8 +8,10 @@
     "share": "share",
     "download-output": "download output.csv",
     "download-sequences": "download genetic sequences",
+    "download-alignment-json": "download alignment (.json)",
+    "download-genetic-trees-json": "download genetic trees (.json)",
     "download-climatic-trees": "download climatic trees",
-    "download-genetic-trees": "download genetic trees"
+    "download-genetic-trees": "download genetic trees (.newick)"
   },
   "sections": {
     "share-result": "Share result",
@@ -26,7 +28,6 @@
     "error": "Error sending email"
   },
   "table": {
-    "filter-placeholder": "Filter data...",
     "main-results-title": "Main Results",
     "statistical-tests-title": "Statistical Tests"
   },
@@ -42,6 +43,8 @@
     "genetic-downloaded": "Genetic trees downloaded!",
     "climatic-downloaded": "Climatic trees downloaded!",
     "sequences-downloaded": "Genetic sequences downloaded!",
+    "alignment-json-downloaded": "Alignment JSON downloaded!",
+    "genetic-trees-json-downloaded": "Genetic trees JSON downloaded!",
     "output-downloaded": "Output downloaded!"
   },
   "errors": {
