@@ -45,13 +45,18 @@ def get_layout(lang="en"):
                                     id="popup-status-message",
                                 ),
                                 html.Div(
-                                    t("upload.popup.description-email", lang),
-                                    className="description",
-                                ),
-                                create_email_input(
-                                    input_id="email-input",
-                                    placeholder=t("upload.email.placeholder", lang),
-                                    button_text=t("upload.email.send", lang),
+                                    [
+                                        html.Div(
+                                            t("upload.popup.description-email", lang),
+                                            className="description",
+                                        ),
+                                        create_email_input(
+                                            input_id="email-input",
+                                            placeholder=t("upload.email.placeholder", lang),
+                                            button_text=t("upload.email.send", lang),
+                                        ),
+                                    ],
+                                    id="popup-email-section",
                                 ),
                             ],
                             className="content",

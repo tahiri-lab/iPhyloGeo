@@ -21,7 +21,8 @@
     "name-required": "Vous devez donner un nom à votre jeu de données",
     "consent-required": "Vous devez confirmer votre préférence de stockage des données avant la soumission",
     "temporary-storage-unavailable": "Le stockage temporaire est indisponible pour le moment. Veuillez réessayer dans un instant.",
-    "submit-failed": "Impossible de terminer votre analyse. Veuillez réessayer."
+    "submit-failed": "Impossible de terminer votre analyse. Veuillez réessayer.",
+    "specimen-id-mismatch": "Les identifiants de spécimens de votre arbre génétique ne correspondent pas à ceux de vos données climatiques. Veuillez vous assurer que les deux fichiers font référence aux mêmes spécimens."
   },
   "email": {
     "invalid": "Adresse e-mail invalide",

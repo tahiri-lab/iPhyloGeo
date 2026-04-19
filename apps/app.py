@@ -506,15 +506,18 @@ if _IS_MAIN_PROCESS:
         Input("global-pipeline-interval", "n_intervals"),
         Input("global-pipeline-status", "data"),
         State("global-result-id", "data"),
+        State("language-store", "data"),
         prevent_initial_call=True,
     )
-    def update_global_progress_bar(n_intervals, pipeline_status, result_id):
+    def update_global_progress_bar(n_intervals, pipeline_status, result_id, language):
         """
         Update the global progress bar based on estimated time and elapsed time.
         """
 
         if not result_id or not pipeline_status:
             return "progress-bar hidden", {"width": "0%"}, True, dash.no_update
+
+        lang = language if language in LANGUAGE_LIST else "en"
 
         # Get current status from background tasks (includes progress based on time)
         status_info = background_tasks.get_task_status(result_id)
@@ -528,7 +531,9 @@ if _IS_MAIN_PROCESS:
             return "progress-bar hidden", {"width": "100%"}, True, dash.no_update
         elif status.lower() == "error":
             error_msg = status_info.get("error", "Unknown error")
-            return "progress-bar hidden", {"width": "0%"}, True, {"message": f"Pipeline error: {error_msg}", "type": "error"}
+            if "SPECIMEN_ID_MISMATCH" in error_msg:
+                error_msg = t("upload.errors.specimen-id-mismatch", lang)
+            return "progress-bar hidden", {"width": "0%"}, True, {"message": error_msg, "type": "error"}
         else:
             return "progress-bar", progress_style, False, dash.no_update
 

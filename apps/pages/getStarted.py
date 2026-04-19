@@ -190,6 +190,7 @@ def close_result_ready_popup(n_clicks):
     Output("popup", "className", allow_duplicate=True),
     Output("result-ready-popup", "className"),
     Output("popup-done-link", "href"),
+    Output("popup-email-section", "style"),
     Input("pipeline-status-interval", "n_intervals"),
     State("current-result-id", "data"),
     State("pipeline-started", "data"),
@@ -240,9 +241,12 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             "popup hidden",              # hide progress popup
             "popup",                     # show result-ready popup
             f"/result/{result_id}",      # popup-done-link href
+            {"display": "none"},         # hide email section
         )
     elif status.lower() == "error":
         error_msg = status_info.get("error", "Unknown error")
+        if "SPECIMEN_ID_MISMATCH" in error_msg:
+            error_msg = t("upload.errors.specimen-id-mismatch", lang)
         popup_class = "popup hidden" if popup_dismissed else "popup"
         return (
             t("upload.popup.error-prefix", lang) + error_msg,
@@ -253,6 +257,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             popup_class,
             "popup hidden",
             dash.no_update,  # popup-done-link href
+            {"display": "none"},  # hide email section
         )
     else:
         popup_class = "popup hidden" if popup_dismissed else "popup"
@@ -265,6 +270,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             popup_class,
             "popup hidden",
             dash.no_update,  # popup-done-link href
+            {"display": "block"},  # show email section
         )
 
 
@@ -885,8 +891,10 @@ def parse_uploaded_files(content, file_name, is_aligned=False, lang="en"):
                 # Save the fasta file (needed for aPhyloGeo Alignment)
                 with open("./temp/genetic_data.fasta", "w") as f:
                     f.write(fasta_file_string)
-        elif content_type == "data:application/json;base64":
-            # Assume that the user uploaded a JSON file (aligned genetic data)
+        elif content_type == "data:application/json;base64" or JSON_REGEX.fullmatch(file_name):
+            # JSON file — detected by MIME type or filename extension.
+            # Some browsers send .json as application/octet-stream, so the
+            # filename fallback prevents silent upload failures.
             results["type"] = "json"
             results["dataframe"] = decoded_content.decode("utf-8")
 
