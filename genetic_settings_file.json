@@ -3,7 +3,7 @@
     "dist_threshold": 10000,
     "window_size": 400,
     "step_size": 200,
-    "alignment_method": "MUSCLE",
+    "alignment_method": "PairwiseAlign",
     "distance_method": "LeastSquare",
     "fit_method": "WiderFit",
     "tree_type": "BioPython",

@@ -516,10 +516,12 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
             climatic_ids = set(climatic_df.iloc[:, 0].astype(str).tolist())
             missing = genetic_leaf_names - climatic_ids
             if missing:
+                sample = sorted(missing)[:5]
+                sample_str = ", ".join(sample) + (" …" if len(missing) > 5 else "")
                 print(
-                    f"[Specimen ID mismatch] Genetic leaves not in climatic data: "
-                    f"{sorted(missing)}. "
-                    f"Climatic IDs: {sorted(climatic_ids)}"
+                    f"[Specimen ID mismatch] {len(missing)} genetic leaf/leaves not in "
+                    f"climatic data (climatic total: {len(climatic_ids)}). "
+                    f"Sample: [{sample_str}]"
                 )
                 raise ValueError("SPECIMEN_ID_MISMATCH")
 
@@ -618,7 +620,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 "status": "error",
             }
         )
-        raise Exception(f"Error creating the output: {e}")
+        raise Exception(f"Error creating the output: {e}") from e
 
 
 def run_genetic_pipeline(result_id, climatic_data, genetic_data, climatic_trees):

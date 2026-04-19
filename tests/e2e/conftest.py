@@ -12,6 +12,9 @@ def dash_server():
     if not _wait_for_port("127.0.0.1", 27018, timeout=15):
         pytest.fail("MongoDB is required for e2e tests at localhost:27018")
 
+    if not _wait_for_port("127.0.0.1", 6379, timeout=5):
+        pytest.fail("Redis is required for e2e tests at localhost:6379")
+
     port = _find_free_port()
 
     env = os.environ.copy()
@@ -36,16 +39,27 @@ def dash_server():
         env=env,
     )
 
+    worker = subprocess.Popen(
+        [sys.executable, "worker.py"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env=env,
+    )
+
     base_url = f"http://127.0.0.1:{port}"
 
     if not _wait_for_port("127.0.0.1", port, timeout=45) or not _wait_for_http_ready(base_url, timeout=45):
         server.terminate()
+        worker.terminate()
         pytest.fail("Dash server did not start in time.")
 
     yield base_url
 
     server.terminate()
-    try:
-        server.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        server.kill()
+    worker.terminate()
+    for proc in (server, worker):
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()

@@ -1144,6 +1144,7 @@ def submit_button(
             genetic_tree_file=input_data["genetic_tree"]["file"],
             params_climatic=params_climatic,
             email=email,
+            lang=language if language in ("en", "fr") else "en",
         )
 
         return (

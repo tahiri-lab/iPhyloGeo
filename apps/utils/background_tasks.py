@@ -315,9 +315,7 @@ def get_task_status(result_id: str) -> dict:
         if "start_time" in meta and estimated_time > 0:
             elapsed_time = max(0.0, time.time() - float(meta["start_time"]))
             if status not in {"complete", "error"}:
-                # Pure linear time-based progress — no phase jumps, no easing.
-                # Phase floors are only a fallback when we have no timing data.
-                progress = max(progress, _time_based_progress(elapsed_time, estimated_time))
+                progress = max(progress, _time_based_progress(elapsed_time, estimated_time), phase_floor)
         else:
             progress = max(progress, phase_floor)
 
@@ -586,10 +584,7 @@ class ProgressCapture(io.TextIOBase):
         if e:
             record_step_elapsed(self.result_id, float(e.group(1)))
 
-        # Only forward lines that aren't repetitive aphylogeo stats noise.
-        if not self._NOISY_PATTERN.search(s):
-            return self.inner.write(s)
-        return len(s)
+        return self.inner.write(s)
 
     def flush(self):
         self.inner.flush()
@@ -603,6 +598,7 @@ def run_pipeline_async(
     genetic_tree_file: str = None,
     params_climatic: dict = None,
     email: str = None,
+    lang: str = "en",
 ):
     """
     Enqueue the phylogeo pipeline in RQ.
@@ -632,6 +628,7 @@ def run_pipeline_async(
         genetic_tree_file,
         params_climatic,
         email,
+        lang,
         job_id=str(result_id),
         job_timeout=7200,          # 2 h hard cap; avoids zombie jobs
         result_ttl=RQ_RESULT_TTL_SECONDS,
@@ -678,6 +675,7 @@ def run_pipeline_task(
     genetic_tree_file: str = None,
     params_climatic: dict = None,
     email: str = None,
+    lang: str = "en",
 ):
     """
     RQ worker function that executes the phylogeo pipeline.
@@ -806,7 +804,7 @@ def run_pipeline_task(
         if email:
             try:
                 results_url = f"/result/{result_id}"
-                mail.send_results_ready_email(email, results_url)
+                mail.send_results_ready_email(email, results_url, lang)
             except Exception as e:
                 print(f"[Warning] Could not send email: {e}")
 
