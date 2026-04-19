@@ -30,9 +30,19 @@ from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 from flask import request
 
+_SETTINGS_FILE_PATH = "genetic_settings_file.json"
+
 # Load genetic settings from genetic settings file (JSON)
-with open("genetic_settings_file.json", "r", encoding="utf-8") as genetic_settings_fp:
+with open(_SETTINGS_FILE_PATH, "r", encoding="utf-8") as genetic_settings_fp:
     genetic_setting_file = json.load(genetic_settings_fp)
+
+
+def _read_genetic_settings() -> dict:
+    try:
+        with open(_SETTINGS_FILE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return genetic_setting_file
 
 
 # Update Params for aPhyloGeo (convert readable names to codes)
@@ -58,6 +68,7 @@ def layout():
 
 
 def _build_layout(lang="en"):
+    settings = _read_genetic_settings()
     return html.Div(
     [
         dcc.Store(id="ready-for-pipeline", data=False),
@@ -105,26 +116,26 @@ def _build_layout(lang="en"):
         dcc.Store(
             id="params-genetic",
             data={
-                "window_size": genetic_setting_file["window_size"],
-                "step_size": genetic_setting_file["step_size"],
-                "bootstrap_threshold": genetic_setting_file["bootstrap_threshold"],
-                "dist_threshold": genetic_setting_file["dist_threshold"],
-                "alignment_method": genetic_setting_file["alignment_method"],
-                "distance_method": genetic_setting_file["distance_method"],
-                "fit_method": genetic_setting_file["fit_method"],
-                "tree_type": genetic_setting_file["tree_type"],
-                "rate_similarity": genetic_setting_file["rate_similarity"],
-                "method_similarity": genetic_setting_file["method_similarity"],
-                "preprocessing_genetic": genetic_setting_file.get("preprocessing_genetic", "Disabled"),
-                "preprocessing_climatic": genetic_setting_file.get("preprocessing_climatic", "Disabled"),
-                "preprocessing_threshold_genetic": genetic_setting_file.get("preprocessing_threshold_genetic", 0),
-                "preprocessing_threshold_climatic": genetic_setting_file.get("preprocessing_threshold_climatic", 0),
-                "correlation_climatic_enabled": genetic_setting_file.get("correlation_climatic_enabled", "Disabled"),
-                "correlation_threshold_climatic": genetic_setting_file.get("correlation_threshold_climatic", 1),
-                "permutations_mantel_test": genetic_setting_file.get("permutations_mantel_test", 999),
-                "permutations_protest": genetic_setting_file.get("permutations_protest", 999),
-                "mantel_test_method": genetic_setting_file.get("mantel_test_method", "Pearson"),
-                "statistical_test": genetic_setting_file.get("statistical_test", "Both"),
+                "window_size": settings["window_size"],
+                "step_size": settings["step_size"],
+                "bootstrap_threshold": settings["bootstrap_threshold"],
+                "dist_threshold": settings["dist_threshold"],
+                "alignment_method": settings["alignment_method"],
+                "distance_method": settings["distance_method"],
+                "fit_method": settings["fit_method"],
+                "tree_type": settings["tree_type"],
+                "rate_similarity": settings["rate_similarity"],
+                "method_similarity": settings["method_similarity"],
+                "preprocessing_genetic": settings.get("preprocessing_genetic", "Disabled"),
+                "preprocessing_climatic": settings.get("preprocessing_climatic", "Disabled"),
+                "preprocessing_threshold_genetic": settings.get("preprocessing_threshold_genetic", 0),
+                "preprocessing_threshold_climatic": settings.get("preprocessing_threshold_climatic", 0),
+                "correlation_climatic_enabled": settings.get("correlation_climatic_enabled", "Disabled"),
+                "correlation_threshold_climatic": settings.get("correlation_threshold_climatic", 1),
+                "permutations_mantel_test": settings.get("permutations_mantel_test", 999),
+                "permutations_protest": settings.get("permutations_protest", 999),
+                "mantel_test_method": settings.get("mantel_test_method", "Pearson"),
+                "statistical_test": settings.get("statistical_test", "Both"),
             },
         ),
         # Store to save email address entered in popup (memory = resets on page reload)
