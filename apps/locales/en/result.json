@@ -28,6 +28,7 @@
     "error": "Error sending email"
   },
   "table": {
+    "filter-placeholder": "Filter data...",
     "main-results-title": "Main Results",
     "statistical-tests-title": "Statistical Tests"
   },

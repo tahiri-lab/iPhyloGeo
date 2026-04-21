@@ -80,7 +80,32 @@ Si npm n'est pas installé, téléchargez Node.js ici : https://nodejs.org/ (ver
 npm install
 ```
 
-#### 7. 🐳 Démarrer la base de données avec Docker
+#### 7. 🧬 Installer les outils d'alignement externes (MUSCLE, ClustalW2, MAFFT, FastTree) (Optionnel, mias nécessaire pour que tout les paramètres fonctionnent)
+
+Ces binaires sont requis si vous choisissez la méthode d'alignement `MUSCLE`, `CLUSTALW` ou `MAFFT`, ou le type d'arbre `Fast Tree`. Ils **ne sont pas** inclus dans le paquet Python `aphylogeo`.
+
+Téléchargez les binaires Windows :
+
+- MUSCLE 5 : https://drive5.com/muscle/downloads_v5.htm → `muscle5.1.win64.exe`
+- ClustalW2 : http://www.clustal.org/clustal2/ → `clustalw2.exe`
+- MAFFT : https://mafft.cbrc.jp/alignment/software/windows.html → le dossier `mafft-win/`
+- FastTree : http://www.microbesonline.org/fasttree/#Install → `FastTree.exe`
+
+Sous Windows, `aphylogeo` résout ces chemins à partir du dossier d'installation du paquet. Placez donc les fichiers dans le `site-packages` de votre environnement virtuel :
+
+```
+venv\Lib\site-packages\aphylogeo\bin\
+├── muscle5.1.win64.exe
+├── clustalw2.exe
+├── mafft-win\
+│   └── mafft.bat
+├── FastTree.exe
+└── tmp\          ← doit exister (fichiers FASTA temporaires)
+```
+
+> ⚠️ Si le dossier `tmp\` est absent dans `site-packages\aphylogeo\bin\`, créez-le manuellement. FastTree et les helpers d'alignement y écrivent des fichiers FASTA temporaires et échoueraient sinon avec `FileNotFoundError`.
+
+#### 8. 🐳 Démarrer la base de données avec Docker
 
 Installez [Docker Desktop](https://docs.docker.com/get-docker/), ouvrez-le, puis lancez les conteneurs en arrière-plan :
 
@@ -124,7 +149,61 @@ pip install -r requirements.txt
 npm install
 ```
 
-#### 5. 🐳 Démarrer la base de données avec Docker
+#### 5. 🧬 Installer les outils d'alignement externes (MUSCLE, ClustalW2, MAFFT, FastTree) (Optionnel, mais nécessaire pour que tous les paramètres fonctionnent)
+
+Ces outils sont requis si vous choisissez la méthode d'alignement `MUSCLE`, `CLUSTALW` ou `MAFFT`, ou le type d'arbre `Fast Tree`. Ils **ne sont pas** inclus dans le paquet Python `aphylogeo`.
+
+**Option A — Installation système via `apt` (la plus simple, recommandée sous Linux)**
+
+```bash
+sudo apt install muscle clustalw mafft fasttree -y
+```
+
+Les binaires se retrouvent dans `/usr/bin/` (par ex. `/usr/bin/FastTree`, `/usr/bin/mafft`, …). Sur la plupart des configurations Linux, c'est suffisant pour exécuter le pipeline.
+
+> ℹ️ `aphylogeo` utilise en interne des chemins en dur du type `aphylogeo/bin/<binaire>` (relatifs au cwd sous Linux/macOS — voir la section [TODO](#todo)). Si vous rencontrez un `FileNotFoundError` ou `ApplicationError` indiquant un binaire manquant, passez à l'Option B ou créez des liens symboliques vers les binaires système :
+>
+> ```bash
+> mkdir -p aphylogeo/bin
+> ln -sf "$(command -v FastTree)"  aphylogeo/bin/FastTree
+> ln -sf "$(command -v muscle)"    aphylogeo/bin/muscle5.1.linux_intel64
+> ln -sf "$(command -v clustalw)"  aphylogeo/bin/clustalw2
+> mkdir -p aphylogeo/bin/mafft-linux64
+> ln -sf "$(command -v mafft)"     aphylogeo/bin/mafft-linux64/mafft.bat
+> ```
+
+**Option B — Binaires manuels dans `aphylogeo/bin/`**
+
+Téléchargez les binaires Linux :
+
+- MUSCLE 5 : https://drive5.com/muscle/downloads_v5.htm → `muscle5.1.linux_intel64`
+- ClustalW2 : http://www.clustal.org/clustal2/ → `clustalw2`
+- MAFFT : https://mafft.cbrc.jp/alignment/software/ → le dossier `mafft-linux64/`
+- FastTree : http://www.microbesonline.org/fasttree/#Install → `FastTree`
+
+Placez-les à la racine du projet iPhylogeo (`aphylogeo` résout ces chemins relativement au répertoire de travail courant) :
+
+```
+iPhylogeo/aphylogeo/bin/
+├── muscle5.1.linux_intel64
+├── clustalw2
+├── mafft-linux64/
+│   └── mafft.bat
+├── FastTree
+└── tmp/
+```
+
+Rendez les binaires exécutables :
+
+```bash
+chmod +x aphylogeo/bin/muscle5.1.linux_intel64 \
+         aphylogeo/bin/clustalw2 \
+         aphylogeo/bin/FastTree
+```
+
+> ℹ️ iPhylogeo crée déjà `aphylogeo/bin/tmp/` au démarrage du pipeline pour contourner un bug de chemin dans `aphylogeo`. Voir la section [TODO](#todo).
+
+#### 6. 🐳 Démarrer la base de données avec Docker
 
 Lancez les conteneurs en arrière-plan (ajoutez sudo si votre utilisateur n'est pas dans le groupe docker) :
 
@@ -282,3 +361,15 @@ Pour lancer un seul test :
 ```bash
 python -m pytest tests/unit/test_enums.py::test_get_code_returns_expected_code
 ```
+
+---
+
+## TODO
+
+Les points suivants sont des **problèmes en amont dans `aphylogeo`** qui impactent `iPhylogeo`. Ils doivent être signalés/corrigés dans `aphylogeo` lui-même — **ne pas** patcher le paquet installé localement, car ces modifications seraient perdues à la prochaine réinstallation.
+
+- **Faute de frappe sur la similarité Sørensen-Dice.** Dans `aphylogeo/alignement.py` (ligne 937), `td.sorencen(...)` devrait être `td.sorensen(...)`. En l'état, sélectionner la méthode `SorensenDice` lève `AttributeError: module 'textdistance' has no attribute 'sorencen'` et le job d'alignement génétique échoue. Contournement en attendant : éviter la méthode `SorensenDice` dans les paramètres d'iPhylogeo.
+- **`step_size` est ignoré.** Dans `slidingWindow()` (`aphylogeo/alignement.py` ligne 755), le pas de glissement est fixé à `Params.window_size` au lieu de `Params.step_size`. Modifier `step_size` depuis les paramètres d'iPhylogeo n'a donc actuellement aucun effet ; la largeur de la fenêtre est également utilisée comme pas. À corriger en amont.
+- **Bug de chemin `aphylogeo/bin/tmp` (Linux/macOS).** `createTmpFasta()`, `fasttree()` et les helpers MUSCLE/ClustalW utilisent le chemin relatif au cwd `aphylogeo/bin/tmp/` sous Linux/macOS, tandis que Windows utilise un chemin absolu dérivé de `__file__`. Le correctif amont consiste à résoudre les chemins temporaires depuis le dossier du paquet (par exemple `Path(__file__).resolve().parent / "bin" / "tmp"`) sur toutes les plateformes et à s'assurer que ce dossier existe avant toute écriture/lecture/nettoyage. Contournements actuels côté iPhylogeo (sans modifier `aphylogeo`) :
+  - Linux/macOS : iPhylogeo crée `./aphylogeo/bin/tmp/` au démarrage du pipeline dans `create_genetic_trees()` (`os.makedirs("aphylogeo/bin/tmp", exist_ok=True)`).
+  - Windows : le dossier `tmp\` dans `…\site-packages\aphylogeo\bin\` doit être créé manuellement une fois (voir l'étape d'installation Windows).
