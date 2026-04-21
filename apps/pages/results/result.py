@@ -110,6 +110,8 @@ layout = html.Div(
         # Hidden placeholder buttons for dynamic download buttons (suppress callback exceptions)
         html.Button(id="download-btn-genetic", style={"display": "none"}),
         html.Button(id="download-btn-climatic", style={"display": "none"}),
+        html.Button(id="download-btn-genetic-json", style={"display": "none"}),
+        html.Button(id="download-btn-complete", style={"display": "none"}),
         html.Div(id="dummy-share-result-output", className="hidden"),
         html.Div(id="dummy-table-collapse", className="hidden"),
         html.Div(id="dummy-climatic-collapse", className="hidden"),
@@ -165,17 +167,6 @@ layout = html.Div(
                                 ),
                                 html.Div(
                                     [
-                                        html.Span(t("result.actions.download-output", "en"), className="text", id="download-output-text"),
-                                        html.Img(
-                                            src="../../assets/icons/download.svg",
-                                            className="icon",
-                                        ),
-                                    ],
-                                    className="button download",
-                                    id="download-button-complete",
-                                ),
-                                html.Div(
-                                    [
                                         html.Span(t("result.actions.download-sequences", "en"), className="text", id="download-sequences-text"),
                                         html.Img(
                                             src="../../assets/icons/download.svg",
@@ -184,6 +175,17 @@ layout = html.Div(
                                     ],
                                     className="button download",
                                     id="download-button-aligned",
+                                ),
+                                html.Div(
+                                    [
+                                        html.Span(t("result.actions.download-alignment-json", "en"), className="text", id="download-alignment-json-text"),
+                                        html.Img(
+                                            src="../../assets/icons/download.svg",
+                                            className="icon",
+                                        ),
+                                    ],
+                                    className="button download",
+                                    id="download-button-alignment-json",
                                 ),
                             ],
                             className="result-actions",
@@ -447,8 +449,8 @@ def toggle_unavailable_result_view(path, _alive_tick, language):
 
 @callback(
     Output("share-action-text", "children"),
-    Output("download-output-text", "children"),
     Output("download-sequences-text", "children"),
+    Output("download-alignment-json-text", "children"),
     Output("email-section-card-content", "children"),
     Output("error-banner-title", "children"),
     Output("error-banner-description", "children"),
@@ -459,8 +461,8 @@ def update_result_static_text(language):
     lang = language if language in LANGUAGE_LIST else "en"
     return (
         t("result.actions.share", lang),
-        t("result.actions.download-output", lang),
         t("result.actions.download-sequences", lang),
+        t("result.actions.download-alignment-json", lang),
         create_email_section(lang),
         t("result.error.title", lang),
         t("result.error.description", lang),
@@ -512,7 +514,7 @@ def show_complete_results(path, generated_page, refresh_trigger, language):
             create_result_table_header(lang),  # Still return the header
             create_titled_result_table(
                 results_data,
-                t("result.table.main-results-title", lang),
+                "",
                 "datatable-main-results",
                 lang,
             ),
@@ -531,7 +533,7 @@ def show_complete_results(path, generated_page, refresh_trigger, language):
 
     main_results_table = create_titled_result_table(
         normal_results_data,
-        t("result.table.main-results-title", lang),
+        "",
         "datatable-main-results",
         lang,
     )
@@ -606,9 +608,11 @@ def create_climatic_trees(path, generated_results_header, is_dark_theme, refresh
     Output("toast-store", "data", allow_duplicate=True),
     State("url", "pathname"),
     Input("download-button-aligned", "n_clicks"),
-    Input("download-button-complete", "n_clicks"),
+    Input("download-btn-complete", "n_clicks"),
     Input("download-btn-genetic", "n_clicks"),
     Input("download-btn-climatic", "n_clicks"),
+    Input("download-button-alignment-json", "n_clicks"),
+    Input("download-btn-genetic-json", "n_clicks"),
     State("language-store", "data"),
     prevent_initial_call=True,
 )
@@ -618,6 +622,8 @@ def download_results(
     btn_complete,
     btn_genetic,
     btn_climatic,
+    btn_alignment_json,
+    btn_genetic_trees_json,
     language,
 ):
     lang = language if language in LANGUAGE_LIST else "en"
@@ -664,7 +670,35 @@ def download_results(
         return dict(
             content=data_msa, filename=result["name"] + "_msa.json"
         ), {"message": t("result.toast.sequences-downloaded", lang), "type": "success"}
-    if trigger_id == "download-button-complete" and btn_complete:
+    if trigger_id == "download-button-alignment-json" and btn_alignment_json:
+        if "msaSet" not in result:
+            raise dash.exceptions.PreventUpdate
+        # Convert stored [{fasta_per_seq}] format back to Alignment JSON so the
+        # file can be re-uploaded as pre-aligned data.
+        msa_windows = {}
+        for window, seqs in result["msaSet"].items():
+            if isinstance(seqs, list):
+                msa_windows[window] = "".join(seqs)
+            else:
+                msa_windows[window] = str(seqs)
+        alignment_json = json.dumps({
+            "type": "Alignment",
+            "alignment_method": "0",
+            "msa": msa_windows,
+        })
+        return dict(
+            content=alignment_json,
+            filename=result["name"] + "_alignment.json",
+        ), {"message": t("result.toast.alignment-json-downloaded", lang), "type": "success"}
+    if trigger_id == "download-btn-genetic-json" and btn_genetic_trees_json:
+        if "genetic_trees" not in result:
+            raise dash.exceptions.PreventUpdate
+        data_trees = json.dumps(result["genetic_trees"])
+        return dict(
+            content=data_trees,
+            filename=result["name"] + "_genetic_trees.json",
+        ), {"message": t("result.toast.genetic-trees-json-downloaded", lang), "type": "success"}
+    if trigger_id == "download-btn-complete" and btn_complete:
         if "output" not in result:
             raise dash.exceptions.PreventUpdate
         data_results = str_csv_to_df(result["output"])
@@ -739,21 +773,33 @@ def create_result_table_header(lang="en"):
     """
     return html.Div(
         [
-            html.Div(t("result.sections.results", lang), className="result-section-title"),
-            html.Img(
-                src="../../assets/icons/angle-down.svg",
-                id="results-table-collapse-button",
-                className="icon collapse-icon",
+            html.Div(
+                [
+                    html.Div(t("result.sections.results", lang), className="result-section-title"),
+                    html.Img(
+                        src="../../assets/icons/angle-down.svg",
+                        id="results-table-collapse-button",
+                        className="icon collapse-icon",
+                    ),
+                ],
+                className="result-section-header",
+            ),
+            html.Div(
+                [
+                    html.Span(t("result.actions.download-output", lang), className="text"),
+                    html.Img(src="../../assets/icons/download.svg", className="icon"),
+                ],
+                className="button download download-complete-trigger",
             ),
         ],
-        className="result-section-header",
+        className="result-section-header result-section-header--with-action",
     )
 
 
 def create_titled_result_table(data, title, table_id, lang="en"):
     return html.Div(
         [
-            html.Div(title, className="results-table-title"),
+            *([] if not title else [html.Div(title, className="results-table-title")]),
             html.Div(
                 [
                     dash_table.DataTable(
@@ -963,12 +1009,22 @@ def create_genetic_trees_header(lang="en"):
             ),
             html.Div(
                 [
-                    html.Span(t("result.actions.download-genetic-trees", lang), className="text"),
-                    html.Img(
-                        src="../../assets/icons/download.svg", className="icon"
+                    html.Div(
+                        [
+                            html.Span(t("result.actions.download-genetic-trees", lang), className="text"),
+                            html.Img(src="../../assets/icons/download.svg", className="icon"),
+                        ],
+                        className="button download download-genetic-trigger",
+                    ),
+                    html.Div(
+                        [
+                            html.Span(t("result.actions.download-genetic-trees-json", lang), className="text"),
+                            html.Img(src="../../assets/icons/download.svg", className="icon"),
+                        ],
+                        className="button download download-genetic-json-trigger",
                     ),
                 ],
-                className="button download download-genetic-trigger",
+                className="genetic-header-actions",
             ),
         ],
         className="result-section-header result-section-header--with-action",

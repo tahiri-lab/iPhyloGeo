@@ -17,6 +17,7 @@ Flask-PyMongo==2.3.0
 aphylogeo==2.0.0
 flake8>=7.0.0
 redis==5.2.1
+rq==1.16.2
 pytest==7.4.4
 pytest-cov==4.1.0
 pytest-playwright>=0.5.0

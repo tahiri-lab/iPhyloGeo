@@ -21,7 +21,8 @@
     "name-required": "You need to give a name to your dataset",
     "consent-required": "You must confirm your data storage preference before submitting",
     "temporary-storage-unavailable": "Temporary storage is unavailable right now. Please try again in a moment.",
-    "submit-failed": "Could not complete your analysis. Please try again."
+    "submit-failed": "Could not complete your analysis. Please try again.",
+    "specimen-id-mismatch": "The specimen IDs in your genetic tree do not match the IDs in your climatic data. Please ensure both files refer to the same specimens."
   },
   "email": {
     "invalid": "Invalid email address",
@@ -35,6 +36,7 @@
     "description-email": "Enter your email to receive a notification once your results are ready.",
     "status": {
       "pending": "Processing...",
+      "finalizing": "Finalizing results...",
       "complete": "Analysis complete!",
       "error": "An error occurred"
     },

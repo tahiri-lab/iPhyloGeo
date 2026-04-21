@@ -57,9 +57,15 @@ PERMUTATIONS_PROTEST_DEFAULT = 999
 MANTEL_TEST_METHOD_DEFAULT = MantelTestMethod.PEARSON.value
 STATISTICAL_TEST_DEFAULT = StatisticalTest.BOTH.value
 
-# Load the genetic settings file
-with open("genetic_settings_file.json", "r") as file:
-    genetic_settings_file = json.load(file)
+SETTINGS_FILE_PATH = "genetic_settings_file.json"
+
+
+def _read_settings() -> dict:
+    try:
+        with open(SETTINGS_FILE_PATH, "r") as f:
+            return json.load(f)
+    except Exception:
+        return get_default_settings()
 
 
 def get_alignment_method_options(lang="en"):
@@ -133,11 +139,12 @@ def get_mantel_method_options(lang="en"):
 
 
 def get_layout(lang="en"):
+    settings = _read_settings()
     return html.Div(
         className="page-container",
         children=[
             dcc.Store(
-                id="genetic-settings", storage_type="session", data=genetic_settings_file
+                id="genetic-settings", storage_type="session", data=settings
             ),
             html.Div(t("setting.title", lang), className="title"),
             html.Div(
@@ -153,7 +160,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="bootstrap-threshold",
                                     type="number",
-                                    value=genetic_settings_file["bootstrap_threshold"],
+                                    value=settings["bootstrap_threshold"],
                                 ),
                             ),
                             create_field(
@@ -161,7 +168,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="distance-threshold",
                                     type="number",
-                                    value=genetic_settings_file["dist_threshold"],
+                                    value=settings["dist_threshold"],
                                 ),
                             ),
                             create_field(
@@ -169,7 +176,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="input-window-size",
                                     type="number",
-                                    value=genetic_settings_file["window_size"],
+                                    value=settings["window_size"],
                                 ),
                             ),
                             create_field(
@@ -177,7 +184,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="input-step-size",
                                     type="number",
-                                    value=genetic_settings_file["step_size"],
+                                    value=settings["step_size"],
                                 ),
                             ),
                             create_field(
@@ -185,7 +192,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="rate-similarity",
                                     type="number",
-                                    value=genetic_settings_file["rate_similarity"],
+                                    value=settings["rate_similarity"],
                                 ),
                             ),
                         ],
@@ -201,7 +208,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="alignment-method",
                                     options=get_alignment_method_options(lang),
-                                    value=ALIGNMENT_METHOD_DEFAULT,
+                                    value=settings.get("alignment_method", ALIGNMENT_METHOD_DEFAULT),
                                     clearable=False,
                                     className="pointer-dropdown",
                                 ),
@@ -211,7 +218,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="distance-method",
                                     options=get_distance_method_options(lang),
-                                    value=DISTANCE_METHOD_DEFAULT,
+                                    value=settings.get("distance_method", DISTANCE_METHOD_DEFAULT),
                                     clearable=False,
                                     className="pointer-dropdown",
                                 ),
@@ -221,7 +228,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="fit-method",
                                     options=get_fit_method_options(lang),
-                                    value=FIT_METHOD_DEFAULT,
+                                    value=settings.get("fit_method", FIT_METHOD_DEFAULT),
                                     optionHeight=50,
                                     clearable=False,
                                     className="pointer-dropdown",
@@ -240,7 +247,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="tree-type",
                                     options=get_tree_type_options(lang),
-                                    value=TREE_TYPE_DEFAULT,
+                                    value=settings.get("tree_type", TREE_TYPE_DEFAULT),
                                     clearable=False,
                                     className="pointer-dropdown",
                                 ),
@@ -250,7 +257,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="method-similarity",
                                     options=get_similarity_method_options(lang),
-                                    value=METHOD_SIMILARITY_DEFAULT,
+                                    value=settings.get("method_similarity", METHOD_SIMILARITY_DEFAULT),
                                     clearable=False,
                                     className="pointer-dropdown",
                                 ),
@@ -268,7 +275,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="preprocessing-genetic",
                                     options=get_preprocessing_toggle_options(lang),
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "preprocessing_genetic",
                                         PREPROCESSING_GENETIC_DEFAULT,
                                     ),
@@ -282,7 +289,7 @@ def get_layout(lang="en"):
                                     id="preprocessing-threshold-genetic",
                                     type="number",
                                     step=0.01,
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "preprocessing_threshold_genetic",
                                         PREPROCESSING_THRESHOLD_GENETIC_DEFAULT,
                                     ),
@@ -293,7 +300,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="preprocessing-climatic",
                                     options=get_preprocessing_toggle_options(lang),
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "preprocessing_climatic",
                                         PREPROCESSING_CLIMATIC_DEFAULT,
                                     ),
@@ -307,7 +314,7 @@ def get_layout(lang="en"):
                                     id="preprocessing-threshold-climatic",
                                     type="number",
                                     step=0.01,
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "preprocessing_threshold_climatic",
                                         PREPROCESSING_THRESHOLD_CLIMATIC_DEFAULT,
                                     ),
@@ -318,7 +325,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="correlation-climatic-enabled",
                                     options=get_preprocessing_toggle_options(lang),
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "correlation_climatic_enabled",
                                         CORRELATION_CLIMATIC_ENABLED_DEFAULT,
                                     ),
@@ -332,7 +339,7 @@ def get_layout(lang="en"):
                                     id="max-correlation-climatic",
                                     type="number",
                                     step=0.01,
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "correlation_threshold_climatic",
                                         CORRELATION_THRESHOLD_CLIMATIC_DEFAULT,
                                     ),
@@ -351,7 +358,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="statistical-test",
                                     options=get_statistical_test_options(lang),
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "statistical_test",
                                         STATISTICAL_TEST_DEFAULT,
                                     ),
@@ -364,7 +371,7 @@ def get_layout(lang="en"):
                                 dcc.Dropdown(
                                     id="mantel-test-method",
                                     options=get_mantel_method_options(lang),
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "mantel_test_method",
                                         MANTEL_TEST_METHOD_DEFAULT,
                                     ),
@@ -377,7 +384,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="permutations-mantel-test",
                                     type="number",
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "permutations_mantel_test",
                                         PERMUTATIONS_MANTEL_TEST_DEFAULT,
                                     ),
@@ -388,7 +395,7 @@ def get_layout(lang="en"):
                                 dcc.Input(
                                     id="permutations-protest",
                                     type="number",
-                                    value=genetic_settings_file.get(
+                                    value=settings.get(
                                         "permutations_protest",
                                         PERMUTATIONS_PROTEST_DEFAULT,
                                     ),
@@ -421,7 +428,10 @@ def get_layout(lang="en"):
     )
 
 
-layout = html.Div(id="settings-page-content", children=get_layout())
+def layout():
+    from flask import request
+    lang = request.cookies.get("lang", "en")
+    return html.Div(id="settings-page-content", children=get_layout(lang))
 
 
 @callback(Output("settings-page-content", "children"), Input("language-store", "data"))

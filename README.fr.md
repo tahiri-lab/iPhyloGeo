@@ -165,6 +165,18 @@ EMAIL_PASSWORD='rogo lqhi fldu mwml'
 
 Assurez-vous d'être à la racine du projet (iPhylogeo) et que votre environnement virtuel est activé.
 
+Ouvrez 2 terminaux :
+
+1. Terminal A (services de base de données) :
+
+```bash
+docker compose up
+```
+
+2. Terminal B (application) :
+
+`npm start` lance maintenant l'application Dash, l'interface Electron, les watchers d'assets et le worker RQ.
+
 Sur Windows :
 
 ```bash

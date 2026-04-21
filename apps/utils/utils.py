@@ -466,6 +466,12 @@ def create_genetic_trees(result_id, msaSet, status="genetic_trees"):
         genetic_trees: a dictionary with the genetic trees
     """
     try:
+        # Workaround for aphylogeo Linux/macOS path bug:
+        # createTmpFasta()/fasttree() use cwd-relative "aphylogeo/bin/tmp".
+        # Upstream fix should resolve temp paths from the package location
+        # (e.g., Path(__file__).resolve().parent / "bin" / "tmp") and
+        # ensure that directory exists before write/read/cleanup.
+        os.makedirs(os.path.join("aphylogeo", "bin", "tmp"), exist_ok=True)
         genetic_trees = _get_aphylogeo_utils().geneticPipeline(msaSet)
         results_ctrl.update_result(
             {"_id": result_id, "genetic_trees": genetic_trees, "status": status}
@@ -504,6 +510,27 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
 
     try:
         aphylogeo_utils = _get_aphylogeo_utils()
+
+        # Pre-flight: validate that genetic tree leaf names match climatic
+        # specimen IDs.  A mismatch causes a cryptic ValueError inside
+        # leastSquare() when find_any() returns None.
+        if genetic_trees:
+            first_tree = next(iter(genetic_trees.values()))
+            genetic_leaf_names = {
+                t.name for t in first_tree.get_terminals() if t.name
+            }
+            climatic_ids = set(climatic_df.iloc[:, 0].astype(str).tolist())
+            missing = genetic_leaf_names - climatic_ids
+            if missing:
+                sample = sorted(missing)[:5]
+                sample_str = ", ".join(sample) + (" …" if len(missing) > 5 else "")
+                print(
+                    f"[Specimen ID mismatch] {len(missing)} genetic leaf/leaves not in "
+                    f"climatic data (climatic total: {len(climatic_ids)}). "
+                    f"Sample: [{sample_str}]"
+                )
+                raise ValueError("SPECIMEN_ID_MISMATCH")
+
         output_list = aphylogeo_utils.filterResults(
             climatic_trees, genetic_trees, climatic_df, create_file=False
         )
@@ -599,7 +626,7 @@ def create_output(result_id, climatic_trees, genetic_trees, climatic_df):
                 "status": "error",
             }
         )
-        raise Exception("Error creating the output")
+        raise Exception(f"Error creating the output: {e}") from e
 
 
 def run_genetic_pipeline(result_id, climatic_data, genetic_data, climatic_trees):

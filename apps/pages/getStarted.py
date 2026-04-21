@@ -30,9 +30,19 @@ from dash import Input, Output, State, callback, ctx, dcc, html
 from dash.exceptions import PreventUpdate
 from flask import request
 
+_SETTINGS_FILE_PATH = "genetic_settings_file.json"
+
 # Load genetic settings from genetic settings file (JSON)
-with open("genetic_settings_file.json", "r", encoding="utf-8") as genetic_settings_fp:
+with open(_SETTINGS_FILE_PATH, "r", encoding="utf-8") as genetic_settings_fp:
     genetic_setting_file = json.load(genetic_settings_fp)
+
+
+def _read_genetic_settings() -> dict:
+    try:
+        with open(_SETTINGS_FILE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return genetic_setting_file
 
 
 # Update Params for aPhyloGeo (convert readable names to codes)
@@ -51,14 +61,21 @@ FASTA_REGEX = re.compile(r".*\.fasta$")
 JSON_REGEX = re.compile(r".*\.json")
 
 
-layout = html.Div(
-    [
+def layout():
+    from flask import request
+    _lang = request.cookies.get("lang", "en")
+    return _build_layout(_lang)
+
+
+def _build_layout(lang="en"):
+    settings = _read_genetic_settings()
+    return html.Div([
         dcc.Store(id="ready-for-pipeline", data=False),
         dcc.Store(id="pipeline-started", data=False),
         dcc.Store(id="popup-dismissed", data=False),
         dcc.Interval(
             id="pipeline-status-interval",
-            interval=2000,  # Poll every 2 seconds
+            interval=1000,  # Poll every 1 second
             n_intervals=0,
             disabled=True,  # Disabled by default
         ),
@@ -98,26 +115,26 @@ layout = html.Div(
         dcc.Store(
             id="params-genetic",
             data={
-                "window_size": genetic_setting_file["window_size"],
-                "step_size": genetic_setting_file["step_size"],
-                "bootstrap_threshold": genetic_setting_file["bootstrap_threshold"],
-                "dist_threshold": genetic_setting_file["dist_threshold"],
-                "alignment_method": genetic_setting_file["alignment_method"],
-                "distance_method": genetic_setting_file["distance_method"],
-                "fit_method": genetic_setting_file["fit_method"],
-                "tree_type": genetic_setting_file["tree_type"],
-                "rate_similarity": genetic_setting_file["rate_similarity"],
-                "method_similarity": genetic_setting_file["method_similarity"],
-                "preprocessing_genetic": genetic_setting_file.get("preprocessing_genetic", "Disabled"),
-                "preprocessing_climatic": genetic_setting_file.get("preprocessing_climatic", "Disabled"),
-                "preprocessing_threshold_genetic": genetic_setting_file.get("preprocessing_threshold_genetic", 0),
-                "preprocessing_threshold_climatic": genetic_setting_file.get("preprocessing_threshold_climatic", 0),
-                "correlation_climatic_enabled": genetic_setting_file.get("correlation_climatic_enabled", "Disabled"),
-                "correlation_threshold_climatic": genetic_setting_file.get("correlation_threshold_climatic", 1),
-                "permutations_mantel_test": genetic_setting_file.get("permutations_mantel_test", 999),
-                "permutations_protest": genetic_setting_file.get("permutations_protest", 999),
-                "mantel_test_method": genetic_setting_file.get("mantel_test_method", "Pearson"),
-                "statistical_test": genetic_setting_file.get("statistical_test", "Both"),
+                "window_size": settings["window_size"],
+                "step_size": settings["step_size"],
+                "bootstrap_threshold": settings["bootstrap_threshold"],
+                "dist_threshold": settings["dist_threshold"],
+                "alignment_method": settings["alignment_method"],
+                "distance_method": settings["distance_method"],
+                "fit_method": settings["fit_method"],
+                "tree_type": settings["tree_type"],
+                "rate_similarity": settings["rate_similarity"],
+                "method_similarity": settings["method_similarity"],
+                "preprocessing_genetic": settings.get("preprocessing_genetic", "Disabled"),
+                "preprocessing_climatic": settings.get("preprocessing_climatic", "Disabled"),
+                "preprocessing_threshold_genetic": settings.get("preprocessing_threshold_genetic", 0),
+                "preprocessing_threshold_climatic": settings.get("preprocessing_threshold_climatic", 0),
+                "correlation_climatic_enabled": settings.get("correlation_climatic_enabled", "Disabled"),
+                "correlation_threshold_climatic": settings.get("correlation_threshold_climatic", 1),
+                "permutations_mantel_test": settings.get("permutations_mantel_test", 999),
+                "permutations_protest": settings.get("permutations_protest", 999),
+                "mantel_test_method": settings.get("mantel_test_method", "Pearson"),
+                "statistical_test": settings.get("statistical_test", "Both"),
             },
         ),
         # Store to save email address entered in popup (memory = resets on page reload)
@@ -129,9 +146,9 @@ layout = html.Div(
         html.Div(
             className="get-started",
             children=[
-                html.Div(id="popup-container", children=[popup.get_layout("en")]),
-                html.Div(id="popup-done-container", children=[result_ready_popup.get_layout("en")]),
-                html.Div(id="drop-file-section-container", children=[dropFileSection.get_layout("en")]),
+                html.Div(id="popup-container", children=[popup.get_layout(lang)]),
+                html.Div(id="popup-done-container", children=[result_ready_popup.get_layout(lang)]),
+                html.Div(id="drop-file-section-container", children=[dropFileSection.get_layout(lang)]),
                 html.Div(
                     [
                         html.Div(id="climatic-params-layout"),
@@ -142,8 +159,7 @@ layout = html.Div(
                 ),
             ],
         ),
-    ]
-)
+    ])
 
 
 # Callback to close popup when close button is clicked
@@ -183,6 +199,7 @@ def close_result_ready_popup(n_clicks):
     Output("popup", "className", allow_duplicate=True),
     Output("result-ready-popup", "className"),
     Output("popup-done-link", "href"),
+    Output("popup-email-section", "style"),
     Input("pipeline-status-interval", "n_intervals"),
     State("current-result-id", "data"),
     State("pipeline-started", "data"),
@@ -213,10 +230,13 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
     key = status_key_map.get(status.lower(), "upload.popup.status.pending")
     base_message = t(key, lang)
 
-    # Add time estimate to message
+    # Add ETA only while it is meaningful; avoid showing "0 sec" before completion.
     if estimated_time > 0 and elapsed_time >= 0:
-        remaining_time = max(0, estimated_time - elapsed_time)
-        message = f"{base_message} ({format_remaining_time(remaining_time, lang)})"
+        remaining_time = estimated_time - elapsed_time
+        if remaining_time > 0:
+            message = f"{base_message} ({format_remaining_time(remaining_time, lang)})"
+        else:
+            message = t("upload.popup.status.finalizing", lang)
     else:
         message = base_message
 
@@ -230,9 +250,12 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             "popup hidden",              # hide progress popup
             "popup",                     # show result-ready popup
             f"/result/{result_id}",      # popup-done-link href
+            {"display": "none"},         # hide email section
         )
     elif status.lower() == "error":
         error_msg = status_info.get("error", "Unknown error")
+        if "SPECIMEN_ID_MISMATCH" in error_msg:
+            error_msg = t("upload.errors.specimen-id-mismatch", lang)
         popup_class = "popup hidden" if popup_dismissed else "popup"
         return (
             t("upload.popup.error-prefix", lang) + error_msg,
@@ -243,6 +266,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             popup_class,
             "popup hidden",
             dash.no_update,  # popup-done-link href
+            {"display": "none"},  # hide email section
         )
     else:
         popup_class = "popup hidden" if popup_dismissed else "popup"
@@ -255,6 +279,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
             popup_class,
             "popup hidden",
             dash.no_update,  # popup-done-link href
+            {"display": "block"},  # show email section
         )
 
 
@@ -267,7 +292,7 @@ def poll_pipeline_status(n_intervals, result_id, pipeline_started, popup_dismiss
     Output("submit-button", "children", allow_duplicate=True),
     Input("language-store", "data"),
     State("input-data", "data"),
-    prevent_initial_call=True,
+    prevent_initial_call='initial_duplicate',
 )
 def update_drop_file_section_language(language, input_data):
     lang = language if language in LANGUAGE_LIST else "en"
@@ -875,8 +900,10 @@ def parse_uploaded_files(content, file_name, is_aligned=False, lang="en"):
                 # Save the fasta file (needed for aPhyloGeo Alignment)
                 with open("./temp/genetic_data.fasta", "w") as f:
                     f.write(fasta_file_string)
-        elif content_type == "data:application/json;base64":
-            # Assume that the user uploaded a JSON file (aligned genetic data)
+        elif content_type == "data:application/json;base64" or JSON_REGEX.fullmatch(file_name):
+            # JSON file — detected by MIME type or filename extension.
+            # Some browsers send .json as application/octet-stream, so the
+            # filename fallback prevents silent upload failures.
             results["type"] = "json"
             results["dataframe"] = decoded_content.decode("utf-8")
 
@@ -1117,6 +1144,7 @@ def submit_button(
             genetic_tree_file=input_data["genetic_tree"]["file"],
             params_climatic=params_climatic,
             email=email,
+            lang=language if language in ("en", "fr") else "en",
         )
 
         return (

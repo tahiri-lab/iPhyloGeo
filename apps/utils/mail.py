@@ -8,11 +8,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from assets.logo_base64 import LOGO_BASE64
+from pathlib import Path
 from dotenv import dotenv_values
 from utils.i18n import t
 
 # Load environment configuration
-ENV_CONFIG = dotenv_values()
+_ENV_PATH = Path(__file__).resolve().parents[2] / ".env"
+ENV_CONFIG = dotenv_values(_ENV_PATH)
 EMAIL_USER = ENV_CONFIG.get("EMAIL_USER", "iphylogeo@gmail.com")
 EMAIL_PASSWORD = ENV_CONFIG.get("EMAIL_PASSWORD", "rogo lqhi fldu mwml")
 

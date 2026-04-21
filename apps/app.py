@@ -1,3 +1,4 @@
+import warnings
 import multiprocessing as _mp
 
 import dash
@@ -9,6 +10,8 @@ from dotenv import dotenv_values, load_dotenv
 from flask import Flask
 from utils.i18n import LANGUAGE_LIST, t
 import utils.background_tasks as background_tasks
+
+warnings.filterwarnings("ignore", message=r"The Bio\.Application modules")
 
 # On Windows, ProcessPoolExecutor spawns workers by reimporting __main__ (this file).
 # Guard all Dash/Flask setup so workers skip it — they only need background_tasks.
@@ -130,7 +133,7 @@ if _IS_MAIN_PROCESS:
             # Interval for polling pipeline status globally
             dcc.Interval(
                 id="global-pipeline-interval",
-                interval=2000,
+                interval=1000,
                 n_intervals=0,
                 disabled=True,
             ),
@@ -346,6 +349,25 @@ if _IS_MAIN_PROCESS:
         prevent_initial_call=True,
     )
 
+    app.clientside_callback(
+        """
+        function(language) {
+            var pageContent = document.querySelector('.page-content');
+            if (!pageContent) return '';
+            pageContent.style.transition = 'none';
+            pageContent.style.opacity = '0';
+            setTimeout(function() {
+                pageContent.style.transition = 'opacity 0.12s ease-in';
+                pageContent.style.opacity = '1';
+            }, 120);
+            return '';
+        }
+        """,
+        Output("dummy-output", "children", allow_duplicate=True),
+        Input("language-store", "data"),
+        prevent_initial_call=True,
+    )
+
     @app.callback(
         Output("theme-store", "data"),
         Output("theme-switch-output", "children"),
@@ -373,6 +395,9 @@ if _IS_MAIN_PROCESS:
     )
     def update_language(selected_language):
         if selected_language in ["en", "fr"]:
+            response = dash.callback_context.response
+            if response:
+                response.set_cookie("lang", selected_language, max_age=365 * 24 * 3600)
             return selected_language
         return "en"
 
@@ -481,15 +506,18 @@ if _IS_MAIN_PROCESS:
         Input("global-pipeline-interval", "n_intervals"),
         Input("global-pipeline-status", "data"),
         State("global-result-id", "data"),
+        State("language-store", "data"),
         prevent_initial_call=True,
     )
-    def update_global_progress_bar(n_intervals, pipeline_status, result_id):
+    def update_global_progress_bar(n_intervals, pipeline_status, result_id, language):
         """
         Update the global progress bar based on estimated time and elapsed time.
         """
 
         if not result_id or not pipeline_status:
             return "progress-bar hidden", {"width": "0%"}, True, dash.no_update
+
+        lang = language if language in LANGUAGE_LIST else "en"
 
         # Get current status from background tasks (includes progress based on time)
         status_info = background_tasks.get_task_status(result_id)
@@ -503,7 +531,9 @@ if _IS_MAIN_PROCESS:
             return "progress-bar hidden", {"width": "100%"}, True, dash.no_update
         elif status.lower() == "error":
             error_msg = status_info.get("error", "Unknown error")
-            return "progress-bar hidden", {"width": "0%"}, True, {"message": f"Pipeline error: {error_msg}", "type": "error"}
+            if "SPECIMEN_ID_MISMATCH" in error_msg:
+                error_msg = t("upload.errors.specimen-id-mismatch", lang)
+            return "progress-bar hidden", {"width": "0%"}, True, {"message": error_msg, "type": "error"}
         else:
             return "progress-bar", progress_style, False, dash.no_update
 

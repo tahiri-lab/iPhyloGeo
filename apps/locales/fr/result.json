@@ -8,8 +8,10 @@
     "share": "partager",
     "download-output": "télécharger output.csv",
     "download-sequences": "télécharger les séquences génétiques",
+    "download-alignment-json": "télécharger l'alignement (.json)",
+    "download-genetic-trees-json": "télécharger les arbres génétiques (.json)",
     "download-climatic-trees": "télécharger les arbres climatiques",
-    "download-genetic-trees": "télécharger les arbres génétiques"
+    "download-genetic-trees": "télécharger les arbres génétiques (.newick)"
   },
   "sections": {
     "share-result": "Partager le résultat",
@@ -42,6 +44,8 @@
     "genetic-downloaded": "Arbres génétiques téléchargés !",
     "climatic-downloaded": "Arbres climatiques téléchargés !",
     "sequences-downloaded": "Séquences génétiques téléchargées !",
+    "alignment-json-downloaded": "Alignement JSON téléchargé !",
+    "genetic-trees-json-downloaded": "Arbres génétiques JSON téléchargés !",
     "output-downloaded": "Résultats téléchargés !"
   },
   "errors": {

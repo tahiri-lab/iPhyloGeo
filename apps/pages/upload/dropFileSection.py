@@ -345,6 +345,6 @@ clientside_callback(
     Output("output-file-drop-position-next", "children"),
     Input("next-button", "n_clicks"),
     Input("upload-test-data", "n_clicks"),
-    Input("params-sections", "id"),
+    State("params-sections", "id"),
     prevent_initial_call=True,
 )
